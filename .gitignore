@@ -1,0 +1,9 @@
+### Website
+/meta.html
+/ribbon.html
+/sign.html
+
+### Harp
+_site
+.sass-cache
+.jekyll-metadata

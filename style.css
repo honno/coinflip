@@ -1,0 +1,122 @@
+/* Variables */
+/* Mixins */
+.text {
+  font-size: 9px;
+  font-family: "Lucida Console", monospace;
+  line-height: 9px;
+}
+/* General definitions */
+body {
+  height: 100%;
+  margin: 0;
+  background: #1f1f1f;
+  color: #8f8f8f;
+  font-size: 9px;
+  font-family: "Lucida Console", monospace;
+  line-height: 9px;
+}
+pre {
+  font-size: 9px;
+  font-family: "Lucida Console", monospace;
+  line-height: 9px;
+}
+pre::selection {
+  background: #1c1c1c;
+}
+::selection {
+  background: #1c1c1c;
+}
+ul {
+  margin: 0px;
+  padding: 0px;
+}
+li {
+  display: inline-block;
+}
+li:before {
+  content: '\00a0\2022\00a0';
+}
+li:first-child:before {
+  content: '';
+}
+a:link {
+  color: #dcdccc;
+  text-decoration: none;
+}
+a:visited {
+  color: #dcdccc;
+  text-decoration: none;
+}
+a:hover {
+  color: #dcdccc;
+  text-decoration: underline;
+}
+a:active {
+  color: #dcdccc;
+  text-decoration: underline;
+}
+/* Section definitions */
+header {
+  position: absolute;
+  top: 0;
+  padding: 1em;
+}
+header h1 {
+  display: inline;
+  font-size: 9px;
+  font-family: "Lucida Console", monospace;
+  line-height: 9px;
+  color: #dcdccc;
+}
+main {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+main > pre {
+  text-align: center;
+}
+main > pre span.border {
+  color: #8f8f8f;
+}
+main > pre span.plate {
+  color: #ffff87;
+}
+main > pre span.exclaim {
+  color: #4e4e4e;
+  text-shadow: -0.25px 0 #4e4e4e, 0.25px 0 #4e4e4e;
+}
+main > #message > #err {
+  color: #af0000;
+}
+main > #message > #name {
+  color: #af5fff;
+}
+main > #message > #msg {
+  color: #dcdccc;
+}
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto;
+}
+footer > div {
+  padding: 1em;
+}
+footer > #left a#twitter {
+  background: #005f87;
+}
+footer > #left a#github {
+  background: #005f00;
+}
+footer > #left a#email {
+  background: #800000;
+}
+footer > #right {
+  text-align: right;
+}
