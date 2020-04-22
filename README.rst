@@ -19,7 +19,7 @@ Overview
     :target: https://readthedocs.org/projects/prng
     :alt: Documentation Status
 
-.. |travis| image:: https://api.travis-ci.org/Honno/prng.svg?branch=master
+.. |travis| image:: https://api.travis-ci.com/Honno/prng.svg?branch=master
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/Honno/prng
 
