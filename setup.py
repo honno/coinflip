@@ -28,7 +28,7 @@ setup(
     use_scm_version={
         'local_scheme': 'dirty-tag',
         'write_to': 'src/prng/_version.py',
-        'fallback_version': '0.1.0',
+        'fallback_version': '0.1.1',
     },
     description='Generated with cookiecutter-pylibrary.',
     long_description='%s\n%s' % (
