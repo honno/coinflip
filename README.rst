@@ -51,10 +51,6 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/prng
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/Honno/prng/v0.1.0.svg
-    :alt: Commits since latest release
-    :target: https://github.com/Honno/prng/compare/v0.1.0...master
-
 
 
 .. end-badges
