@@ -75,6 +75,7 @@ setup(
     install_requires=[
         'click',
         'toml',
+        'numpy',
     ],
     test_requires=[
         'pyfakefs',
