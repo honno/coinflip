@@ -64,23 +64,17 @@ setup(
         'Topic :: Utilities',
     ],
     project_urls={
-        # 'Documentation': 'https://prng.readthedocs.io/',
-        # 'Changelog': 'https://prng.readthedocs.io/en/latest/changelog.html',
+        'Documentation': 'https://prng.readthedocs.io/',
+        'Changelog': 'https://prng.readthedocs.io/en/latest/changelog.html',
         'Issue Tracker': 'https://github.com/Honno/prng/issues',
     },
     keywords=[
-        # eg: 'keyword1', 'keyword2', 'keyword3',
+        # TODO eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
     install_requires=[
         'click',
-        # eg: 'aspectlib==1.1.1', 'six>=1.7',
     ],
-    extras_require={
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
-    },
     setup_requires=[
         'setuptools_scm>=3.3.1',
     ],
