@@ -86,3 +86,16 @@ def load(data, spec, overwrite=False):
 def manifest_keys():
     with open_manifest() as manifest:
         return manifest.keys()
+
+
+class ManifestError(KeyError):
+    pass
+
+
+def path(store_name):
+    with open_manifest() as manifest:
+        try:
+            path = manifest[store_name]
+            return path
+        except KeyError:
+            raise ManifestError()
