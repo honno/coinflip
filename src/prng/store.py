@@ -80,7 +80,7 @@ def load(data, spec, overwrite=False):
     pickle.dump(array, open(data_path, "wb"))
 
     with open_manifest(write=True) as manifest:
-        manifest["store_name"] = data_path
+        manifest[store_name] = data_path
 
 
 def manifest_keys():
