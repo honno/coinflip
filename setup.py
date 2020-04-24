@@ -76,8 +76,11 @@ setup(
         'click',
         'toml',
         'numpy',
+        'appdirs',
+        'slugify',
     ],
     test_requires=[
+        'pytest',
         'pyfakefs',
     ],
     setup_requires=[
