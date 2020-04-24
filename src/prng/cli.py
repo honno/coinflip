@@ -1,23 +1,23 @@
-"""
-Module that contains the command line app.
-
-Why does this file exist, and why not put this in __main__?
-
-  You might be tempted to import things from __main__ later, but that will cause
-  problems: the code will get executed twice:
-
-  - When you run `python -m prng` python will execute
-    ``__main__.py`` as a script. That means there won't be any
-    ``prng.__main__`` in ``sys.modules``.
-  - When you import __main__ it will get executed again (as a module) because
-    there's no ``prng.__main__`` in ``sys.modules``.
-
-  Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
-"""
 import click
 
+from prng.store import load as load_
+from prng.store import manifest_keys
 
-@click.command()
-@click.argument('names', nargs=-1)
-def main(names):
-    click.echo(repr(names))
+
+@click.group()
+def main():
+    pass
+
+
+@main.command()
+@click.argument("data", type=click.File("r"))
+@click.argument("spec", type=click.File("r"))
+@click.option("-o", "--overwrite", is_flag=True)
+def load(data, spec, overwrite=False):
+    load_(data, spec, overwrite)
+
+
+@main.command()
+def ls():
+    for store_name in manifest_keys():
+        click.echo(store_name)
