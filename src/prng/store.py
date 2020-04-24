@@ -9,7 +9,7 @@ from appdirs import AppDirs
 from click import echo
 from slugify import slugify
 
-__all__ = ["load", "manifest_keys"]
+__all__ = ["load", "manifest_keys", "open_data"]
 
 r_newlines = re.compile("\r\n?|\n")
 
@@ -92,10 +92,20 @@ class ManifestError(KeyError):
     pass
 
 
-def path(store_name):
+def data_path(store_name):
     with open_manifest() as manifest:
         try:
             path = manifest[store_name]
             return path
         except KeyError:
             raise ManifestError()
+
+
+@contextmanager
+def open_data(store_name):
+    path = data_path(store_name)
+
+    with open(path, "rb") as f:
+        data = pickle.load(f)
+
+        yield data
