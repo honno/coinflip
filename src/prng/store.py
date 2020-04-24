@@ -9,7 +9,7 @@ from appdirs import AppDirs
 from click import echo
 from slugify import slugify
 
-__all__ = ["store", "manifest_keys"]
+__all__ = ["load", "manifest_keys"]
 
 r_newlines = re.compile("\r\n?|\n")
 
@@ -54,7 +54,7 @@ def escape_newlines(lines):
         yield re.sub(r_newlines, "", line)
 
 
-def store(data, spec, overwrite=False):
+def load(data, spec, overwrite=False):
     spec = toml.load(spec)
 
     store_name = slugify(spec["name"])

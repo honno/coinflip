@@ -1,7 +1,7 @@
 import click
 
+from prng.store import load as load_
 from prng.store import manifest_keys
-from prng.store import store
 
 
 @click.group()
@@ -13,8 +13,8 @@ def main():
 @click.argument("data", type=click.File("r"))
 @click.argument("spec", type=click.File("r"))
 @click.option("-o", "--overwrite", is_flag=True)
-def serialize(data, spec, overwrite=False):
-    store(data, spec, overwrite)
+def load(data, spec, overwrite=False):
+    load_(data, spec, overwrite)
 
 
 @main.command()
