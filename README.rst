@@ -14,7 +14,6 @@ Overview
         | |codecov|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
-        | |commits-since|
 .. |docs| image:: https://readthedocs.org/projects/prng/badge/?style=flat
     :target: https://readthedocs.org/projects/prng
     :alt: Documentation Status
