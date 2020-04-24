@@ -34,7 +34,7 @@ class DataStoreExistsError(FileExistsError):
 
 
 @contextmanager
-def open_manifest():
+def open_manifest(write=False):
     if not manifest_path.exists():
         manifest = {}
     else:
@@ -44,9 +44,12 @@ def open_manifest():
             except EOFError:
                 manifest = {}
 
-    with open(manifest_path, "wb") as f:
+    if not write:
         yield manifest
-        pickle.dump(manifest, f)
+    else:
+        with open(manifest_path, "wb") as f:
+            yield manifest
+            pickle.dump(manifest, f)
 
 
 def escape_newlines(lines):
@@ -76,7 +79,7 @@ def load(data, spec, overwrite=False):
     data_path = store_path / DATA_FNAME
     pickle.dump(array, open(data_path, "wb"))
 
-    with open_manifest() as manifest:
+    with open_manifest(write=True) as manifest:
         manifest["store_name"] = data_path
 
 
