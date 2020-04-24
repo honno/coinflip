@@ -77,7 +77,7 @@ setup(
         'toml',
         'numpy',
         'appdirs',
-        'slugify',
+        'python-slugify',
     ],
     test_requires=[
         'pytest',
