@@ -109,3 +109,19 @@ def open_data(store_name):
         data = pickle.load(f)
 
         yield data
+
+
+def rm_tree(path):
+    """Credit to https://stackoverflow.com/a/58183834/5193926"""
+    for child in path.glob("*"):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    path.rmdir()
+
+
+def drop(store_name):
+    store_path = data_dir / store_name
+
+    rm_tree(store_path)
