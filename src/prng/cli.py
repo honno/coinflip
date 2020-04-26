@@ -17,6 +17,12 @@ def load(data, spec, overwrite=False):
 
 
 @main.command()
+@click.argument("store_name", type=str)
+def rm(store_name):
+    store.drop(store_name)
+
+
+@main.command()
 def ls():
     for store_name in store.manifest_keys():
         click.echo(store_name)
@@ -25,6 +31,5 @@ def ls():
 @main.command()
 @click.argument("store_name", type=str)
 def cat(store_name):
-    with store.open_data(store_name) as data:
-        for x in data:
-            click.echo(x)
+    with store.open_data(store_name) as df:
+        click.echo(df)

@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import toml
 from appdirs import AppDirs
 from click import echo
@@ -14,9 +15,9 @@ __all__ = ["load", "manifest_keys", "open_data"]
 r_newlines = re.compile("\r\n?|\n")
 
 MANIFEST_FNAME = "manifest.pickle"
-DATA_FNAME = "data.pickle"
+DATA_FNAME = "dataframe.pickle"
 
-TYPES_MAP = {"float": np.single}
+TYPES_MAP = {"float": np.single, "int": np.intc}
 
 dirs = AppDirs("prng")
 data_dir = Path(dirs.user_data_dir)
@@ -52,11 +53,6 @@ def open_manifest(write=False):
             pickle.dump(manifest, f)
 
 
-def escape_newlines(lines):
-    for line in lines:
-        yield re.sub(r_newlines, "", line)
-
-
 def load(data, spec, overwrite=False):
     spec = toml.load(spec)
 
@@ -70,14 +66,16 @@ def load(data, spec, overwrite=False):
         raise DataStoreExistsError()
     echo(f"Created store cache at {store_path}")
 
-    dtype = TYPES_MAP[spec["type"]]
-    array = escape_newlines(data.readlines())
-    array = np.array(list(array), dtype=dtype)
+    df = pd.read_csv(data, header=None)
+
+    dtype = TYPES_MAP[spec["dtype"]]
+    df = df.astype(dtype)
 
     # TODO profile stuff i.e. for profile in spec.profiles
 
     data_path = store_path / DATA_FNAME
-    pickle.dump(array, open(data_path, "wb"))
+    pickle.dump(df, open(data_path, "wb"))
+    # TODO dump spec
 
     with open_manifest(write=True) as manifest:
         manifest[store_name] = data_path
