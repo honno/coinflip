@@ -1,6 +1,7 @@
 import click
 
 import prng.store as store
+from prng.runner import run_tests
 
 
 @click.group()
@@ -33,3 +34,10 @@ def ls():
 def cat(store_name):
     with store.open_data(store_name) as df:
         click.echo(df)
+
+
+@main.command()
+@click.argument("store_name", type=str)
+def run(store_name):
+    with store.open_data(store_name) as df:
+        run_tests(df)
