@@ -78,6 +78,7 @@ setup(
         'numpy',
         'appdirs',
         'python-slugify',
+        'pandas',
     ],
     test_requires=[
         'pytest',

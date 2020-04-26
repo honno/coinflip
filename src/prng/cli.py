@@ -1,36 +1,43 @@
-from click import File
-from click import argument
-from click import echo
-from click import group
-from click import option
+import click
 
-from prng.store import load as load_
-from prng.store import manifest_keys
-from prng.store import open_data
+import prng.store as store
+from prng.runner import run_tests
 
 
-@group()
+@click.group()
 def main():
     pass
 
 
 @main.command()
-@argument("data", type=File("r"))
-@argument("spec", type=File("r"))
-@option("-o", "--overwrite", is_flag=True)
+@click.argument("data", type=click.File("r"))
+@click.argument("spec", type=click.File("r"))
+@click.option("-o", "--overwrite", is_flag=True)
 def load(data, spec, overwrite=False):
-    load_(data, spec, overwrite)
+    store.load(data, spec, overwrite)
+
+
+@main.command()
+@click.argument("store_name", type=str)
+def rm(store_name):
+    store.drop(store_name)
 
 
 @main.command()
 def ls():
-    for store_name in manifest_keys():
-        echo(store_name)
+    for store_name in store.manifest_keys():
+        click.echo(store_name)
 
 
 @main.command()
-@argument("store_name", type=str)
+@click.argument("store_name", type=str)
 def cat(store_name):
-    with open_data(store_name) as data:
-        for x in data:
-            echo(x)
+    with store.open_data(store_name) as df:
+        click.echo(df)
+
+
+@main.command()
+@click.argument("store_name", type=str)
+def run(store_name):
+    with store.open_data(store_name) as df:
+        run_tests(df)
