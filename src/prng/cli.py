@@ -41,3 +41,12 @@ def cat(store_name):
 def run(store_name):
     with store.open_data(store_name) as df:
         run_tests(df)
+
+
+@main.command()
+@click.argument("data", type=click.File("r"))
+@click.argument("spec", type=click.File("r"))
+def local_run(data, spec):
+    df, spec = store.prepare(data, spec)
+
+    run_tests(df)

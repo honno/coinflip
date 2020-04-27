@@ -10,7 +10,7 @@ from appdirs import AppDirs
 from click import echo
 from slugify import slugify
 
-__all__ = ["load", "manifest_keys", "open_data"]
+__all__ = ["prepare", "load", "manifest_keys", "open_data"]
 
 r_newlines = re.compile("\r\n?|\n")
 
@@ -53,8 +53,19 @@ def open_manifest(write=False):
             pickle.dump(manifest, f)
 
 
-def load(data, spec, overwrite=False):
+def prepare(data, spec):
     spec = toml.load(spec)
+
+    df = pd.read_csv(data, header=None)
+
+    dtype = TYPES_MAP[spec["dtype"]]
+    df = df.astype(dtype)
+
+    return df, spec
+
+
+def load(data, spec, overwrite=False):
+    df, spec = prepare(data, spec)
 
     store_name = slugify(spec["name"])
     echo(f"Store name encoded as {store_name}")
@@ -65,11 +76,6 @@ def load(data, spec, overwrite=False):
     except FileExistsError:
         raise DataStoreExistsError()
     echo(f"Created store cache at {store_path}")
-
-    df = pd.read_csv(data, header=None)
-
-    dtype = TYPES_MAP[spec["dtype"]]
-    df = df.astype(dtype)
 
     # TODO profile stuff i.e. for profile in spec.profiles
 
