@@ -1,5 +1,4 @@
 import pickle
-import re
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -11,8 +10,6 @@ from click import echo
 from slugify import slugify
 
 __all__ = ["prepare", "load", "manifest_keys", "open_data"]
-
-r_newlines = re.compile("\r\n?|\n")
 
 MANIFEST_FNAME = "manifest.pickle"
 DATA_FNAME = "dataframe.pickle"
