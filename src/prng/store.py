@@ -9,10 +9,20 @@ from appdirs import AppDirs
 from click import echo
 from slugify import slugify
 
-__all__ = ["prepare", "load", "manifest_keys", "open_data"]
+__all__ = [
+    "MANIFEST_FNAME",
+    "DATA_FNAME",
+    "PROFILES_FNAME",
+    "parse",
+    "spec_profiles",
+    "load",
+    "manifest_keys",
+    "open_data",
+]
 
 MANIFEST_FNAME = "manifest.pickle"
 DATA_FNAME = "dataframe.pickle"
+PROFILES_FNAME = "profiles.pickle"
 
 TYPES_MAP = {"float": np.single, "int": np.intc}
 
@@ -50,10 +60,10 @@ def open_manifest(write=False):
             pickle.dump(manifest, f)
 
 
-def prepare(data, spec):
-    spec = toml.load(spec)
+def parse(datafile, specfile):
+    spec = toml.load(specfile)
 
-    df = pd.read_csv(data, header=None)
+    df = pd.read_csv(datafile, header=None)
 
     dtype = TYPES_MAP[spec["dtype"]]
     df = df.astype(dtype)
@@ -61,27 +71,53 @@ def prepare(data, spec):
     return df, spec
 
 
-def load(data, spec, overwrite=False):
-    df, spec = prepare(data, spec)
+def spec_profiles(spec):
+    defaults = {}
+    profiles = []
+
+    for key, value in spec.items():
+        if type(value) is dict:
+            profile = value
+            profile["name"] = key
+            profiles.append(profile)
+        else:
+            defaults[key] = value
+
+    if len(profiles) == 0:
+        profiles.append(defaults)
+    else:
+        for profile in profiles:
+            for key, value in defaults.items():
+                if key not in profile:
+                    profile[key] = value
+
+    return profiles
+
+
+def load(datafile, specfile, overwrite=False):
+    df, spec = parse(datafile, specfile)
 
     store_name = slugify(spec["name"])
     echo(f"Store name encoded as {store_name}")
+    # TODO if name not specified, use timestamp
 
     store_path = data_dir / store_name
     try:
         Path.mkdir(store_path, exist_ok=overwrite)
+        echo(f"Created store cache at {store_path}")
     except FileExistsError:
         raise DataStoreExistsError()
-    echo(f"Created store cache at {store_path}")
-
-    # TODO profile stuff i.e. for profile in spec.profiles
 
     data_path = store_path / DATA_FNAME
     pickle.dump(df, open(data_path, "wb"))
-    # TODO dump spec
+
+    profiles = spec_profiles(spec)
+    profiles_path = store_path / PROFILES_FNAME
+    pickle.dump(profiles, open(profiles_path, "wb"))
 
     with open_manifest(write=True) as manifest:
-        manifest[store_name] = data_path
+
+        manifest[store_name] = store_path
 
 
 def manifest_keys():
@@ -93,7 +129,7 @@ class ManifestError(KeyError):
     pass
 
 
-def data_path(store_name):
+def store_path(store_name):
     with open_manifest() as manifest:
         try:
             path = manifest[store_name]
@@ -104,9 +140,19 @@ def data_path(store_name):
 
 @contextmanager
 def open_data(store_name):
-    path = data_path(store_name)
+    path = store_path(store_name)
 
-    with open(path, "rb") as f:
+    with open(path / DATA_FNAME, "rb") as f:
+        data = pickle.load(f)
+
+        yield data
+
+
+@contextmanager
+def open_profiles(store_name):
+    path = store_path(store_name)
+
+    with open(path / PROFILES_FNAME, "rb") as f:
         data = pickle.load(f)
 
         yield data

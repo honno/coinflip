@@ -4,7 +4,7 @@ from click.testing import CliRunner
 from prng.cli import local_run
 
 
-def nums2csv(table):
+def table2csv(table):
     lines = []
     for nums in table:
         line = ",".join(str(x) for x in nums)
@@ -13,24 +13,36 @@ def nums2csv(table):
     return "\n".join(lines)
 
 
-def test_localrun(fs):
+def localrun(fs, table, specdict):
     data = fs.create_file("data.csv")
-    data_str = nums2csv([[0, 1, 2, 3, 4],
-                         [1, 2, 3, 4, 5],
-                         [2, 3, 4, 5, 6],
-                         [3, 4, 5, 6, 7],
-                         [4, 5, 6, 7, 8],
-                         [5, 6, 7, 8, 9]])
-    data.set_contents(data_str)
+    datastr = table2csv(table)
+    data.set_contents(datastr)
 
     spec = fs.create_file("spec.toml")
-    spec_dict = {
-        "dtype": "int"
-    }
-    spec_str = toml.dumps(spec_dict)
-    spec.set_contents(spec_str)
+    specstr = toml.dumps(specdict)
+    spec.set_contents(specstr)
 
-    runner = CliRunner()
-    result = runner.invoke(local_run, data.path, spec.path)
+    result = CliRunner().invoke(local_run, [data.path, spec.path])
+
+    return result
+
+
+fourbyfour = [[0, 1], [2, 3]]
+
+
+def test_table_noprofiles(fs):
+    specdict = {"dtype": "int", "concat": "columns"}
+    result = localrun(fs, fourbyfour, specdict)
+
+    assert result.exit_code == 0
+
+
+def test_table_profiles(fs):
+    specdict = {
+        "dtype": "int",
+        "by-col": {"concat": "columns"},
+        "by-row": {"concat": "rows"},
+    }
+    result = localrun(fs, fourbyfour, specdict)
 
     assert result.exit_code == 0

@@ -1,4 +1,3 @@
-
 from click.testing import CliRunner
 
 from prng.cli import main

@@ -44,9 +44,10 @@ def run(store_name):
 
 
 @main.command()
-@click.argument("data", type=click.File("r"))
-@click.argument("spec", type=click.File("r"))
-def local_run(data, spec):
-    df, spec = store.prepare(data, spec)
+@click.argument("datafile", type=click.File("r"))
+@click.argument("specfile", type=click.File("r"))
+def local_run(datafile, specfile):
+    df, spec = store.parse(datafile, specfile)
+    profiles = store.spec_profiles(spec)
 
-    run_tests(df)
+    run_tests(df, profiles)
