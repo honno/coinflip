@@ -11,17 +11,15 @@ from click import echo
 from slugify import slugify
 
 __all__ = [
-    "MANIFEST_FNAME",
     "DATA_FNAME",
     "PROFILES_FNAME",
+    "data_dir",
     "parse",
     "spec_profiles",
     "load",
-    "manifest_keys",
-    "open_data",
+    "open_data"
 ]
 
-MANIFEST_FNAME = "manifest.pickle"
 DATA_FNAME = "dataframe.pickle"
 PROFILES_FNAME = "profiles.pickle"
 
@@ -29,7 +27,6 @@ TYPES_MAP = {"float": np.single, "int": np.intc}
 
 dirs = AppDirs("prng")
 data_dir = Path(dirs.user_data_dir)
-manifest_path = data_dir / MANIFEST_FNAME
 
 try:
     Path.mkdir(data_dir)
@@ -40,25 +37,6 @@ except FileExistsError:
 
 class DataStoreExistsError(FileExistsError):
     pass
-
-
-@contextmanager
-def open_manifest(write=False):
-    if not manifest_path.exists():
-        manifest = {}
-    else:
-        with open(manifest_path, "rb") as f:
-            try:
-                manifest = pickle.load(f)
-            except EOFError:
-                manifest = {}
-
-    if not write:
-        yield manifest
-    else:
-        with open(manifest_path, "wb") as f:
-            yield manifest
-            pickle.dump(manifest, f)
 
 
 def parse(datafile, specfile):
@@ -119,33 +97,10 @@ def load(datafile, specfile, overwrite=False):
     profiles_path = store_path / PROFILES_FNAME
     pickle.dump(profiles, open(profiles_path, "wb"))
 
-    with open_manifest(write=True) as manifest:
-        # TODO remove manifests and just use filesystem
-
-        manifest[store_name] = store_path
-
-
-def manifest_keys():
-    with open_manifest() as manifest:
-        return manifest.keys()
-
-
-class ManifestError(KeyError):
-    pass
-
-
-def store_path(store_name):
-    with open_manifest() as manifest:
-        try:
-            path = manifest[store_name]
-            return path
-        except KeyError:
-            raise ManifestError()
-
 
 @contextmanager
 def open_data(store_name):
-    path = store_path(store_name)
+    path = data_dir / store_name
 
     with open(path / DATA_FNAME, "rb") as f:
         data = pickle.load(f)
@@ -155,7 +110,7 @@ def open_data(store_name):
 
 @contextmanager
 def open_profiles(store_name):
-    path = store_path(store_name)
+    path = data_dir / store_name
 
     with open(path / PROFILES_FNAME, "rb") as f:
         data = pickle.load(f)
