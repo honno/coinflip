@@ -109,7 +109,6 @@ def load(datafile, specfile, overwrite=False):
     store_path = data_dir / store_name
     try:
         Path.mkdir(store_path, exist_ok=overwrite)
-        echo(f"Created store cache at {store_path}")
     except FileExistsError:
         raise DataStoreExistsError()
 
