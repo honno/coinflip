@@ -1,5 +1,6 @@
 import pickle
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -97,9 +98,13 @@ def spec_profiles(spec):
 def load(datafile, specfile, overwrite=False):
     df, spec = parse(datafile, specfile)
 
-    store_name = slugify(spec["name"])
+    try:
+        store_name = slugify(spec["name"])
+    except KeyError:
+        timestamp = datetime.now().astimezone()
+        store_name = timestamp.strftime("%Y%m%dT%H%M%S")
+        # TODO check storename is valid
     echo(f"Store name encoded as {store_name}")
-    # TODO if name not specified, use timestamp
 
     store_path = data_dir / store_name
     try:
@@ -116,6 +121,7 @@ def load(datafile, specfile, overwrite=False):
     pickle.dump(profiles, open(profiles_path, "wb"))
 
     with open_manifest(write=True) as manifest:
+        # TODO remove manifests and just use filesystem
 
         manifest[store_name] = store_path
 
