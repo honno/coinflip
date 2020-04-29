@@ -83,8 +83,8 @@ def load(datafile, specfile, overwrite=False):
     try:
         store_name = slugify(spec["name"])
     except KeyError:
-        timestamp = datetime.now().astimezone()
-        store_name = timestamp.strftime("%Y%m%dT%H%M%S")
+        timestamp = datetime.now()
+        store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
         # TODO check storename is valid
     echo(f"Store name encoded as {store_name}")
 
