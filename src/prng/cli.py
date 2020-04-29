@@ -45,8 +45,8 @@ def cat(store_name):
 @main.command()
 @click.argument("store_name", type=str)
 def run(store_name):
-    with store.open_data(store_name) as df:
-        run_tests(df)
+    for series in store.get_profiled_data(store_name):
+        run_tests(series)
 
 
 @main.command()
@@ -54,6 +54,8 @@ def run(store_name):
 @click.argument("specfile", type=click.File("r"))
 def local_run(datafile, specfile):
     df, spec = store.parse(datafile, specfile)
-    profiles = store.spec_profiles(spec)
+    profiles = store.spec2profiles(spec)
 
-    run_tests(df, profiles)
+    for profile in profiles:
+        series = store.profile_df(profile, df)
+        run_tests(series)
