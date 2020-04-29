@@ -1,6 +1,7 @@
 import pickle
 from contextlib import contextmanager
 from datetime import datetime
+from os import scandir
 from pathlib import Path
 
 import numpy as np
@@ -17,7 +18,7 @@ __all__ = [
     "parse",
     "spec_profiles",
     "load",
-    "open_data"
+    "open_data",
 ]
 
 DATA_FNAME = "dataframe.pickle"
@@ -53,6 +54,9 @@ def parse(datafile, specfile):
 def spec_profiles(spec):
     defaults = {}
     profiles = []
+
+    # TODO single col
+    # TODO autogen single col profiles
 
     for key, value in spec.items():
         if type(value) is dict:
@@ -132,3 +136,9 @@ def drop(store_name):
     store_path = data_dir / store_name
 
     rm_tree(store_path)
+
+
+def ls_stores():
+    for f in scandir(data_dir):
+        if f.is_dir():
+            yield f.name

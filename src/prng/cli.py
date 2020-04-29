@@ -1,5 +1,3 @@
-from os import scandir
-
 import click
 
 import prng.store as store
@@ -26,10 +24,15 @@ def rm(store_name):
 
 
 @main.command()
+def clear():
+    for store_name in store.ls_stores():
+        store.drop(store_name)
+
+
+@main.command()
 def ls():
-    subfolders = (f for f in scandir(store.data_dir) if f.is_dir())
-    for f in subfolders:
-        click.echo(f.name)
+    for store_name in store.ls_stores():
+        click.echo(store_name)
 
 
 @main.command()
