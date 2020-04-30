@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import toml
 from appdirs import AppDirs
 from click import echo
 from slugify import slugify
@@ -16,7 +15,6 @@ __all__ = [
     "PROFILED_DATA_FNAME",
     "data_dir",
     "parse",
-    "spec2profiles",
     "load",
     "get_data",
     "get_profiled_data",
@@ -28,7 +26,15 @@ DATA_FNAME = "dataframe.pickle"
 PROFILES_FNAME = "profiles.pickle"
 PROFILED_DATA_FNAME = "series.pickle"
 
-TYPES_MAP = {"float": np.single, "int": np.intc}
+TYPES_MAP = {
+    "bool": np.bool_,
+    "byte": np.byte,
+    "short": np.int16,
+    "int": np.int32,
+    "long": np.int64,
+    "float": np.float32,
+    "double": np.float64,
+}
 
 dirs = AppDirs("prng")
 data_dir = Path(dirs.user_data_dir)
@@ -40,104 +46,80 @@ except FileExistsError:
     pass
 
 
-class DataStoreExistsError(FileExistsError):
+class StoreExistsError(FileExistsError):
     pass
 
 
-def parse(datafile, specfile):
-    spec = toml.load(specfile)
+def parse(data_file, dtype=None):
+    df = pd.read_csv(data_file, header=None)
 
-    df = pd.read_csv(datafile, header=None)
-
-    dtype = TYPES_MAP[spec["dtype"]]
-    df = df.astype(dtype)
-
-    return df, spec
-
-
-def spec2profiles(spec):
-    defaults = {"name": "DEFAULTS"}
-    profiles = []
-
-    # TODO single col
-    # TODO autogen single col profiles
-
-    for key, value in spec.items():
-        if type(value) is dict:
-            if key == "DEFAULTS":
-                defaults = value
-            else:
-                profile = value
-                profile["name"] = key
-                profiles.append(profile)
-        else:
-            defaults[key] = value
-
-    if len(profiles) == 0:
-        profiles.append(defaults)
+    if dtype is not None:
+        df = df.astype(dtype)
     else:
-        for profile in profiles:
-            for key, value in defaults.items():
-                if key not in profile:
-                    profile[key] = value
+        df = df.infer_objects()
 
-    return profiles
+    return df
 
 
-def cols(df):
-    for col in df:
-        yield df[col]
+class MultipleColumnsError(ValueError):
+    pass
 
 
-def profile_df(profile, df):
-    if len(df.columns) == 1:
-        s = df.iloc[:, 0]
-    elif profile["concat"] == "columns":
-        s = pd.concat(cols(df))
-    elif profile["concat"] == "rows":
-        s = pd.concat(cols(df.transpose()))
+class TypeNotRecognizedError(ValueError):
+    pass
+
+
+def load(data_file, name=None, dtype_str=None, overwrite=False):
+    if dtype_str is not None:
+        # TODO regex check if np.foo or numpy.foo is used to get types directly
+        try:
+            dtype_str = TYPES_MAP[dtype_str]
+        except KeyError:
+            raise TypeNotRecognizedError()
+
+        df = parse(data_file)
     else:
-        raise NotImplementedError()
+        df = parse(data_file)
 
-    return s
+    if len(df.columns) > 1:
+        raise MultipleColumnsError()
+    series = df.iloc[0]
 
-
-def load(datafile, specfile, overwrite=False):
-    df, spec = parse(datafile, specfile)
-
-    try:
-        store_name = slugify(spec["name"])
-    except KeyError:
+    if name is not None:
+        store_name = slugify(name)
+    else:
         timestamp = datetime.now()
         store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
-        # TODO check storename is valid
-    echo(f"Store name encoded as {store_name}")
+    # TODO check storename is valid
+    echo(f"Store name to be encoded as {store_name}")
 
     store_path = data_dir / store_name
     try:
         Path.mkdir(store_path, exist_ok=overwrite)
     except FileExistsError:
-        raise DataStoreExistsError()
+        raise StoreExistsError()
 
-    data_path = store_path / DATA_FNAME
-    pickle.dump(df, open(data_path, "wb"))
+    data_path = store_path / PROFILED_DATA_FNAME
+    pickle.dump(series, open(data_path, "wb"))
 
-    profiles = spec2profiles(spec)
-    profiles_path = store_path / PROFILES_FNAME
-    pickle.dump(profiles, open(profiles_path, "wb"))
 
-    for profile in profiles:
-        profile_name = slugify(profile["name"])
-        if profile_name != profile["name"]:
-            echo(f"Profile name {profile['name']} encoded as {profile_name}")
+# def load_with_profiles(data_file, profile_file, name=None, dtype=None, overwrite=False):
+# profiles = spec2profiles(spec)
+# profiles_path = store_path / PROFILES_FNAME
+# pickle.dump(profiles, open(profiles_path, "wb"))
 
-        profile_path = store_path / profile_name
-        Path.mkdir(profile_path)
+# for profile in profiles:
+#     profile_name = slugify(profile["name"])
+#     if profile_name != profile["name"]:
+#         echo(f"Profile name {profile['name']} encoded as {profile_name}")
 
-        series = profile_df(profile, df)
+#     profile_path = store_path / profile_name
+#     Path.mkdir(profile_path)
 
-        series_path = profile_path / PROFILED_DATA_FNAME
-        pickle.dump(series, open(series_path, "wb"))
+#     series = profile_df(profile, df)
+
+#     series_path = profile_path / PROFILED_DATA_FNAME
+#     pickle.dump(series, open(series_path, "wb"))
 
 
 def get_data(store_name):
@@ -158,14 +140,53 @@ def get_profiles(store_name):
     return profiles
 
 
-def get_profiled_data(store_name):
-    for obj in scandir(data_dir / store_name):
-        if obj.is_dir():
-            profile_path = Path(obj.path)
-            with open(profile_path / PROFILED_DATA_FNAME, "rb") as f:
-                series = pickle.load(f)
+class StoreNotFoundError(FileNotFoundError):
+    pass
 
-                yield series
+
+class NotSingleProfiledError(Exception):
+    pass
+
+
+class NotMultiProfiledError(Exception):
+    pass
+
+
+def get_single_profiled_data(store_name):
+    store_path = data_dir / store_name
+    single_profile_path = store_path / PROFILED_DATA_FNAME
+
+    try:
+        with open(single_profile_path, "rb") as f:
+            series = pickle.load(f)
+
+            return series
+
+    except FileNotFoundError:
+        raise StoreNotFoundError()
+
+
+def get_profiled_data(store_name):
+    store_path = data_dir / store_name
+
+    yield_count = 0
+
+    try:
+        for obj in scandir(store_path):
+            if obj.is_dir():
+                profile_path = Path(obj.path)
+                with open(profile_path / PROFILED_DATA_FNAME, "rb") as f:
+                    series = pickle.load(f)
+
+                    yield series
+
+                    yield_count += 1
+
+        if yield_count == 0:
+            raise NotMultiProfiledError()
+
+    except FileNotFoundError:
+        raise StoreNotFoundError()
 
 
 def rm_tree(path):

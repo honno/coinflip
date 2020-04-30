@@ -11,10 +11,11 @@ def main():
 
 @main.command()
 @click.argument("data", type=click.File("r"))
-@click.argument("spec", type=click.File("r"))
+@click.option("-n", "--name", type=str)
+@click.option("-t", "--dtype", type=str)
 @click.option("-o", "--overwrite", is_flag=True)
-def load(data, spec, overwrite=False):
-    store.load(data, spec, overwrite)
+def load(data, name=None, dtype=None, overwrite=False):
+    store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
 @main.command()
@@ -38,24 +39,29 @@ def ls():
 @main.command()
 @click.argument("store_name", type=str)
 def cat(store_name):
-    with store.open_data(store_name) as df:
-        click.echo(df)
+    try:
+        series = store.get_single_profiled_data(store_name)
+        click.echo(series)
+    except store.NotSingleProfiledError:
+        for series in store.get_profiled_data(store_name):
+            click.echo(series)
 
 
 @main.command()
 @click.argument("store_name", type=str)
 def run(store_name):
-    for series in store.get_profiled_data(store_name):
+    try:
+        series = store.get_single_profiled_data(store_name)
         run_tests(series)
+    except store.NotSingleProfiledError:
+        for series in store.get_profiled_data(store_name):
+            run_tests(series)
 
 
 @main.command()
 @click.argument("datafile", type=click.File("r"))
-@click.argument("specfile", type=click.File("r"))
-def local_run(datafile, specfile):
-    df, spec = store.parse(datafile, specfile)
-    profiles = store.spec2profiles(spec)
-
-    for profile in profiles:
-        series = store.profile_df(profile, df)
-        run_tests(series)
+@click.option("-t", "--dtype", type=str)
+def local_run(datafile, dtype=None):
+    df = store.parse(datafile)
+    series = df.iloc[0]
+    run_tests(series)
