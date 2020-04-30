@@ -13,9 +13,15 @@ def main():
 @click.argument("data", type=click.File("r"))
 @click.option("-n", "--name", type=str)
 @click.option("-t", "--dtype", type=str)
+@click.option("-p", "--profiles", type=click.Path(exists=True))
 @click.option("-o", "--overwrite", is_flag=True)
-def load(data, name=None, dtype=None, overwrite=False):
-    store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
+def load(data, name=None, dtype=None, profiles=None, overwrite=False):
+    if profiles is None:
+        store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
+    else:
+        # TODO Make sure user understands this is risky business
+        # TODO -yyy
+        store.load_with_profiles(data, profiles, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
 @main.command()

@@ -9,6 +9,8 @@ from appdirs import AppDirs
 from click import echo
 from slugify import slugify
 
+import prng.profiling as profiling
+
 __all__ = [
     "DATA_FNAME",
     "PROFILES_FNAME",
@@ -90,7 +92,7 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
     else:
         timestamp = datetime.now()
         store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
-    # TODO check storename is valid
+    # TODO check storename is available
     echo(f"Store name to be encoded as {store_name}")
 
     store_path = data_dir / store_name
@@ -103,23 +105,29 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
     pickle.dump(series, open(data_path, "wb"))
 
 
-# def load_with_profiles(data_file, profile_file, name=None, dtype=None, overwrite=False):
-# profiles = spec2profiles(spec)
-# profiles_path = store_path / PROFILES_FNAME
-# pickle.dump(profiles, open(profiles_path, "wb"))
+def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, overwrite=False):
+    if dtype_str is not None:
+        # TODO refactor
+        try:
+            dtype_str = TYPES_MAP[dtype_str]
+        except KeyError:
+            raise TypeNotRecognizedError()
 
-# for profile in profiles:
-#     profile_name = slugify(profile["name"])
-#     if profile_name != profile["name"]:
-#         echo(f"Profile name {profile['name']} encoded as {profile_name}")
+        df = parse(data_file)
+    else:
+        df = parse(data_file)
 
-#     profile_path = store_path / profile_name
-#     Path.mkdir(profile_path)
+    profiles = list(profiling.get_profiled_data(df, profiles_path))
+    profiles_path = store_path / PROFILES_FNAME
+    pickle.dump(profiles, open(profiles_path, "wb"))
 
-#     series = profile_df(profile, df)
+    for profile in profiles:
+        profile_name = slugify(profile["name"])
+        if profile_name != profile["name"]:
+            echo(f"Profile name {profile['name']} encoded as {profile_name}")
 
-#     series_path = profile_path / PROFILED_DATA_FNAME
-#     pickle.dump(series, open(series_path, "wb"))
+    profile_path = store_path / profile_name
+    Path.mkdir(profile_path)
 
 
 def get_data(store_name):
