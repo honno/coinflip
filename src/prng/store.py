@@ -124,8 +124,7 @@ def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, over
             echo(f"Profile name {name} encoded as {profile_name}")
 
         profile_path = store_path / profile_name
-        # TODO doesnt overwrite
-        Path.mkdir(profile_path)
+        Path.mkdir(profile_path, exist_ok=True)
 
         data_path = profile_path / PROFILED_DATA_FNAME
         pickle.dump(series, open(data_path, "wb"))
