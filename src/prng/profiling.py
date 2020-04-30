@@ -5,6 +5,7 @@ from importlib.util import spec_from_file_location
 
 PROFILE_KEY = "is_profile"
 
+
 def profile(func):
     @wraps(func)
     def wrapper(df):
