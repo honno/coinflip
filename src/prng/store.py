@@ -91,9 +91,13 @@ def init_store(name=None, overwrite=False):
 
     store_path = data_dir / store_name
     try:
-        Path.mkdir(store_path, exist_ok=overwrite)
+        Path.mkdir(store_path)
     except FileExistsError:
-        raise StoreExistsError()
+        if overwrite:
+            rm_tree(store_path)
+            Path.mkdir(store_path)
+        else:
+            raise StoreExistsError()
 
     return store_path
 
