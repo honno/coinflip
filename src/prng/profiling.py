@@ -20,7 +20,7 @@ def profile(func):
     return wrapper
 
 
-def get_profile_functions(functions):
+def profile_functions(functions):
     for function in functions:
         try:
             if getattr(function, PROFILE_KEY):
@@ -29,7 +29,7 @@ def get_profile_functions(functions):
             pass
 
 
-def get_profiled_data(df, profiles_path):
+def profiled_data(df, profiles_path):
     spec = spec_from_file_location("..profiles", profiles_path)
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -38,7 +38,7 @@ def get_profiled_data(df, profiles_path):
     members = inspect.getmembers(module, inspect.isfunction)
     functions = [member[1] for member in members]
 
-    profiles = get_profile_functions(functions)
+    profiles = profile_functions(functions)
     for profile in profiles:
         name, series = profile(df)
 

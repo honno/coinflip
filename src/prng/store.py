@@ -18,7 +18,7 @@ __all__ = [
     "data_dir",
     "parse_data",
     "load",
-    "get_data",
+    "get_single_profiled_data",
     "get_profiled_data",
     "drop",
     "ls_stores",
@@ -120,7 +120,7 @@ def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, over
 
     store_path = init_store(name=name, overwrite=overwrite)
 
-    profiles = profiling.get_profiled_data(df, profiles_path)
+    profiles = profiling.profiled_data(df, profiles_path)
 
     for name, series in profiles:
         profile_name = slugify(name)
@@ -132,15 +132,6 @@ def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, over
 
         data_path = profile_path / PROFILED_DATA_FNAME
         pickle.dump(series, open(data_path, "wb"))
-
-
-def get_data(store_name):
-    path = data_dir / store_name
-
-    with open(path / DATA_FNAME, "rb") as f:
-        data = pickle.load(f)
-
-    return data
 
 
 def get_profiles(store_name):
