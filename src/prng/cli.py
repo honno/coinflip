@@ -13,15 +13,26 @@ def main():
 @click.argument("data", type=click.File("r"))
 @click.option("-n", "--name", type=str)
 @click.option("-t", "--dtype", type=str)
-@click.option("-p", "--profiles", type=click.Path(exists=True))
 @click.option("-o", "--overwrite", is_flag=True)
-def load(data, name=None, dtype=None, profiles=None, overwrite=False):
-    if profiles is None:
-        store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
-    else:
-        # TODO Make sure user understands this is risky business
-        # TODO -yyy
-        store.load_with_profiles(data, profiles, name=name, dtype_str=dtype, overwrite=overwrite)
+def load(data, name=None, dtype=None, overwrite=False):
+    store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
+
+
+profiles_prompt = \
+    "Profiles will be evaluated as Python code, which is considered very unsafe!\n" + \
+    "Only use if script comes from a trusted source.\n" + \
+    "Do you wish to continue?"
+
+
+@main.command()
+@click.argument("data", type=click.File("r"))
+@click.argument("profiles", type=click.Path(exists=True))
+@click.confirmation_option(prompt=profiles_prompt)
+@click.option("-n", "--name", type=str)
+@click.option("-t", "--dtype", type=str)
+@click.option("-o", "--overwrite", is_flag=True)
+def profiles_load(data, profiles, name=None, dtype=None, overwrite=False):
+    store.load_with_profiles(data, profiles, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
 @main.command()
