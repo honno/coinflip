@@ -78,5 +78,5 @@ def run(store_name):
 @click.option("-t", "--dtype", type=str)
 def local_run(datafile, dtype=None):
     df = store.parse_data(datafile)
-    series = df.iloc[0]
+    series = df.iloc[:, 0]
     run_tests(series)

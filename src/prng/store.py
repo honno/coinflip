@@ -107,7 +107,7 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
 
     if len(df.columns) > 1:
         raise MultipleColumnsError()
-    series = df.iloc[0]
+    series = df.iloc[:, 0]
 
     store_path = init_store(name=name, overwrite=overwrite)
 
