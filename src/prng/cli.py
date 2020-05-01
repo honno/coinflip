@@ -18,10 +18,8 @@ def load(data, name=None, dtype=None, overwrite=False):
     store.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
-profiles_prompt = \
-    "Profiles will be evaluated as Python code, which is considered very unsafe!\n" + \
-    "Only use if script comes from a trusted source.\n" + \
-    "Do you wish to continue?"
+profiles_prompt = """Profiles will be evaluated as Python code!
+This is considered very unsafe. Do you wish to continue?"""
 
 
 @main.command()
