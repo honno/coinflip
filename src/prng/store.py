@@ -12,9 +12,7 @@ from slugify import slugify
 import prng.profiling as profiling
 
 __all__ = [
-    "DATA_FNAME",
-    "PROFILES_FNAME",
-    "PROFILED_DATA_FNAME",
+    "TYPES_MAP",
     "data_dir",
     "parse_data",
     "load",

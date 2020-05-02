@@ -4,6 +4,7 @@ import prng.store as store_
 from prng.runner import run_tests
 
 store_choice = click.Choice(store_.ls_stores())
+dtype_choice = click.Choice(store_.TYPES_MAP.keys())
 
 
 @click.group()
@@ -14,7 +15,7 @@ def main():
 @main.command()
 @click.argument("data", type=click.File("r"))
 @click.option("-n", "--name", type=str)
-@click.option("-t", "--dtype", type=str)
+@click.option("-t", "--dtype", type=dtype_choice)
 @click.option("-o", "--overwrite", is_flag=True)
 def load(data, name=None, dtype=None, overwrite=False):
     store_.load(data, name=name, dtype_str=dtype, overwrite=overwrite)
@@ -29,7 +30,7 @@ This is considered very unsafe. Do you wish to continue?"""
 @click.argument("profiles", type=click.Path(exists=True))
 @click.confirmation_option(prompt=profiles_prompt)
 @click.option("-n", "--name", type=str)
-@click.option("-t", "--dtype", type=str)
+@click.option("-t", "--dtype", type=dtype_choice)
 @click.option("-o", "--overwrite", is_flag=True)
 def profiles_load(data, profiles, name=None, dtype=None, overwrite=False):
     store_.load_with_profiles(data, profiles, name=name, dtype_str=dtype, overwrite=overwrite)
@@ -77,7 +78,7 @@ def run(store):
 
 @main.command()
 @click.argument("datafile", type=click.File("r"))
-@click.option("-t", "--dtype", type=str)
+@click.option("-t", "--dtype", type=dtype_choice)
 def local_run(datafile, dtype=None):
     df = store_.parse_data(datafile)
     series = df.iloc[:, 0]
