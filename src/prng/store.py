@@ -114,7 +114,9 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
     pickle.dump(series, open(data_path, "wb"))
 
 
-def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, overwrite=False):
+def load_with_profiles(
+    data_file, profiles_path, name=None, dtype_str=None, overwrite=False
+):
     df = parse_data(data_file, dtype_str)
 
     store_path = init_store(name=name, overwrite=overwrite)

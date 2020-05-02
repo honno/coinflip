@@ -34,7 +34,9 @@ This is considered very unsafe. Do you wish to continue?"""
 @click.option("-t", "--dtype", type=dtype_choice)
 @click.option("-o", "--overwrite", is_flag=True)
 def profiles_load(data, profiles, name=None, dtype=None, overwrite=False):
-    store_.load_with_profiles(data, profiles, name=name, dtype_str=dtype, overwrite=overwrite)
+    store_.load_with_profiles(
+        data, profiles, name=name, dtype_str=dtype, overwrite=overwrite
+    )
 
 
 @main.command()
