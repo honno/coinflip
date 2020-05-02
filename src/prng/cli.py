@@ -1,10 +1,11 @@
 import click
 
 import prng.store as store_
-from prng.runner import run_tests
+import prng.tests as tests
 
 store_choice = click.Choice(store_.ls_stores())
 dtype_choice = click.Choice(store_.TYPES_MAP.keys())
+test_choice = click.Choice(tests.ls_tests())
 
 
 @click.group()
@@ -67,19 +68,30 @@ def cat(store):
 
 @main.command()
 @click.argument("store", type=store_choice)
-def run(store):
+@click.option("-t", "--test", type=test_choice)
+def run(store, test=None):
     try:
         series = store_.get_single_profiled_data(store)
-        run_tests(series)
+        profiles = [series]
     except store_.NotSingleProfiledError:
-        for series in store_.get_profiled_data(store):
-            run_tests(series)
+        profiles = store_.get_profiled_data(store)
+
+    for profile in profiles:
+        if test is None:
+            tests.run_all_tests(series)
+        else:
+            tests.run_test(series, test)
 
 
 @main.command()
 @click.argument("datafile", type=click.File("r"))
 @click.option("-t", "--dtype", type=dtype_choice)
-def local_run(datafile, dtype=None):
+@click.option("-t", "--test", type=test_choice)
+def local_run(datafile, dtype=None, test=None):
     df = store_.parse_data(datafile)
     series = df.iloc[:, 0]
-    run_tests(series)
+
+    if test is None:
+        tests.run_all_tests(series)
+    else:
+        tests.run_test(series, test)
