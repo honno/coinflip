@@ -1,3 +1,5 @@
+from click import echo
+
 from prng.stattests.frequency import frequency
 from prng.stattests.frequency import frequency_in_block
 from prng.stattests.runs import runs
@@ -21,11 +23,16 @@ def ls_tests():
         yield name
 
 
-def run_test(series, test: str):
-    for stattest in STATTESTS:
-        if test == stattest.__name__:
-            stattest(series)
+def run_test(series, stattest_str):
+    for func in STATTESTS:
+        if stattest_str == func.__name__:
+            _run_test(series, func)
             break
+
+
+def _run_test(series, stattest):
+    result = stattest(series)
+    echo(result.summary())
 
 
 def run_all_tests(series):

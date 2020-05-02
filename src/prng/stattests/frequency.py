@@ -1,14 +1,56 @@
+from dataclasses import dataclass
 from math import ceil
+from math import erfc
+from math import sqrt
+from typing import Any
+from typing import NamedTuple
 
-from click import echo
+import pandas as pd
+
+from prng.stattests.summary import Results
+
+
+class ValueCount(NamedTuple):
+    value: Any
+    count: int
+
+
+@dataclass
+class FreqResults(Results):
+    counts: pd.Series
+
+    def __post_init__(self):
+        self.maxcount = ValueCount(
+            value=self.counts.index.values[0], count=self.counts.values[0]
+        )
+        self.mincount = ValueCount(
+            value=self.counts.index.values[-1], count=self.counts.values[-1]
+        )
+
+    def summary(self):
+        strings = []
+
+        strings.append(f"p={self.p}")
+
+        strings.append(
+            f"{self.maxcount.value} had the highest frequency of {self.maxcount.count}"
+        )
+
+        return "\n".join(strings)
 
 
 def frequency(series):
     counts = series.value_counts()
 
-    echo(counts.head())
+    if series.nunique() != 2:
+        raise NotImplementedError()
+    else:
+        n = len(series)
+        Sn = counts.iloc[0] - counts.iloc[1]
+        statistic = abs(Sn) / sqrt(n)
+        p = erfc(statistic / sqrt(2))
 
-    # TODO summary statistics
+        return FreqResults(p=p, counts=counts)
 
 
 def frequency_in_block(series, block_size=None, nblocks=10):
