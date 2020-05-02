@@ -8,8 +8,8 @@ import pandas as pd
 from appdirs import AppDirs
 from click import echo
 
-import prng.profiling as profiling
-from prng.slugify import slugify
+import rngtest.profiling as profiling
+from rngtest.slugify import slugify
 
 __all__ = [
     "TYPES_MAP",
@@ -36,7 +36,7 @@ TYPES_MAP = {
     "double": np.float64,
 }
 
-dirs = AppDirs(appname="prng", appauthor="MatthewBarber")
+dirs = AppDirs(appname="rngtest", appauthor="MatthewBarber")
 data_dir = Path(dirs.user_data_dir)
 
 try:

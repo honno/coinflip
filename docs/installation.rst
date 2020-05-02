@@ -4,4 +4,4 @@ Installation
 
 At the command line::
 
-    pip install prng
+    pip install rngtest

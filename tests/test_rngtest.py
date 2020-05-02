@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from prng.cli import main
+from rngtest.cli import main
 
 
 def test_main():

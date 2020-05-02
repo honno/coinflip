@@ -14,41 +14,41 @@ Overview
         | |codecov|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
-.. |docs| image:: https://readthedocs.org/projects/prng/badge/?style=flat
-    :target: https://readthedocs.org/projects/prng
+.. |docs| image:: https://readthedocs.org/projects/rngtest/badge/?style=flat
+    :target: https://readthedocs.org/projects/rngtest
     :alt: Documentation Status
 
-.. |travis| image:: https://api.travis-ci.com/Honno/prng.svg?branch=master
+.. |travis| image:: https://api.travis-ci.com/Honno/rngtest.svg?branch=master
     :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/Honno/prng
+    :target: https://travis-ci.org/Honno/rngtest
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/Honno/prng?branch=master&svg=true
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/Honno/rngtest?branch=master&svg=true
     :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/Honno/prng
+    :target: https://ci.appveyor.com/project/Honno/rngtest
 
-.. |requires| image:: https://requires.io/github/Honno/prng/requirements.svg?branch=master
+.. |requires| image:: https://requires.io/github/Honno/rngtest/requirements.svg?branch=master
     :alt: Requirements Status
-    :target: https://requires.io/github/Honno/prng/requirements/?branch=master
+    :target: https://requires.io/github/Honno/rngtest/requirements/?branch=master
 
-.. |codecov| image:: https://codecov.io/gh/Honno/prng/branch/master/graphs/badge.svg?branch=master
+.. |codecov| image:: https://codecov.io/gh/Honno/rngtest/branch/master/graphs/badge.svg?branch=master
     :alt: Coverage Status
-    :target: https://codecov.io/github/Honno/prng
+    :target: https://codecov.io/github/Honno/rngtest
 
-.. |version| image:: https://img.shields.io/pypi/v/prng.svg
+.. |version| image:: https://img.shields.io/pypi/v/rngtest.svg
     :alt: PyPI Package latest release
-    :target: https://pypi.org/project/prng
+    :target: https://pypi.org/project/rngtest
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/prng.svg
+.. |wheel| image:: https://img.shields.io/pypi/wheel/rngtest.svg
     :alt: PyPI Wheel
-    :target: https://pypi.org/project/prng
+    :target: https://pypi.org/project/rngtest
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/prng.svg
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/rngtest.svg
     :alt: Supported versions
-    :target: https://pypi.org/project/prng
+    :target: https://pypi.org/project/rngtest
 
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/prng.svg
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/rngtest.svg
     :alt: Supported implementations
-    :target: https://pypi.org/project/prng
+    :target: https://pypi.org/project/rngtest
 
 
 
@@ -61,18 +61,18 @@ Installation
 
 ::
 
-    pip install prng
+    pip install rngtest
 
 You can also install the in-development version with::
 
-    pip install https://github.com/Honno/prng/archive/master.zip
+    pip install https://github.com/Honno/rngtest/archive/master.zip
 
 
 Documentation
 =============
 
 
-https://prng.readthedocs.io/
+https://rngtest.readthedocs.io/
 
 
 Development

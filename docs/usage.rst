@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use prng in a project::
+To use rngtest in a project::
 
-	import prng
+	import rngtest

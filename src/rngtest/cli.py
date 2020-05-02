@@ -1,7 +1,7 @@
 import click
 
-import prng.store as store_
-import prng.tests as tests
+import rngtest.store as store_
+import rngtest.tests as tests
 
 store_choice = click.Choice(store_.ls_stores())
 dtype_choice = click.Choice(store_.TYPES_MAP.keys())

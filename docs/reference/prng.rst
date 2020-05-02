@@ -1,9 +1,9 @@
-prng
+rngtest
 ==========
 
 .. testsetup::
 
-    from prng import *
+    from rngtest import *
 
-.. automodule:: prng
+.. automodule:: rngtest
     :members:

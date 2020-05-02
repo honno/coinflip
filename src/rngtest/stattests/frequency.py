@@ -7,7 +7,7 @@ from typing import NamedTuple
 
 import pandas as pd
 
-from prng.stattests.summary import Results
+from rngtest.stattests.summary import Results
 
 
 class ValueCount(NamedTuple):
