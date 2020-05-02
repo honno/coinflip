@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 from appdirs import AppDirs
 from click import echo
-from slugify import slugify
 
 import prng.profiling as profiling
+from prng.slugify import slugify
 
 __all__ = [
     "TYPES_MAP",
