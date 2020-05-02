@@ -28,15 +28,10 @@ class FreqResults(Results):
         )
 
     def summary(self):
-        strings = []
-
-        strings.append(f"p={self.p}")
-
-        strings.append(
+        return (
+            f"p={self.p}\n"
             f"{self.maxcount.value} had the highest frequency of {self.maxcount.count}"
         )
-
-        return "\n".join(strings)
 
 
 def frequency(series):
