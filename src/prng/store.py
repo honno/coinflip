@@ -133,15 +133,6 @@ def load_with_profiles(data_file, profiles_path, name=None, dtype_str=None, over
         pickle.dump(series, open(data_path, "wb"))
 
 
-def get_profiles(store_name):
-    path = data_dir / store_name
-
-    with open(path / PROFILES_FNAME, "rb") as f:
-        profiles = pickle.load(f)
-
-    return profiles
-
-
 class StoreNotFoundError(FileNotFoundError):
     pass
 
