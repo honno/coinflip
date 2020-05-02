@@ -36,11 +36,11 @@ TYPES_MAP = {
     "double": np.float64,
 }
 
-dirs = AppDirs("prng")
+dirs = AppDirs(appname="prng", appauthor="MatthewBarber")
 data_dir = Path(dirs.user_data_dir)
 
 try:
-    Path.mkdir(data_dir)
+    Path.mkdir(data_dir, parents=True)
     echo(f"Created store folder at {data_dir}")
 except FileExistsError:
     pass
