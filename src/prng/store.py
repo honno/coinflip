@@ -97,7 +97,7 @@ def init_store(name=None, overwrite=False):
         else:
             raise StoreExistsError()
 
-    return store_path
+    return store_name, store_path
 
 
 def load(data_file, name=None, dtype_str=None, overwrite=False):
@@ -107,8 +107,9 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
         raise MultipleColumnsError()
     series = df.iloc[:, 0]
 
-    store_path = init_store(name=name, overwrite=overwrite)
+    store_name, store_path = init_store(name=name, overwrite=overwrite)
 
+    series = series.rename(store_name)
     data_path = store_path / PROFILED_DATA_FNAME
     pickle.dump(series, open(data_path, "wb"))
 
