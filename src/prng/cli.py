@@ -3,6 +3,8 @@ import click
 import prng.store as store_
 from prng.runner import run_tests
 
+store_choice = click.Choice(store_.ls_stores())
+
 
 @click.group()
 def main():
@@ -34,7 +36,7 @@ def profiles_load(data, profiles, name=None, dtype=None, overwrite=False):
 
 
 @main.command()
-@click.argument("store", type=str)
+@click.argument("store", type=store_choice)
 def rm(store):
     store_.drop(store)
 
@@ -52,7 +54,7 @@ def ls():
 
 
 @main.command()
-@click.argument("store", type=str)
+@click.argument("store", type=store_choice)
 def cat(store):
     try:
         series = store_.get_single_profiled_data(store)
@@ -63,7 +65,7 @@ def cat(store):
 
 
 @main.command()
-@click.argument("store", type=str)
+@click.argument("store", type=store_choice)
 def run(store):
     try:
         series = store_.get_single_profiled_data(store)
