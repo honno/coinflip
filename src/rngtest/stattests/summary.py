@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Results:
+class Result:
     p: float
 
     def summary(self) -> str:

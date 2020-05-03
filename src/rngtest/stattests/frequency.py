@@ -7,7 +7,7 @@ from typing import NamedTuple
 
 import pandas as pd
 
-from rngtest.stattests.summary import Results
+from rngtest.stattests.summary import Result
 
 
 class ValueCount(NamedTuple):
@@ -16,7 +16,7 @@ class ValueCount(NamedTuple):
 
 
 @dataclass
-class FreqResults(Results):
+class FreqResult(Result):
     counts: pd.Series
 
     def __post_init__(self):
@@ -45,7 +45,7 @@ def frequency(series):
         statistic = abs(Sn) / sqrt(n)
         p = erfc(statistic / sqrt(2))
 
-        return FreqResults(p=p, counts=counts)
+        return FreqResult(p=p, counts=counts)
 
 
 def frequency_in_block(series, block_size=None, nblocks=10):
