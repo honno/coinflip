@@ -32,7 +32,7 @@ def run_test(series, stattest_str):
 
 def _run_test(series, stattest):
     result = stattest(series)
-    echo(result.summary())
+    echo(str(result))
 
 
 def run_all_tests(series):

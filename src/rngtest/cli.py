@@ -8,11 +8,11 @@ from click import group
 from click import option
 
 import rngtest.store as store_
-import rngtest.tests as tests
+import rngtest.tests_runner as runner
 
 store_choice = Choice(store_.ls_stores())
 dtype_choice = Choice(store_.TYPES_MAP.keys())
-test_choice = Choice(tests.ls_tests())
+test_choice = Choice(runner.ls_tests())
 
 
 @group()
@@ -87,9 +87,9 @@ def run(store, test=None):
 
     for profile in profiles:
         if test is None:
-            tests.run_all_tests(series)
+            runner.run_all_tests(series)
         else:
-            tests.run_test(series, test)
+            runner.run_test(series, test)
 
 
 @main.command()
@@ -101,6 +101,6 @@ def local_run(datafile, dtype=None, test=None):
     series = df.iloc[:, 0]
 
     if test is None:
-        tests.run_all_tests(series)
+        runner.run_all_tests(series)
     else:
-        tests.run_test(series, test)
+        runner.run_test(series, test)

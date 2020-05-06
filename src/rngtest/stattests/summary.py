@@ -2,10 +2,13 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Result:
+class TestResult:
     p: float
 
-    def summary(self) -> str:
+    def p2f(self):
+        return round(self.p, 2)
+
+    def __str__(self):
         raise NotImplementedError()
 
     def report(self):
