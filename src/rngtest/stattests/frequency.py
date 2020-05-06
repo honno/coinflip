@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from math import ceil
 from math import erfc
 from math import sqrt
 from typing import Any
@@ -21,7 +20,7 @@ def frequency(series):
         statistic = abs(difference) / sqrt(n)
         p = erfc(statistic / sqrt(2))
 
-        return MonobitTestResult(p=p, counts=counts)
+        return MonobitsTestResult(p=p, counts=counts)
 
 
 class ValueCount(NamedTuple):
@@ -42,7 +41,7 @@ class BaseFrequencyTestResult(TestResult):
         )
 
 
-class MonobitTestResult(BaseFrequencyTestResult):
+class MonobitsTestResult(BaseFrequencyTestResult):
     def __str__(self):
         return (
             f"p={self.p2f()}\n"
@@ -59,13 +58,11 @@ class FrequencyTestResult(BaseFrequencyTestResult):
         )
 
 
-def frequency_in_block(series, block_size=None, nblocks=10):
-    if block_size is None:
-        block_size = ceil(len(series) / nblocks)
+# def frequency_in_block(series, block_size=None, nblocks=10):
+#     if block_size is None:
+#         block_size = ceil(len(series) / nblocks)
 
-    while len(series) != 0:
-        series_block, series = series[:block_size], series[block_size:]
+#     while len(series) != 0:
+#         series_block, series = series[:block_size], series[block_size:]
 
-        frequency(series_block)
-
-    # TODO summary statistics
+#         frequency(series_block)

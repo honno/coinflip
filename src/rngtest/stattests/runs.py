@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from math import ceil
 from typing import Any
 
 from click import echo
@@ -31,13 +30,11 @@ def runs(series):
 
 
 # TODO refactor block testing (i.e. frequency does this too)
-def runs_in_block(series, block_size=None, nblocks=10):
-    if block_size is None:
-        block_size = ceil(len(series) / nblocks)
+# def runs_in_block(series, block_size=None, nblocks=10):
+#     if block_size is None:
+#         block_size = ceil(len(series) / nblocks)
 
-    while len(series) != 0:
-        series_block, series = series[:block_size], series[block_size:]
+#     while len(series) != 0:
+#         series_block, series = series[:block_size], series[block_size:]
 
-        runs(series_block)
-
-    # TODO summary statistics
+#         runs(series_block)
