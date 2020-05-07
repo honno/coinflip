@@ -1,3 +1,5 @@
+import re
+
 from click import Choice
 from click import File
 from click import Path
@@ -10,7 +12,16 @@ from click import option
 import rngtest.store as store_
 import rngtest.tests_runner as runner
 
-store_choice = Choice(store_.ls_stores())
+
+def get_stores(ctx, args, incomplete):
+    stores = list(store_.ls_stores())
+    if incomplete is None:
+        return stores
+    else:
+        r_partial = re.compile(f"^{incomplete}", flags=re.IGNORECASE)
+        return [store for store in stores if r_partial.match(store)]
+
+
 dtype_choice = Choice(store_.TYPES_MAP.keys())
 test_choice = Choice(runner.ls_tests())
 
@@ -47,7 +58,7 @@ def profiles_load(data, profiles, name=None, dtype=None, overwrite=False):
 
 
 @main.command()
-@argument("store", type=store_choice)
+@argument("store", autocompletion=get_stores)
 def rm(store):
     store_.drop(store)
 
@@ -65,7 +76,7 @@ def ls():
 
 
 @main.command()
-@argument("store", type=store_choice)
+@argument("store", autocompletion=get_stores)
 def cat(store):
     try:
         series = store_.get_single_profiled_data(store)
@@ -76,7 +87,7 @@ def cat(store):
 
 
 @main.command()
-@argument("store", type=store_choice)
+@argument("store", autocompletion=get_stores)
 @option("-t", "--test", type=test_choice)
 def run(store, test=None):
     try:

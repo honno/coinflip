@@ -2,6 +2,7 @@ import pickle
 from datetime import datetime
 from os import scandir
 from pathlib import Path
+from time import sleep
 
 import numpy as np
 import pandas as pd
@@ -75,6 +76,13 @@ class TypeNotRecognizedError(ValueError):
     pass
 
 
+class NameConflictError(FileExistsError):
+    pass
+
+
+UNIQUE_STORENAME_ATTEMPTS = 3
+
+
 def init_store(name=None, overwrite=False):
     if name is not None:
         store_name = slugify(name)
@@ -82,9 +90,17 @@ def init_store(name=None, overwrite=False):
             echo(f"Store name {name} encoded as {store_name}")
 
     else:
-        timestamp = datetime.now()
-        store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
-    # TODO check storename is available
+        for _ in range(UNIQUE_STORENAME_ATTEMPTS):
+            timestamp = datetime.now()
+            store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
+
+            if store_name not in ls_stores():
+                break
+            else:
+                sleep(1.5)
+        else:
+            raise NameConflictError()
+
     echo(f"Store name to be encoded as {store_name}")
 
     store_path = data_dir / store_name

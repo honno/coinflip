@@ -5,6 +5,7 @@ from click.testing import CliRunner
 from hypothesis import settings
 from hypothesis.stateful import Bundle
 from hypothesis.stateful import RuleBasedStateMachine
+from hypothesis.stateful import consumes
 from hypothesis.stateful import rule
 
 from rngtest import cli
@@ -16,10 +17,9 @@ r_storename = re.compile(
 )
 
 
-@settings(max_examples=5)
-class StoreComparison(RuleBasedStateMachine):
+class CliRoutes(RuleBasedStateMachine):
     def __init__(self):
-        super(StoreComparison, self).__init__()
+        super(CliRoutes, self).__init__()
 
         self.cli = CliRunner()
 
@@ -44,11 +44,23 @@ class StoreComparison(RuleBasedStateMachine):
     @rule(name=storenames)
     def find_storename_listed(self, name):
         result = self.cli.invoke(cli.ls)
-
         assert re.search(name, result.stdout)
+
+    @rule(name=consumes(storenames))
+    def remove_store(self, name):
+        rm_result = self.cli.invoke(cli.rm, [name])
+        assert rm_result.exit_code == 0
+
+        ls_result = self.cli.invoke(cli.ls)
+        assert not re.search(name, ls_result.stdout)
 
     def teardown(self):
         pass
 
 
-TestStore = StoreComparison.TestCase
+CliRoutes.TestCase.settings = settings(
+    max_examples=1  # TODO work out sensible examples no.
+)
+
+
+TestStore = CliRoutes.TestCase
