@@ -1,32 +1,52 @@
 from dataclasses import dataclass
+from math import ceil
 from typing import Any
 
-from click import echo
+
+def longest_runs(series, block_size=None, nblocks=10, of_value=None):
+    if series.nunique() != 2:
+        raise NotImplementedError()
+
+    if block_size is None:
+        block_size = ceil(len(series) / nblocks)
+
+    if of_value is None:
+        of_value = series.unique()[0]
+    else:
+        if of_value not in series:
+            raise ValueError(f"of_value '{of_value}' not found in sequence")
+
+    longest_run_per_block = []
+    while len(series) != 0:
+        series_block, series = series[:block_size], series[block_size:]
+
+        longest_run_length = 0
+        for run in as_runs(series_block):
+            if run.value == of_value:
+                if run.repeats > longest_run_length:
+                    longest_run = run.repeats
+
+        longest_run_per_block.append(longest_run)
+
+    raise NotImplementedError()
 
 
 @dataclass
-class ValueRepeats:
+class Run:
     value: Any
     repeats: int = 1
 
 
-def runs(series):
-    coded_series = []
-
+def as_runs(series):
     first_value = series.iloc[0]
-    coded_series.append(ValueRepeats(first_value, repeats=0))
-
+    current_run = Run(first_value, repeats=0)
     for _, value in series.iteritems():
-        tail = coded_series[-1]
-
-        if value == tail.value:
-            tail.repeats += 1
+        if value == current_run.value:
+            current_run.repeats += 1
         else:
-            coded_series.append(ValueRepeats(value))
+            yield current_run
 
-    echo(coded_series[:5])
-
-    # TODO summary statsticss
+            current_run = Run(value)
 
 
 # TODO refactor block testing (i.e. frequency does this too)
