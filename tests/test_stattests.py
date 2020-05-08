@@ -10,8 +10,8 @@ from .strategies import random_bits_strategy
 
 
 @given(random_bits_strategy)
-def test_nist_example(bits):
-    our_result = frequency.frequency(pd.Series(bits))
+def test_monobits(bits):
+    our_result = frequency.monobits_test(pd.Series(bits))
     dj_result = dj.monobit_test(bits)
 
     assert isclose(our_result.p, dj_result.p)

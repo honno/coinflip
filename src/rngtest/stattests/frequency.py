@@ -6,21 +6,28 @@ from typing import NamedTuple
 
 import pandas as pd
 
-from rngtest.stattests.summary import TestResult
+from rngtest.stattests.common import TestResult
+from rngtest.stattests.common import binary_stattest
+from rngtest.stattests.common import stattest
 
 
+@stattest
 def frequency(series):
     counts = series.value_counts()
 
-    if series.nunique() != 2:
-        return FrequencyTestResult(p=None, counts=counts)
-    else:
-        n = len(series)
-        difference = counts.iloc[0] - counts.iloc[1]
-        statistic = abs(difference) / sqrt(n)
-        p = erfc(statistic / sqrt(2))
+    return FrequencyTestResult(p=None, counts=counts)
 
-        return MonobitsTestResult(p=p, counts=counts)
+
+@binary_stattest
+def monobits_test(series):
+    counts = series.value_counts()
+
+    n = len(series)
+    difference = counts.iloc[0] - counts.iloc[1]
+    statistic = abs(difference) / sqrt(n)
+    p = erfc(statistic / sqrt(2))
+
+    return MonobitsTestResult(p=p, counts=counts)
 
 
 class ValueCount(NamedTuple):
