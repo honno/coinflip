@@ -17,14 +17,13 @@ def runs(series, of_value=1):
 
     runs = as_runs(series)
     no_of_runs = sum(1 for _ in runs)
-    statistic = no_of_runs + 1
 
     p = erfc(
-        (statistic - (2 * count_of_value * (1 - proportion_of_value)))
+        abs(no_of_runs - (2 * count_of_value * (1 - proportion_of_value)))
         / (2 * sqrt(2 * n) * proportion_of_value * (1 - proportion_of_value))
     )
 
-    return RunsTestResult(p=p)
+    return RunsTestResult(p=p, no_of_runs=no_of_runs)
 
 
 # def longest_runs(series, block_size=None, nblocks=10, of_value=None):
@@ -71,10 +70,14 @@ def as_runs(series):
             yield current_run
 
             current_run = Run(value)
+    else:
+        yield current_run
 
 
 @dataclass
 class RunsTestResult(TestResult):
+    no_of_runs: int
+
     def __str__(self):
         return f"p={self.p2f()}"
 
