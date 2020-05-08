@@ -1,12 +1,14 @@
 from click import echo
 
 from rngtest.stattests.frequency import frequency
+from rngtest.stattests.runs import runs
 
 __all__ = ["ls_tests", "run_test", "run_all_tests"]
 
 
 STATTESTS = [
     frequency,
+    runs,
 ]
 
 
