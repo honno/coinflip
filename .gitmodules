@@ -1,3 +1,6 @@
 [submodule "tests/implementations/sp800_22_tests"]
 	path = tests/implementations/sp800_22_tests
 	url = https://github.com/Honno/sp800_22_tests
+[submodule "tests/implementations/randomness_testsuite"]
+	path = tests/implementations/randomness_testsuite
+	url = https://github.com/stevenang/randomness_testsuite
