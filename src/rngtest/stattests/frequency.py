@@ -19,7 +19,7 @@ def frequency(series):
 
 
 @binary_stattest
-def monobits_test(series):
+def monobits(series):
     counts = series.value_counts()
 
     n = len(series)

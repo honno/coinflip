@@ -13,7 +13,7 @@ from .strategies import random_bits_strategy
 
 @given(random_bits_strategy)
 def test_monobits(bits):
-    our_result = frequency.monobits_test(pd.Series(bits))
+    our_result = frequency.monobits(pd.Series(bits))
     dj_result = dj.monobit_test(bits)
 
     assert isclose(our_result.p, dj_result.p)
