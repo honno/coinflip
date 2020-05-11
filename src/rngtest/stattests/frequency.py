@@ -5,9 +5,11 @@ from typing import Any
 from typing import NamedTuple
 
 import pandas as pd
+from scipy.special import gammaincc
 
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
+from rngtest.stattests.common import chunks
 from rngtest.stattests.common import stattest
 
 
@@ -28,6 +30,42 @@ def monobits(series):
     p = erfc(statistic / sqrt(2))
 
     return MonobitsTestResult(p=p, counts=counts)
+
+
+@binary_stattest
+def frequency_within_block(series, of_value=1, block_size=8):
+    if len(series) < 100:
+        raise ValueError()
+
+    nblocks = len(series) // block_size
+    proportions = proportions_of_value_per_block(series, of_value, block_size)
+    deviations = deviations_from_uniform_distribution(proportions)
+    statistic = 4 * block_size * sum(x ** 2 for x in deviations)
+
+    p = gammaincc(nblocks / 2, statistic / 2)
+
+    return FrequencyWithinBlocksTest(p=p)
+
+
+def proportions_of_value_per_block(series, of_value, block_size):
+    for chunk in chunks(series, block_size=block_size):
+        counts = chunk.value_counts()
+        try:
+            freq = counts[of_value]
+            proportion_of_value = freq / block_size
+
+            yield proportion_of_value
+
+        except KeyError:
+
+            yield 0
+
+
+def deviations_from_uniform_distribution(proportions):
+    for prop in proportions:
+        deviation = prop - 1 / 2
+
+        yield deviation
 
 
 class ValueCount(NamedTuple):
@@ -65,11 +103,5 @@ class FrequencyTestResult(BaseFrequencyTestResult):
         )
 
 
-# def frequency_in_block(series, block_size=None, nblocks=10):
-#     if block_size is None:
-#         block_size = ceil(len(series) / nblocks)
-
-#     while len(series) != 0:
-#         series_block, series = series[:block_size], series[block_size:]
-
-#         frequency(series_block)
+class FrequencyWithinBlocksTest(TestResult):
+    pass

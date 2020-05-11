@@ -8,6 +8,7 @@ __all__ = ["ls_tests", "run_test", "run_all_tests"]
 
 BINARY_STATTESTS = [
     frequency.monobits,
+    frequency.frequency_within_block,
     runs.runs,
 ]
 

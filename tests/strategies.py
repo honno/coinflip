@@ -15,3 +15,6 @@ def contains_multiple_values(array):
 binary = st.integers(min_value=0, max_value=1)
 bits = st.lists(binary, min_size=2)
 random_bits_strategy = bits.filter(contains_multiple_values)
+
+large_bits = st.lists(binary, min_size=100)
+large_random_bits_strategy = large_bits.filter(contains_multiple_values)
