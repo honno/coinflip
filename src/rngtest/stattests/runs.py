@@ -3,8 +3,11 @@ from math import erfc
 from math import sqrt
 from typing import Any
 
+from scipy.special import gammaincc
+
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
+from rngtest.stattests.common import chunks
 
 
 @binary_stattest
@@ -26,32 +29,94 @@ def runs(series, of_value=1):
     return RunsTestResult(p=p, no_of_runs=no_of_runs)
 
 
-# def longest_runs(series, block_size=None, nblocks=10, of_value=None):
-#     if series.nunique() != 2:
-#         raise NotImplementedError()
+@binary_stattest
+def longest_runs(series, of_value=1):
+    n = len(series)
+    block_size, tally_range, K, N, probabilities = get_constants(n)
 
-#     if block_size is None:
-#         block_size = ceil(len(series) / nblocks)
+    longest_run_lengths = longest_run_per_block(series, of_value, block_size)
+    coded_frequencies = tally_lengths(longest_run_lengths, tally_range)
 
-#     if of_value is None:
-#         of_value = series.unique()[0]
-#     else:
-#         if of_value not in series:
-#             raise ValueError(f"of_value '{of_value}' not found in sequence")
+    def partials():
+        for prop, code in zip(probabilities, coded_frequencies):
+            yield (code - N * prop) ** 2 / (N * prop)
 
-#     longest_run_per_block = []
-#     while len(series) != 0:
-#         series_block, series = series[:block_size], series[block_size:]
+    statistic = sum(partials())
 
-#         longest_run_length = 0
-#         for run in as_runs(series_block):
-#             if run.value == of_value:
-#                 if run.repeats > longest_run_length:
-#                     longest_run = run.repeats
+    p = gammaincc(K / 2, statistic / 2)
 
-#         longest_run_per_block.append(longest_run)
+    return LongestRunInBlockTestResult(p=p)
 
-#     raise NotImplementedError()
+
+def tally_lengths(lengths, tally_range):
+    def encode(length):
+        lower = tally_range[0]
+        if length <= lower:
+            return 0
+
+        for cell, code in enumerate(tally_range[1:-1], 1):
+            if length == code:
+                return cell
+
+        upper = tally_range[-1]
+        if length >= upper:
+            return len(tally_range)
+
+    cells = [0 for tally in tally_range]
+    for length in lengths:
+        code = encode(length)
+        cells[code] += 1
+
+    return cells
+
+
+def longest_run_per_block(series, of_value, block_size):
+    for chunk in chunks(series, block_size=block_size):
+        runs = as_runs(chunk)
+        of_value_runs = (run for run in runs if run.value == of_value)
+
+        longest_run = 0
+        for run in of_value_runs:
+            if run.repeats > longest_run:
+                longest_run = run.repeats
+
+        yield longest_run
+
+
+probability_constants = {
+    8: [0.2148, 0.3672, 0.2305, 0.1875],
+    128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
+    512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
+    1000: [0.1307, 0.2437, 0.2452, 0.1714, 0.1002, 0.1088],
+    10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
+}
+
+
+def get_constants(n):
+    if n < 128:
+        raise ValueError()
+    elif n < 6272:
+        block_size = 8
+        tally_range = [1, 2, 3, 4]
+        K = 3
+        N = 16
+    elif n < 750000:
+        block_size = 128
+        tally_range = [4, 5, 6, 7, 8, 9]
+        K = 5
+        N = 49
+    else:
+        block_size = 10 ** 4
+        tally_range = [10, 11, 12, 13, 14, 15, 16]
+        K = 6
+        N = 75
+
+    try:
+        probabilities = probability_constants[block_size]
+    except KeyError:
+        raise ValueError()
+
+    return block_size, tally_range, K, N, probabilities
 
 
 @dataclass
@@ -82,12 +147,5 @@ class RunsTestResult(TestResult):
         return f"p={self.p2f()}"
 
 
-# TODO refactor block testing (i.e. frequency does this too)
-# def runs_in_block(series, block_size=None, nblocks=10):
-#     if block_size is None:
-#         block_size = ceil(len(series) / nblocks)
-
-#     while len(series) != 0:
-#         series_block, series = series[:block_size], series[block_size:]
-
-#         runs(series_block)
+class LongestRunInBlockTestResult(TestResult):
+    pass
