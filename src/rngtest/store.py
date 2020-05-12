@@ -17,11 +17,22 @@ __all__ = [
     "data_dir",
     "parse_data",
     "load",
+    "load_with_profiles",
     "get_single_profiled_data",
     "get_profiled_data",
     "drop",
     "ls_stores",
 ]
+
+dirs = AppDirs(appname="rngtest", appauthor="MatthewBarber")
+data_dir = Path(dirs.user_data_dir)
+
+# Create local data directory if it does not already exist
+try:
+    Path.mkdir(data_dir, parents=True)
+    echo(f"Created store folder at {data_dir}")
+except FileExistsError:
+    pass
 
 DATA_FNAME = "dataframe.pickle"
 PROFILES_FNAME = "profiles.pickle"
@@ -37,27 +48,20 @@ TYPES_MAP = {
     "double": np.float64,
 }
 
-dirs = AppDirs(appname="rngtest", appauthor="MatthewBarber")
-data_dir = Path(dirs.user_data_dir)
 
-try:
-    Path.mkdir(data_dir, parents=True)
-    echo(f"Created store folder at {data_dir}")
-except FileExistsError:
+class TypeNotRecognizedError(ValueError):
+    """Error for when an inputted dtype is not recognised"""
+
     pass
 
 
-class StoreExistsError(FileExistsError):
-    pass
+def parse_data(datafile, dtypestr=None) -> pd.DataFrame:
+    """Reads file containing data into a dataframe"""
+    df = pd.read_csv(datafile, header=None)
 
-
-def parse_data(data_file, dtype_str=None):
-    df = pd.read_csv(data_file, header=None)
-
-    if dtype_str is not None:
-        # TODO regex check if np.foo or numpy.foo is used to get types directly
+    if dtypestr is not None:
         try:
-            dtype = TYPES_MAP[dtype_str]
+            dtype = TYPES_MAP[dtypestr]
         except KeyError:
             raise TypeNotRecognizedError()
 
@@ -68,15 +72,15 @@ def parse_data(data_file, dtype_str=None):
     return df
 
 
-class MultipleColumnsError(ValueError):
-    pass
+class StoreExistsError(FileExistsError):
+    """Exception for when a store is being assumed to not exist but does"""
 
-
-class TypeNotRecognizedError(ValueError):
     pass
 
 
 class NameConflictError(FileExistsError):
+    """Error for when a unique storename could not be made"""
+
     pass
 
 
@@ -84,11 +88,14 @@ UNIQUE_STORENAME_ATTEMPTS = 3
 
 
 def init_store(name=None, overwrite=False):
+    """Creates store in local data
+
+    :returns: The store's name and path
+    """
     if name is not None:
         store_name = slugify(name)
         if store_name != name:
             echo(f"Store name {name} encoded as {store_name}")
-
     else:
         for _ in range(UNIQUE_STORENAME_ATTEMPTS):
             timestamp = datetime.now()
@@ -116,8 +123,15 @@ def init_store(name=None, overwrite=False):
     return store_name, store_path
 
 
-def load(data_file, name=None, dtype_str=None, overwrite=False):
-    df = parse_data(data_file, dtype_str)
+class MultipleColumnsError(ValueError):
+    """Error for when only one column of data was expected"""
+
+    pass
+
+
+def load(datafile, name=None, dtypestr=None, overwrite=False):
+    """Load RNG outputs into a store"""
+    df = parse_data(datafile, dtypestr)
 
     if len(df.columns) > 1:
         raise MultipleColumnsError()
@@ -131,13 +145,14 @@ def load(data_file, name=None, dtype_str=None, overwrite=False):
 
 
 def load_with_profiles(
-    data_file, profiles_path, name=None, dtype_str=None, overwrite=False
+    datafile, profilespath, name=None, dtypestr=None, overwrite=False
 ):
-    df = parse_data(data_file, dtype_str)
+    """Load profiled RNG outputs into a store"""
+    df = parse_data(datafile, dtypestr)
 
     store_path = init_store(name=name, overwrite=overwrite)
 
-    profiles = profiling.profiled_data(df, profiles_path)
+    profiles = profiling.profiled_data(df, profilespath)
 
     for name, series in profiles:
         profile_name = slugify(name)
@@ -152,18 +167,25 @@ def load_with_profiles(
 
 
 class StoreNotFoundError(FileNotFoundError):
+    """Error for when requested store does not exist"""
+
     pass
 
 
-class NotSingleProfiledError(Exception):
+class NotSingleProfiledError(LookupError):
+    """Error for when requested store is not single-profiled"""
+
     pass
 
 
-class NotMultiProfiledError(Exception):
+class NotMultiProfiledError(LookupError):
+    """Error for when requested store is not profiled"""
+
     pass
 
 
-def get_single_profiled_data(store_name):
+def get_single_profiled_data(store_name) -> pd.Series:
+    """Access data of a single-profiled store"""
     store_path = data_dir / store_name
     if not store_path.exists():
         raise StoreNotFoundError()
@@ -180,7 +202,8 @@ def get_single_profiled_data(store_name):
         raise NotSingleProfiledError()
 
 
-def get_profiled_data(store_name):
+def get_profiled_data(store_name) -> pd.Series:
+    """Access data of a profiled store"""
     store_path = data_dir / store_name
 
     yield_count = 0
@@ -203,7 +226,7 @@ def get_profiled_data(store_name):
 
 
 def rm_tree(path):
-    """Credit to https://stackoverflow.com/a/58183834/5193926"""
+    """Recursively remove files and folders in a given directory"""
     for child in path.glob("*"):
         if child.is_file():
             child.unlink()
@@ -213,12 +236,14 @@ def rm_tree(path):
 
 
 def drop(store_name):
+    """Remove store from local data"""
     store_path = data_dir / store_name
 
     rm_tree(store_path)
 
 
 def ls_stores():
+    """List all stores in local data"""
     for f in scandir(data_dir):
         if f.is_dir():
             yield f.name
