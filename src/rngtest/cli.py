@@ -1,5 +1,3 @@
-import re
-
 from click import Choice
 from click import File
 from click import Path
@@ -14,12 +12,14 @@ import rngtest.tests_runner as runner
 
 
 def get_stores(ctx, args, incomplete):
+    """Completition for store names"""
     stores = list(store_.ls_stores())
     if incomplete is None:
         return stores
     else:
-        r_partial = re.compile(f"^{incomplete}", flags=re.IGNORECASE)
-        return [store for store in stores if r_partial.match(store)]
+        for name in stores:
+            if incomplete in name:
+                yield name
 
 
 dtype_choice = Choice(store_.TYPES_MAP.keys())
