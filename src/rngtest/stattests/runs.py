@@ -8,15 +8,16 @@ from scipy.special import gammaincc
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
+from rngtest.stattests.common import elected
 
 
 @binary_stattest
-def runs(series, of_value=1):
+def runs(series, candidate=1):
     n = len(series)
 
     counts = series.value_counts()
-    count_of_value = counts[of_value]
-    proportion_of_value = counts[of_value] / n
+    count_of_value = counts[candidate]
+    proportion_of_value = counts[candidate] / n
 
     runs = as_runs(series)
     no_of_runs = sum(1 for _ in runs)
@@ -29,12 +30,13 @@ def runs(series, of_value=1):
     return RunsTestResult(p=p, no_of_runs=no_of_runs)
 
 
+@elected
 @binary_stattest
-def longest_runs(series, of_value=1):
+def longest_runs(series, candidate=None):
     n = len(series)
     block_size, tally_range, K, N, probabilities = get_constants(n)
 
-    longest_run_lengths = longest_run_per_block(series, of_value, block_size)
+    longest_run_lengths = longest_run_per_block(series, candidate, block_size)
     coded_frequencies = tally_lengths(longest_run_lengths, tally_range)
 
     def partials():
@@ -70,10 +72,10 @@ def tally_lengths(lengths, tally_range):
     return cells
 
 
-def longest_run_per_block(series, of_value, block_size):
+def longest_run_per_block(series, candidate, block_size):
     for chunk in chunks(series, block_size=block_size):
         runs = as_runs(chunk)
-        of_value_runs = (run for run in runs if run.value == of_value)
+        of_value_runs = (run for run in runs if run.value == candidate)
 
         longest_run = 0
         for run in of_value_runs:

@@ -47,6 +47,22 @@ def binary_stattest(func):
     return wrapper
 
 
+def elected(func):
+    @wraps(func)
+    def wrapper(series: pd.Series, *args, candidate=None, **kwargs):
+        if candidate is None:
+            if 1 in series.unique():
+                candidate = 1
+            else:
+                candidate = series.unique()[0]
+
+        result = func(series, *args, candidate=candidate, **kwargs)
+
+        return result
+
+    return wrapper
+
+
 def chunks(series: pd.Series, block_size=None, nblocks=None):
     if block_size and nblocks:
         raise ValueError()

@@ -10,6 +10,7 @@ from scipy.special import gammaincc
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
+from rngtest.stattests.common import elected
 from rngtest.stattests.common import stattest
 
 
@@ -32,13 +33,14 @@ def monobits(series):
     return MonobitsTestResult(p=p, counts=counts)
 
 
+@elected
 @binary_stattest
-def frequency_within_block(series, of_value=1, block_size=8):
+def frequency_within_block(series, candidate=None, block_size=8):
     if len(series) < 100:
         raise ValueError()
 
     nblocks = len(series) // block_size
-    proportions = proportions_of_value_per_block(series, of_value, block_size)
+    proportions = proportions_of_value_per_block(series, candidate, block_size)
     deviations = deviations_from_uniform_distribution(proportions)
     statistic = 4 * block_size * sum(x ** 2 for x in deviations)
 
@@ -47,11 +49,11 @@ def frequency_within_block(series, of_value=1, block_size=8):
     return FrequencyWithinBlocksTest(p=p)
 
 
-def proportions_of_value_per_block(series, of_value, block_size):
+def proportions_of_value_per_block(series, candidate, block_size):
     for chunk in chunks(series, block_size=block_size):
         counts = chunk.value_counts()
         try:
-            freq = counts[of_value]
+            freq = counts[candidate]
             proportion_of_value = freq / block_size
 
             yield proportion_of_value
