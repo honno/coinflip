@@ -9,6 +9,7 @@ __all__ = ["TestResult", "stattest", "binary_stattest", "chunks"]
 
 @dataclass
 class TestResult:
+    statistic: float
     p: float
 
     def p2f(self):
@@ -55,6 +56,9 @@ def elected(func):
                 candidate = 1
             else:
                 candidate = series.unique()[0]
+        else:
+            if candidate not in series.unique():
+                raise ValueError()
 
         result = func(series, *args, candidate=candidate, **kwargs)
 

@@ -30,7 +30,7 @@ def monobits(series):
     statistic = abs(difference) / sqrt(n)
     p = erfc(statistic / sqrt(2))
 
-    return MonobitsTestResult(p=p, counts=counts)
+    return MonobitsTestResult(statistic=statistic, p=p, counts=counts)
 
 
 @elected
@@ -52,7 +52,7 @@ def frequency_within_block(series, candidate=None, block_size=8):
     statistic = 4 * block_size * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
-    return FrequencyWithinBlocksTest(statistic=statistic, p=p)
+    return FrequencyWithinBlocksTestResult(statistic=statistic, p=p)
 
 
 class ValueCount(NamedTuple):
@@ -90,5 +90,5 @@ class FrequencyTestResult(BaseFrequencyTestResult):
         )
 
 
-class FrequencyWithinBlocksTest(TestResult):
+class FrequencyWithinBlocksTestResult(TestResult):
     pass

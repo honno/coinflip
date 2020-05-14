@@ -43,7 +43,7 @@ def matrix_rank_test(series, matrix_rows=32, matrix_cols=32):
     )
     p = exp(-statistic / 2)
 
-    return TestResult(p=p)
+    return TestResult(statistic=statistic, p=p)
 
 
 @dataclass

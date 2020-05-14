@@ -27,7 +27,7 @@ def runs(series, candidate=1):
         / (2 * sqrt(2 * n) * proportion_of_value * (1 - proportion_of_value))
     )
 
-    return RunsTestResult(p=p, no_of_runs=no_of_runs)
+    return RunsTestResult(statistic=no_of_runs, p=p, no_of_runs=no_of_runs)
 
 
 @elected
@@ -44,10 +44,9 @@ def longest_runs(series, candidate=None):
             yield (code - N * prop) ** 2 / (N * prop)
 
     statistic = sum(partials())
-
     p = gammaincc(K / 2, statistic / 2)
 
-    return LongestRunInBlockTestResult(p=p)
+    return LongestRunInBlockTestResult(statistic=statistic, p=p)
 
 
 def tally_lengths(lengths, tally_range):
