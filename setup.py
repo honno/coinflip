@@ -68,7 +68,7 @@ setup(
         # TODO eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires="!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
-    install_requires=["click", "numpy", "appdirs", "python-slugify", "pandas"],
+    install_requires=["click", "numpy", "scipy", "appdirs", "python-slugify", "pandas"],
     test_requires=["pytest", "hypothesis"],
     setup_requires=["setuptools_scm>=3.3.1"],
     entry_points={"console_scripts": ["rngtest = rngtest.cli:main"]},
