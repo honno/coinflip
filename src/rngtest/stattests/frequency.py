@@ -40,34 +40,19 @@ def frequency_within_block(series, candidate=None, block_size=8):
         raise ValueError()
 
     nblocks = len(series) // block_size
-    proportions = proportions_of_value_per_block(series, candidate, block_size)
-    deviations = deviations_from_uniform_distribution(proportions)
-    statistic = 4 * block_size * sum(x ** 2 for x in deviations)
 
+    proportions = []
+    for chunk in chunks(series, block_size=block_size):
+        count = (chunk == candidate).sum()
+        prop = count / block_size
+        proportions.append(prop)
+
+    deviations = (prop - 1 / 2 for prop in proportions)
+
+    statistic = 4 * block_size * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
-    return FrequencyWithinBlocksTest(p=p)
-
-
-def proportions_of_value_per_block(series, candidate, block_size):
-    for chunk in chunks(series, block_size=block_size):
-        counts = chunk.value_counts()
-        try:
-            freq = counts[candidate]
-            proportion_of_value = freq / block_size
-
-            yield proportion_of_value
-
-        except KeyError:
-
-            yield 0
-
-
-def deviations_from_uniform_distribution(proportions):
-    for prop in proportions:
-        deviation = prop - 1 / 2
-
-        yield deviation
+    return FrequencyWithinBlocksTest(statistic=statistic, p=p)
 
 
 class ValueCount(NamedTuple):
