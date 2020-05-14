@@ -10,6 +10,16 @@ from rngtest.stattests import runs
 from rngtest.stattests.common import TestResult as _TestResult
 
 
+def test_monobits():
+    bits = [1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+
+    our_result = frequency.monobits(pd.Series(bits))
+    nist_result = _TestResult(statistic=.632455532, p=0.527089)
+
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.05)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
 def test_frequency_within_block():
     bits = [
         1, 1, 0, 0, 1, 0, 0, 1,
