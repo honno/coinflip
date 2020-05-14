@@ -3,6 +3,7 @@ from math import isclose
 
 import pandas as pd
 
+from rngtest.stattests import fourier
 from rngtest.stattests import frequency
 from rngtest.stattests import matrix
 from rngtest.stattests import runs
@@ -84,6 +85,40 @@ def test_binary_matrix_rank():
         pd.Series(bits), matrix_rows=3, matrix_cols=3
     )
     nist_result = _TestResult(statistic=0.596953, p=0.741948)
+
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+def test_discrete_fourier_transform_small():
+    bits = [1, 0, 0, 1, 0, 1, 0, 0, 1, 1]
+
+    our_result = fourier.discrete_fourier_transform(pd.Series(bits))
+    nist_result = _TestResult(statistic=-2.176429, p=0.029523)
+
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+def test_discrete_fourier_transform_large():
+    bits = [
+        1, 1, 0, 0, 1, 0, 0, 1,
+        0, 0, 0, 0, 1, 1, 1, 1,
+        1, 1, 0, 1, 1, 0, 1, 0,
+        1, 0, 1, 0, 0, 0, 1, 0,
+        0, 0, 1, 0, 0, 0, 0, 1,
+        0, 1, 1, 0, 1, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 1, 0,
+        0, 0, 1, 1, 0, 1, 0, 0,
+        1, 1, 0, 0, 0, 1, 0, 0,
+        1, 1, 0, 0, 0, 1, 1, 0,
+        0, 1, 1, 0, 0, 0, 1, 0,
+        1, 0, 0, 0, 1, 0, 1, 1,
+        1, 0, 0, 0,
+    ]
+
+    our_result = fourier.discrete_fourier_transform(pd.Series(bits))
+    nist_result = _TestResult(statistic=-1.376494, p=0.168669)
 
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
