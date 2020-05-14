@@ -42,7 +42,7 @@ def test_runs():
     our_result = runs.runs(pd.Series(bits))
     nist_result = _TestResult(statistic=7, p=0.147232)
 
-    assert isclose(our_result.statistic, nist_result.statistic)
+    assert our_result.statistic == nist_result.statistic
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 

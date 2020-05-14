@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from functools import wraps
 from math import ceil
+from typing import Union
 
 import pandas as pd
 
@@ -9,7 +10,7 @@ __all__ = ["TestResult", "stattest", "binary_stattest", "chunks"]
 
 @dataclass
 class TestResult:
-    statistic: float
+    statistic: Union[int, float]
     p: float
 
     def p2f(self):
