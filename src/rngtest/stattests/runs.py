@@ -10,6 +10,8 @@ from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
 
+__all__ = ["runs", "longest_runs"]
+
 
 @binary_stattest
 def runs(series, candidate=1):

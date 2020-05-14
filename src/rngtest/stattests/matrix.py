@@ -8,10 +8,12 @@ from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 
+all = ["binary_matrix_rank"]
+
 
 # TODO allow for candidate kwarg
 @binary_stattest
-def matrix_rank_test(series, matrix_rows=32, matrix_cols=32):
+def binary_matrix_rank(series, matrix_rows=32, matrix_cols=32):
     n = len(series)
     block_size = matrix_rows * matrix_cols
     nblocks = n // block_size

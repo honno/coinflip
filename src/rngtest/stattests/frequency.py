@@ -13,6 +13,8 @@ from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
 from rngtest.stattests.common import stattest
 
+__all__ = ["frequency", "monobits", "frequency_within_block"]
+
 
 @stattest
 def frequency(series):

@@ -73,14 +73,14 @@ def test_longest_runs():
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_matrix_rank():
+def test_binary_matrix_rank():
     bits = [
         0, 1, 0, 1, 1, 0, 0, 1,
         0, 0, 1, 0, 1, 0, 1, 0,
         1, 1, 0, 1,
     ]
 
-    our_result = matrix.matrix_rank_test(
+    our_result = matrix.binary_matrix_rank(
         pd.Series(bits), matrix_rows=3, matrix_cols=3
     )
     nist_result = _TestResult(statistic=0.596953, p=0.741948)
