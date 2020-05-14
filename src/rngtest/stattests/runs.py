@@ -34,66 +34,7 @@ def runs(series, candidate=1):
 @binary_stattest
 def longest_runs(series, candidate=None):
     n = len(series)
-    block_size, tally_range, K, N, probabilities = get_constants(n)
 
-    longest_run_lengths = longest_run_per_block(series, candidate, block_size)
-    coded_frequencies = tally_lengths(longest_run_lengths, tally_range)
-
-    def partials():
-        for prop, code in zip(probabilities, coded_frequencies):
-            yield (code - N * prop) ** 2 / (N * prop)
-
-    statistic = sum(partials())
-    p = gammaincc(K / 2, statistic / 2)
-
-    return LongestRunInBlockTestResult(statistic=statistic, p=p)
-
-
-def tally_lengths(lengths, tally_range):
-    def encode(length):
-        lower = tally_range[0]
-        if length <= lower:
-            return 0
-
-        for cell, code in enumerate(tally_range[1:-1], 1):
-            if length == code:
-                return cell
-
-        upper = tally_range[-1]
-        if length >= upper:
-            return len(tally_range)
-
-    cells = [0 for tally in tally_range]
-    for length in lengths:
-        code = encode(length)
-        cells[code] += 1
-
-    return cells
-
-
-def longest_run_per_block(series, candidate, block_size):
-    for chunk in chunks(series, block_size=block_size):
-        runs = as_runs(chunk)
-        of_value_runs = (run for run in runs if run.value == candidate)
-
-        longest_run = 0
-        for run in of_value_runs:
-            if run.repeats > longest_run:
-                longest_run = run.repeats
-
-        yield longest_run
-
-
-probability_constants = {
-    8: [0.2148, 0.3672, 0.2305, 0.1875],
-    128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
-    512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
-    1000: [0.1307, 0.2437, 0.2452, 0.1714, 0.1002, 0.1088],
-    10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
-}
-
-
-def get_constants(n):
     if n < 128:
         raise ValueError()
     elif n < 6272:
@@ -112,12 +53,57 @@ def get_constants(n):
         K = 6
         N = 75
 
+    probability_constants = {
+        8: [0.2148, 0.3672, 0.2305, 0.1875],
+        128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
+        512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
+        1000: [0.1307, 0.2437, 0.2452, 0.1714, 0.1002, 0.1088],
+        10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
+    }
     try:
         probabilities = probability_constants[block_size]
     except KeyError:
         raise ValueError()
 
-    return block_size, tally_range, K, N, probabilities
+    longest_run_lengths = []
+    for chunk in chunks(series, block_size=block_size):
+        runs = as_runs(chunk)
+        of_value_runs = (run for run in runs if run.value == candidate)
+
+        longest_run = 0
+        for run in of_value_runs:
+            if run.repeats > longest_run:
+                longest_run = run.repeats
+
+        longest_run_lengths.append(longest_run)
+
+    def encode(length):
+        lower = tally_range[0]
+        if length <= lower:
+            return 0
+
+        for cell, code in enumerate(tally_range[1:-1], 1):
+            if length == code:
+                return cell
+
+        upper = tally_range[-1]
+        if length >= upper:
+            return len(tally_range)
+
+    coded_frequencies = [0 for tally in tally_range]
+    for length in longest_run_lengths:
+        code = encode(length)
+        coded_frequencies[code] += 1
+
+    statistic_partials = []
+    for prop, code in zip(probabilities, coded_frequencies):
+        partial = (code - N * prop) ** 2 / (N * prop)
+        statistic_partials.append(partial)
+
+    statistic = sum(statistic_partials)
+    p = gammaincc(K / 2, statistic / 2)
+
+    return LongestRunInBlockTestResult(statistic=statistic, p=p)
 
 
 @dataclass
