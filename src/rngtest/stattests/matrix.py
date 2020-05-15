@@ -8,7 +8,7 @@ from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 
-all = ["binary_matrix_rank"]
+__all__ = ["binary_matrix_rank"]
 
 
 # TODO allow for candidate kwarg

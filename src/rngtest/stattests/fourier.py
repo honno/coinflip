@@ -9,7 +9,7 @@ from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import elected
 
-all = ["discrete_fourier_transform"]
+__all__ = ["discrete_fourier_transform"]
 
 
 @elected
