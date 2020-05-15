@@ -7,6 +7,7 @@ from rngtest.stattests import fourier
 from rngtest.stattests import frequency
 from rngtest.stattests import matrix
 from rngtest.stattests import runs
+from rngtest.stattests import template
 from rngtest.stattests.common import TestResult as _TestResult
 
 
@@ -129,6 +130,24 @@ def test_discrete_fourier_transform_large():
 
     our_result = fourier.discrete_fourier_transform(pd.Series(bits))
     nist_result = _TestResult(statistic=-1.376494, p=0.168669)
+
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+def test_non_overlapping_template_matching():
+    bits = [
+        1, 0, 1, 0, 0, 1, 0, 0,
+        1, 0, 1, 1, 1, 0, 0, 1,
+        0, 1, 1, 0
+    ]
+    nist_template = [0, 0, 1]
+    nist_nblocks = 2
+    nist_result = _TestResult(statistic=2.133333, p=0.344154)
+
+    our_result = template.non_overlapping_template_matching(
+        pd.Series(bits), template=pd.Series(nist_template), nblocks=nist_nblocks
+    )
 
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
