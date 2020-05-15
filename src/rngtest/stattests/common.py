@@ -13,8 +13,8 @@ class TestResult:
     statistic: Union[int, float]
     p: float
 
-    def p2f(self):
-        return round(self.p, 2)
+    def p3f(self):
+        return round(self.p, 3)
 
     def __str__(self):
         raise NotImplementedError()

@@ -80,7 +80,7 @@ class BaseFrequencyTestResult(TestResult):
 class MonobitsTestResult(BaseFrequencyTestResult):
     def __str__(self):
         return (
-            f"p={self.p2f()}\n"
+            f"p={self.p3f()}\n"
             f"{self.maxcount.value} occurred {self.maxcount.count} times\n"
             f"{self.mincount.value} occurred {self.mincount.count} times"
         )

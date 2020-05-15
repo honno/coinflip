@@ -133,7 +133,7 @@ class RunsTestResult(TestResult):
     no_of_runs: int
 
     def __str__(self):
-        return f"p={self.p2f()}"
+        return f"p={self.p3f()}"
 
 
 class LongestRunInBlockTestResult(TestResult):
