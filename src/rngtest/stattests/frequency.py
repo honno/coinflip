@@ -5,7 +5,6 @@ from typing import Any
 from typing import NamedTuple
 
 import pandas as pd
-from jinja2 import Template
 from scipy.special import gammaincc
 
 from rngtest.stattests.common import TestResult
@@ -29,8 +28,8 @@ def monobits(series):
     counts = series.value_counts()
 
     n = len(series)
-    difference = counts.iloc[0] - counts.iloc[1]
-    statistic = abs(difference) / sqrt(n)
+    difference = abs(counts.iloc[0] - counts.iloc[1])
+    statistic = difference / sqrt(n)
     p = erfc(statistic / sqrt(2))
 
     return MonobitsTestResult(statistic=statistic, p=p, counts=counts)
@@ -85,8 +84,8 @@ class MonobitsTestResult(BaseFrequencyTestResult):
             f"{self.mincount.value} occurred {self.mincount.count} times"
         )
 
-    def _jinja(result):
-        return Template("p={{ result.p }}")
+    def _report(self):
+        return [f"p={self.p3f()}", self.counts.plot(kind="bar")]
 
 
 @dataclass

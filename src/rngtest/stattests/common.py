@@ -1,9 +1,13 @@
+from base64 import b64encode
 from dataclasses import dataclass
 from functools import wraps
+from io import BytesIO
 from math import ceil
+from typing import Iterable
 from typing import Union
 
 import pandas as pd
+from matplotlib.axes import Subplot
 
 __all__ = ["TestResult", "stattest", "binary_stattest", "chunks"]
 
@@ -19,11 +23,28 @@ class TestResult:
     def __str__(self):
         raise NotImplementedError()
 
-    def _jinja(self):
+    def _report(self) -> Iterable[Union[str, Subplot]]:
         raise NotImplementedError()
 
+    @classmethod
+    def _markup(cls, item):
+        if isinstance(item, str):
+            return f"<p>{item}</p>"
+        elif isinstance(item, Subplot):
+            image_bin = BytesIO()
+            item.figure.savefig(image_bin, format="png")
+
+            image_bin.seek(0)
+            image_base64_bstr = b64encode(image_bin.read())
+            image_base64_str = image_base64_bstr.decode("utf-8")
+
+            return f"<img src='data:image/png;base64,{image_base64_str}' />"
+
     def report(self):
-        self.jinja(result=self)
+        elements = (TestResult._markup(item) for item in self._report())
+        report = "\n".join(elements)
+
+        return report
 
 
 def stattest(func):
