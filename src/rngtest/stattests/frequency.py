@@ -5,6 +5,7 @@ from typing import Any
 from typing import NamedTuple
 
 import pandas as pd
+from jinja2 import Template
 from scipy.special import gammaincc
 
 from rngtest.stattests.common import TestResult
@@ -75,6 +76,7 @@ class BaseFrequencyTestResult(TestResult):
         )
 
 
+@dataclass
 class MonobitsTestResult(BaseFrequencyTestResult):
     def __str__(self):
         return (
@@ -83,7 +85,11 @@ class MonobitsTestResult(BaseFrequencyTestResult):
             f"{self.mincount.value} occurred {self.mincount.count} times"
         )
 
+    def _jinja(result):
+        return Template("p={{ result.p }}")
 
+
+@dataclass
 class FrequencyTestResult(BaseFrequencyTestResult):
     def __str__(self):
         return (

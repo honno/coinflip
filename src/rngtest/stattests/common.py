@@ -19,8 +19,11 @@ class TestResult:
     def __str__(self):
         raise NotImplementedError()
 
-    def report(self):
+    def _jinja(self):
         raise NotImplementedError()
+
+    def report(self):
+        self.jinja(result=self)
 
 
 def stattest(func):
