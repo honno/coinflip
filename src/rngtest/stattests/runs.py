@@ -29,7 +29,7 @@ def runs(series, candidate=1):
         / (2 * sqrt(2 * n) * proportion_of_value * (1 - proportion_of_value))
     )
 
-    return RunsTestResult(statistic=no_of_runs, p=p, no_of_runs=no_of_runs)
+    return RunsTestResult(statistic=no_of_runs, p=p)
 
 
 @elected
@@ -105,7 +105,7 @@ def longest_runs(series, candidate=None):
     statistic = sum(statistic_partials)
     p = gammaincc(K / 2, statistic / 2)
 
-    return LongestRunInBlockTestResult(statistic=statistic, p=p)
+    return TestResult(statistic=statistic, p=p)
 
 
 @dataclass
@@ -130,11 +130,8 @@ def as_runs(series):
 
 @dataclass
 class RunsTestResult(TestResult):
-    no_of_runs: int
-
     def __str__(self):
         return f"p={self.p3f()}"
 
-
-class LongestRunInBlockTestResult(TestResult):
-    pass
+    def _report(self):
+        return [f"p={self.p3f()}"]

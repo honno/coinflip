@@ -11,16 +11,8 @@ from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
-from rngtest.stattests.common import stattest
 
-__all__ = ["frequency", "monobits", "frequency_within_block"]
-
-
-@stattest
-def frequency(series):
-    counts = series.value_counts()
-
-    return FrequencyTestResult(p=None, counts=counts)
+__all__ = ["monobits", "frequency_within_block"]
 
 
 @binary_stattest
@@ -54,7 +46,7 @@ def frequency_within_block(series, candidate=None, block_size=8):
     statistic = 4 * block_size * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
-    return FrequencyWithinBlocksTestResult(statistic=statistic, p=p)
+    return TestResult(statistic=statistic, p=p)
 
 
 class ValueCount(NamedTuple):
@@ -63,7 +55,7 @@ class ValueCount(NamedTuple):
 
 
 @dataclass
-class BaseFrequencyTestResult(TestResult):
+class MonobitsTestResult(TestResult):
     counts: pd.Series
 
     def __post_init__(self):
@@ -74,9 +66,6 @@ class BaseFrequencyTestResult(TestResult):
             value=self.counts.index.values[-1], count=self.counts.values[-1]
         )
 
-
-@dataclass
-class MonobitsTestResult(BaseFrequencyTestResult):
     def __str__(self):
         return (
             f"p={self.p3f()}\n"
@@ -86,16 +75,3 @@ class MonobitsTestResult(BaseFrequencyTestResult):
 
     def _report(self):
         return [f"p={self.p3f()}", self.counts.plot(kind="bar")]
-
-
-@dataclass
-class FrequencyTestResult(BaseFrequencyTestResult):
-    def __str__(self):
-        return (
-            f"{self.maxcount.value} occurred the most ({self.maxcount.count} times)\n"
-            f"{self.mincount.value} occurred the least ({self.mincount.count} times)"
-        )
-
-
-class FrequencyWithinBlocksTestResult(TestResult):
-    pass

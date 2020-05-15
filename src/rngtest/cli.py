@@ -23,7 +23,7 @@ def get_stores(ctx, args, incomplete):
 
 
 dtype_choice = Choice(store_.TYPES_MAP.keys())
-test_choice = Choice(runner.ls_tests())
+test_choice = Choice(runner.list_tests())
 
 
 @group()
@@ -104,14 +104,33 @@ def run(store, test=None):
 
 
 @main.command()
-@argument("datafile", type=File("r"))
+@argument("datafile", type=Path(exists=True))
 @option("-t", "--dtype", type=dtype_choice)
 @option("-t", "--test", type=test_choice)
-def local_run(datafile, dtype=None, test=None):
+@option("-r", "--report", type=Path())
+def local_run(datafile, dtype=None, test=None, report=None):
     df = store_.parse_data(datafile)
     series = df.iloc[:, 0]
 
     if test is None:
-        runner.run_all_tests(series)
+        results = runner.run_all_tests(series)
     else:
-        runner.run_test(series, test)
+        result = runner.run_test(series, test)
+        breakpoint()
+
+        results = [result]
+
+    if report:
+        html = []
+        for result in results:
+            try:
+                markup = result.report()
+                html.append(markup)
+            except NotImplementedError:
+                echo(f"No report markup provided for {result.__class__}")
+
+        if len(html) != 0:
+            with open(report, "w") as f:
+                f.writelines(html)
+        else:
+            echo("No report markup available!")
