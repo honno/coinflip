@@ -198,6 +198,15 @@ def ls_stores():
     for f in scandir(data_dir):
         if f.is_dir():
             yield f.name
+    try:
+        for f in scandir(data_dir):
+            print(f"{f} found in dir")
+            if f.is_dir():
+                print(f"yielding {f.name}")
+                yield f.name
+
+    except FileNotFoundError:
+        pass
 
 
 def load_result(store_name, result):
