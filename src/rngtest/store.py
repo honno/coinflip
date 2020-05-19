@@ -8,7 +8,6 @@ from time import sleep
 import numpy as np
 import pandas as pd
 from appdirs import AppDirs
-from click import echo
 
 from rngtest.slugify import slugify
 
@@ -28,7 +27,7 @@ data_dir = Path(dirs.user_data_dir)
 # Create local data directory if it does not already exist
 try:
     Path.mkdir(data_dir, parents=True)
-    echo(f"Created store folder at {data_dir}")
+    print(f"Created store folder at {data_dir}")
 except FileExistsError:
     pass
 
@@ -95,8 +94,10 @@ def init_store(name=None, overwrite=False):
     """
     if name is not None:
         store_name = slugify(name)
+
         if store_name != name:
-            echo(f"Store name {name} encoded as {store_name}")
+            print(f"Store name {name} encoded as {store_name}")
+
     else:
         for _ in range(UNIQUE_STORENAME_ATTEMPTS):
             timestamp = datetime.now()
@@ -109,7 +110,7 @@ def init_store(name=None, overwrite=False):
         else:
             raise NameConflictError()
 
-    echo(f"Store name to be encoded as {store_name}")
+        print(f"Store name to be encoded as {store_name}")
 
     store_path = data_dir / store_name
     try:
