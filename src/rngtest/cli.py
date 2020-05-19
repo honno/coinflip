@@ -8,6 +8,7 @@ from click import option
 
 import rngtest.store as store_
 import rngtest.tests_runner as runner
+from rngtest.report import write_report
 
 
 def get_stores(ctx, args, incomplete):
@@ -99,8 +100,8 @@ def report(store, outfile):
             echo(f"No report markup provided for {result.__class__.__name__}")
 
     if len(html) != 0:
-        with open(outfile, "w") as f:
-            f.writelines(html)
+        markup = "".join(html)
+        write_report(markup, outfile)
     else:
         echo("No report markup available!")
 
@@ -130,7 +131,7 @@ def local_run(datafile, dtype=None, test=None, report=None):
                 echo(f"No report markup provided for {result.__class__.__name__}")
 
         if len(html) != 0:
-            with open(report, "w") as f:
-                f.writelines(html)
+            markup = "\n".join(html)
+            write_report(markup, report)
         else:
             echo("No report markup available!")

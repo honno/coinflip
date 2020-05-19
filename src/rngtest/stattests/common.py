@@ -31,18 +31,18 @@ class TestResult:
         if isinstance(item, str):
             return f"<p>{item}</p>"
         elif isinstance(item, Subplot):
-            image_bin = BytesIO()
-            item.figure.savefig(image_bin, format="png")
+            svg_bin = BytesIO()
+            item.figure.savefig(svg_bin, format="svg")
 
-            image_bin.seek(0)
-            image_base64_bstr = b64encode(image_bin.read())
-            image_base64_str = image_base64_bstr.decode("utf-8")
+            svg_bin.seek(0)
+            svg_base64_bstr = b64encode(svg_bin.read())
+            svg_base64_str = svg_base64_bstr.decode("utf-8")
 
-            return f"<img src='data:image/png;base64,{image_base64_str}' />"
+            return f"<img src='data:image/svg+xml;charset=utf-8;base64, {svg_base64_str}' />"
 
     def report(self):
         elements = (TestResult._markup(item) for item in self._report())
-        report = "\n".join(elements)
+        report = "".join(elements)
 
         return report
 
