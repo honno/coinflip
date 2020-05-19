@@ -36,7 +36,7 @@ def main():
 @option("-t", "--dtype", type=dtype_choice)
 @option("-o", "--overwrite", is_flag=True)
 def load(data, name=None, dtype=None, overwrite=False):
-    store_.load(data, name=name, dtypestr=dtype, overwrite=overwrite)
+    store_.load_data(data, name=name, dtypestr=dtype, overwrite=overwrite)
 
 
 @main.command()
@@ -71,9 +71,38 @@ def run(store, test=None):
     series = store_.get_data(store)
 
     if test is None:
-        runner.run_all_tests(series)
+        results = runner.run_all_tests(series)
+
+        for result in results:
+            print(result)
+            store_.load_result(store, result)
+
     else:
-        runner.run_test(series, test)
+        result = runner.run_test(series, test)
+
+        print(result)
+        store_.load_result(store, result)
+
+
+@main.command()
+@argument("store", autocompletion=get_stores)
+@argument("outfile", type=Path())
+def report(store, outfile):
+    results = store_.get_results(store)
+
+    html = []
+    for result in results:
+        try:
+            markup = result.report()
+            html.append(markup)
+        except NotImplementedError:
+            echo(f"No report markup provided for {result.__class__.__name__}")
+
+    if len(html) != 0:
+        with open(outfile, "w") as f:
+            f.writelines(html)
+    else:
+        echo("No report markup available!")
 
 
 @main.command()
@@ -98,7 +127,7 @@ def local_run(datafile, dtype=None, test=None, report=None):
                 markup = result.report()
                 html.append(markup)
             except NotImplementedError:
-                echo(f"No report markup provided for {result.__class__}")
+                echo(f"No report markup provided for {result.__class__.__name__}")
 
         if len(html) != 0:
             with open(report, "w") as f:

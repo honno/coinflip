@@ -1,4 +1,5 @@
 import pickle
+import re
 from datetime import datetime
 from os import scandir
 from pathlib import Path
@@ -15,7 +16,7 @@ __all__ = [
     "TYPES_MAP",
     "data_dir",
     "parse_data",
-    "load",
+    "load_data",
     "get_data",
     "drop",
     "ls_stores",
@@ -34,6 +35,9 @@ except FileExistsError:
 DATA_FNAME = "dataframe.pickle"
 PROFILES_FNAME = "profiles.pickle"
 PROFILED_DATA_FNAME = "series.pickle"
+
+PICKLE_EXT = ".pickle"
+r_result_fname = re.compile("^.*Result" + PICKLE_EXT + "$")
 
 TYPES_MAP = {
     "bool": np.bool_,
@@ -126,7 +130,7 @@ class MultipleColumnsError(ValueError):
     pass
 
 
-def load(datafile, name=None, dtypestr=None, overwrite=False):
+def load_data(datafile, name=None, dtypestr=None, overwrite=False):
     """Load RNG outputs into a store"""
     df = parse_data(datafile, dtypestr)
 
@@ -193,3 +197,34 @@ def ls_stores():
     for f in scandir(data_dir):
         if f.is_dir():
             yield f.name
+
+
+def load_result(store_name, result):
+    store_path = data_dir / store_name
+
+    class_name = result.__class__.__name__
+    result_filename = class_name + PICKLE_EXT
+    result_path = store_path / result_filename
+
+    pickle.dump(result, open(result_path, "wb"))
+
+
+def load_results(store_name, results):
+    store_path = data_dir / store_name
+
+    for result in results:
+        class_name = result.__class__.__name__
+        result_filename = class_name + PICKLE_EXT
+        result_path = store_path / result_filename
+
+        pickle.dump(result, open(result_path, "wb"))
+
+
+def get_results(store_name):
+    store_path = data_dir / store_name
+
+    for f in scandir(store_path):
+        if r_result_fname.match(f.name):
+            result = pickle.load(open(f, "rb"))
+
+            yield result
