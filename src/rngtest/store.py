@@ -9,7 +9,6 @@ import pandas as pd
 from appdirs import AppDirs
 from click import echo
 
-import rngtest.profiling as profiling
 from rngtest.slugify import slugify
 
 __all__ = [
@@ -17,9 +16,7 @@ __all__ = [
     "data_dir",
     "parse_data",
     "load",
-    "load_with_profiles",
-    "get_single_profiled_data",
-    "get_profiled_data",
+    "get_data",
     "drop",
     "ls_stores",
 ]
@@ -144,48 +141,20 @@ def load(datafile, name=None, dtypestr=None, overwrite=False):
     pickle.dump(series, open(data_path, "wb"))
 
 
-def load_with_profiles(
-    datafile, profilespath, name=None, dtypestr=None, overwrite=False
-):
-    """Load profiled RNG outputs into a store"""
-    df = parse_data(datafile, dtypestr)
-
-    store_path = init_store(name=name, overwrite=overwrite)
-
-    profiles = profiling.profiled_data(df, profilespath)
-
-    for name, series in profiles:
-        profile_name = slugify(name)
-        if profile_name != name:
-            echo(f"Profile name {name} encoded as {profile_name}")
-
-        profile_path = store_path / profile_name
-        Path.mkdir(profile_path, exist_ok=True)
-
-        data_path = profile_path / PROFILED_DATA_FNAME
-        pickle.dump(series, open(data_path, "wb"))
-
-
 class StoreNotFoundError(FileNotFoundError):
     """Error for when requested store does not exist"""
 
     pass
 
 
-class NotSingleProfiledError(LookupError):
-    """Error for when requested store is not single-profiled"""
+class DataNotFoundError(LookupError):
+    """Error for when requested store has no data"""
 
     pass
 
 
-class NotMultiProfiledError(LookupError):
-    """Error for when requested store is not profiled"""
-
-    pass
-
-
-def get_single_profiled_data(store_name) -> pd.Series:
-    """Access data of a single-profiled store"""
+def get_data(store_name) -> pd.Series:
+    """Access data of a store"""
     store_path = data_dir / store_name
     if not store_path.exists():
         raise StoreNotFoundError()
@@ -199,30 +168,7 @@ def get_single_profiled_data(store_name) -> pd.Series:
             return series
 
     except FileNotFoundError:
-        raise NotSingleProfiledError()
-
-
-def get_profiled_data(store_name) -> pd.Series:
-    """Access data of a profiled store"""
-    store_path = data_dir / store_name
-
-    yield_count = 0
-
-    try:
-        for obj in scandir(store_path):
-            if obj.is_dir():
-                profile_path = Path(obj.path)
-                with open(profile_path / PROFILED_DATA_FNAME, "rb") as f:
-                    series = pickle.load(f)
-
-                yield series
-                yield_count += 1
-
-        if yield_count == 0:
-            raise NotMultiProfiledError()
-
-    except FileNotFoundError:
-        raise StoreNotFoundError()
+        raise DataNotFoundError()
 
 
 def rm_tree(path):
