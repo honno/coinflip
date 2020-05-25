@@ -1,8 +1,10 @@
 from math import isclose
 
 import pandas as pd
+from hypothesis import assume
 from hypothesis import given
 
+from rngtest.stattests import fourier
 from rngtest.stattests import frequency
 from rngtest.stattests import runs
 
@@ -36,3 +38,15 @@ def test_runs(bits):
 
     assert isclose(our_result.p, dj_result.p)
     assert isclose(our_result.p, steven_result.p)
+
+
+@given(random_bits_strategy)
+def test_discrete_fourier_transform(bits):
+    if len(bits) % 2 != 0:
+        truncated_bits = bits[:-1]
+        assume(0 in truncated_bits and 1 in truncated_bits)
+
+    our_result = fourier.discrete_fourier_transform(pd.Series(bits))
+    dj_result = dj.fourier_test(bits)
+
+    assert isclose(our_result.p, dj_result.p)

@@ -1,5 +1,6 @@
 from typing import NamedTuple
 
+from .sp800_22_tests import sp800_22_dft_test
 from .sp800_22_tests import sp800_22_frequency_within_block_test
 from .sp800_22_tests import sp800_22_monobit_test
 from .sp800_22_tests import sp800_22_runs_test
@@ -28,5 +29,11 @@ def frequency_within_block_test(bits):
 
 def runs_test(bits):
     result = sp800_22_runs_test.runs_test(bits)
+
+    return DJResult(*result)
+
+
+def fourier_test(bits):
+    result = sp800_22_dft_test.dft_test(bits)
 
     return DJResult(*result)

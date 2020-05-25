@@ -17,6 +17,11 @@ __all__ = ["discrete_fourier_transform"]
 def discrete_fourier_transform(series, candidate):
     n = len(series)
 
+    if n % 2 != 0:
+        series = series[:-1]
+        if series.nunique() != 2:
+            raise ValueError()
+
     peaks = candidate
     trough = next(value for value in series.unique() if value != candidate)
 
@@ -30,8 +35,6 @@ def discrete_fourier_transform(series, candidate):
     threshold = sqrt(log(1 / 0.05) * n)
     expected_below_threshold = 0.95 * n / 2
     actual_below_threshold = sum(peaks < threshold)  # TODO not accurate
-    print(f"expected {expected_below_threshold}")
-    print(f"actual {actual_below_threshold}")
 
     difference = actual_below_threshold - expected_below_threshold
     normalised_diff = difference / sqrt((n * 0.95 * 0.05) / 4)
