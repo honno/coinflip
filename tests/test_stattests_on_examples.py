@@ -1,5 +1,7 @@
 # fmt: off
 from math import isclose
+from typing import NamedTuple
+from typing import Union
 
 import pandas as pd
 
@@ -8,21 +10,45 @@ from rngtest.stattests import frequency
 from rngtest.stattests import matrix
 from rngtest.stattests import runs
 from rngtest.stattests import template
-from rngtest.stattests.common import TestResult as _TestResult
 
 
-def test_monobits():
-    bits = [1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+class StattestResult(NamedTuple):
+    statistic: int
+    p: Union[int, float]
 
-    our_result = frequency.monobits(pd.Series(bits))
-    nist_result = _TestResult(statistic=.632455532, p=0.527089)
 
+def example(bits, statistic, p, stattest, **kwargs):
+    def decorator(testing_function):
+        def wrapper():
+            series = pd.Series(bits)
+            our_result = stattest(series, **kwargs)
+
+            example_result = StattestResult(statistic=statistic, p=p)
+
+            testing_function(our_result, example_result)
+
+        return wrapper
+
+    return decorator
+
+
+@example(
+    stattest=frequency.monobits,
+
+    bits=[1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+
+    statistic=.632455532,
+    p=0.527089,
+)
+def test_monobits_small(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.05)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_frequency_within_block():
-    bits = [
+@example(
+    stattest=frequency.frequency_within_block,
+
+    bits=[
         1, 1, 0, 0, 1, 0, 0, 1,
         0, 0, 0, 0, 1, 1, 1, 1,
         1, 1, 0, 1, 1, 0, 1, 0,
@@ -36,30 +62,37 @@ def test_frequency_within_block():
         0, 1, 1, 0, 0, 0, 1, 0,
         1, 0, 0, 0, 1, 0, 1, 1,
         1, 0, 0, 0,
-    ]
+    ],
+    block_size=10,
 
-    our_result = frequency.frequency_within_block(pd.Series(bits), block_size=10)
-    nist_result = _TestResult(statistic=7.2, p=0.706438)
-
+    statistic=7.2,
+    p=0.706438,
+)
+def test_frequency_within_block_large(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.05)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_runs():
-    bits = [
+@example(
+    stattest=runs.runs,
+
+    bits=[
         1, 0, 0, 1, 1, 0, 1, 0,
         1, 1
-    ]
+    ],
 
-    our_result = runs.runs(pd.Series(bits))
-    nist_result = _TestResult(statistic=7, p=0.147232)
-
+    statistic=7,
+    p=0.147232,
+)
+def test_runs_small(our_result, nist_result):
     assert our_result.statistic == nist_result.statistic
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_longest_runs():
-    bits = [
+@example(
+    stattest=runs.longest_runs,
+
+    bits=[
         1, 1, 0, 0, 1, 1, 0, 0,
         0, 0, 0, 1, 0, 1, 0, 1,
         0, 1, 1, 0, 1, 1, 0, 0,
@@ -76,43 +109,52 @@ def test_longest_runs():
         1, 1, 1, 0, 0, 1, 1, 0,
         1, 1, 0, 1, 1, 0, 0, 0,
         1, 0, 1, 1, 0, 0, 1, 0,
-    ]
+    ],
 
-    our_result = runs.longest_runs(pd.Series(bits))
-    nist_result = _TestResult(statistic=4.882605, p=0.180609)
-
+    statistic=4.882605,
+    p=0.180609,
+)
+def test_longest_runs_large(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_binary_matrix_rank():
-    bits = [
+@example(
+    stattest=matrix.binary_matrix_rank,
+
+    bits=[
         0, 1, 0, 1, 1, 0, 0, 1,
         0, 0, 1, 0, 1, 0, 1, 0,
         1, 1, 0, 1,
-    ]
+    ],
+    matrix_rows=3,
+    matrix_cols=3,
 
-    our_result = matrix.binary_matrix_rank(
-        pd.Series(bits), matrix_rows=3, matrix_cols=3
-    )
-    nist_result = _TestResult(statistic=0.596953, p=0.741948)
-
+    statistic=0.596953,
+    p=0.741948,
+)
+def test_binary_matrix_rank_small(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_discrete_fourier_transform_small():
-    bits = [1, 0, 0, 1, 0, 1, 0, 0, 1, 1]
+@example(
+    stattest=fourier.discrete_fourier_transform,
 
-    our_result = fourier.discrete_fourier_transform(pd.Series(bits))
-    nist_result = _TestResult(statistic=-2.176429, p=0.029523)
+    bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
 
+    statistic=-2.176429,
+    p=0.029523,
+)
+def test_discrete_fourier_transform_small(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_discrete_fourier_transform_large():
-    bits = [
+@example(
+    stattest=fourier.discrete_fourier_transform,
+
+    bits=[
         1, 1, 0, 0, 1, 0, 0, 1,
         0, 0, 0, 0, 1, 1, 1, 1,
         1, 1, 0, 1, 1, 0, 1, 0,
@@ -126,28 +168,30 @@ def test_discrete_fourier_transform_large():
         0, 1, 1, 0, 0, 0, 1, 0,
         1, 0, 0, 0, 1, 0, 1, 1,
         1, 0, 0, 0,
-    ]
+    ],
 
-    our_result = fourier.discrete_fourier_transform(pd.Series(bits))
-    nist_result = _TestResult(statistic=-1.376494, p=0.168669)
-
+    statistic=-1.376494,
+    p=0.168669,
+)
+def test_discrete_fourier_transform_large(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
 
 
-def test_non_overlapping_template_matching():
-    bits = [
+@example(
+    stattest=template.non_overlapping_template_matching,
+
+    bits=[
         1, 0, 1, 0, 0, 1, 0, 0,
         1, 0, 1, 1, 1, 0, 0, 1,
         0, 1, 1, 0
-    ]
-    nist_template = [0, 0, 1]
-    nist_nblocks = 2
-    nist_result = _TestResult(statistic=2.133333, p=0.344154)
+    ],
+    template=pd.Series([0, 0, 1]),
+    nblocks=2,
 
-    our_result = template.non_overlapping_template_matching(
-        pd.Series(bits), template=pd.Series(nist_template), nblocks=nist_nblocks
-    )
-
+    statistic=2.133333,
+    p=0.344154,
+)
+def test_non_overlapping_template_matching_small(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
