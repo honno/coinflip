@@ -14,7 +14,7 @@ __all__ = ["runs", "longest_runs"]
 
 
 @binary_stattest
-def runs(series, candidate=1):
+def runs(series, candidate):
     n = len(series)
 
     counts = series.value_counts()
@@ -34,7 +34,7 @@ def runs(series, candidate=1):
 
 @elected
 @binary_stattest
-def longest_runs(series, candidate=None):
+def longest_runs(series, candidate):
     n = len(series)
 
     if n < 128:

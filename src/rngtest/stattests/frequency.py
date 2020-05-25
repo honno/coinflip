@@ -29,7 +29,7 @@ def monobits(series):
 
 @elected
 @binary_stattest
-def frequency_within_block(series, candidate=None, block_size=8):
+def frequency_within_block(series, candidate, block_size=8):
     if len(series) < 100:
         raise ValueError()
 

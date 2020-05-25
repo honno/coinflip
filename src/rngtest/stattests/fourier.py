@@ -14,7 +14,7 @@ __all__ = ["discrete_fourier_transform"]
 
 @elected
 @binary_stattest
-def discrete_fourier_transform(series, candidate=None):
+def discrete_fourier_transform(series, candidate):
     n = len(series)
 
     peaks = candidate
@@ -30,6 +30,8 @@ def discrete_fourier_transform(series, candidate=None):
     threshold = sqrt(log(1 / 0.05) * n)
     expected_below_threshold = 0.95 * n / 2
     actual_below_threshold = sum(peaks < threshold)  # TODO not accurate
+    print(f"expected {expected_below_threshold}")
+    print(f"actual {actual_below_threshold}")
 
     difference = actual_below_threshold - expected_below_threshold
     normalised_diff = difference / sqrt((n * 0.95 * 0.05) / 4)
