@@ -195,3 +195,26 @@ def test_discrete_fourier_transform_large(our_result, nist_result):
 def test_non_overlapping_template_matching_small(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+@example(
+    stattest=template.overlapping_template_matching,
+
+    bits=[
+        1, 0, 1, 1, 1, 0, 1, 1,
+        1, 1, 0, 0, 1, 0, 1, 1,
+        0, 1, 0, 0, 0, 1, 1, 1,
+        0, 0, 1, 0, 1, 1, 1, 0,
+        1, 1, 1, 1, 1, 0, 0, 0,
+        0, 1, 0, 1, 1, 0, 1, 0,
+        0, 1,
+    ],
+    template=pd.Series([1, 1]),
+    nblocks=5,
+
+    statistic=3.167729,
+    p=0.274932,
+)
+def test_overlapping_template_matching_small(our_result, nist_result):
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
