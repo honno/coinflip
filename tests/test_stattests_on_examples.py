@@ -10,6 +10,7 @@ from rngtest.stattests import frequency
 from rngtest.stattests import matrix
 from rngtest.stattests import runs
 from rngtest.stattests import template
+from rngtest.stattests import universal
 
 
 class StattestResult(NamedTuple):
@@ -216,5 +217,24 @@ def test_non_overlapping_template_matching_small(our_result, nist_result):
     p=0.274932,
 )
 def test_overlapping_template_matching_small(our_result, nist_result):
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+@example(
+    stattest=universal.maurers_universal,
+
+    bits=[
+        0, 1, 0, 1, 1, 0, 1, 0,
+        0, 1, 1, 1, 0, 1, 0, 1,
+        0, 1, 1, 1,
+    ],
+    block_size=2,
+    init_nblocks=4,
+
+    statistic=1.1949875,
+    p=0.767189,
+)
+def test_maurers_universal(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
