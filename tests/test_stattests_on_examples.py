@@ -1,10 +1,12 @@
 # fmt: off
 from math import isclose
+from pathlib import Path
 from typing import NamedTuple
 from typing import Union
 
 import pandas as pd
 
+from rngtest.stattests import complexity
 from rngtest.stattests import fourier
 from rngtest.stattests import frequency
 from rngtest.stattests import matrix
@@ -236,5 +238,33 @@ def test_overlapping_template_matching_small(our_result, nist_result):
     p=0.767189,
 )
 def test_maurers_universal(our_result, nist_result):
+    assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
+    assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
+
+
+tests_path = Path(__file__).parent
+data_path = tests_path / "data"
+
+
+def e_expansion():
+    with open(data_path / "e_expansion.txt") as f:
+        for line in f:
+            for x in line:
+                if x == "0" or x == "1":
+                    bit = int(x)
+
+                    yield bit
+
+
+@example(
+    stattest=complexity.linear_complexity,
+
+    bits=e_expansion(),
+    block_size=1000,
+
+    statistic=2.700348,
+    p=0.845406,
+)
+def test_linear_complexity(our_result, nist_result):
     assert isclose(our_result.statistic, nist_result.statistic, abs_tol=0.005)
     assert isclose(our_result.p, nist_result.p, abs_tol=0.005)
