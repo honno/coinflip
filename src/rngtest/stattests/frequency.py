@@ -11,6 +11,8 @@ from rngtest.stattests.common.decorators import binary_stattest
 from rngtest.stattests.common.decorators import elected
 from rngtest.stattests.common.methods import chunks
 from rngtest.stattests.common.result import TestResult
+from rngtest.stattests.common.result import erfc_plot
+from rngtest.stattests.common.result import half_norm_plot
 
 __all__ = ["monobits", "frequency_within_block"]
 
@@ -74,4 +76,9 @@ class MonobitsTestResult(TestResult):
         )
 
     def _report(self):
-        return [f"p={self.p3f()}", self.counts.plot(kind="bar")]
+        return [
+            f"p={self.p3f()}",
+            self.counts.plot(kind="bar"),
+            half_norm_plot(self.statistic),
+            erfc_plot(self.statistic / sqrt(2)),
+        ]
