@@ -4,9 +4,9 @@ from math import exp
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
-from rngtest.stattests.common import chunks
+from rngtest.stattests.common.decorators import binary_stattest
+from rngtest.stattests.common.methods import chunks
+from rngtest.stattests.common.result import TestResult
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 

@@ -5,9 +5,9 @@ from math import sqrt
 import pandas as pd
 from numpy.fft import fft
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
-from rngtest.stattests.common import elected
+from rngtest.stattests.common.decorators import binary_stattest
+from rngtest.stattests.common.decorators import elected
+from rngtest.stattests.common.result import TestResult
 
 __all__ = ["discrete_fourier_transform"]
 
