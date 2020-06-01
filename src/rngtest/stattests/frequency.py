@@ -7,12 +7,11 @@ from typing import NamedTuple
 import pandas as pd
 from scipy.special import gammaincc
 
-from rngtest.stattests.common.decorators import binary_stattest
-from rngtest.stattests.common.decorators import elected
-from rngtest.stattests.common.methods import chunks
-from rngtest.stattests.common.result import TestResult
-from rngtest.stattests.common.result import erfc_plot
-from rngtest.stattests.common.result import half_norm_plot
+from rngtest.stattests.common import TestResult
+from rngtest.stattests.common import binary_stattest
+from rngtest.stattests.common import chunks
+from rngtest.stattests.common import elected
+from rngtest.stattests.common import plots
 
 __all__ = ["monobits", "frequency_within_block"]
 
@@ -79,6 +78,6 @@ class MonobitsTestResult(TestResult):
         return [
             f"p={self.p3f()}",
             self.counts.plot(kind="bar"),
-            half_norm_plot(self.statistic),
-            erfc_plot(self.statistic / sqrt(2)),
+            plots.halfnorm(self.statistic),
+            plots.erfc(self.statistic / sqrt(2)),
         ]
