@@ -1,5 +1,5 @@
 import pickle
-import re
+from contextlib import contextmanager
 from datetime import datetime
 from os import scandir
 from pathlib import Path
@@ -34,9 +34,7 @@ except FileExistsError:
 DATA_FNAME = "dataframe.pickle"
 PROFILES_FNAME = "profiles.pickle"
 PROFILED_DATA_FNAME = "series.pickle"
-
-PICKLE_EXT = ".pickle"
-r_result_fname = re.compile("^.*Result" + PICKLE_EXT + "$")
+RESULTS_FNAME = "results.pickle"
 
 TYPES_MAP = {
     "bool": np.bool_,
@@ -210,31 +208,36 @@ def ls_stores():
 
 
 def load_result(store_name, result):
-    store_path = data_dir / store_name
-
-    class_name = result.__class__.__name__
-    result_filename = class_name + PICKLE_EXT
-    result_path = store_path / result_filename
-
-    pickle.dump(result, open(result_path, "wb"))
+    with open_results(store_name, write=True) as results_dict:
+        class_name = result.__class__.__name__
+        results_dict[class_name] = result
 
 
 def load_results(store_name, results):
+    with open_results(store_name, write=True) as results_dict:
+        for result in results:
+            class_name = result.__class__.__name__
+            results_dict[class_name] = result
+
+
+@contextmanager
+def open_results(store_name, write=False):
     store_path = data_dir / store_name
+    results_path = store_path / RESULTS_FNAME
 
-    for result in results:
-        class_name = result.__class__.__name__
-        result_filename = class_name + PICKLE_EXT
-        result_path = store_path / result_filename
+    if not results_path.exists():
+        results = {}
+    else:
+        with open(results_path, "rb") as f:
+            try:
+                results = pickle.load(f)
+            except EOFError:
+                results = {}
 
-        pickle.dump(result, open(result_path, "wb"))
-
-
-def get_results(store_name):
-    store_path = data_dir / store_name
-
-    for f in scandir(store_path):
-        if r_result_fname.match(f.name):
-            result = pickle.load(open(f, "rb"))
-
-            yield result
+    if write:
+        with open(results_path, "wb") as f:
+            yield results
+            pickle.dump(results, f)
+    else:
+        with open(results_path, "rb") as f:
+            yield results

@@ -89,15 +89,15 @@ def run(store, test=None):
 @argument("store", autocompletion=get_stores)
 @argument("outfile", type=Path())
 def report(store, outfile):
-    results = store_.get_results(store)
-
-    html = []
-    for result in results:
-        try:
-            markup = result.report()
-            html.append(markup)
-        except NotImplementedError:
-            echo(f"No report markup provided for {result.__class__.__name__}")
+    with store_.open_results(store) as results_dict:
+        results = results_dict.values()
+        html = []
+        for result in results:
+            try:
+                markup = result.report()
+                html.append(markup)
+            except NotImplementedError:
+                echo(f"No report markup provided for {result.__class__.__name__}")
 
     if len(html) != 0:
         markup = "".join(html)
