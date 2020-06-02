@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from math import erfc
 from math import sqrt
 from typing import Any
+from typing import List
 from typing import NamedTuple
 
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.special import gammaincc
 
@@ -36,18 +38,26 @@ def frequency_within_block(series, candidate, block_size=8):
 
     nblocks = len(series) // block_size
 
-    proportions = []
+    occurences = []
     for chunk in chunks(series, block_size=block_size):
         count = (chunk == candidate).sum()
-        prop = count / block_size
-        proportions.append(prop)
+        occurences.append(count)
+
+    proportions = (count / block_size for count in occurences)
 
     deviations = (prop - 1 / 2 for prop in proportions)
 
     statistic = 4 * block_size * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
-    return TestResult(statistic=statistic, p=p)
+    return FrequencyWithinBlockTestResult(
+        statistic=statistic,
+        p=p,
+        candidate=candidate,
+        block_size=block_size,
+        nblocks=nblocks,
+        occurences=occurences,
+    )
 
 
 class ValueCount(NamedTuple):
@@ -80,4 +90,31 @@ class MonobitsTestResult(TestResult):
             self.counts.plot(kind="bar"),
             plots.halfnorm(self.statistic),
             plots.erfc(self.statistic / sqrt(2)),
+        ]
+
+
+@dataclass
+class FrequencyWithinBlockTestResult(TestResult):
+    candidate: Any
+    block_size: int
+    nblocks: int
+    occurences: List[int]
+
+    def __str__(self):
+        return f"p={self.p3f()}"
+
+    def _report(self):
+        occurfig, occurax = plt.subplots()
+
+        x_axis = [i * self.block_size for i in range(len(self.occurences))]
+
+        occurax.set_ylim([0, self.block_size])
+        occurax.bar(x_axis, self.occurences, width=self.block_size * 0.9, align="edge")
+        occurax.axhline(self.block_size / 2, color="black")
+
+        return [
+            f"p={self.p3f()}",
+            occurfig,
+            plots.chi2(self.statistic, df=self.nblocks),
+            plots.gammaincc(self.statistic / 2, scale=self.nblocks / 2),
         ]
