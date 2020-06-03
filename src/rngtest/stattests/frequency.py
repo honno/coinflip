@@ -13,7 +13,10 @@ from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
-from rngtest.stattests.common import plots
+from rngtest.stattests.common import plot_chi2
+from rngtest.stattests.common import plot_erfc
+from rngtest.stattests.common import plot_gammaincc
+from rngtest.stattests.common import plot_halfnorm
 
 __all__ = ["monobits", "frequency_within_block"]
 
@@ -88,8 +91,8 @@ class MonobitsTestResult(TestResult):
         return [
             f"p={self.p3f()}",
             self.counts.plot(kind="bar"),
-            plots.halfnorm(self.statistic),
-            plots.erfc(self.statistic / sqrt(2)),
+            plot_halfnorm(self.statistic),
+            plot_erfc(self.statistic / sqrt(2)),
         ]
 
 
@@ -115,6 +118,6 @@ class FrequencyWithinBlockTestResult(TestResult):
         return [
             f"p={self.p3f()}",
             occurfig,
-            plots.chi2(self.statistic, df=self.nblocks),
-            plots.gammaincc(self.statistic / 2, scale=self.nblocks / 2),
+            plot_chi2(self.statistic, df=self.nblocks),
+            plot_gammaincc(self.statistic / 2, scale=self.nblocks / 2),
         ]
