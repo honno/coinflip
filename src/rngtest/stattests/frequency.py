@@ -24,15 +24,35 @@ __all__ = ["monobits", "frequency_within_block"]
 
 @binary_stattest
 def monobits(series):
+    """Proportion of values is compared to expected 1:1 ratio
+
+    The difference between the frequency of the two values is found, and
+    referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested test
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered. The `__str__` property (i.e. used
+        in `print` statements) contains a printable summary of the result, and
+        the `report()` method produces a HTML summary, which includes embedded
+        graphical plots.
+    """
+
     counts = series.value_counts()
 
     n = len(series)
     difference = abs(counts.iloc[0] - counts.iloc[1])
-    statistic = difference / sqrt(n)
-    p = erfc(statistic / sqrt(2))
+    normalised_diff = difference / sqrt(n)
+    p = erfc(normalised_diff / sqrt(2))
 
     return MonobitsTestResult(
-        statistic=statistic, p=p, n=n, difference=difference, counts=counts
+        statistic=normalised_diff, p=p, n=n, difference=difference, counts=counts
     )
 
 
