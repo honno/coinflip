@@ -6,17 +6,18 @@ from typing import List
 from typing import NamedTuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from scipy.special import gammaincc
+from scipy.stats import halfnorm
 
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
 from rngtest.stattests.common import plot_chi2
-from rngtest.stattests.common import plot_erfc
 from rngtest.stattests.common import plot_gammaincc
-from rngtest.stattests.common import plot_halfnorm
+from rngtest.stattests.common import range_annotation
 
 __all__ = ["monobits", "frequency_within_block"]
 
@@ -30,7 +31,9 @@ def monobits(series):
     statistic = difference / sqrt(n)
     p = erfc(statistic / sqrt(2))
 
-    return MonobitsTestResult(statistic=statistic, p=p, counts=counts)
+    return MonobitsTestResult(
+        statistic=statistic, p=p, n=n, difference=difference, counts=counts
+    )
 
 
 @elected
@@ -71,6 +74,8 @@ class ValueCount(NamedTuple):
 @dataclass
 class MonobitsTestResult(TestResult):
     counts: pd.Series
+    n: int
+    difference: int
 
     def __post_init__(self):
         self.maxcount = ValueCount(
@@ -90,10 +95,93 @@ class MonobitsTestResult(TestResult):
     def _report(self):
         return [
             f"p={self.p3f()}",
-            self.counts.plot(kind="bar"),
-            plot_halfnorm(self.statistic),
-            plot_erfc(self.statistic / sqrt(2)),
+            self.plot_counts(),
+            self.plot_reference_dist(),
         ]
+
+    def plot_counts(self):
+        ax = self.counts.plot.bar(rot=0)
+        fig = ax.get_figure()
+
+        ax.set_title(f"Occurences of {self.mincount.value} and {self.maxcount.value}")
+        ax.set_xlabel("Values")
+        ax.set_ylabel("No. of occurences")
+
+        ax.axhline(self.maxcount.count, color="black", linestyle="--")
+
+        margin = 0.1
+        plt.annotate(
+            s="",
+            xy=(1, self.mincount.count + margin),
+            xytext=(1, self.maxcount.count - margin),
+            arrowprops=dict(arrowstyle="<->"),
+        )
+
+        ax.text(
+            1 - margin,
+            self.mincount.count + 1 / 2 * self.difference,
+            f"difference = {self.difference}",
+            ha="right",
+        )
+
+        return fig
+
+    def plot_reference_dist(self):
+        fig, ax = plt.subplots()
+
+        ax.set_title("Probability densities for differences")
+        ax.set_xlabel("Difference between occurences (normalised)")
+        ax.set_ylabel("Probability density")
+
+        # ------------------------
+        # Half-normal distribution
+        # ------------------------
+
+        mean = 0
+        variance = 1
+        deviation = sqrt(variance)
+
+        xlim = max(3 * deviation, self.statistic)
+        x = np.linspace(0, xlim)
+        y = halfnorm.pdf(x, mean, deviation)
+
+        ax.plot(x, y, color="black")
+
+        # ------------
+        # p-value area
+        # ------------
+
+        fill_x = x[x > self.statistic]
+        fill_y = y[-len(fill_x) :]
+
+        # Add self.statistic point to plot fill area from its boundary
+        fill_x = np.insert(fill_x, 0, self.statistic)
+        statistic_pdf = halfnorm.pdf(self.statistic, mean, deviation)
+        fill_y = np.insert(fill_y, 0, statistic_pdf)
+
+        ax.fill_between(
+            fill_x, 0, fill_y, facecolor="none", hatch="//", edgecolor="black"
+        )
+
+        # -----------
+        # Annotations
+        # -----------
+
+        ax.set_ylim([0, 1])
+        stat2f = round(self.statistic, 2)
+        annotation_text = (
+            "area under curve represents the\n"
+            "probability that a truly random sample would\n"
+            f"at least have a normalised difference of {stat2f}"
+        )
+        range_annotation(
+            ax=ax, xmin=self.statistic, xmax=xlim, ymin=fill_y[0], text=annotation_text
+        )
+
+        probability = "{:.1%}".format(self.p)
+        ax.text(xlim, fill_y[0] / 2, f"probability = {probability}", ha="right")
+
+        return fig
 
 
 @dataclass

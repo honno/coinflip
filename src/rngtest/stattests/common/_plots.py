@@ -1,62 +1,77 @@
-from math import sqrt
-
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import inf
 from scipy.special import erfc
 from scipy.special import gammaincc
+from scipy.special import logit
 from scipy.stats import chi2
-from scipy.stats import halfnorm
 
-__all__ = ["plot_halfnorm", "plot_erfc", "plot_chi2", "plot_gammaincc"]
-
-mean = 0
-variance = 1
-deviation = sqrt(variance)
+__all__ = ["plot_erfc", "plot_chi2", "plot_gammaincc", "range_annotation"]
 
 
-def plot_halfnorm(x):
+def plot_erfc(statistic):
     fig, ax = plt.subplots()
 
-    x_axis = np.linspace(0, 3 * deviation)
-    normal_dist = halfnorm.pdf(x_axis, mean, deviation)
+    x = np.linspace(-3, 3)
 
-    ax.plot(x_axis, normal_dist)
-    ax.axvline(x, color="black")
+    ax.plot(x, erfc(x))
+    ax.axvline(statistic, color="black")
 
     return fig
 
 
-def plot_erfc(x):
+def plot_chi2(statistic, df):
     fig, ax = plt.subplots()
 
-    x_axis = np.linspace(-3, 3)
+    x = np.linspace(0, max(statistic + 1, 4))
 
-    ax.plot(x_axis, erfc(x_axis))
-    ax.axvline(x, color="black")
+    ax.plot(x, chi2.pdf(x, df))
+
+    statistic_pdf = chi2.pdf(statistic, df)
+    ax.axvline(statistic, color="black")
+    ax.set_ylim([0, statistic_pdf])
 
     return fig
 
 
-def plot_chi2(x, df):
+def plot_gammaincc(statistic, boundary):
     fig, ax = plt.subplots()
 
-    x_axis = np.linspace(0, max(x + 1, 4))
+    x = np.linspace(0, 4)
 
-    ax.plot(x_axis, chi2.pdf(x_axis, df))
-
-    y = chi2.pdf(x, df)
-    ax.axvline(x, color="black")
-    ax.set_ylim([0, y])
+    ax.plot(x, gammaincc(boundary, x))
+    ax.axvline(statistic, color="black")
 
     return fig
 
 
-def plot_gammaincc(x, scale):
-    fig, ax = plt.subplots()
+def range_annotation(ax, xmin, xmax, ymin, text, scale=0.01):
+    width = xmax - xmin
+    peak = 6 * scale
+    margin = peak / 2
 
-    x_axis = np.linspace(0, 4)
+    # --------------
+    # Generate plots
+    # --------------
 
-    ax.plot(x_axis, gammaincc(scale, x_axis))
-    ax.axvline(x, color="black")
+    logit_x = np.linspace(0, 1)
+    logit_y = logit(logit_x)
 
-    return fig
+    # Convert unplottable infinity values into the apexes
+    half_y = logit_y * scale
+    half_y[half_y == -inf] = -peak
+    half_y[half_y == inf] = peak
+
+    half_y = half_y + ymin + peak + margin
+    half_x = logit_x * (width / 2) + xmin
+
+    x = np.concatenate([half_x, half_x + (width / 2)])
+    y = np.concatenate([half_y, half_y[::-1]])
+
+    ax.plot(x, y, color="black")
+
+    # ----
+    # Text
+    # ----
+
+    ax.text(half_x[-1], half_y[-1] + margin, text, ha="center")
