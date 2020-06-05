@@ -114,9 +114,13 @@ class MonobitsTestResult(TestResult):
 
     def _report(self):
         return [
-            f"p={self.p3f()}",
+            f"The number of occurences for the {self.maxcount.value} and {self.mincount.value} values are found and the difference is calculated.",
             self.plot_counts(),
+            f"We can compare this to the hypothetical output of a truly random RNG. A question is asked&mdash;how likely would such a RNG produce a sequence with <i>at least</i> a difference of {self.difference} between the occurences of binary values?",
+            "The likelihood would decrease with higher differences, assuming that random outputs tends towards uniformity. Such a distribution would follow a half-normal distribution (i.e. a bell-curve shape, but with it's left side flipped and added to the right).",
+            f"To compare the difference of {self.difference} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {self.n}. This results in a reference statistic of {round(self.statistic, 2)}.",
             self.plot_reference_dist(),
+            f"Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {self.p3f()}. The lower the p-value, the less confident we can say that this data is random.",
         ]
 
     def plot_counts(self):
@@ -189,13 +193,12 @@ class MonobitsTestResult(TestResult):
 
         ax.set_ylim([0, 1])
         stat2f = round(self.statistic, 2)
-        annotation_text = (
-            "area under curve represents the\n"
-            "probability that a truly random sample would\n"
-            f"at least have a normalised difference of {stat2f}"
-        )
         range_annotation(
-            ax=ax, xmin=self.statistic, xmax=xlim, ymin=fill_y[0], text=annotation_text
+            ax=ax,
+            xmin=self.statistic,
+            xmax=xlim,
+            ymin=fill_y[0],
+            text=f"normalised difference of {stat2f} or greater",
         )
 
         probability = "{:.1%}".format(self.p)
