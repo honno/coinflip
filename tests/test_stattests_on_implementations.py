@@ -24,7 +24,7 @@ def test_monobits(bits):
 # TODO figure out sensible isclose margins for extreme sequence inputs
 # @given(large_random_bits_strategy)
 # def test_frequency_within_block(bits):
-#     our_result = frequency.frequency_within_block(pd.Series(bits), block_size=dj.block_size)
+#     our_result = frequency.frequency_within_block(pd.Series(bits), blocksize=dj.blocksize)
 #     dj_result = dj.frequency_within_block_test(bits)
 
 #     assert isclose(our_result.p, dj_result.p, abs_tol=0.005)

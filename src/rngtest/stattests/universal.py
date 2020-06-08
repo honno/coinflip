@@ -17,19 +17,19 @@ __all__ = ["maurers_universal"]
 
 # TODO understand what's going with the hard coded values provided
 @binary_stattest
-def maurers_universal(series, block_size, init_nblocks):
+def maurers_universal(series, blocksize, init_nblocks):
     n = len(series)
-    init_n = init_nblocks * block_size
+    init_n = init_nblocks * blocksize
     init_series, remaining_series = series[:init_n], series[init_n:]
-    remaining_nblocks = (n - init_n) / block_size
+    remaining_nblocks = (n - init_n) / blocksize
 
     last_permutation_occurences = defaultdict(int)
 
-    init_blocks = hashable_chunks(init_series, block_size=block_size)
+    init_blocks = hashable_chunks(init_series, blocksize=blocksize)
     for i, permutation in enumerate(init_blocks, 1):
         last_permutation_occurences[permutation] = i
 
-    remaining_blocks = hashable_chunks(remaining_series, block_size=block_size)
+    remaining_blocks = hashable_chunks(remaining_series, blocksize=blocksize)
     cumulative_distances = 0
     for i, permutation in enumerate(remaining_blocks, init_nblocks + 1):
         last_occurence = last_permutation_occurences[permutation]
@@ -40,7 +40,7 @@ def maurers_universal(series, block_size, init_nblocks):
 
     statistic = cumulative_distances / remaining_nblocks
 
-    stuff = hard_coded_thing.loc[hard_coded_thing["block_size"] == block_size]
+    stuff = hard_coded_thing.loc[hard_coded_thing["blocksize"] == blocksize]
 
     p = erfc(abs((statistic - stuff["expected_value"]) / (sqrt(2) * stuff["variance"])))
 
@@ -63,7 +63,7 @@ hard_coded_thing = pd.DataFrame(
         [15, 14.167488, 3.419],
         [16, 15.167379, 3.421],
     ],
-    columns=["block_size", "expected_value", "variance"],
+    columns=["blocksize", "expected_value", "variance"],
 )
 
 
@@ -73,7 +73,7 @@ def hashable_chunks(*args, **kwargs) -> Iterable[Tuple[Any]]:
 
 
 # TODO default parameters using NIST's recommendations
-# n block_size init_nblocks
+# n blocksize init_nblocks
 # 387,840 6 640
 # 904,960 7 1280
 # 2,068,480 8 2560

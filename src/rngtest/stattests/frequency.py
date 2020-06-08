@@ -59,7 +59,7 @@ def monobits(series):
 
 @elected
 @binary_stattest
-def frequency_within_block(series, candidate, block_size=8):
+def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
 
     The difference between the frequency of the two values in each block is
@@ -71,7 +71,7 @@ def frequency_within_block(series, candidate, block_size=8):
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block
-    block_size : int
+    blocksize : int
         Size of the blocks that partition the given series
 
     Returns
@@ -86,24 +86,24 @@ def frequency_within_block(series, candidate, block_size=8):
     if len(series) < 100:
         raise BelowMinimumInputSizeWarning()
 
-    nblocks = len(series) // block_size
+    nblocks = len(series) // blocksize
 
     occurences = []
-    for chunk in chunks(series, block_size=block_size):
+    for chunk in chunks(series, blocksize=blocksize):
         count = (chunk == candidate).sum()
         occurences.append(count)
 
-    proportions = (count / block_size for count in occurences)
+    proportions = (count / blocksize for count in occurences)
     deviations = (prop - 1 / 2 for prop in proportions)
 
-    statistic = 4 * block_size * sum(x ** 2 for x in deviations)
+    statistic = 4 * blocksize * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
     return FrequencyWithinBlockTestResult(
         statistic=statistic,
         p=p,
         candidate=candidate,
-        block_size=block_size,
+        blocksize=blocksize,
         nblocks=nblocks,
         occurences=occurences,
     )
@@ -233,7 +233,7 @@ class MonobitsTestResult(TestResult):
 @dataclass
 class FrequencyWithinBlockTestResult(TestResult):
     candidate: Any
-    block_size: int
+    blocksize: int
     nblocks: int
     occurences: List[int]
 
@@ -243,11 +243,11 @@ class FrequencyWithinBlockTestResult(TestResult):
     def _report(self):
         occurfig, occurax = plt.subplots()
 
-        x_axis = [i * self.block_size for i in range(len(self.occurences))]
+        x_axis = [i * self.blocksize for i in range(len(self.occurences))]
 
-        occurax.set_ylim([0, self.block_size])
-        occurax.bar(x_axis, self.occurences, width=self.block_size * 0.9, align="edge")
-        occurax.axhline(self.block_size / 2, color="black")
+        occurax.set_ylim([0, self.blocksize])
+        occurax.bar(x_axis, self.occurences, width=self.blocksize * 0.9, align="edge")
+        occurax.axhline(self.blocksize / 2, color="black")
 
         return [
             f"p={self.p3f()}",

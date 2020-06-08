@@ -5,7 +5,7 @@ __all__ = ["linear_complexity"]
 
 
 @binary_stattest
-def linear_complexity(series, block_size):
+def linear_complexity(series, blocksize):
     n = len(series)
     print(n)
     print(series)

@@ -62,15 +62,15 @@ def longest_runs(series, candidate):
     if n < 128:
         raise ValueError()
     elif n < 6272:
-        block_size = 8
+        blocksize = 8
         nblocks = 16
         freqbinranges = [1, 2, 3, 4]
     elif n < 750000:
-        block_size = 128
+        blocksize = 128
         nblocks = 49
         freqbinranges = [4, 5, 6, 7, 8, 9]
     else:
-        block_size = 10 ** 4
+        blocksize = 10 ** 4
         nblocks = 75
         freqbinranges = [10, 11, 12, 13, 14, 15, 16]
 
@@ -102,7 +102,7 @@ def longest_runs(series, candidate):
         10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
     }
     try:
-        maxlenprobabilities = probabilities[block_size]
+        maxlenprobabilities = probabilities[blocksize]
     except KeyError:
         raise NotImplementedError()
 
@@ -111,7 +111,7 @@ def longest_runs(series, candidate):
     # ----------
 
     maxlengths = []
-    for chunk in chunks(series, block_size=block_size):
+    for chunk in chunks(series, blocksize=blocksize):
         candidateruns = (run for run in asruns(chunk) if run.value == candidate)
 
         maxlen = 0

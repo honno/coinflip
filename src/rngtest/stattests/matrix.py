@@ -15,11 +15,11 @@ __all__ = ["binary_matrix_rank"]
 @binary_stattest
 def binary_matrix_rank(series, matrix_rows=32, matrix_cols=32):
     n = len(series)
-    block_size = matrix_rows * matrix_cols
-    nblocks = n // block_size
+    blocksize = matrix_rows * matrix_cols
+    nblocks = n // blocksize
 
     matrices = []
-    for chunk in chunks(series, block_size=block_size):
+    for chunk in chunks(series, blocksize=blocksize):
         rows_as_series = chunks(chunk, nblocks=matrix_rows)
         rows_as_arrays = [series.values for series in rows_as_series]
         matrix = np.stack(rows_as_arrays)

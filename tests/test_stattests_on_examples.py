@@ -66,7 +66,7 @@ def test_monobits_small(our_result, nist_result):
         1, 0, 0, 0, 1, 0, 1, 1,
         1, 0, 0, 0,
     ],
-    block_size=10,
+    blocksize=10,
 
     statistic=7.2,
     p=0.706438,
@@ -231,7 +231,7 @@ def test_overlapping_template_matching_small(our_result, nist_result):
         0, 1, 1, 1, 0, 1, 0, 1,
         0, 1, 1, 1,
     ],
-    block_size=2,
+    blocksize=2,
     init_nblocks=4,
 
     statistic=1.1949875,
@@ -260,7 +260,7 @@ def e_expansion():
     stattest=complexity.linear_complexity,
 
     bits=e_expansion(),
-    block_size=1000,
+    blocksize=1000,
 
     statistic=2.700348,
     p=0.845406,

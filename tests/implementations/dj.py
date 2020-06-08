@@ -18,7 +18,7 @@ def monobit_test(bits):
     return DJResult(*result)
 
 
-block_size = 20
+blocksize = 20
 
 
 def frequency_within_block_test(bits):

@@ -14,15 +14,15 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 @binary_stattest
 def non_overlapping_template_matching(series, template=None, nblocks=968):
     n = len(series)
-    block_size = n // nblocks
+    blocksize = n // nblocks
 
     if template is None:
-        possible_templates = combinations(series.unique(), block_size)
+        possible_templates = combinations(series.unique(), blocksize)
         template = next(possible_templates)
     template_size = len(template)
 
     matches_per_block = []
-    for chunk in chunks(series, block_size=block_size):
+    for chunk in chunks(series, blocksize=blocksize):
         matches = 0
         pointer = 0
 
@@ -36,12 +36,12 @@ def non_overlapping_template_matching(series, template=None, nblocks=968):
 
         matches_per_block.append(matches)
 
-    theoretical_mean = (block_size - template_size + 1) / 2 ** template_size
-    theoretical_variance = block_size * (
+    theoretical_mean = (blocksize - template_size + 1) / 2 ** template_size
+    theoretical_variance = blocksize * (
         (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
     )
 
-    # mean = (block_size - template_size + 1) / 2**template_size
+    # mean = (blocksize - template_size + 1) / 2**template_size
     # variance = sum((matches - mean)**2 for matches in matches_per_block) / nblocks
 
     statistic = (
@@ -56,18 +56,18 @@ def non_overlapping_template_matching(series, template=None, nblocks=968):
 @binary_stattest
 def overlapping_template_matching(series, template=None, nblocks=8):
     n = len(series)
-    block_size = n // nblocks
+    blocksize = n // nblocks
 
     if template is None:
-        possible_templates = combinations(series.unique(), block_size)
+        possible_templates = combinations(series.unique(), blocksize)
         template = next(possible_templates)
     template_size = len(template)
 
     matches_per_block = []
-    for chunk in chunks(series, block_size=block_size):
+    for chunk in chunks(series, blocksize=blocksize):
         matches = 0
 
-        for i in range(block_size):
+        for i in range(blocksize):
             window = chunk[i : i + template_size]
 
             if all(x == y for x, y in zip(window.values, template.values)):
@@ -82,7 +82,7 @@ def overlapping_template_matching(series, template=None, nblocks=8):
         else:
             tally_table[matches] += 1
 
-    lambda_ = (block_size - template_size + 1) / 2 ** template_size
+    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
     eta = lambda_ / 2
 
     probabilities = [
