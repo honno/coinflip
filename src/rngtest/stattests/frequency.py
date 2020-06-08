@@ -37,7 +37,7 @@ def monobits(series):
 
     Returns
     -------
-    TestResult
+    MonobitsTestResult
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered. The `__str__` property (i.e. used
         in `print` statements) contains a printable summary of the result, and
@@ -60,6 +60,29 @@ def monobits(series):
 @elected
 @binary_stattest
 def frequency_within_block(series, candidate, block_size=8):
+    """Proportion of values per block is compared to expected 1:1 ratio
+
+    The difference between the frequency of the two values in each block is
+    found, and referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested test
+    candidate : Value present in given series
+        The value which is counted in each block
+    block_size : int
+        Size of the blocks that partition the given series
+
+    Returns
+    -------
+    FrequencyWithinBlockTestResult
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered. The `__str__` property (i.e. used
+        in `print` statements) contains a printable summary of the result, and
+        the `report()` method produces a HTML summary, which includes embedded
+        graphical plots.
+    """
     if len(series) < 100:
         raise BelowMinimumInputSizeWarning()
 
