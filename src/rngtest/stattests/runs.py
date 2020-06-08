@@ -13,23 +13,24 @@ from rngtest.stattests.common import elected
 __all__ = ["runs", "longest_runs"]
 
 
+@elected
 @binary_stattest
 def runs(series, candidate):
     n = len(series)
 
     counts = series.value_counts()
-    count_of_value = counts[candidate]
-    proportion_of_value = counts[candidate] / n
 
-    runs = as_runs(series)
-    no_of_runs = sum(1 for _ in runs)
+    ncandidates = counts[candidate]
+    propcandidates = ncandidates / n
+
+    nruns = sum(1 for _ in asruns(series))
 
     p = erfc(
-        abs(no_of_runs - (2 * count_of_value * (1 - proportion_of_value)))
-        / (2 * sqrt(2 * n) * proportion_of_value * (1 - proportion_of_value))
+        abs(nruns - (2 * ncandidates * (1 - propcandidates)))
+        / (2 * sqrt(2 * n) * propcandidates * (1 - propcandidates))
     )
 
-    return RunsTestResult(statistic=no_of_runs, p=p)
+    return TestResult(statistic=nruns, p=p)
 
 
 @elected
@@ -69,7 +70,7 @@ def longest_runs(series, candidate):
 
     longest_run_lengths = []
     for chunk in chunks(series, block_size=block_size):
-        runs = as_runs(chunk)
+        runs = asruns(chunk)
         of_value_runs = (run for run in runs if run.value == candidate)
 
         longest_run = 0
@@ -114,7 +115,7 @@ class Run:
     repeats: int = 1
 
 
-def as_runs(series):
+def asruns(series):
     first_value = series.iloc[0]
     current_run = Run(first_value, repeats=0)
     for _, value in series.iteritems():
@@ -126,12 +127,3 @@ def as_runs(series):
             current_run = Run(value)
     else:
         yield current_run
-
-
-@dataclass
-class RunsTestResult(TestResult):
-    def __str__(self):
-        return f"p={self.p3f()}"
-
-    def _report(self):
-        return [f"p={self.p3f()}"]
