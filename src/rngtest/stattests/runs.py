@@ -143,14 +143,13 @@ class Run:
 
 
 def asruns(series):
-    first_value = series.iloc[0]
-    current_run = Run(first_value, length=0)
+    firstval = series.iloc[0]
+    currentrun = Run(firstval, length=0)
     for _, value in series.iteritems():
-        if value == current_run.value:
-            current_run.length += 1
+        if value == currentrun.value:
+            currentrun.length += 1
         else:
-            yield current_run
-
-            current_run = Run(value)
+            yield currentrun
+            currentrun = Run(value)
     else:
-        yield current_run
+        yield currentrun
