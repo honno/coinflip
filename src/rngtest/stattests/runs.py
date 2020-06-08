@@ -53,27 +53,48 @@ def runs(series, candidate):
 @elected
 @binary_stattest
 def longest_runs(series, candidate):
+    # ----------------------
+    # Finding test constants
+    # ----------------------
+
     n = len(series)
 
     if n < 128:
         raise ValueError()
     elif n < 6272:
         block_size = 8
-        tally_range = [1, 2, 3, 4]
-        K = 3
-        N = 16
+        nblocks = 16
+        freqbinranges = [1, 2, 3, 4]
     elif n < 750000:
         block_size = 128
-        tally_range = [4, 5, 6, 7, 8, 9]
-        K = 5
-        N = 49
+        nblocks = 49
+        freqbinranges = [4, 5, 6, 7, 8, 9]
     else:
         block_size = 10 ** 4
-        tally_range = [10, 11, 12, 13, 14, 15, 16]
-        K = 6
-        N = 75
+        nblocks = 75
+        freqbinranges = [10, 11, 12, 13, 14, 15, 16]
 
-    probability_constants = {
+    def freqbin(length):
+        minrange = freqbinranges[0]
+        midranges = freqbinranges[1:-1]
+        maxrange = freqbinranges[-1]
+
+        if length <= minrange:
+            return 0
+
+        elif minrange < length < maxrange:
+            for i, binlength in enumerate(midranges, 1):
+                if length == binlength:
+                    return i
+
+        elif length >= maxrange:
+            maxbin = len(freqbinranges)
+            return maxbin
+
+    df = len(freqbinranges) - 1
+
+    # TODO Work out a general solution (which is performative!)
+    probabilities = {
         8: [0.2148, 0.3672, 0.2305, 0.1875],
         128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
         512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
@@ -81,47 +102,36 @@ def longest_runs(series, candidate):
         10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
     }
     try:
-        probabilities = probability_constants[block_size]
+        maxlenprobabilities = probabilities[block_size]
     except KeyError:
-        raise ValueError()
+        raise NotImplementedError()
 
-    longest_run_lengths = []
+    # ----------
+    # Test logic
+    # ----------
+
+    maxlengths = []
     for chunk in chunks(series, block_size=block_size):
-        runs = asruns(chunk)
-        of_value_runs = (run for run in runs if run.value == candidate)
+        candidateruns = (run for run in asruns(chunk) if run.value == candidate)
 
-        longest_run = 0
-        for run in of_value_runs:
-            if run.repeats > longest_run:
-                longest_run = run.repeats
+        maxlen = 0
+        for run in candidateruns:
+            if run.length > maxlen:
+                maxlen = run.length
 
-        longest_run_lengths.append(longest_run)
+        maxlengths.append(maxlen)
 
-    def encode(length):
-        lower = tally_range[0]
-        if length <= lower:
-            return 0
+    freqbins = [0 for _ in freqbinranges]
+    for length in maxlengths:
+        freqbins[freqbin(length)] += 1
 
-        for cell, code in enumerate(tally_range[1:-1], 1):
-            if length == code:
-                return cell
+    partials = []
+    for prob, bincount in zip(maxlenprobabilities, freqbins):
+        partial = (bincount - nblocks * prob) ** 2 / (nblocks * prob)
+        partials.append(partial)
 
-        upper = tally_range[-1]
-        if length >= upper:
-            return len(tally_range)
-
-    coded_frequencies = [0 for tally in tally_range]
-    for length in longest_run_lengths:
-        code = encode(length)
-        coded_frequencies[code] += 1
-
-    statistic_partials = []
-    for prop, code in zip(probabilities, coded_frequencies):
-        partial = (code - N * prop) ** 2 / (N * prop)
-        statistic_partials.append(partial)
-
-    statistic = sum(statistic_partials)
-    p = gammaincc(K / 2, statistic / 2)
+    statistic = sum(partials)
+    p = gammaincc(df / 2, statistic / 2)
 
     return TestResult(statistic=statistic, p=p)
 
@@ -129,15 +139,15 @@ def longest_runs(series, candidate):
 @dataclass
 class Run:
     value: Any
-    repeats: int = 1
+    length: int = 1
 
 
 def asruns(series):
     first_value = series.iloc[0]
-    current_run = Run(first_value, repeats=0)
+    current_run = Run(first_value, length=0)
     for _, value in series.iteritems():
         if value == current_run.value:
-            current_run.repeats += 1
+            current_run.length += 1
         else:
             yield current_run
 
