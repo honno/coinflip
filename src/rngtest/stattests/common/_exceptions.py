@@ -1,0 +1,2 @@
+class BelowMinimumInputSizeWarning(UserWarning):
+    pass

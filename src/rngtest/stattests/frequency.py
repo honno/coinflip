@@ -11,6 +11,7 @@ import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
+from rngtest.stattests.common import BelowMinimumInputSizeWarning
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
@@ -60,7 +61,7 @@ def monobits(series):
 @binary_stattest
 def frequency_within_block(series, candidate, block_size=8):
     if len(series) < 100:
-        raise ValueError()
+        raise BelowMinimumInputSizeWarning()
 
     nblocks = len(series) // block_size
 
@@ -70,7 +71,6 @@ def frequency_within_block(series, candidate, block_size=8):
         occurences.append(count)
 
     proportions = (count / block_size for count in occurences)
-
     deviations = (prop - 1 / 2 for prop in proportions)
 
     statistic = 4 * block_size * sum(x ** 2 for x in deviations)
