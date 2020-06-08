@@ -33,7 +33,7 @@ def monobits(series):
     Parameters
     ----------
     series : Series
-        Output of the RNG being tested test
+        Output of the RNG being tested
 
     Returns
     -------
@@ -68,7 +68,7 @@ def frequency_within_block(series, candidate, block_size=8):
     Parameters
     ----------
     series : Series
-        Output of the RNG being tested test
+        Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block
     block_size : int

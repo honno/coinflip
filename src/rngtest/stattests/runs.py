@@ -16,6 +16,23 @@ __all__ = ["runs", "longest_runs"]
 @elected
 @binary_stattest
 def runs(series, candidate):
+    """Actual number of runs is compared to expected result
+
+    The number of runs (uninterrupted sequence of the same value) is found, and
+    referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested
+    candidate : Value present in given series
+        The value which is counted in each block
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+    """
     n = len(series)
 
     counts = series.value_counts()
