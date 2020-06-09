@@ -11,8 +11,29 @@ from rngtest.stattests.common import chunks
 __all__ = ["binary_matrix_rank"]
 
 
+# TODO use candidate kwarg to convert sequences into {0, 1} sequences
 @binary_stattest
-def binary_matrix_rank(series, nrows=32, ncols=32):  # TODO allow for candidate kwarg
+def binary_matrix_rank(series, nrows=32, ncols=32):
+    """Independence of neighbouring sequences is compared to expected result
+
+    Independence is determined by the matrix rank of a subsequence, where it is
+    split into multiple rows to form a matrix. The counts of different rank bins
+    is referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested
+    nrows : int
+        Number of rows in each matrix
+    ncols : int
+        Number of columns in each matrix
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+    """
     n = len(series)
     blocksize = nrows * ncols
     nblocks = n // blocksize
