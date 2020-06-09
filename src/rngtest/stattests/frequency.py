@@ -48,13 +48,11 @@ def monobits(series):
     counts = series.value_counts()
 
     n = len(series)
-    difference = abs(counts.iloc[0] - counts.iloc[1])
-    normalised_diff = difference / sqrt(n)
-    p = erfc(normalised_diff / sqrt(2))
+    diff = abs(counts.iloc[0] - counts.iloc[1])
+    normdiff = diff / sqrt(n)
+    p = erfc(normdiff / sqrt(2))
 
-    return MonobitsTestResult(
-        statistic=normalised_diff, p=p, n=n, difference=difference, counts=counts
-    )
+    return MonobitsTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
 
 
 @elected
@@ -118,7 +116,7 @@ class ValueCount(NamedTuple):
 class MonobitsTestResult(TestResult):
     counts: pd.Series
     n: int
-    difference: int
+    diff: int
 
     def __post_init__(self):
         self.maxcount = ValueCount(
@@ -139,9 +137,9 @@ class MonobitsTestResult(TestResult):
         return [
             f"The number of occurences for the {self.maxcount.value} and {self.mincount.value} values are found and the difference is calculated.",
             self.plot_counts(),
-            f"We can compare this to the hypothetical output of a truly random RNG. A question is asked&mdash;how likely would such a RNG produce a sequence with <i>at least</i> a difference of {self.difference} between the occurences of binary values?",
+            f"We can compare this to the hypothetical output of a truly random RNG. A question is asked&mdash;how likely would such a RNG produce a sequence with <i>at least</i> a difference of {self.diff} between the occurences of binary values?",
             "The likelihood would decrease with higher differences, assuming that random outputs tends towards uniformity. Such a distribution would follow a half-normal distribution (i.e. a bell-curve shape, but with it's left side flipped and added to the right).",
-            f"To compare the difference of {self.difference} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {self.n}. This results in a reference statistic of {round(self.statistic, 2)}.",
+            f"To compare the difference of {self.diff} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {self.n}. This results in a reference statistic of {round(self.statistic, 2)}.",
             self.plot_reference_dist(),
             f"Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {self.p3f()}. The lower the p-value, the less confident we can say that this data is random.",
         ]
@@ -166,8 +164,8 @@ class MonobitsTestResult(TestResult):
 
         ax.text(
             1 - margin,
-            self.mincount.count + 1 / 2 * self.difference,
-            f"difference = {self.difference}",
+            self.mincount.count + 1 / 2 * self.diff,
+            f"diff = {self.diff}",
             ha="right",
         )
 
@@ -221,7 +219,7 @@ class MonobitsTestResult(TestResult):
             xmin=self.statistic,
             xmax=xlim,
             ymin=fill_y[0],
-            text=f"normalised difference of {stat2f} or greater",
+            text=f"normalised diff of {stat2f} or greater",
         )
 
         probability = "{:.1%}".format(self.p)
