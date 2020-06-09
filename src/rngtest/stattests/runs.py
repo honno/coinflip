@@ -53,6 +53,24 @@ def runs(series, candidate):
 @elected
 @binary_stattest
 def longest_runs(series, candidate):
+    """Longest runs per block is compared to expected result
+
+    The longest number of runs (uninterrupted sequence of the same value) per
+    block is found, and referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested
+    candidate : Value present in given series
+        The value which is counted in each block
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+    """
+
     # ----------------------
     # Finding test constants
     # ----------------------
