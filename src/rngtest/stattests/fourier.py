@@ -12,6 +12,10 @@ from rngtest.stattests.common import elected
 __all__ = ["discrete_fourier_transform"]
 
 
+class TruncatedInputSingleValueError(ValueError):
+    pass
+
+
 @elected
 @binary_stattest
 def discrete_fourier_transform(series, candidate):
@@ -20,7 +24,7 @@ def discrete_fourier_transform(series, candidate):
     if n % 2 != 0:
         series = series[:-1]
         if series.nunique() != 2:
-            raise ValueError()
+            raise TruncatedInputSingleValueError()
 
     peaks = candidate
     trough = next(value for value in series.unique() if value != candidate)
