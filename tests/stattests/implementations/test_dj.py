@@ -1,7 +1,7 @@
 # fmt: off
 from math import isclose
 
-from .implementations import dj
+from . import dj
 
 
 def test_discrete_fourier_transform_small():

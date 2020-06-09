@@ -9,7 +9,6 @@ from rngtest.stattests import frequency
 from rngtest.stattests import runs
 
 from .implementations import dj
-from .implementations import steven
 from .strategies import random_bits_strategy
 
 
@@ -34,10 +33,8 @@ def test_monobits(bits):
 def test_runs(bits):
     our_result = runs.runs(pd.Series(bits))
     dj_result = dj.runs_test(bits)
-    steven_result = steven.runs_test(bits)
 
     assert isclose(our_result.p, dj_result.p)
-    assert isclose(our_result.p, steven_result.p)
 
 
 @given(random_bits_strategy)

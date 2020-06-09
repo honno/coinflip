@@ -76,7 +76,9 @@ examples = [
             1, 0, 0, 0, 1, 0, 1, 1,
             1, 0, 0, 0,
         ],
-        kwargs={"blocksize": 10},
+        kwargs=dict(
+            blocksize=10
+        ),
 
         statistic=7.2,
         p=0.706438,
@@ -126,10 +128,10 @@ examples = [
             0, 0, 1, 0, 1, 0, 1, 0,
             1, 1, 0, 1,
         ],
-        kwargs={
-            "nrows": 3,
-            "ncols": 3,
-        },
+        kwargs=dict(
+            nrows=3,
+            ncols=3,
+        ),
 
         statistic=0.596953,
         p=0.741948,
@@ -172,10 +174,10 @@ examples = [
             1, 0, 1, 1, 1, 0, 0, 1,
             0, 1, 1, 0
         ],
-        kwargs={
-            "template": pd.Series([0, 0, 1]),
-            "nblocks": 2,
-        },
+        kwargs=dict(
+            template=pd.Series([0, 0, 1]),
+            nblocks=2,
+        ),
 
         statistic=2.133333,
         p=0.344154,
@@ -192,10 +194,10 @@ examples = [
             0, 1, 0, 1, 1, 0, 1, 0,
             0, 1,
         ],
-        kwargs={
-            "template": pd.Series([1, 1]),
-            "nblocks": 5,
-        },
+        kwargs=dict(
+            template=pd.Series([1, 1]),
+            nblocks=5,
+        ),
 
         statistic=3.167729,
         p=0.274932,
@@ -208,10 +210,10 @@ examples = [
             0, 1, 1, 1, 0, 1, 0, 1,
             0, 1, 1, 1,
         ],
-        kwargs={
-            "blocksize": 2,
-            "init_nblocks": 4,
-        },
+        kwargs=dict(
+            blocksize=2,
+            init_nblocks=4,
+        ),
 
         statistic=1.1949875,
         p=0.767189,
@@ -220,7 +222,9 @@ examples = [
         stattest=complexity.linear_complexity,
 
         bits=e_expansion(),
-        kwargs={"blocksize": 1000},
+        kwargs=dict(
+            blocksize=1000
+        ),
 
         statistic=2.700348,
         p=0.845406,
