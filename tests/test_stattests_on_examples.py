@@ -130,8 +130,8 @@ def test_longest_runs_large(our_result, nist_result):
         0, 0, 1, 0, 1, 0, 1, 0,
         1, 1, 0, 1,
     ],
-    matrix_rows=3,
-    matrix_cols=3,
+    nrows=3,
+    ncols=3,
 
     statistic=0.596953,
     p=0.741948,
