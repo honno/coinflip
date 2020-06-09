@@ -3,7 +3,7 @@ from math import log
 from math import sqrt
 
 import pandas as pd
-from numpy.fft import fft
+from numpy.fft import fft as _fft
 
 from rngtest.stattests.common import TestResult
 from rngtest.stattests.common import binary_stattest
@@ -30,8 +30,7 @@ def discrete_fourier_transform(series, candidate):
     trough = next(value for value in series.unique() if value != candidate)
 
     oscillations = series.map({peaks: 1, trough: -1})
-    fourier_as_ndarray = fft(oscillations)
-    fourier = pd.Series(fourier_as_ndarray)
+    fourier = fft(oscillations)
 
     fourier_first_half = fourier[: n // 2]
     peaks = fourier_first_half.abs()
@@ -46,3 +45,10 @@ def discrete_fourier_transform(series, candidate):
     p = erfc(abs(normalised_diff) / sqrt(2))
 
     return TestResult(statistic=normalised_diff, p=p)
+
+
+def fft(oscillations):
+    fourierndarray = _fft(oscillations)
+    fourierseries = pd.Series(fourierndarray)
+
+    return fourierseries
