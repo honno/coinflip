@@ -1,13 +1,25 @@
 from functools import wraps
 from typing import NamedTuple
 
-import rngtest.stattests as stattests
+from rngtest.stattests import fourier
+from rngtest.stattests import frequency
+from rngtest.stattests import matrix
+from rngtest.stattests import runs as runs_
+from rngtest.stattests import template
+from rngtest.stattests import universal
 
 # fmt: off
 from ..test_compare_implementations import Implementation
+from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _discrete_fourier_transform
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
+from .sp800_22_tests.sp800_22_longest_run_ones_in_a_block_test import longest_run_ones_in_a_block_test as _longest_runs
+from .sp800_22_tests.sp800_22_maurers_universal_test import maurers_universal_test as _maurers_universal
 from .sp800_22_tests.sp800_22_monobit_test import monobit_test as _monobits
+from .sp800_22_tests.sp800_22_non_overlapping_template_matching_test import \
+    non_overlapping_template_matching_test as _non_overlapping_template_matching
+from .sp800_22_tests.sp800_22_overlapping_template_matching_test import \
+    overlapping_template_matching_test as _overlapping_template_matching
 from .sp800_22_tests.sp800_22_runs_test import runs_test as _runs
 
 # fmt: on
@@ -23,8 +35,8 @@ class DJResult(NamedTuple):
 
 def named(stattest):
     @wraps(stattest)
-    def wrapper(bits):
-        result = stattest(bits)
+    def wrapper(bits, *args, **kwargs):
+        result = stattest(bits, *args, **kwargs)
 
         return DJResult(*result)
 
@@ -51,13 +63,52 @@ def discrete_fourier_transform(bits):
     return _discrete_fourier_transform(bits)
 
 
+@named
+def longest_runs(bits):
+    return _longest_runs(bits)
+
+
+@named
+def binary_matrix_rank(bits, nrows, ncols):
+    nblocks = len(bits) // (nrows * ncols)
+    if nblocks < 38:
+        raise NotImplementedError()
+
+    return _binary_matrix_rank(bits, M=nrows, Q=ncols)
+
+
+@named
+def non_overlapping_template_matching(bits):
+    return _non_overlapping_template_matching(bits)
+
+
+@named
+def overlapping_template_matching(bits):
+    return _overlapping_template_matching(bits)
+
+
+@named
+def maurers_universal(bits, blocksize, init_nblocks):
+    return _maurers_universal(bits, patternlen=blocksize, initblocks=init_nblocks)
+
+
 testmap = {
-    stattests.frequency.monobits: Implementation(monobits),
-    stattests.frequency.frequency_within_block: Implementation(
-        frequency_within_block, fixedkwargs=dict(blocksize=20)
+    frequency.monobits: Implementation(monobits),
+    frequency.frequency_within_block: Implementation(
+        stattest=frequency_within_block, fixedkwargs={"blocksize": 20}
     ),
-    stattests.runs.runs: Implementation(runs),
-    stattests.fourier.discrete_fourier_transform: Implementation(
-        discrete_fourier_transform
+    runs_.runs: Implementation(runs),
+    runs_.longest_runs: Implementation(longest_runs),
+    matrix.binary_matrix_rank: Implementation(binary_matrix_rank),
+    fourier.discrete_fourier_transform: Implementation(discrete_fourier_transform),
+    template.non_overlapping_template_matching: Implementation(
+        stattest=non_overlapping_template_matching,
+        missingkwargs=["template"],
+        fixedkwargs={"nblocks": 8},
     ),
+    template.overlapping_template_matching: Implementation(
+        stattest=overlapping_template_matching,
+        fixedkwargs={"template": [1 for x in range(10)], "nblocks": 968},
+    ),
+    universal.maurers_universal: Implementation(maurers_universal),
 }
