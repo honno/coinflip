@@ -1,4 +1,8 @@
 from math import isclose
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import NamedTuple
 
 import pandas as pd
 from hypothesis import assume
@@ -10,6 +14,13 @@ from rngtest.stattests import runs
 
 from .implementations import dj
 from .strategies import random_bits_strategy
+
+__all__ = ["Implementation"]
+
+
+class Implementation(NamedTuple):
+    stattest: Callable
+    fixedkwargs: Dict[str, Any] = {}
 
 
 @given(random_bits_strategy)
