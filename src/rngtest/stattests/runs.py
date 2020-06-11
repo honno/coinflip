@@ -92,21 +92,21 @@ def longest_runs(series, candidate):
         nblocks = 75
         freqbinranges = [10, 11, 12, 13, 14, 15, 16]
 
-    def freqbin(length):
-        minrange = freqbinranges[0]
-        midranges = freqbinranges[1:-1]
-        maxrange = freqbinranges[-1]
+    def freqbin(runlength):
+        minlen = freqbinranges[0]
+        midlengths = freqbinranges[1:-1]
+        maxlen = freqbinranges[-1]
 
-        if length <= minrange:
+        if runlength <= minlen:
             return 0
 
-        elif minrange < length < maxrange:
-            for i, binlength in enumerate(midranges, 1):
-                if length == binlength:
-                    return i
+        elif minlen < runlength < maxlen:
+            for freqbin, length in enumerate(midlengths, 1):
+                if runlength == length:
+                    return freqbin
 
-        elif length >= maxrange:
-            maxbin = len(freqbinranges)
+        elif runlength >= maxlen:
+            maxbin = len(freqbinranges) - 1
             return maxbin
 
     df = len(freqbinranges) - 1
@@ -134,14 +134,14 @@ def longest_runs(series, candidate):
 
         maxlen = 0
         for run in candidateruns:
-            if run.length > maxlen:
-                maxlen = run.length
+            if run.runlength > maxlen:
+                maxlen = run.runlength
 
         maxlengths.append(maxlen)
 
     freqbins = [0 for _ in freqbinranges]
-    for length in maxlengths:
-        freqbins[freqbin(length)] += 1
+    for runlength in maxlengths:
+        freqbins[freqbin(runlength)] += 1
 
     partials = []
     for prob, bincount in zip(maxlenprobabilities, freqbins):
@@ -157,15 +157,15 @@ def longest_runs(series, candidate):
 @dataclass
 class Run:
     value: Any
-    length: int = 1
+    runlength: int = 1
 
 
 def asruns(series):
     firstval = series.iloc[0]
-    currentrun = Run(firstval, length=0)
+    currentrun = Run(firstval, runlength=0)
     for _, value in series.iteritems():
         if value == currentrun.value:
-            currentrun.length += 1
+            currentrun.runlength += 1
         else:
             yield currentrun
             currentrun = Run(value)
