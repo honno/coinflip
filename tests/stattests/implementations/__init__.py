@@ -1,3 +1,4 @@
-from . import dj
+from ._implementation import Implementation
+from .dj import testmap as djmap
 
-__all__ = ["dj"]
+__all__ = ["Implementation", "djmap"]

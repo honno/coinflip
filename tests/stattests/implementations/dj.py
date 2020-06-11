@@ -9,7 +9,7 @@ from rngtest.stattests import template
 from rngtest.stattests import universal
 
 # fmt: off
-from ..test_compare_implementations import Implementation
+from . import Implementation
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _discrete_fourier_transform
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
