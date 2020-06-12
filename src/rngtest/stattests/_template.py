@@ -5,9 +5,9 @@ import pandas as pd
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import chunks
-from rngtest.stattests.common import stattest
+from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import chunks
+from rngtest.stattests._common import stattest
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 

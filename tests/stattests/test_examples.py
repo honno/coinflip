@@ -3,7 +3,6 @@ from copy import copy
 from math import isclose
 from pathlib import Path
 from typing import Any
-from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
@@ -11,13 +10,7 @@ from typing import Union
 
 import pandas as pd
 
-from rngtest.stattests import complexity
-from rngtest.stattests import fourier
-from rngtest.stattests import frequency
-from rngtest.stattests import matrix
-from rngtest.stattests import runs
-from rngtest.stattests import template
-from rngtest.stattests import universal
+from rngtest import stattests
 
 tests_path = Path(__file__).parent
 data_path = tests_path / "data"
@@ -34,7 +27,7 @@ def e_expansion():
 
 
 class Example(NamedTuple):
-    stattest: Callable
+    stattest: str
     bits: List[int]
     statistic: Union[int, float]
     p: float
@@ -44,7 +37,7 @@ class Example(NamedTuple):
 # fmt: off
 examples = {
     "monobits": Example(
-        stattest=frequency.monobits,
+        stattest="monobits",
 
         bits=[1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
 
@@ -52,7 +45,7 @@ examples = {
         p=0.527089,
     ),
     "frequency_within_block": Example(
-        stattest=frequency.frequency_within_block,
+        stattest="frequency_within_block",
 
         bits=[
             1, 1, 0, 0, 1, 0, 0, 1,
@@ -77,7 +70,7 @@ examples = {
         p=0.706438,
     ),
     "runs": Example(
-        stattest=runs.runs,
+        stattest="runs",
 
         bits=[
             1, 0, 0, 1, 1, 0, 1, 0,
@@ -88,7 +81,7 @@ examples = {
         p=0.147232,
     ),
     "longest_runs": Example(
-        stattest=runs.longest_runs,
+        stattest="longest_runs",
 
         bits=[
             1, 1, 0, 0, 1, 1, 0, 0,
@@ -114,7 +107,7 @@ examples = {
         p=0.180609,
     ),
     "binary_matrix_rank": Example(
-        stattest=matrix.binary_matrix_rank,
+        stattest="binary_matrix_rank",
 
         bits=[
             0, 1, 0, 1, 1, 0, 0, 1,
@@ -131,7 +124,7 @@ examples = {
     ),
     "discrete_fourier_transform": {
         "small": Example(
-            stattest=fourier.discrete_fourier_transform,
+            stattest="discrete_fourier_transform",
 
             bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
 
@@ -139,7 +132,7 @@ examples = {
             p=0.029523,
         ),
         "large": Example(
-            stattest=fourier.discrete_fourier_transform,
+            stattest="discrete_fourier_transform",
 
             bits=[
                 1, 1, 0, 0, 1, 0, 0, 1,
@@ -162,7 +155,7 @@ examples = {
         ),
     },
     "non_overlapping_template_matching": Example(
-        stattest=template.non_overlapping_template_matching,
+        stattest="non_overlapping_template_matching",
 
         bits=[
             1, 0, 1, 0, 0, 1, 0, 0,
@@ -178,7 +171,7 @@ examples = {
         p=0.344154,
     ),
     "overlapping_template_matching": Example(
-        stattest=template.overlapping_template_matching,
+        stattest="overlapping_template_matching",
 
         bits=[
             1, 0, 1, 1, 1, 0, 1, 1,
@@ -198,7 +191,7 @@ examples = {
         p=0.274932,
     ),
     "maurers_universal": Example(
-        stattest=universal.maurers_universal,
+        stattest="maurers_universal",
 
         bits=[
             0, 1, 0, 1, 1, 0, 1, 0,
@@ -214,7 +207,7 @@ examples = {
         p=0.767189,
     ),
     "linear_complexity": Example(
-        stattest=complexity.linear_complexity,
+        stattest="linear_complexity",
 
         bits=e_expansion(),
         kwargs=dict(
@@ -255,7 +248,8 @@ def iterexamples(title_substr: str = None):
 # conftest.py is responsible for parametrizing, equivalent to:
 # @pytest.mark.parametrize(Example._fields, iterexamples())
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
-    result = stattest(bits, **kwargs)
+    stattest_method = getattr(stattests, stattest)
+    result = stattest_method(bits, **kwargs)
 
     if isinstance(statistic, float):
         assert isclose(result.statistic, statistic, rel_tol=0.05)

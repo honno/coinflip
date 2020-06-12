@@ -11,14 +11,14 @@ import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
-from rngtest.stattests.common import BelowMinimumInputSizeWarning
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import chunks
-from rngtest.stattests.common import elected
-from rngtest.stattests.common import plot_chi2
-from rngtest.stattests.common import plot_gammaincc
-from rngtest.stattests.common import range_annotation
-from rngtest.stattests.common import stattest
+from rngtest.stattests._common import BelowMinimumInputSizeWarning
+from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import chunks
+from rngtest.stattests._common import elected
+from rngtest.stattests._common import plot_chi2
+from rngtest.stattests._common import plot_gammaincc
+from rngtest.stattests._common import range_annotation
+from rngtest.stattests._common import stattest
 
 __all__ = ["monobits", "frequency_within_block"]
 

@@ -1,43 +1,34 @@
 import pandas as pd
 
-from rngtest.stattests import frequency
-from rngtest.stattests import runs
+from rngtest import stattests
 
 __all__ = ["list_tests", "run_test", "run_all_tests"]
 
-STATTESTS = [
-    frequency.monobits,
-    frequency.frequency_within_block,
-    runs.runs,
-]
-
 
 def list_tests():
-    for stattest in STATTESTS:
-        name = stattest.__name__
+    for stattest_name in stattests.__all__:
+        stattest_func = getattr(stattests, stattest_name)
 
-        yield name
+        yield stattest_name, stattest_func
 
 
-def run_test(series: pd.Series, stattest_str):
-    for func in STATTESTS:
-        if stattest_str == func.__name__:
-            result = _run_test(series, func)
+def run_test(series: pd.Series, stattest_name):
+    for name, func in list_tests():
+        if stattest_name == name:
+            result = func(series)
+
             return result
+
     else:
         raise ValueError()
 
 
-def _run_test(series, stattest):
-    result = stattest(series)
-
-    return result
-
-
 def run_all_tests(series: pd.Series):
     if series.nunique() == 2:
-        for stattest in STATTESTS:
-            result = _run_test(series, stattest)
+        for name, func in list_tests():
+            result = func(series)
+
             yield result
+
     else:
         raise NotImplementedError()

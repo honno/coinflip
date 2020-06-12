@@ -5,10 +5,10 @@ from typing import Any
 
 from scipy.special import gammaincc
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import chunks
-from rngtest.stattests.common import elected
-from rngtest.stattests.common import stattest
+from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import chunks
+from rngtest.stattests._common import elected
+from rngtest.stattests._common import stattest
 
 __all__ = ["runs", "longest_runs"]
 

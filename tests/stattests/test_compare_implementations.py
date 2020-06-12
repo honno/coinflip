@@ -9,12 +9,7 @@ from hypothesis import reject
 from hypothesis import settings
 from hypothesis import strategies as st
 
-from rngtest.stattests import fourier
-from rngtest.stattests import frequency
-from rngtest.stattests import matrix
-from rngtest.stattests import runs
-from rngtest.stattests import template
-from rngtest.stattests import universal
+import rngtest.stattests as stattests
 
 from .implementations import ImplementationError
 from .implementations import dj_testmap
@@ -86,9 +81,9 @@ def universal_strategy(draw, min_blocks=2):
 
 @given(mixedbits())
 def test_monobits(bits):
-    result = frequency.monobits(pd.Series(bits))
+    result = stattests.monobits(pd.Series(bits))
 
-    dj_stattest = dj_testmap[frequency.monobits].stattest
+    dj_stattest = dj_testmap["monobits"].stattest
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
@@ -96,11 +91,11 @@ def test_monobits(bits):
 
 @given(mixedbits(min_size=100))
 def test_frequency_within_block(bits):
-    _implementation = dj_testmap[frequency.frequency_within_block]
+    _implementation = dj_testmap["frequency_within_block"]
     dj_stattest = _implementation.stattest
     dj_fixedkwargs = _implementation.fixedkwargs
 
-    result = frequency.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
+    result = stattests.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
@@ -108,9 +103,9 @@ def test_frequency_within_block(bits):
 
 @given(mixedbits())
 def test_runs(bits):
-    result = runs.runs(pd.Series(bits))
+    result = stattests.runs(pd.Series(bits))
 
-    dj_stattest = dj_testmap[runs.runs].stattest
+    dj_stattest = dj_testmap["runs"].stattest
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p)
@@ -119,9 +114,9 @@ def test_runs(bits):
 @given(mixedbits(min_size=128))
 @settings(suppress_health_check=[HealthCheck.large_base_example])
 def test_longest_runs(bits):
-    result = runs.longest_runs(pd.Series(bits))
+    result = stattests.longest_runs(pd.Series(bits))
 
-    dj_stattest = dj_testmap[runs.longest_runs].stattest
+    dj_stattest = dj_testmap["longest_runs"].stattest
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
@@ -138,9 +133,9 @@ def test_longest_runs(bits):
 def test_binary_matrix_rank(args):
     bits, nrows, ncols = args
 
-    result = matrix.binary_matrix_rank(pd.Series(bits), nrows=nrows, ncols=ncols)
+    result = stattests.binary_matrix_rank(pd.Series(bits), nrows=nrows, ncols=ncols)
 
-    dj_stattest = dj_testmap[matrix.binary_matrix_rank].stattest
+    dj_stattest = dj_testmap["binary_matrix_rank"].stattest
 
     try:
         dj_result = dj_stattest(bits, nrows=nrows, ncols=ncols)
@@ -156,15 +151,15 @@ def test_discrete_fourier_transform(bits):
         truncated_bits = bits[:-1]
         assume(0 in truncated_bits and 1 in truncated_bits)
 
-    result = fourier.discrete_fourier_transform(pd.Series(bits))
+    result = stattests.discrete_fourier_transform(pd.Series(bits))
 
-    dj_stattest = dj_testmap[fourier.discrete_fourier_transform].stattest
+    dj_stattest = dj_testmap["discrete_fourier_transform"].stattest
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p)
 
 
-dj_template_kwargs = dj_testmap[template.overlapping_template_matching].fixedkwargs
+dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
 
 
 @given(template_strategy(**dj_template_kwargs))
@@ -176,11 +171,11 @@ dj_template_kwargs = dj_testmap[template.overlapping_template_matching].fixedkwa
     ]
 )
 def test_overlapping_template_matching(bits):
-    dj_implementation = dj_testmap[template.overlapping_template_matching]
+    dj_implementation = dj_testmap["overlapping_template_matching"]
     dj_stattest = dj_implementation.stattest
     dj_fixedkwargs = dj_implementation.fixedkwargs
 
-    result = template.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
+    result = stattests.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
 
     dj_result = dj_stattest(bits)
 
@@ -192,11 +187,11 @@ def test_overlapping_template_matching(bits):
 def test_maurers_universal(args):
     bits, blocksize, init_nblocks = args
 
-    result = universal.maurers_universal(
+    result = stattests.maurers_universal(
         pd.Series(bits), blocksize=blocksize, init_nblocks=init_nblocks
     )
 
-    dj_stattest = dj_testmap[universal.maurers_universal].stattest
+    dj_stattest = dj_testmap["maurers_universal"].stattest
     dj_result = dj_stattest(bits, blocksize=blocksize, init_nblocks=init_nblocks)
 
     assert isclose(result.p, dj_result.p)

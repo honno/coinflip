@@ -4,9 +4,9 @@ from math import exp
 import numpy as np
 from numpy.linalg import matrix_rank
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import chunks
-from rngtest.stattests.common import stattest
+from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import chunks
+from rngtest.stattests._common import stattest
 
 __all__ = ["binary_matrix_rank"]
 

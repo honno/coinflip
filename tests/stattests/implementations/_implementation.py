@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
@@ -8,7 +7,7 @@ __all__ = ["Implementation", "ImplementationError"]
 
 
 class Implementation(NamedTuple):
-    stattest: Callable
+    stattest: str
     missingkwargs: List[str] = []
     fixedkwargs: Dict[str, Any] = {}
 

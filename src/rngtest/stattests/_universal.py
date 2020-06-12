@@ -8,9 +8,9 @@ from typing import Tuple
 
 import pandas as pd
 
-from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import chunks
-from rngtest.stattests.common import stattest
+from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import chunks
+from rngtest.stattests._common import stattest
 
 __all__ = ["maurers_universal"]
 

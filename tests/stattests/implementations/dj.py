@@ -1,13 +1,6 @@
 from functools import wraps
 from typing import NamedTuple
 
-from rngtest.stattests import fourier
-from rngtest.stattests import frequency
-from rngtest.stattests import matrix
-from rngtest.stattests import runs as runs_
-from rngtest.stattests import template
-from rngtest.stattests import universal
-
 # fmt: off
 from . import Implementation
 from . import ImplementationError
@@ -97,22 +90,22 @@ def maurers_universal(bits, blocksize, init_nblocks):
 
 
 testmap = {
-    frequency.monobits: Implementation(monobits),
-    frequency.frequency_within_block: Implementation(
+    "monobits": Implementation(monobits),
+    "frequency_within_block": Implementation(
         stattest=frequency_within_block, fixedkwargs={"blocksize": 20}
     ),
-    runs_.runs: Implementation(runs),
-    runs_.longest_runs: Implementation(longest_runs),
-    matrix.binary_matrix_rank: Implementation(binary_matrix_rank),
-    fourier.discrete_fourier_transform: Implementation(discrete_fourier_transform),
-    template.non_overlapping_template_matching: Implementation(
+    "runs": Implementation(runs),
+    "longest_runs": Implementation(longest_runs),
+    "binary_matrix_rank": Implementation(binary_matrix_rank),
+    "discrete_fourier_transform": Implementation(discrete_fourier_transform),
+    "non_overlapping_template_matching": Implementation(
         stattest=non_overlapping_template_matching,
         missingkwargs=["template"],
         fixedkwargs={"nblocks": 8},
     ),
-    template.overlapping_template_matching: Implementation(
+    "overlapping_template_matching": Implementation(
         stattest=overlapping_template_matching,
         fixedkwargs={"template": [1 for x in range(10)], "nblocks": 968},
     ),
-    universal.maurers_universal: Implementation(maurers_universal),
+    "maurers_universal": Implementation(maurers_universal),
 }
