@@ -13,7 +13,7 @@ from pytest import fixture
 from rngtest import cli
 from rngtest.store import data_dir
 
-from .strategies import random_bits_strategy
+from .stattests.test_compare_implementations import mixedbits
 
 r_storename = re.compile(
     "Store name to be encoded as ([a-z0-9]+)\n", flags=re.IGNORECASE
@@ -34,7 +34,7 @@ class CliRoutes(RuleBasedStateMachine):
 
     storenames = Bundle("storenames")
 
-    @rule(target=storenames, sequence=random_bits_strategy)
+    @rule(target=storenames, sequence=mixedbits())
     def add_store(self, sequence):
         datafile = NamedTemporaryFile()
         with datafile as f:
