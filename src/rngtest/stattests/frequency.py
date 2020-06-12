@@ -13,17 +13,17 @@ from scipy.stats import halfnorm
 
 from rngtest.stattests.common import BelowMinimumInputSizeWarning
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
 from rngtest.stattests.common import plot_chi2
 from rngtest.stattests.common import plot_gammaincc
 from rngtest.stattests.common import range_annotation
+from rngtest.stattests.common import stattest
 
 __all__ = ["monobits", "frequency_within_block"]
 
 
-@binary_stattest
+@stattest
 def monobits(series):
     """Proportion of values is compared to expected 1:1 ratio
 
@@ -55,8 +55,8 @@ def monobits(series):
     return MonobitsTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
 
 
+@stattest
 @elected
-@binary_stattest
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
 

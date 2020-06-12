@@ -255,8 +255,7 @@ def iterexamples(title_substr: str = None):
 # conftest.py is responsible for parametrizing, equivalent to:
 # @pytest.mark.parametrize(Example._fields, iterexamples())
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
-    series = pd.Series(bits)
-    result = stattest(series, **kwargs)
+    result = stattest(bits, **kwargs)
 
     if isinstance(statistic, float):
         assert isclose(result.statistic, statistic, rel_tol=0.05)

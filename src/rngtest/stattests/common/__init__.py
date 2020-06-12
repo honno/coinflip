@@ -1,4 +1,3 @@
-from rngtest.stattests.common._decorators import binary_stattest
 from rngtest.stattests.common._decorators import elected
 from rngtest.stattests.common._decorators import stattest
 from rngtest.stattests.common._exceptions import BelowMinimumInputSizeWarning
@@ -15,7 +14,7 @@ __all__ = [
     "plot_chi2",
     "plot_gammaincc",
     "stattest",
-    "binary_stattest",
+    "stattest",
     "elected",
     "chunks",
     "plots",

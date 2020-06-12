@@ -1,10 +1,10 @@
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
+from rngtest.stattests.common import stattest
 
 __all__ = ["linear_complexity"]
 
 
-@binary_stattest
+@stattest
 def linear_complexity(series, blocksize):
     n = len(series)
     print(n)

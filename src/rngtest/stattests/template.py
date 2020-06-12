@@ -6,8 +6,8 @@ from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
+from rngtest.stattests.common import stattest
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
@@ -32,7 +32,7 @@ def template(func):
     return wrapper
 
 
-@binary_stattest
+@stattest
 @template
 def non_overlapping_template_matching(series, template, nblocks=968):
     n = len(series)
@@ -72,7 +72,7 @@ def non_overlapping_template_matching(series, template, nblocks=968):
     return TestResult(statistic=statistic, p=p)
 
 
-@binary_stattest
+@stattest
 @template
 def overlapping_template_matching(series, template, nblocks=8):
     if not isinstance(template, pd.Series):

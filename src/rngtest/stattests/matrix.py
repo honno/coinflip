@@ -5,14 +5,14 @@ import numpy as np
 from numpy.linalg import matrix_rank
 
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
+from rngtest.stattests.common import stattest
 
 __all__ = ["binary_matrix_rank"]
 
 
 # TODO use candidate kwarg to convert sequences into {0, 1} sequences
-@binary_stattest
+@stattest
 def binary_matrix_rank(series, nrows=32, ncols=32):
     """Independence of neighbouring sequences is compared to expected result
 

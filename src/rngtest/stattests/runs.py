@@ -6,15 +6,15 @@ from typing import Any
 from scipy.special import gammaincc
 
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
 from rngtest.stattests.common import elected
+from rngtest.stattests.common import stattest
 
 __all__ = ["runs", "longest_runs"]
 
 
+@stattest
 @elected
-@binary_stattest
 def runs(series, candidate):
     """Actual number of runs is compared to expected result
 
@@ -50,8 +50,8 @@ def runs(series, candidate):
     return TestResult(statistic=nruns, p=p)
 
 
+@stattest
 @elected
-@binary_stattest
 def longest_runs(series, candidate):
     """Longest runs per block is compared to expected result
 

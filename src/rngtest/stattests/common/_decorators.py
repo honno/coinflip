@@ -1,26 +1,19 @@
 from functools import wraps
+from typing import List
 
 import pandas as pd
 
-__all__ = ["stattest", "binary_stattest", "elected"]
+__all__ = ["stattest", "elected"]
 
 
 def stattest(func):
     @wraps(func)
-    def wrapper(series: pd.Series, *args, **kwargs):
-        if series.nunique() == 1:
-            raise ValueError()
+    def wrapper(sequence: List, *args, **kwargs):
+        if not isinstance(sequence, pd.Series):
+            series = pd.Series(sequence)
+        else:
+            series = sequence
 
-        result = func(series, *args, **kwargs)
-
-        return result
-
-    return wrapper
-
-
-def binary_stattest(func):
-    @wraps(func)
-    def wrapper(series: pd.Series, *args, **kwargs):
         if series.nunique() != 2:
             raise ValueError()
 

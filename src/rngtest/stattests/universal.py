@@ -9,14 +9,14 @@ from typing import Tuple
 import pandas as pd
 
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import chunks
+from rngtest.stattests.common import stattest
 
 __all__ = ["maurers_universal"]
 
 
 # TODO understand what's going with the hard coded values provided
-@binary_stattest
+@stattest
 def maurers_universal(series, blocksize, init_nblocks):
     n = len(series)
     init_n = init_nblocks * blocksize

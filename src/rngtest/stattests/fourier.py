@@ -6,8 +6,8 @@ import pandas as pd
 from numpy.fft import fft as _fft
 
 from rngtest.stattests.common import TestResult
-from rngtest.stattests.common import binary_stattest
 from rngtest.stattests.common import elected
+from rngtest.stattests.common import stattest
 
 __all__ = ["discrete_fourier_transform"]
 
@@ -16,8 +16,8 @@ class TruncatedInputSingleValueError(ValueError):
     pass
 
 
+@stattest
 @elected
-@binary_stattest
 def discrete_fourier_transform(series, candidate):
     n = len(series)
 
