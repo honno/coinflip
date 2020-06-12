@@ -2,11 +2,11 @@ from math import isclose
 
 from pytest import skip
 
-from . import djmap
+from . import dj_testmap
 
 
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
-    implementation = djmap[stattest]
+    implementation = dj_testmap[stattest]
 
     if implementation.missingkwargs or implementation.fixedkwargs:
         skip()

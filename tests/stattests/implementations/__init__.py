@@ -1,4 +1,5 @@
 from ._implementation import Implementation
-from .dj import testmap as djmap
+from ._implementation import ImplementationError
+from .dj import testmap as dj_testmap
 
-__all__ = ["Implementation", "djmap"]
+__all__ = ["Implementation", "ImplementationError", "dj_testmap"]

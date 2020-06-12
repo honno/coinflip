@@ -10,6 +10,7 @@ from rngtest.stattests import universal
 
 # fmt: off
 from . import Implementation
+from . import ImplementationError
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _discrete_fourier_transform
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
@@ -59,13 +60,13 @@ def runs(bits):
 
 
 @named
-def discrete_fourier_transform(bits):
-    return _discrete_fourier_transform(bits)
+def longest_runs(bits):
+    return _longest_runs(bits)
 
 
 @named
-def longest_runs(bits):
-    return _longest_runs(bits)
+def discrete_fourier_transform(bits):
+    return _discrete_fourier_transform(bits)
 
 
 @named
@@ -74,7 +75,10 @@ def binary_matrix_rank(bits, nrows, ncols):
     if nblocks < 38:
         raise NotImplementedError()
 
-    return _binary_matrix_rank(bits, M=nrows, Q=ncols)
+    try:
+        return _binary_matrix_rank(bits, M=nrows, Q=ncols)
+    except (ZeroDivisionError, IndexError):
+        raise ImplementationError()
 
 
 @named

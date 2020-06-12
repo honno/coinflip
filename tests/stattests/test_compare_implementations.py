@@ -1,15 +1,27 @@
+from math import ceil
 from math import isclose
 
 import pandas as pd
+from hypothesis import HealthCheck
 from hypothesis import assume
 from hypothesis import given
+from hypothesis import reject
+from hypothesis import settings
 from hypothesis import strategies as st
 
 from rngtest.stattests import fourier
 from rngtest.stattests import frequency
+from rngtest.stattests import matrix
 from rngtest.stattests import runs
+from rngtest.stattests import template
+from rngtest.stattests import universal
 
-from .implementations import djmap
+from .implementations import ImplementationError
+from .implementations import dj_testmap
+
+# -------------------
+# Strategy definition
+# -------------------
 
 
 def contains_multiple_values(array):
@@ -29,36 +41,113 @@ def mixedbits(min_size=2):
     return mixedbits
 
 
+@st.composite
+def matrix_strategy(draw, min_blocks=1):
+    nblocks = draw(st.integers(min_value=min_blocks))
+
+    nrows = draw(st.integers(min_value=1, max_value=nblocks))
+    ncols = max(ceil(nblocks / nrows), 2)
+
+    blocksize = nrows * ncols
+    n = nblocks * blocksize
+    bits = draw(mixedbits(min_size=n))
+
+    return bits, nrows, ncols
+
+
+@st.composite
+def template_strategy(draw, template, nblocks):
+    templatesize = len(template)
+    n = nblocks * templatesize
+
+    bits = draw(mixedbits(min_size=n))
+
+    return bits
+
+
+@st.composite
+def universal_strategy(draw, min_blocks=2):
+    nblocks = draw(st.integers(min_value=min_blocks))
+
+    blocksize = draw(st.integers(min_value=2))
+
+    init_nblocks = draw(st.integers(min_value=1, max_value=nblocks - 1))
+
+    n = nblocks * blocksize
+    bits = draw(mixedbits(min_size=n))
+
+    return bits, blocksize, init_nblocks
+
+
+# ----------------
+# Property testing
+# ----------------
+
+
 @given(mixedbits())
 def test_monobits(bits):
-    ourresult = frequency.monobits(pd.Series(bits))
+    result = frequency.monobits(pd.Series(bits))
 
-    djtest = djmap[frequency.monobits].stattest
-    djresult = djtest(bits)
+    dj_stattest = dj_testmap[frequency.monobits].stattest
+    dj_result = dj_stattest(bits)
 
-    assert isclose(ourresult.p, djresult.p, abs_tol=0.005)
+    assert isclose(result.p, dj_result.p, abs_tol=0.005)
 
 
 @given(mixedbits(min_size=100))
 def test_frequency_within_block(bits):
-    dj_implementation = djmap[frequency.frequency_within_block]
-    djtest = dj_implementation.stattest
-    kwargs = dj_implementation.fixedkwargs
+    _implementation = dj_testmap[frequency.frequency_within_block]
+    dj_stattest = _implementation.stattest
+    dj_fixedkwargs = _implementation.fixedkwargs
 
-    ourresult = frequency.frequency_within_block(pd.Series(bits), **kwargs)
-    djresult = djtest(bits)
+    result = frequency.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
+    dj_result = dj_stattest(bits)
 
-    assert isclose(ourresult.p, djresult.p, abs_tol=0.005)
+    assert isclose(result.p, dj_result.p, abs_tol=0.005)
 
 
 @given(mixedbits())
 def test_runs(bits):
-    ourresult = runs.runs(pd.Series(bits))
+    result = runs.runs(pd.Series(bits))
 
-    djtest = djmap[runs.runs].stattest
-    djresult = djtest(bits)
+    dj_stattest = dj_testmap[runs.runs].stattest
+    dj_result = dj_stattest(bits)
 
-    assert isclose(ourresult.p, djresult.p)
+    assert isclose(result.p, dj_result.p)
+
+
+@given(mixedbits(min_size=128))
+@settings(suppress_health_check=[HealthCheck.large_base_example])
+def test_longest_runs(bits):
+    result = runs.longest_runs(pd.Series(bits))
+
+    dj_stattest = dj_testmap[runs.longest_runs].stattest
+    dj_result = dj_stattest(bits)
+
+    assert isclose(result.p, dj_result.p, abs_tol=0.005)
+
+
+@given(matrix_strategy(min_blocks=38))
+@settings(
+    suppress_health_check=[
+        HealthCheck.large_base_example,
+        HealthCheck.data_too_large,
+        HealthCheck.too_slow,
+    ]
+)
+def test_binary_matrix_rank(args):
+    bits, nrows, ncols = args
+
+    result = matrix.binary_matrix_rank(pd.Series(bits), nrows=nrows, ncols=ncols)
+
+    dj_stattest = dj_testmap[matrix.binary_matrix_rank].stattest
+
+    try:
+        dj_result = dj_stattest(bits, nrows=nrows, ncols=ncols)
+    except ImplementationError:
+        reject()
+
+    assert isclose(result.p, dj_result.p)
 
 
 @given(mixedbits())
@@ -67,9 +156,47 @@ def test_discrete_fourier_transform(bits):
         truncated_bits = bits[:-1]
         assume(0 in truncated_bits and 1 in truncated_bits)
 
-    ourresult = fourier.discrete_fourier_transform(pd.Series(bits))
+    result = fourier.discrete_fourier_transform(pd.Series(bits))
 
-    djtest = djmap[fourier.discrete_fourier_transform].stattest
-    djresult = djtest(bits)
+    dj_stattest = dj_testmap[fourier.discrete_fourier_transform].stattest
+    dj_result = dj_stattest(bits)
 
-    assert isclose(ourresult.p, djresult.p)
+    assert isclose(result.p, dj_result.p)
+
+
+dj_template_kwargs = dj_testmap[template.overlapping_template_matching].fixedkwargs
+
+
+@given(template_strategy(**dj_template_kwargs))
+@settings(
+    suppress_health_check=[
+        HealthCheck.large_base_example,
+        HealthCheck.data_too_large,
+        HealthCheck.too_slow,
+    ]
+)
+def test_overlapping_template_matching(bits):
+    dj_implementation = dj_testmap[template.overlapping_template_matching]
+    dj_stattest = dj_implementation.stattest
+    dj_fixedkwargs = dj_implementation.fixedkwargs
+
+    result = template.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
+
+    dj_result = dj_stattest(bits)
+
+    assert isclose(result.p, dj_result.p)
+
+
+@given(universal_strategy())
+@settings(suppress_health_check=[HealthCheck.data_too_large, HealthCheck.too_slow])
+def test_maurers_universal(args):
+    bits, blocksize, init_nblocks = args
+
+    result = universal.maurers_universal(
+        pd.Series(bits), blocksize=blocksize, init_nblocks=init_nblocks
+    )
+
+    dj_stattest = dj_testmap[universal.maurers_universal].stattest
+    dj_result = dj_stattest(bits, blocksize=blocksize, init_nblocks=init_nblocks)
+
+    assert isclose(result.p, dj_result.p)
