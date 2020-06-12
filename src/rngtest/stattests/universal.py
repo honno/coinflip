@@ -42,7 +42,12 @@ def maurers_universal(series, blocksize, init_nblocks):
 
     stuff = hard_coded_thing.loc[hard_coded_thing["blocksize"] == blocksize]
 
-    p = erfc(abs((statistic - stuff["expected_value"]) / (sqrt(2) * stuff["variance"])))
+    p = erfc(
+        abs(
+            (statistic - stuff.expected_value.item())
+            / (sqrt(2) * stuff.variance.item())
+        )
+    )
 
     return TestResult(statistic=statistic, p=p)
 
