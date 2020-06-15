@@ -234,7 +234,7 @@ def flatten_examples(map_, parentkeys=[]):
             yield exampletitle, value
 
 
-def iterexamples(title_substr: str = None):
+def examples_iter(title_substr: str = None):
     if title_substr is None:
         for exampletitle, example in flatten_examples(examples):
             yield example
@@ -246,7 +246,7 @@ def iterexamples(title_substr: str = None):
 
 
 # conftest.py is responsible for parametrizing, equivalent to:
-# @pytest.mark.parametrize(Example._fields, iterexamples())
+# @pytest.mark.parametrize(Example._fields, examples_iter())
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
     stattest_method = getattr(stattests, stattest)
     result = stattest_method(bits, **kwargs)
