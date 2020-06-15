@@ -1,5 +1,5 @@
+from functools import wraps
 from math import exp
-from typing import List
 
 import pandas as pd
 from scipy.special import gammaincc
@@ -7,6 +7,7 @@ from scipy.special import hyp1f1
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import chunks
+from rngtest.stattests._common import rawchunks
 from rngtest.stattests._common import stattest
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
@@ -17,7 +18,8 @@ class TemplateContainsElementsNotInSeriesError(ValueError):
 
 
 def template(func):
-    def wrapper(series: pd.Series, template: List, *args, **kwargs):
+    @wraps(func)
+    def wrapper(series: pd.Series, template, *args, **kwargs):
         if not isinstance(template, pd.Series):
             template = pd.Series(template)
 
@@ -38,34 +40,34 @@ def non_overlapping_template_matching(series, template, nblocks=968):
     n = len(series)
     blocksize = n // nblocks
 
-    templatesize = len(template)
+    template_size = len(template)
+    raw_template = template.values
 
-    matches_per_block = []
-    for chunk in chunks(series, blocksize=blocksize):
+    block_matches = []
+    for rawchunk in rawchunks(series, blocksize=blocksize):
         matches = 0
         pointer = 0
 
-        while pointer < len(chunk) - templatesize:
-            window = chunk[pointer : pointer + templatesize]
-            if all(x == y for x, y in zip(window.values, template.values)):
+        boundary = len(rawchunk) - template_size
+        while pointer < boundary:
+            window = rawchunk[pointer : pointer + template_size]
+
+            if all(x == y for x, y in zip(window, raw_template)):
                 matches += 1
-                pointer += templatesize
+                pointer += template_size
             else:
                 pointer += 1
 
-        matches_per_block.append(matches)
+        block_matches.append(matches)
 
-    theoretical_mean = (blocksize - templatesize + 1) / 2 ** templatesize
-    theoretical_variance = blocksize * (
-        (1 / 2 ** templatesize) - ((2 * templatesize - 1)) / 2 ** (2 * templatesize)
+    mean_expected = (blocksize - template_size + 1) / 2 ** template_size
+    variance_expected = blocksize * (
+        (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
     )
 
-    # mean = (blocksize - templatesize + 1) / 2**templatesize
-    # variance = sum((matches - mean)**2 for matches in matches_per_block) / nblocks
-
     statistic = (
-        sum((matches - theoretical_mean) ** 2 for matches in matches_per_block)
-        / theoretical_variance
+        sum((matches - mean_expected) ** 2 for matches in block_matches)
+        / variance_expected
     )
     p = gammaincc(nblocks / 2, statistic / 2)
 
@@ -81,28 +83,28 @@ def overlapping_template_matching(series, template, nblocks=8):
     n = len(series)
     blocksize = n // nblocks
 
-    templatesize = len(template)
+    template_size = len(template)
 
-    matches_per_block = []
+    matches = []
     for chunk in chunks(series, blocksize=blocksize):
         matches = 0
 
         for i in range(blocksize):
-            window = chunk[i : i + templatesize]
+            window = chunk[i : i + template_size]
 
             if all(x == y for x, y in zip(window.values, template.values)):
                 matches += 1
 
-        matches_per_block.append(matches)
+        matches.append(matches)
 
     tally_table = [0 for _ in range(6)]
-    for matches in matches_per_block:
+    for matches in matches:
         if matches >= 5:
             tally_table[5] += 1
         else:
             tally_table[matches] += 1
 
-    lambda_ = (blocksize - templatesize + 1) / 2 ** templatesize
+    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
     eta = lambda_ / 2
 
     probabilities = [
