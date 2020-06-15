@@ -1,6 +1,6 @@
 from math import ceil
 from math import floor
-from math import isclose
+from math import log
 from math import log2
 
 import pandas as pd
@@ -15,6 +15,15 @@ import rngtest.stattests as stattests
 from .implementations import ImplementationError
 from .implementations import dj_testmap
 from .implementations import sgr_testmap
+
+
+def pclose(left, right) -> bool:
+    p_avg = (left + right) / 2
+    margin = max(-log(p_avg), 0.05)
+    diff = abs(left - right)
+
+    return diff < margin
+
 
 # -------------------
 # Strategy definition
@@ -103,12 +112,12 @@ def test_monobits(bits):
     dj_stattest = dj_testmap["monobits"].stattest
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p, abs_tol=0.005)
+    assert pclose(result.p, dj_result.p)
 
     sgr_stattest = sgr_testmap["monobits"].stattest
     sgr_p = sgr_stattest(bits)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 @given(mixedbits(min_size=100))
@@ -120,7 +129,7 @@ def test_dj_frequency_within_block(bits):
     result = stattests.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p, abs_tol=0.005)
+    assert pclose(result.p, dj_result.p)
 
 
 @given(blocks_strategy(min_size=100))
@@ -132,7 +141,7 @@ def test_sgr_frequency_within_block(args):
     sgr_stattest = sgr_testmap["frequency_within_block"].stattest
     sgr_p = sgr_stattest(bits, blocksize=blocksize)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 @given(mixedbits())
@@ -142,12 +151,12 @@ def test_runs(bits):
     dj_stattest = dj_testmap["runs"].stattest
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p)
+    assert pclose(result.p, dj_result.p)
 
     sgr_stattest = sgr_testmap["runs"].stattest
     sgr_p = sgr_stattest(bits)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 @given(mixedbits(min_size=128))
@@ -158,12 +167,12 @@ def test_longest_runs(bits):
     dj_stattest = dj_testmap["longest_runs"].stattest
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p, abs_tol=0.005)
+    assert pclose(result.p, dj_result.p)
 
     sgr_stattest = sgr_testmap["longest_runs"].stattest
     sgr_p = sgr_stattest(bits)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 @given(matrix_strategy(min_blocks=38))
@@ -183,7 +192,7 @@ def test_dj_binary_matrix_rank(args):
 
     try:
         dj_result = dj_stattest(bits, nrows=nrows, ncols=ncols)
-        assert isclose(result.p, dj_result.p)
+        assert pclose(result.p, dj_result.p)
     except ImplementationError:
         pass
 
@@ -204,7 +213,7 @@ def test_sgr_binary_matrix_rank(args):
     sgr_stattest = sgr_testmap["binary_matrix_rank"].stattest
     sgr_p = sgr_stattest(bits, nrows=nrows, ncols=ncols)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 @given(mixedbits())
@@ -218,12 +227,12 @@ def test_discrete_fourier_transform(bits):
     dj_stattest = dj_testmap["discrete_fourier_transform"].stattest
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p)
+    assert pclose(result.p, dj_result.p)
 
     sgr_stattest = sgr_testmap["discrete_fourier_transform"].stattest
     sgr_p = sgr_stattest(bits)
 
-    assert isclose(result.p, sgr_p, abs_tol=0.005)
+    assert pclose(result.p, sgr_p)
 
 
 dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
@@ -246,7 +255,7 @@ def test_overlapping_template_matching(bits):
 
     dj_result = dj_stattest(bits)
 
-    assert isclose(result.p, dj_result.p)
+    assert pclose(result.p, dj_result.p)
 
 
 @given(universal_strategy())
@@ -261,4 +270,4 @@ def test_maurers_universal(args):
     dj_stattest = dj_testmap["maurers_universal"].stattest
     dj_result = dj_stattest(bits, blocksize=blocksize, init_nblocks=init_nblocks)
 
-    assert isclose(result.p, dj_result.p)
+    assert pclose(result.p, dj_result.p)
