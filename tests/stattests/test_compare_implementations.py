@@ -1,11 +1,12 @@
 from math import ceil
+from math import floor
 from math import isclose
+from math import log2
 
 import pandas as pd
 from hypothesis import HealthCheck
 from hypothesis import assume
 from hypothesis import given
-from hypothesis import reject
 from hypothesis import settings
 from hypothesis import strategies as st
 
@@ -13,6 +14,7 @@ import rngtest.stattests as stattests
 
 from .implementations import ImplementationError
 from .implementations import dj_testmap
+from .implementations import sgr_testmap
 
 # -------------------
 # Strategy definition
@@ -37,11 +39,26 @@ def mixedbits(min_size=2):
 
 
 @st.composite
-def matrix_strategy(draw, min_blocks=1):
+def blocks_strategy(draw, min_size=2):
+    bits = draw(mixedbits(min_size=min_size))
+
+    n = len(bits)
+
+    blocksize = draw(st.integers(min_value=1, max_value=n))
+
+    return bits, blocksize
+
+
+@st.composite
+def matrix_strategy(draw, min_blocks=1, square_matrix=False):
     nblocks = draw(st.integers(min_value=min_blocks))
 
-    nrows = draw(st.integers(min_value=1, max_value=nblocks))
-    ncols = max(ceil(nblocks / nrows), 2)
+    if square_matrix:
+        nrows = floor(log2(nblocks))
+        ncols = nrows
+    else:
+        nrows = draw(st.integers(min_value=1, max_value=nblocks))
+        ncols = max(ceil(nblocks / nrows), 2)
 
     blocksize = nrows * ncols
     n = nblocks * blocksize
@@ -88,9 +105,14 @@ def test_monobits(bits):
 
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
 
+    sgr_stattest = sgr_testmap["monobits"].stattest
+    sgr_p = sgr_stattest(bits)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
+
 
 @given(mixedbits(min_size=100))
-def test_frequency_within_block(bits):
+def test_dj_frequency_within_block(bits):
     _implementation = dj_testmap["frequency_within_block"]
     dj_stattest = _implementation.stattest
     dj_fixedkwargs = _implementation.fixedkwargs
@@ -101,14 +123,31 @@ def test_frequency_within_block(bits):
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
 
 
+@given(blocks_strategy(min_size=100))
+def test_sgr_frequency_within_block(args):
+    bits, blocksize = args
+
+    result = stattests.frequency_within_block(bits, blocksize=blocksize)
+
+    sgr_stattest = sgr_testmap["frequency_within_block"].stattest
+    sgr_p = sgr_stattest(bits, blocksize=blocksize)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
+
+
 @given(mixedbits())
 def test_runs(bits):
-    result = stattests.runs(pd.Series(bits))
+    result = stattests.runs(bits)
 
     dj_stattest = dj_testmap["runs"].stattest
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p)
+
+    sgr_stattest = sgr_testmap["runs"].stattest
+    sgr_p = sgr_stattest(bits)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
 
 
 @given(mixedbits(min_size=128))
@@ -121,6 +160,11 @@ def test_longest_runs(bits):
 
     assert isclose(result.p, dj_result.p, abs_tol=0.005)
 
+    sgr_stattest = sgr_testmap["longest_runs"].stattest
+    sgr_p = sgr_stattest(bits)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
+
 
 @given(matrix_strategy(min_blocks=38))
 @settings(
@@ -130,7 +174,7 @@ def test_longest_runs(bits):
         HealthCheck.too_slow,
     ]
 )
-def test_binary_matrix_rank(args):
+def test_dj_binary_matrix_rank(args):
     bits, nrows, ncols = args
 
     result = stattests.binary_matrix_rank(pd.Series(bits), nrows=nrows, ncols=ncols)
@@ -139,10 +183,28 @@ def test_binary_matrix_rank(args):
 
     try:
         dj_result = dj_stattest(bits, nrows=nrows, ncols=ncols)
+        assert isclose(result.p, dj_result.p)
     except ImplementationError:
-        reject()
+        pass
 
-    assert isclose(result.p, dj_result.p)
+
+@given(matrix_strategy(min_blocks=38, square_matrix=True))
+@settings(
+    suppress_health_check=[
+        HealthCheck.large_base_example,
+        HealthCheck.data_too_large,
+        HealthCheck.too_slow,
+    ]
+)
+def test_sgr_binary_matrix_rank(args):
+    bits, nrows, ncols = args
+
+    result = stattests.binary_matrix_rank(bits, nrows=nrows, ncols=ncols)
+
+    sgr_stattest = sgr_testmap["binary_matrix_rank"].stattest
+    sgr_p = sgr_stattest(bits, nrows=nrows, ncols=ncols)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
 
 
 @given(mixedbits())
@@ -157,6 +219,11 @@ def test_discrete_fourier_transform(bits):
     dj_result = dj_stattest(bits)
 
     assert isclose(result.p, dj_result.p)
+
+    sgr_stattest = sgr_testmap["discrete_fourier_transform"].stattest
+    sgr_p = sgr_stattest(bits)
+
+    assert isclose(result.p, sgr_p, abs_tol=0.005)
 
 
 dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
