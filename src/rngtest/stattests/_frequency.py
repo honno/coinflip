@@ -32,7 +32,7 @@ def monobits(series):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
 
     Returns
@@ -65,7 +65,7 @@ def frequency_within_block(series, candidate, blocksize=8):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block

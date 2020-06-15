@@ -1,5 +1,4 @@
 from functools import wraps
-from typing import List
 
 import pandas as pd
 
@@ -8,7 +7,7 @@ __all__ = ["stattest", "elected"]
 
 def stattest(func):
     @wraps(func)
-    def wrapper(sequence: List, *args, **kwargs):
+    def wrapper(sequence, *args, **kwargs):
         if not isinstance(sequence, pd.Series):
             series = pd.Series(sequence)
         else:

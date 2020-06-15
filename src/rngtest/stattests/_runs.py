@@ -23,7 +23,7 @@ def runs(series, candidate):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block
@@ -60,7 +60,7 @@ def longest_runs(series, candidate):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block

@@ -29,7 +29,7 @@ def discrete_fourier_transform(series, candidate):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is considered the peak in oscillations

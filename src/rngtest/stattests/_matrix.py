@@ -22,7 +22,7 @@ def binary_matrix_rank(series, nrows=32, ncols=32):
 
     Parameters
     ----------
-    series : Series
+    sequence : array-like
         Output of the RNG being tested
     nrows : int
         Number of rows in each matrix
