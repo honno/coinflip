@@ -19,6 +19,33 @@ class TruncatedInputSingleValueError(ValueError):
 @stattest
 @elected
 def discrete_fourier_transform(series, candidate):
+    """Potency of periodic features in sequence is compared to expected result
+
+    The binary values are treated as the peaks and troughs respectively of a
+    signal, which is applied a Fourier transform so as to find constituent
+    periodic features. The strength of these features is referenced to the
+    expected potent periodic features present in a hypothetically truly random
+    RNG.
+
+    Parameters
+    ----------
+    series : Series
+        Output of the RNG being tested
+    candidate : Value present in given series
+        The value which is considered the peak in oscillations
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+
+    Raises
+    ------
+    TruncatedInputSingleValueError
+        When odd-lengthed sequence is truncated there is only one unique value
+        present
+
+    """
     n = len(series)
 
     if n % 2 != 0:
@@ -32,14 +59,14 @@ def discrete_fourier_transform(series, candidate):
     oscillations = series.map({peaks: 1, trough: -1})
     fourier = fft(oscillations)
 
-    halffourier = fourier[: n // 2]
-    peaks = halffourier.abs()
+    half_fourier = fourier[: n // 2]
+    peaks = half_fourier.abs()
 
     threshold = sqrt(log(1 / 0.05) * n)
-    expectedbelow = 0.95 * n / 2
-    actualbelow = sum(peaks < threshold)  # TODO not accurate
+    nbelow_expected = 0.95 * n / 2
+    nbelow_actual = sum(peaks < threshold)
 
-    diff = actualbelow - expectedbelow
+    diff = nbelow_actual - nbelow_expected
     normdiff = diff / sqrt((n * 0.95 * 0.05) / 4)
 
     p = erfc(abs(normdiff) / sqrt(2))
