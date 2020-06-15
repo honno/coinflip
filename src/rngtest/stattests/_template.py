@@ -6,7 +6,6 @@ from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import chunks
 from rngtest.stattests._common import rawchunks
 from rngtest.stattests._common import stattest
 
@@ -77,32 +76,28 @@ def non_overlapping_template_matching(series, template, nblocks=968):
 @stattest
 @template
 def overlapping_template_matching(series, template, nblocks=8):
-    if not isinstance(template, pd.Series):
-        template = pd.Series(template)
-
     n = len(series)
     blocksize = n // nblocks
 
     template_size = len(template)
+    raw_template = template.values
 
-    matches = []
-    for chunk in chunks(series, blocksize=blocksize):
+    block_matches = []
+    for rawchunk in rawchunks(series, blocksize=blocksize):
         matches = 0
 
-        for i in range(blocksize):
-            window = chunk[i : i + template_size]
+        for pointer in range(blocksize):
+            window = rawchunk[pointer : pointer + template_size]
 
-            if all(x == y for x, y in zip(window.values, template.values)):
+            if all(x == y for x, y in zip(window, raw_template)):
                 matches += 1
 
-        matches.append(matches)
+        block_matches.append(matches)
 
-    tally_table = [0 for _ in range(6)]
-    for matches in matches:
-        if matches >= 5:
-            tally_table[5] += 1
-        else:
-            tally_table[matches] += 1
+    tallies = [0 for _ in range(6)]
+    for matches in block_matches:
+        i = min(matches, 5)
+        tallies[i] += 1
 
     lambda_ = (blocksize - template_size + 1) / 2 ** template_size
     eta = lambda_ / 2
@@ -113,8 +108,10 @@ def overlapping_template_matching(series, template, nblocks=8):
 
     statistic = sum(
         (tally - nblocks * probability) ** 2 / (nblocks * probability)
-        for tally, probability in zip(tally_table, probabilities)
+        for tally, probability in zip(tallies, probabilities)
     )
-    p = gammaincc(5 / 2, statistic / 2)
+
+    df = len(tallies) - 1
+    p = gammaincc(df / 2, statistic / 2)
 
     return TestResult(statistic=statistic, p=p)
