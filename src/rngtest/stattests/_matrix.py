@@ -6,15 +6,16 @@ from numpy.linalg import matrix_rank
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import chunks
+from rngtest.stattests._common import elected
 from rngtest.stattests._common import rawchunks
 from rngtest.stattests._common import stattest
 
 __all__ = ["binary_matrix_rank"]
 
 
-# TODO use candidate kwarg to convert sequences into {0, 1} sequences
 @stattest
-def binary_matrix_rank(series, nrows=32, ncols=32):
+@elected
+def binary_matrix_rank(series, candidate, nrows=32, ncols=32):
     """Independence of neighbouring sequences is compared to expected result
 
     Independence is determined by the matrix rank of a subsequence, where it is
@@ -39,8 +40,11 @@ def binary_matrix_rank(series, nrows=32, ncols=32):
     blocksize = nrows * ncols
     nblocks = n // blocksize
 
+    noncandidate = next(value for value in series.unique() if value != candidate)
+    rankable_series = series.map({candidate: 1, noncandidate: 0})
+
     matrices = []
-    for chunk in chunks(series, blocksize=blocksize):
+    for chunk in chunks(rankable_series, blocksize=blocksize):
         rows = [row for row in rawchunks(chunk, nblocks=nrows)]
         matrix = np.stack(rows)
         matrices.append(matrix)
