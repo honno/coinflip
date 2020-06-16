@@ -12,13 +12,13 @@ from appdirs import AppDirs
 from rngtest.slugify import slugify
 
 __all__ = [
-    "TYPES_MAP",
+    "TYPES",
     "data_dir",
     "parse_data",
-    "load_data",
+    "store_data",
     "get_data",
     "drop",
-    "ls_stores",
+    "list_stores",
 ]
 
 dirs = AppDirs(appname="rngtest", appauthor="MatthewBarber")
@@ -31,12 +31,10 @@ try:
 except FileExistsError:
     pass
 
-DATA_FNAME = "dataframe.pickle"
-PROFILES_FNAME = "profiles.pickle"
-PROFILED_DATA_FNAME = "series.pickle"
+DATA_FNAME = "series.pickle"
 RESULTS_FNAME = "results.pickle"
 
-TYPES_MAP = {
+TYPES = {
     "bool": np.bool_,
     "byte": np.byte,
     "short": np.int16,
@@ -47,27 +45,67 @@ TYPES_MAP = {
 }
 
 
+# TODO list valid dtype_str values using the TYPES variable
 class TypeNotRecognizedError(ValueError):
-    """Error for when an inputted dtype is not recognised"""
+    """Error for when a given dtype string representation is not recognised"""
 
     pass
 
 
-def parse_data(datafile, dtypestr=None) -> pd.DataFrame:
-    """Reads file containing data into a dataframe"""
-    df = pd.read_csv(datafile, header=None)
+class MultipleColumnsError(ValueError):
+    """Error for when only one column of data was expected"""
 
-    if dtypestr is not None:
+    pass
+
+
+def parse_data(data_file, dtype_str=None) -> pd.Series:
+    """Reads file containing data into a pandas Series
+
+    Reads from file containing RNG output and produces a representitive pandas
+    Series. The appropiate dtype is inferred from the data itself, or optionally
+    from the supplied `dtype_str`.
+
+    Parameters
+    ----------
+    data_file : str, path or file-like object
+        File containing RNG output
+    dtype_str : str, optional
+        String representation of desired dtype. If not supplied, it is inferred
+        from the data.
+
+    Returns
+    -------
+    Series
+        A pandas Series which represents the data
+
+    Raises
+    ------
+    TypeNotRecognizedError
+        If supplied dtype_str does not recognise a dtype
+    MultipleColumnsError
+        If inputted data contains multiple values per line
+
+    See Also
+    --------
+    pandas.read_csv : The pandas method for reading `data_file`
+    """
+    df = pd.read_csv(data_file, header=None)
+
+    if len(df.columns) > 1:
+        raise MultipleColumnsError()
+    series = df.iloc[:, 0]
+
+    if dtype_str is not None:
         try:
-            dtype = TYPES_MAP[dtypestr]
+            dtype = TYPES[dtype_str]
         except KeyError:
             raise TypeNotRecognizedError()
 
-        df = df.astype(dtype)
+        series = series.astype(dtype)
     else:
-        df = df.infer_objects()
+        series = series.infer_objects()
 
-    return df
+    return series
 
 
 class StoreExistsError(FileExistsError):
@@ -82,13 +120,36 @@ class NameConflictError(FileExistsError):
     pass
 
 
-UNIQUE_STORENAME_ATTEMPTS = 3
-
-
 def init_store(name=None, overwrite=False):
     """Creates store in local data
 
-    :returns: The store's name and path
+    A name supplied or generated is used to initialise a store. If supplied,
+    the name is sanitised to remove invalid characters for filepaths. If
+    generated, the name will be a timestamp of initialisation.
+
+    Parameters
+    ----------
+    name : str, optional
+        Desired name of the store, which will be sanitised. If not supplied, a
+        name is generated automatically.
+    overwrite : boolean, default `False`
+        If a name conflicts with an existing store, this decides whether to
+        overwrite it.
+
+    Returns
+    -------
+    store_name : str
+        Internal name of the initialised store
+    store_path : Path
+        Path of the initialised store
+
+    Raises
+    ------
+    NameConflictError
+        If attempts at generating a unique name fails
+    StoreExistsError
+        If a store of the same name exists already (and overwrite is set to
+        `False`)
     """
     if name is not None:
         store_name = slugify(name)
@@ -97,11 +158,12 @@ def init_store(name=None, overwrite=False):
             print(f"Store name {name} encoded as {store_name}")
 
     else:
-        for _ in range(UNIQUE_STORENAME_ATTEMPTS):
+        for _ in range(3):
             timestamp = datetime.now()
-            store_name = timestamp.strftime("%Y%m%dT%H%M%SZ")
+            iso8601 = timestamp.strftime("%Y%m%dT%H%M%SZ")
+            store_name = f"store_{iso8601}"
 
-            if store_name not in ls_stores():
+            if store_name not in list_stores():
                 break
             else:
                 sleep(1.5)
@@ -123,24 +185,59 @@ def init_store(name=None, overwrite=False):
     return store_name, store_path
 
 
-class MultipleColumnsError(ValueError):
-    """Error for when only one column of data was expected"""
+def store_data(data_file, name=None, dtype_str=None, overwrite=False):
+    """Load and parse RNG output, serialised to a local data directory
 
-    pass
+    Reads from file containing RNG output and produces a representitive pandas
+    Series. The appropiate dtype is inferred from the data itself, or optionally
+    from the supplied `dtype_str`.
+
+    A name supplied or generated is used to initialise a store. If supplied,
+    the name is sanitised to remove invalid characters for filepaths. If
+    generated, the name will be a timestamp of initialisation.
+
+    The representive Series is serialised using Python's pickle module, saved
+    in the initialised store.
+
+    Parameters
+    ----------
+    data_file : str, path or file-like object
+        File containing RNG output
+    name : str, optional
+        Desired name of the store, which will be sanitised. If not supplied, a
+        name is generated automatically.
+    dtype_str : str, optional
+        String representation of desired dtype. If not supplied, it is inferred
+        from the data.
+    overwrite : boolean, default `False`
+        If a name conflicts with an existing store, this decides whether to
+        overwrite it.
 
 
-def load_data(datafile, name=None, dtypestr=None, overwrite=False):
-    """Load RNG outputs into a store"""
-    df = parse_data(datafile, dtypestr)
+    Raises
+    ------
+    TypeNotRecognizedError
+        If supplied dtype_str does not recognise a dtype
+    MultipleColumnsError
+        If inputted data contains multiple values per line
+    NameConflictError
+        If attempts at generating a unique name fails
+    StoreExistsError
+        If a store of the same name exists already (and overwrite is set to
+        `False`)
 
-    if len(df.columns) > 1:
-        raise MultipleColumnsError()
-    series = df.iloc[:, 0]
+    See Also
+    --------
+    parse_data : Method used that loads and parses `data_file`
+    init_store : Method used to initialise the store
+    """
+    series = parse_data(data_file, dtype_str)
 
     store_name, store_path = init_store(name=name, overwrite=overwrite)
 
     series = series.rename(store_name)
-    data_path = store_path / PROFILED_DATA_FNAME
+
+    data_path = store_path / DATA_FNAME
     pickle.dump(series, open(data_path, "wb"))
 
 
@@ -162,7 +259,7 @@ def get_data(store_name) -> pd.Series:
     if not store_path.exists():
         raise StoreNotFoundError()
 
-    single_profile_path = store_path / PROFILED_DATA_FNAME
+    single_profile_path = store_path / DATA_FNAME
 
     try:
         with open(single_profile_path, "rb") as f:
@@ -191,7 +288,7 @@ def drop(store_name):
     rm_tree(store_path)
 
 
-def ls_stores():
+def list_stores():
     """List all stores in local data"""
     for f in scandir(data_dir):
         if f.is_dir():
@@ -207,7 +304,7 @@ def ls_stores():
         pass
 
 
-def load_result(store_name, result):
+def store_result(store_name, result):
     with open_results(store_name, write=True) as results_dict:
         class_name = result.__class__.__name__
         results_dict[class_name] = result

@@ -8,21 +8,21 @@ from click import option
 
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattests
-from rngtest.store import TYPES_MAP
+from rngtest.store import TYPES
 from rngtest.store import drop
 from rngtest.store import get_data
-from rngtest.store import load_data
-from rngtest.store import load_result
-from rngtest.store import ls_stores
+from rngtest.store import list_stores
 from rngtest.store import open_results
 from rngtest.store import parse_data
+from rngtest.store import store_data
+from rngtest.store import store_result
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
 
 def get_stores(ctx, args, incomplete):
     """Completition for store names"""
-    stores = list(ls_stores())
+    stores = list(list_stores())
     if incomplete is None:
         return stores
     else:
@@ -31,7 +31,7 @@ def get_stores(ctx, args, incomplete):
                 yield name
 
 
-dtype_choice = Choice(TYPES_MAP.keys())
+dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(stattests)
 
 
@@ -46,7 +46,7 @@ def main():
 @option("-t", "--dtype", type=dtype_choice)
 @option("-o", "--overwrite", is_flag=True)
 def load(data, name=None, dtype=None, overwrite=False):
-    load_data(data, name=name, dtypestr=dtype, overwrite=overwrite)
+    store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
 @main.command()
@@ -57,13 +57,13 @@ def rm(store):
 
 @main.command()
 def clear():
-    for store in ls_stores():
+    for store in list_stores():
         drop(store)
 
 
 @main.command()
 def ls():
-    for store in ls_stores():
+    for store in list_stores():
         echo(store)
 
 
@@ -85,13 +85,13 @@ def run(store, test=None):
 
         for result in results:
             print(result)
-            load_result(store, result)
+            store_result(store, result)
 
     else:
         result = run_test(series, test)
 
         print(result)
-        load_result(store, result)
+        store_result(store, result)
 
 
 @main.command()
@@ -121,8 +121,7 @@ def report(store, outfile):
 @option("-t", "--test", type=test_choice)
 @option("-r", "--report", type=Path())
 def local_run(datafile, dtype=None, test=None, report=None):
-    df = parse_data(datafile)
-    series = df.iloc[:, 0]
+    series = parse_data(datafile)
 
     if test is None:
         results = run_all_tests(series)
