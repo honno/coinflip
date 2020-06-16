@@ -23,7 +23,7 @@ def get_stores(ctx, args, incomplete):
 
 
 dtype_choice = Choice(store_.TYPES_MAP.keys())
-test_choice = Choice(runner.list_tests())
+test_choice = Choice(name for name, func in runner.list_tests())
 
 
 @group()
