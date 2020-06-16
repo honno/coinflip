@@ -6,6 +6,7 @@ from numpy.linalg import matrix_rank
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import chunks
+from rngtest.stattests._common import rawchunks
 from rngtest.stattests._common import stattest
 
 __all__ = ["binary_matrix_rank"]
@@ -40,7 +41,7 @@ def binary_matrix_rank(series, nrows=32, ncols=32):
 
     matrices = []
     for chunk in chunks(series, blocksize=blocksize):
-        rows = [row.values for row in chunks(chunk, nblocks=nrows)]
+        rows = [row for row in rawchunks(chunk, nblocks=nrows)]
         matrix = np.stack(rows)
         matrices.append(matrix)
 
