@@ -103,6 +103,31 @@ def non_overlapping_template_matching(series, template, nblocks=968):
 @stattest
 @template
 def overlapping_template_matching(series, template, nblocks=8):
+    """Overlapping matches of template per block is compared to expected result
+
+    The sequence is split into blocks, where the number of overlapping matches
+    to the template in each block is found. This is referenced to the expected
+    mean and variance in matches of a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    sequence : array-like
+        Output of the RNG being tested
+    template : array-like
+        Template to match with the sequence
+    nblocks : int
+        Number of blocks to split sequence into
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value.
+
+    Raises
+    ------
+    TemplateContainsElementsNotInSequenceError
+        If template contains values not present in sequence
+    """
     n = len(series)
     blocksize = n // nblocks
 
