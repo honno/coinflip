@@ -16,6 +16,7 @@ from rngtest.store import open_results
 from rngtest.store import parse_data
 from rngtest.store import store_data
 from rngtest.store import store_result
+from rngtest.store import store_results
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
@@ -81,25 +82,19 @@ def run(store, test=None):
     series = get_data(store)
 
     if test is None:
-        results = run_all_tests(series)
-
-        for result in results:
-            print(result)
-            store_result(store, result)
-
+        results_dict = run_all_tests(series)
+        store_results(store, results_dict)
     else:
-        result = run_test(series, test)
-
-        print(result)
-        store_result(store, result)
+        stattest_name, result = run_test(series, test)
+        store_result(store, stattest_name, result)
 
 
 @main.command()
 @argument("store", autocompletion=get_stores)
 @argument("outfile", type=Path())
 def report(store, outfile):
-    with open_results(store) as results_dict:
-        results = results_dict.values()
+    with open_results(store) as results:
+        results = results.values()
         html = []
         for result in results:
             try:
@@ -115,6 +110,7 @@ def report(store, outfile):
         echo("No report markup available!")
 
 
+# TODO update with new test runner functionality
 @main.command()
 @argument("datafile", type=Path(exists=True))
 @option("-t", "--dtype", type=dtype_choice)

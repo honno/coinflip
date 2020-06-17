@@ -28,7 +28,7 @@ def run_all_tests(series: pd.Series):
         for name, func in list_tests():
             result = func(series)
 
-            yield result
+            yield name, result
 
     else:
         raise NotImplementedError()
