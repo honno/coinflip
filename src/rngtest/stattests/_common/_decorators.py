@@ -2,6 +2,8 @@ from functools import wraps
 
 import pandas as pd
 
+from rngtest.stattests._common._exceptions import NonBinarySequenceError
+
 __all__ = ["stattest", "elected"]
 
 
@@ -14,7 +16,7 @@ def stattest(func):
             series = sequence
 
         if series.nunique() != 2:
-            raise ValueError()
+            raise NonBinarySequenceError()
 
         result = func(series, *args, **kwargs)
 
