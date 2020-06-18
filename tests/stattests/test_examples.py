@@ -8,8 +8,6 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
-import pandas as pd
-
 from rngtest import stattests
 
 tests_path = Path(__file__).parent
@@ -163,33 +161,49 @@ examples = {
             0, 1, 1, 0
         ],
         kwargs=dict(
-            template=pd.Series([0, 0, 1]),
+            template=[0, 0, 1],
             nblocks=2,
         ),
 
         statistic=2.133333,
         p=0.344154,
     ),
-    "overlapping_template_matching": Example(
-        stattest="overlapping_template_matching",
+    "overlapping_template_matching": {
+        "small": Example(
+            # FAILING Generated probabilities coded to something different then what we got
+            stattest="overlapping_template_matching",
 
-        bits=[
-            1, 0, 1, 1, 1, 0, 1, 1,
-            1, 1, 0, 0, 1, 0, 1, 1,
-            0, 1, 0, 0, 0, 1, 1, 1,
-            0, 0, 1, 0, 1, 1, 1, 0,
-            1, 1, 1, 1, 1, 0, 0, 0,
-            0, 1, 0, 1, 1, 0, 1, 0,
-            0, 1,
-        ],
-        kwargs=dict(
-            template=pd.Series([1, 1]),
-            nblocks=5,
+            bits=[
+                1, 0, 1, 1, 1, 0, 1, 1,
+                1, 1, 0, 0, 1, 0, 1, 1,
+                0, 1, 0, 0, 0, 1, 1, 1,
+                0, 0, 1, 0, 1, 1, 1, 0,
+                1, 1, 1, 1, 1, 0, 0, 0,
+                0, 1, 0, 1, 1, 0, 1, 0,
+                0, 1,
+            ],
+            kwargs=dict(
+                template=[1, 1],
+                nblocks=5,
+            ),
+
+            statistic=3.167729,
+            p=0.274932,
         ),
+        "large": Example(
+            # FAILING Getting different tallies
+            stattest="overlapping_template_matching",
 
-        statistic=3.167729,
-        p=0.274932,
-    ),
+            bits=e_expansion(),
+            kwargs=dict(
+                template=[1, 1, 1, 1, 1, 1, 1, 1, 1],
+                nblocks=968,
+            ),
+
+            statistic=8.965859,
+            p=0.110434
+        )
+    },
     "maurers_universal": Example(
         stattest="maurers_universal",
 

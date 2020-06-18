@@ -155,7 +155,8 @@ def overlapping_template_matching(series, template, nblocks=8):
     eta = lambda_ / 2
 
     probabilities = [
-        ((eta * exp(-2 * eta)) / 2 ** x) * hyp1f1(x + 1, 2, eta) for x in range(6)
+        ((eta * exp(-2 * eta)) / 2 ** x) * hyp1f1(x + 1, 2, eta)
+        for x in range(len(tallies))
     ]
 
     statistic = sum(
