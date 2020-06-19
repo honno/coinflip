@@ -134,8 +134,8 @@ def longest_runs(series, candidate):
 
         maxlen = 0
         for run in candidateruns:
-            if run.runlength > maxlen:
-                maxlen = run.runlength
+            if run.length > maxlen:
+                maxlen = run.length
 
         maxlengths.append(maxlen)
 
@@ -157,17 +157,17 @@ def longest_runs(series, candidate):
 @dataclass
 class Run:
     value: Any
-    runlength: int = 1
+    length: int = 1
 
 
 def asruns(series):
     firstval = series.iloc[0]
-    currentrun = Run(firstval, runlength=0)
+    current_run = Run(firstval, length=0)
     for _, value in series.iteritems():
-        if value == currentrun.value:
-            currentrun.runlength += 1
+        if value == current_run.value:
+            current_run.length += 1
         else:
-            yield currentrun
-            currentrun = Run(value)
+            yield current_run
+            current_run = Run(value)
     else:
-        yield currentrun
+        yield current_run
