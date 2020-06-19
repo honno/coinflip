@@ -4,6 +4,7 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
+from rngtest.stattests._common import FloorDict
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import rawchunks
 from rngtest.stattests._common import stattest
@@ -11,10 +12,20 @@ from rngtest.stattests._common import stattest
 __all__ = ["maurers_universal"]
 
 
-# TODO understand what's going with the hard coded values provided
 @stattest
-def maurers_universal(series, blocksize, init_nblocks):
+def maurers_universal(series, blocksize=None, init_nblocks=None):
     n = len(series)
+
+    # TODO how to handle if only one of kwargs is not None
+    if blocksize is not None and init_nblocks is not None:
+        pass
+    else:
+        _blocksize, _init_nblocks = n_defaults[n]
+        if blocksize is None:
+            blocksize = _blocksize
+        if init_nblocks is None:
+            init_nblocks = _init_nblocks
+
     init_n = init_nblocks * blocksize
     init_series, spare_series = series[:init_n], series[init_n:]
     spare_nblocks = (n - init_n) / blocksize
@@ -69,16 +80,27 @@ blocksize_dists = {
     16: Dist(15.167379, 3.421),
 }
 
-# TODO default parameters using NIST's recommendations
-# n blocksize init_nblocks
-# 387,840 6 640
-# 904,960 7 1280
-# 2,068,480 8 2560
-# 4,654,080 9 5120
-# 10,342,400 10 10240
-# 22,753,280 11 20480
-# 49,643,520 12 40960
-# 107,560,960 13 81920
-# 231,669,760 14 163840
-# 496,435,200 15 327680
-# 1,059,061,760 16 655360
+
+class DefaultParams(NamedTuple):
+    blocksize: int
+    init_nblocks: int
+
+
+# Values taken from "A Statistical Test Suite for Random and Pseudorandom Number
+#                    Generators for Cryptographic Applications"
+#     See section 2.9.7, "Input Size Recommendation", p. 45
+n_defaults = FloorDict(
+    {
+        387840: DefaultParams(6, 640),
+        904960: DefaultParams(7, 1280),
+        2068480: DefaultParams(8, 2560),
+        4654080: DefaultParams(9, 5120),
+        10342400: DefaultParams(10, 10240),
+        22753280: DefaultParams(11, 20480),
+        49643520: DefaultParams(12, 40960),
+        107560960: DefaultParams(13, 81920),
+        231669760: DefaultParams(14, 163840),
+        496435200: DefaultParams(15, 327680),
+        1059061760: DefaultParams(16, 655360),
+    }
+)

@@ -2,9 +2,12 @@ from dataclasses import dataclass
 from math import erfc
 from math import sqrt
 from typing import Any
+from typing import List
+from typing import NamedTuple
 
 from scipy.special import gammaincc
 
+from rngtest.stattests._common import FloorDict
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import chunks
 from rngtest.stattests._common import elected
@@ -50,6 +53,7 @@ def runs(series, candidate):
     return TestResult(statistic=nruns, p=p)
 
 
+# TODO allow and handle blocksize/nblocks/freqbinranges kwargs
 @stattest
 @elected
 def longest_runs(series, candidate):
@@ -71,26 +75,11 @@ def longest_runs(series, candidate):
         Dataclass that contains the test's statistic and p-value
     """
 
-    # ----------------------
+    # --------------------------------------------------------------------------
     # Finding test constants
-    # ----------------------
 
     n = len(series)
-
-    if n < 128:
-        raise ValueError()
-    elif n < 6272:
-        blocksize = 8
-        nblocks = 16
-        freqbinranges = [1, 2, 3, 4]
-    elif n < 750000:
-        blocksize = 128
-        nblocks = 49
-        freqbinranges = [4, 5, 6, 7, 8, 9]
-    else:
-        blocksize = 10 ** 4
-        nblocks = 75
-        freqbinranges = [10, 11, 12, 13, 14, 15, 16]
+    blocksize, nblocks, freqbinranges = n_defaults[n]
 
     def freqbin(runlength):
         minlen = freqbinranges[0]
@@ -111,22 +100,13 @@ def longest_runs(series, candidate):
 
     df = len(freqbinranges) - 1
 
-    # TODO Work out a general solution (which is performative!)
-    probabilities = {
-        8: [0.2148, 0.3672, 0.2305, 0.1875],
-        128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
-        512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
-        1000: [0.1307, 0.2437, 0.2452, 0.1714, 0.1002, 0.1088],
-        10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
-    }
     try:
-        maxlenprobabilities = probabilities[blocksize]
+        maxlen_probabilities = blocksize_probabilities[blocksize]
     except KeyError:
         raise NotImplementedError()
 
-    # ----------
+    # --------------------------------------------------------------------------
     # Test logic
-    # ----------
 
     maxlengths = []
     for chunk in chunks(series, blocksize=blocksize):
@@ -144,7 +124,7 @@ def longest_runs(series, candidate):
         freqbins[freqbin(runlength)] += 1
 
     partials = []
-    for prob, bincount in zip(maxlenprobabilities, freqbins):
+    for prob, bincount in zip(maxlen_probabilities, freqbins):
         partial = (bincount - nblocks * prob) ** 2 / (nblocks * prob)
         partials.append(partial)
 
@@ -152,6 +132,39 @@ def longest_runs(series, candidate):
     p = gammaincc(df / 2, statistic / 2)
 
     return TestResult(statistic=statistic, p=p)
+
+
+# ------------------------------------------------------------------------------
+# Components used in longest_runs
+
+
+class DefaultParams(NamedTuple):
+    blocksize: int
+    nblocks: int
+    freqbinranges: List[int]
+
+
+n_defaults = FloorDict(
+    {
+        128: DefaultParams(8, 16, [1, 2, 3, 4]),
+        6272: DefaultParams(128, 49, [4, 5, 6, 7, 8, 9]),
+        750000: DefaultParams(10 ** 4, 75, [10, 11, 12, 13, 14, 15, 16]),
+    }
+)
+
+
+# TODO Work out a general solution (which is performative!)
+blocksize_probabilities = {
+    8: [0.2148, 0.3672, 0.2305, 0.1875],
+    128: [0.1174, 0.2430, 0.2493, 0.1752, 0.1027, 0.1124],
+    512: [0.1170, 0.2460, 0.2523, 0.1755, 0.1027, 0.1124],
+    1000: [0.1307, 0.2437, 0.2452, 0.1714, 0.1002, 0.1088],
+    10000: [0.0882, 0.2092, 0.2483, 0.1933, 0.1208, 0.0675, 0.0727],
+}
+
+
+# ------------------------------------------------------------------------------
+# asruns helper method
 
 
 @dataclass

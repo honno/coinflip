@@ -1,3 +1,4 @@
+from rngtest.stattests._common._collections import FloorDict
 from rngtest.stattests._common._decorators import elected
 from rngtest.stattests._common._decorators import stattest
 from rngtest.stattests._common._exceptions import BelowMinimumInputSizeWarning
@@ -24,4 +25,5 @@ __all__ = [
     "TestResult",
     "BelowMinimumInputSizeWarning",
     "NonBinarySequenceError",
+    "FloorDict",
 ]
