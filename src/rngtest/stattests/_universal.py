@@ -14,6 +14,28 @@ __all__ = ["maurers_universal"]
 
 @stattest
 def maurers_universal(series, blocksize=None, init_nblocks=None):
+    """Distance between patterns is compared to expected result
+
+    Unique permutations in an initial sequence are identified, and the
+    distances of aforementioned permutations in a remaining sequence are
+    accumulated. The normalised value for the accumulated distances is then
+    compared to a hypothetically truly random RNG.
+
+
+    Parameters
+    ----------
+    sequence : array-like
+        Output of the RNG being tested
+    blocksize : `int`
+        Size of the blocks that form a permutation
+    init_nblocks : `int`
+        Number of initial blocks to identify permutations
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+    """
     n = len(series)
 
     # TODO how to handle if only one of kwargs is not None
