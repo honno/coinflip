@@ -23,6 +23,18 @@ from rngtest.store import store_results
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
+stattest_fnames = {
+    "monobits": "Frequency (Monobits) Test",
+    "frequency_within_block": "Frequency within Block Test",
+    "runs": "Runs Test",
+    "longest_runs": "Longest Runs in Block Test",
+    "binary_matrix_rank": "Matrix Rank Test",
+    "discrete_fourier_transform": "Discrete Fourier Transform (Spectral) Test",
+    "non_overlapping_template_matching": "Non-Overlapping Template Matching Test",
+    "overlapping_template_matching": "Overlapping Template Matching Test",
+    "maurers_universal": "Maurer's Universal Test",
+}
+
 
 def get_stores(ctx, args, incomplete):
     """Completition for store names"""
@@ -40,8 +52,11 @@ test_choice = Choice(stattests)
 
 
 def echo_result(stattest_name, result):
-    underline = "".join("=" for _ in range(len(stattest_name)))
-    header = "\n" + stattest_name + "\n" + underline
+    stattest_fname = stattest_fnames[stattest_name]
+    underline = "".join("=" for _ in range(len(stattest_fname)))
+
+    header = "\n" + stattest_fname + "\n" + underline
+
     echo(header)
     echo(result)
 
@@ -85,6 +100,7 @@ def cat(store):
     echo(series)
 
 
+# TODO print results
 @main.command()
 @argument("store", autocompletion=get_stores)
 @option("-t", "--test", type=test_choice)
