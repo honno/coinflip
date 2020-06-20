@@ -1,3 +1,5 @@
+# TODO replace kwarg defaults with click defaults
+import pandas as pd
 from click import Choice
 from click import File
 from click import Path
@@ -6,6 +8,7 @@ from click import echo
 from click import group
 from click import option
 
+from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattests
 from rngtest.store import TYPES
@@ -34,6 +37,13 @@ def get_stores(ctx, args, incomplete):
 
 dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(stattests)
+
+
+def echo_result(stattest_name, result):
+    underline = "".join("=" for _ in range(len(stattest_name)))
+    header = "\n" + stattest_name + "\n" + underline
+    echo(header)
+    echo(result)
 
 
 @group()
@@ -108,6 +118,27 @@ def report(store, outfile):
         write_report(markup, outfile)
     else:
         echo("No report markup available!")
+
+
+@main.command()
+@option("-e", "--example", type=Choice(generators.__all__), default="python")
+@option("-n", "--length", type=int, default=256)
+@option("-t", "--test", type=test_choice, default=None)
+def example_run(example, length, test):
+    generator_func = getattr(generators, example)
+    generator = generator_func()
+
+    series = pd.Series(next(generator) for _ in range(length))
+    series = series.infer_objects()
+
+    echo(series)
+
+    if test is None:
+        for stattest_name, result in run_all_tests(series):
+            echo_result(stattest_name, result)
+    else:
+        stattest_name, result = run_test(series, test)
+        echo_result(stattest_name, result)
 
 
 # TODO update with new test runner functionality
