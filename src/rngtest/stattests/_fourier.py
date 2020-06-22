@@ -16,7 +16,7 @@ class TruncatedInputSingleValueError(ValueError):
     pass
 
 
-@stattest
+@stattest()
 @elected
 def discrete_fourier_transform(series, candidate):
     """Potency of periodic features in sequence is compared to expected result

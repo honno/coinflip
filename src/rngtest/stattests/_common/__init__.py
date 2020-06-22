@@ -1,8 +1,6 @@
 from rngtest.stattests._common._collections import FloorDict
 from rngtest.stattests._common._decorators import elected
 from rngtest.stattests._common._decorators import stattest
-from rngtest.stattests._common._exceptions import BelowMinimumInputSizeWarning
-from rngtest.stattests._common._exceptions import NonBinarySequenceError
 from rngtest.stattests._common._methods import blocks
 from rngtest.stattests._common._methods import rawblocks
 from rngtest.stattests._common._plots import plot_chi2
@@ -23,7 +21,5 @@ __all__ = [
     "rawblocks",
     "plots",
     "TestResult",
-    "BelowMinimumInputSizeWarning",
-    "NonBinarySequenceError",
     "FloorDict",
 ]

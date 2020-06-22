@@ -35,7 +35,7 @@ def template(func):
     return wrapper
 
 
-@stattest
+@stattest()
 @template
 def non_overlapping_template_matching(series, template, nblocks=968):
     """Matches of template per block is compared to expected result
@@ -100,7 +100,7 @@ def non_overlapping_template_matching(series, template, nblocks=968):
     return TestResult(statistic=statistic, p=p)
 
 
-@stattest
+@stattest()
 @template
 def overlapping_template_matching(series, template, nblocks=8):
     """Overlapping matches of template per block is compared to expected result

@@ -17,7 +17,7 @@ from rngtest.stattests._common import stattest
 __all__ = ["runs", "longest_runs"]
 
 
-@stattest
+@stattest()
 @elected
 def runs(series, candidate):
     """Actual number of runs is compared to expected result
@@ -56,7 +56,7 @@ def runs(series, candidate):
 
 
 # TODO allow and handle blocksize/nblocks/freqbin_ranges kwargs
-@stattest
+@stattest(min_input=128)
 @elected
 def longest_runs(series, candidate):
     """Longest runs per block is compared to expected result

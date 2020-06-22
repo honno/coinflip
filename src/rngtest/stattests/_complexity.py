@@ -4,7 +4,7 @@ from rngtest.stattests._common import stattest
 __all__ = ["linear_complexity"]
 
 
-@stattest
+@stattest()
 def linear_complexity(series, blocksize):
     n = len(series)
     print(n)

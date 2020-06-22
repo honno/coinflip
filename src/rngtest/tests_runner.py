@@ -5,7 +5,6 @@ from typing import Tuple
 import pandas as pd
 
 from rngtest import stattests
-from rngtest.stattests._common import NonBinarySequenceError
 from rngtest.stattests._common import TestResult
 
 __all__ = ["list_tests", "run_test", "run_all_tests"]
@@ -94,4 +93,5 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult]]:
             yield name, result
 
     else:
-        raise NonBinarySequenceError()
+        # TODO sort out stattest common exceptions
+        raise Exception()

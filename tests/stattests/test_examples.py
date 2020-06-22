@@ -8,6 +8,8 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
+import pytest
+
 from rngtest import stattests
 
 tests_path = Path(__file__).parent
@@ -261,8 +263,10 @@ def examples_iter(title_substr: str = None):
 
 # conftest.py is responsible for parametrizing, equivalent to:
 # @pytest.mark.parametrize(Example._fields, examples_iter())
+@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
     stattest_method = getattr(stattests, stattest)
+
     result = stattest_method(bits, **kwargs)
 
     if isinstance(statistic, float):

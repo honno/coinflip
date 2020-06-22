@@ -12,7 +12,7 @@ from rngtest.stattests._common import stattest
 __all__ = ["maurers_universal"]
 
 
-@stattest
+@stattest()
 def maurers_universal(series, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 

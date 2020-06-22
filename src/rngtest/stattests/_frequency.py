@@ -11,7 +11,6 @@ import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
-from rngtest.stattests._common import BelowMinimumInputSizeWarning
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import blocks
 from rngtest.stattests._common import elected
@@ -23,7 +22,7 @@ from rngtest.stattests._common import stattest
 __all__ = ["monobits", "frequency_within_block"]
 
 
-@stattest
+@stattest()
 def monobits(series):
     """Proportion of values is compared to expected 1:1 ratio
 
@@ -55,7 +54,7 @@ def monobits(series):
     return MonobitsTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
 
 
-@stattest
+@stattest(min_input=100)
 @elected
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
@@ -81,9 +80,6 @@ def frequency_within_block(series, candidate, blocksize=8):
         the `report()` method produces a HTML summary, which includes embedded
         graphical plots.
     """
-    if len(series) < 100:
-        raise BelowMinimumInputSizeWarning()
-
     nblocks = len(series) // blocksize
 
     occurences = []

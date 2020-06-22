@@ -1,28 +1,37 @@
 from functools import wraps
+from warnings import warn
 
 import pandas as pd
-
-from rngtest.stattests._common._exceptions import NonBinarySequenceError
 
 __all__ = ["stattest", "elected"]
 
 
-def stattest(func):
-    @wraps(func)
-    def wrapper(sequence, *args, **kwargs):
-        if not isinstance(sequence, pd.Series):
-            series = pd.Series(sequence)
-        else:
-            series = sequence
+class NonBinarySequenceError(ValueError):
+    pass
 
-        if series.nunique() != 2:
-            raise NonBinarySequenceError()
 
-        result = func(series, *args, **kwargs)
+def stattest(min_input=2):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(sequence, *args, **kwargs):
+            if not isinstance(sequence, pd.Series):
+                series = pd.Series(sequence)
+            else:
+                series = sequence
 
-        return result
+            if series.nunique() != 2:
+                raise NonBinarySequenceError()
 
-    return wrapper
+            if len(series) < min_input:
+                warn(f"Sequence below recommended input of {min_input}", UserWarning)
+
+            result = func(series, *args, **kwargs)
+
+            return result
+
+        return wrapper
+
+    return decorator
 
 
 def elected(func):
