@@ -1,4 +1,3 @@
-# TODO replace kwarg defaults with click defaults
 import pandas as pd
 from click import Choice
 from click import File
@@ -22,6 +21,22 @@ from rngtest.store import store_result
 from rngtest.store import store_results
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
+
+__all__ = [
+    "load",
+    "rm",
+    "clear",
+    "ls",
+    "cat",
+    "run",
+    "report",
+    "example_run",
+    "local_run",
+]
+
+
+# ------------------------------------------------------------------------------
+# Helpers
 
 stattest_fnames = {
     "monobits": "Frequency (Monobits) Test",
@@ -61,6 +76,10 @@ def echo_result(stattest_name, result):
     echo(result)
 
 
+# ------------------------------------------------------------------------------
+# Commands
+
+
 @group()
 def main():
     pass
@@ -71,7 +90,7 @@ def main():
 @option("-n", "--name", type=str)
 @option("-t", "--dtype", type=dtype_choice)
 @option("-o", "--overwrite", is_flag=True)
-def load(data, name=None, dtype=None, overwrite=False):
+def load(data, name, dtype, overwrite):
     store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
 
 
@@ -100,19 +119,22 @@ def cat(store):
     echo(series)
 
 
-# TODO print results
 @main.command()
 @argument("store", autocompletion=get_stores)
 @option("-t", "--test", type=test_choice)
-def run(store, test=None):
+def run(store, test):
     series = get_data(store)
 
     if test is None:
-        results_dict = run_all_tests(series)
-        store_results(store, results_dict)
+        results = {}
+        for stattest_name, result in run_all_tests(series):
+            echo_result(stattest_name, result)
+            results[stattest_name] = result
+        store_results(store, results)
     else:
-        stattest_name, result = run_test(series, test)
-        store_result(store, stattest_name, result)
+        result = run_test(series, test)
+        echo_result(test, result)
+        store_result(store, test, result)
 
 
 @main.command()
@@ -139,7 +161,7 @@ def report(store, outfile):
 @main.command()
 @option("-e", "--example", type=Choice(generators.__all__), default="python")
 @option("-n", "--length", type=int, default=256)
-@option("-t", "--test", type=test_choice, default=None)
+@option("-t", "--test", type=test_choice)
 def example_run(example, length, test):
     generator_func = getattr(generators, example)
     generator = generator_func()
@@ -153,36 +175,20 @@ def example_run(example, length, test):
         for stattest_name, result in run_all_tests(series):
             echo_result(stattest_name, result)
     else:
-        stattest_name, result = run_test(series, test)
-        echo_result(stattest_name, result)
+        result = run_test(series, test)
+        echo_result(test, result)
 
 
-# TODO update with new test runner functionality
 @main.command()
 @argument("datafile", type=Path(exists=True))
 @option("-t", "--dtype", type=dtype_choice)
 @option("-t", "--test", type=test_choice)
-@option("-r", "--report", type=Path())
-def local_run(datafile, dtype=None, test=None, report=None):
+def local_run(datafile, dtype=None, test=None):
     series = parse_data(datafile)
 
     if test is None:
-        results = run_all_tests(series)
+        for stattest_name, result in run_all_tests(series):
+            echo_result(stattest_name, result)
     else:
         result = run_test(series, test)
-        results = [result]
-
-    if report:
-        html = []
-        for result in results:
-            try:
-                markup = result.report()
-                html.append(markup)
-            except NotImplementedError:
-                echo(f"No report markup provided for {result.__class__.__name__}")
-
-        if len(html) != 0:
-            markup = "\n".join(html)
-            write_report(markup, report)
-        else:
-            echo("No report markup available!")
+        echo_result(test, result)

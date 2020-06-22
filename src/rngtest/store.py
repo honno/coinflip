@@ -123,6 +123,9 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     data_path = store_path / DATA_FNAME
     pickle.dump(series, open(data_path, "wb"))
 
+    print("Data stored successfully!\n")
+    print(series)
+
 
 class StoreExistsError(FileExistsError):
     """Exception for when a store is being assumed to not exist but does"""

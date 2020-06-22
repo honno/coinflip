@@ -235,6 +235,7 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: int
     occurences: List[int]
 
+    # TODO better str message
     def __str__(self):
         return f"p={self.p3f()}"
 
