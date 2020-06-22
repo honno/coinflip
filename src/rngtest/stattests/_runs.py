@@ -217,6 +217,12 @@ class LongestRunsTestResult(TestResult):
     freqbins_expect: List[float]
     freqbins: List[int]
 
+    def __post_init__(self):
+        self.freqbin_diffs = []
+        for expected, actual in zip(self.freqbins_expect, self.freqbins):
+            diff = expected - actual
+            self.freqbin_diffs.append(diff)
+
     def __str__(self):
         franges = [str(x) for x in self.freqbin_ranges]
         franges[0] = f"0-{franges[0]}"
@@ -224,14 +230,10 @@ class LongestRunsTestResult(TestResult):
 
         fexpect = [f"~{round(count, 1)}" for count in self.freqbins_expect]
 
-        diffs = []
-        for expected, actual in zip(self.freqbins_expect, self.freqbins):
-            diff = expected - actual
-            diffs.append(diff)
-        fdiff = [round(diff, 1) for diff in diffs]
+        fdiffs = [round(diff, 1) for diff in self.freqbin_diffs]
 
         ftable = tabulate(
-            zip(franges, self.freqbins, fexpect, fdiff),
+            zip(franges, self.freqbins, fexpect, fdiffs),
             ["maxlen", "nblocks", "expected", "diff"],
             colalign=("left", "right", "right", "right"),
         )

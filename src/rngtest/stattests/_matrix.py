@@ -110,6 +110,15 @@ class BinaryMatrixRankTestResult(TestResult):
     rankcounts_expect: RankCounts
     rankcounts: RankCounts
 
+    def __post_init__(self):
+        counts = astuple(self.rankcounts)
+        counts_expect = astuple(self.rankcounts_expect)
+
+        self.rankcount_diffs = []
+        for expected, actual in zip(counts_expect, counts):
+            diff = expected - actual
+            self.rankcount_diffs.append(diff)
+
     def __str__(self):
         runnerup = self.fullrank - 1
         remaining = runnerup - 1
@@ -124,11 +133,7 @@ class BinaryMatrixRankTestResult(TestResult):
         counts_expect = astuple(self.rankcounts_expect)
         fcounts_expect = [f"~{round(count, 1)}" for count in counts_expect]
 
-        diffs = []
-        for expected, actual in zip(counts_expect, counts):
-            diff = expected - actual
-            diffs.append(diff)
-        fdiffs = [round(diff, 1) for diff in diffs]
+        fdiffs = [round(diff, 1) for diff in self.rankcount_diffs]
 
         ftable = tabulate(
             zip(franks, counts, fcounts_expect, fdiffs),
