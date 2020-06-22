@@ -1,9 +1,11 @@
+from dataclasses import dataclass
 from math import erfc
 from math import log
 from math import sqrt
 
 import pandas as pd
 from numpy.fft import fft as _fft
+from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import elected
@@ -53,6 +55,9 @@ def discrete_fourier_transform(series, candidate):
         if series.nunique() != 2:
             raise TruncatedInputSingleValueError()
 
+    threshold = sqrt(log(1 / 0.05) * n)
+    nbelow_expected = 0.95 * n / 2
+
     peaks = candidate
     trough = next(value for value in series.unique() if value != candidate)
 
@@ -62,16 +67,20 @@ def discrete_fourier_transform(series, candidate):
     half_fourier = fourier[: n // 2]
     peaks = half_fourier.abs()
 
-    threshold = sqrt(log(1 / 0.05) * n)
-    nbelow_expected = 0.95 * n / 2
-    nbelow_actual = sum(peaks < threshold)
+    nbelow = sum(peaks < threshold)
 
-    diff = nbelow_actual - nbelow_expected
+    diff = nbelow - nbelow_expected
     normdiff = diff / sqrt((n * 0.95 * 0.05) / 4)
 
     p = erfc(abs(normdiff) / sqrt(2))
 
-    return TestResult(statistic=normdiff, p=p)
+    return DiscreteFourierTransformTestResult(
+        statistic=normdiff,
+        p=p,
+        nbelow_expected=nbelow_expected,
+        nbelow=nbelow,
+        diff=diff,
+    )
 
 
 def fft(array) -> pd.Series:
@@ -79,3 +88,32 @@ def fft(array) -> pd.Series:
     fourier_series = pd.Series(fourier_ndarray)
 
     return fourier_series
+
+
+@dataclass
+class DiscreteFourierTransformTestResult(TestResult):
+    nbelow_expected: float
+    nbelow: int
+    diff: float
+
+    def __post_init__(self):
+        pass
+
+    def __str__(self):
+        table = [
+            ("actual", self.nbelow),
+            ("expected", f"~{round(self.nbelow_expected, 1)}"),
+            ("diff", round(self.diff, 1)),
+        ]
+        ftable = tabulate(table, colalign=("left", "right"))
+
+        return f"p={self.p3f()}\n" + "\npeaks above threshold\n" + ftable
+
+        # return (
+        #     f"p={self.p3f()}\n"
+        #     f"\n"
+        #     f"----------\n"
+        #     f"actual      {self.nbelow} \n"
+        #     f"expected    ~{round(self.nbelow_expected, 1)}\n"
+        #     f"diff        {round(self.diff, 1)}"
+        # )
