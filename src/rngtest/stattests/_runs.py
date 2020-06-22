@@ -41,16 +41,17 @@ def runs(series, candidate):
     counts = series.value_counts()
 
     ncandidates = counts[candidate]
-    propcandidates = ncandidates / n
+    prop_candidates = ncandidates / n
+    prop_noncandidates = 1 - prop_candidates
 
     nruns = sum(1 for _ in asruns(series))
 
     p = erfc(
-        abs(nruns - (2 * ncandidates * (1 - propcandidates)))
-        / (2 * sqrt(2 * n) * propcandidates * (1 - propcandidates))
+        abs(nruns - (2 * ncandidates * prop_noncandidates))
+        / (2 * sqrt(2 * n) * prop_candidates * prop_noncandidates)
     )
 
-    return TestResult(statistic=nruns, p=p)
+    return RunsTestResult(statistic=nruns, p=p)
 
 
 # TODO allow and handle blocksize/nblocks/freqbinranges kwargs
@@ -184,3 +185,13 @@ def asruns(series):
             current_run = Run(value)
     else:
         yield current_run
+
+
+# ------------------------------------------------------------------------------
+# Results
+
+
+@dataclass
+class RunsTestResult(TestResult):
+    def __str__(self):
+        return f"p={self.p3f()}\n" f"Sequence held {self.statistic} number of runs\n"
