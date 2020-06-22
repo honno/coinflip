@@ -115,8 +115,7 @@ examples = {
             1, 1, 0, 1,
         ],
         kwargs=dict(
-            nrows=3,
-            ncols=3,
+            matrix_dimen=(3, 3),
         ),
 
         statistic=0.596953,

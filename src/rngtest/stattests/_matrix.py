@@ -1,8 +1,11 @@
+from dataclasses import astuple
 from dataclasses import dataclass
 from math import exp
+from typing import Tuple
 
 import numpy as np
 from numpy.linalg import matrix_rank
+from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import blocks
@@ -15,7 +18,7 @@ __all__ = ["binary_matrix_rank"]
 
 @stattest(min_input=152)  # nblocks=38, blocksize=4
 @elected
-def binary_matrix_rank(series, candidate, nrows=32, ncols=32):
+def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result
 
     Independence is determined by the matrix rank of a subsequence, where it is
@@ -26,20 +29,36 @@ def binary_matrix_rank(series, candidate, nrows=32, ncols=32):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    nrows : int
-        Number of rows in each matrix
-    ncols : int
-        Number of columns in each matrix
+    matrix_dimen : `Tuple[int, int]`
+        Number of rows and columns in each matrix
 
     Returns
     -------
-    TestResult
+    BinaryMatrixRankTestResult
         Dataclass that contains the test's statistic and p-value
     """
-    # TODO nrows and ncols accomodate n
     n = len(series)
+
+    if matrix_dimen is None:
+        if n // (32 * 32) > 38:
+            nrows = 32
+            ncols = 32
+        else:
+            blocksize = n // 38
+            nrows = blocksize // 2
+            ncols = nrows
+    else:
+        nrows, ncols = matrix_dimen
+
     blocksize = nrows * ncols
     nblocks = n // blocksize
+
+    fullrank = min(nrows, ncols)
+
+    # TODO find expressive and performative calculation for constants
+    rankcounts_expect = RankCounts(
+        full=0.2888 * nblocks, runnerup=0.5776 * nblocks, remaining=0.1336 * nblocks,
+    )
 
     noncandidate = next(value for value in series.unique() if value != candidate)
     rankable_series = series.map({candidate: 1, noncandidate: 0})
@@ -52,27 +71,69 @@ def binary_matrix_rank(series, candidate, nrows=32, ncols=32):
 
     ranks = [matrix_rank(matrix) for matrix in matrices]
 
-    @dataclass
-    class RankCounts:
-        full: int = 0
-        runnerup: int = 0
-        remaining: int = 0
-
     rankcounts = RankCounts()
     for rank in ranks:
-        if rank == nrows:
+        if rank == fullrank:
             rankcounts.full += 1
-        elif rank == nrows - 1:
+        elif rank == fullrank - 1:
             rankcounts.runnerup += 1
         else:
             rankcounts.remaining += 1
 
-    partials = [
-        (rankcounts.full - (0.2888 * nblocks)) ** 2 / (0.2888 * nblocks),
-        (rankcounts.runnerup - (0.5776 * nblocks)) ** 2 / (0.5776 * nblocks),
-        (rankcounts.remaining - (0.1336 * nblocks)) ** 2 / (0.1336 * nblocks),
-    ]
+    partials = []
+    for count, count_expect in zip(astuple(rankcounts), astuple(rankcounts_expect)):
+        partial = (count - count_expect) ** 2 / count_expect
+        partials.append(partial)
+
     statistic = sum(partials)
     p = exp(-statistic / 2)
 
-    return TestResult(statistic=statistic, p=p)
+    return BinaryMatrixRankTestResult(
+        statistic=statistic,
+        p=p,
+        fullrank=fullrank,
+        rankcounts_expect=rankcounts_expect,
+        rankcounts=rankcounts,
+    )
+
+
+@dataclass
+class RankCounts:
+    full: int = 0
+    runnerup: int = 0
+    remaining: int = 0
+
+
+@dataclass
+class BinaryMatrixRankTestResult(TestResult):
+    fullrank: int
+    rankcounts_expect: RankCounts
+    rankcounts: RankCounts
+
+    def __str__(self):
+        runnerup = self.fullrank - 1
+        remaining = runnerup - 1
+        franks = [
+            str(self.fullrank),
+            str(runnerup),
+            "0" if remaining == 0 else f"0-{remaining}",
+        ]
+
+        counts = astuple(self.rankcounts)
+
+        counts_expect = astuple(self.rankcounts_expect)
+        fcounts_expect = [f"~{round(count, 1)}" for count in counts_expect]
+
+        diffs = []
+        for expected, actual in zip(counts_expect, counts):
+            diff = expected - actual
+            diffs.append(diff)
+        fdiffs = [round(diff, 1) for diff in diffs]
+
+        ftable = tabulate(
+            zip(franks, counts, fcounts_expect, fdiffs),
+            headers=["rank", "count", "expected", "diff"],
+            colalign=("left", "right", "right", "right"),
+        )
+
+        return f"p={self.p3f()}\n" + ftable
