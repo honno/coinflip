@@ -6,6 +6,7 @@ from typing import List
 from typing import NamedTuple
 
 from scipy.special import gammaincc
+from tabulate import tabulate
 
 from rngtest.stattests._common import FloorDict
 from rngtest.stattests._common import TestResult
@@ -54,7 +55,7 @@ def runs(series, candidate):
     return RunsTestResult(statistic=nruns, p=p)
 
 
-# TODO allow and handle blocksize/nblocks/freqbinranges kwargs
+# TODO allow and handle blocksize/nblocks/freqbin_ranges kwargs
 @stattest
 @elected
 def longest_runs(series, candidate):
@@ -80,12 +81,12 @@ def longest_runs(series, candidate):
     # Finding test constants
 
     n = len(series)
-    blocksize, nblocks, freqbinranges = n_defaults[n]
+    blocksize, nblocks, freqbin_ranges = n_defaults[n]
 
     def freqbin(runlength):
-        minlen = freqbinranges[0]
-        midlengths = freqbinranges[1:-1]
-        maxlen = freqbinranges[-1]
+        minlen = freqbin_ranges[0]
+        midlengths = freqbin_ranges[1:-1]
+        maxlen = freqbin_ranges[-1]
 
         if runlength <= minlen:
             return 0
@@ -96,21 +97,22 @@ def longest_runs(series, candidate):
                     return freqbin
 
         elif runlength >= maxlen:
-            maxbin = len(freqbinranges) - 1
+            maxbin = len(freqbin_ranges) - 1
             return maxbin
 
-    df = len(freqbinranges) - 1
+    df = len(freqbin_ranges) - 1
 
     try:
-        maxlen_probabilities = blocksize_probabilities[blocksize]
+        maxlen_probs = blocksize_probabilities[blocksize]
     except KeyError:
         raise NotImplementedError()
+    freqbins_expect = [prob * nblocks for prob in maxlen_probs]
 
     # --------------------------------------------------------------------------
     # Test logic
 
     maxlengths = []
-    for chunk in chunks(series, blocksize=blocksize):
+    for chunk in chunks(series, blocksize=blocksize, nblocks=nblocks):
         candidateruns = (run for run in asruns(chunk) if run.value == candidate)
 
         maxlen = 0
@@ -120,19 +122,28 @@ def longest_runs(series, candidate):
 
         maxlengths.append(maxlen)
 
-    freqbins = [0 for _ in freqbinranges]
+    freqbins = [0 for _ in freqbin_ranges]
     for runlength in maxlengths:
         freqbins[freqbin(runlength)] += 1
 
     partials = []
-    for prob, bincount in zip(maxlen_probabilities, freqbins):
-        partial = (bincount - nblocks * prob) ** 2 / (nblocks * prob)
+    for count_expect, count in zip(freqbins_expect, freqbins):
+        partial = (count - count_expect) ** 2 / count_expect
         partials.append(partial)
 
     statistic = sum(partials)
     p = gammaincc(df / 2, statistic / 2)
 
-    return TestResult(statistic=statistic, p=p)
+    return LongestRunsTestResult(
+        statistic=statistic,
+        p=p,
+        candidate=candidate,
+        blocksize=blocksize,
+        nblocks=nblocks,
+        freqbin_ranges=freqbin_ranges,
+        freqbins_expect=freqbins_expect,
+        freqbins=freqbins,
+    )
 
 
 # ------------------------------------------------------------------------------
@@ -142,7 +153,7 @@ def longest_runs(series, candidate):
 class DefaultParams(NamedTuple):
     blocksize: int
     nblocks: int
-    freqbinranges: List[int]
+    freqbin_ranges: List[int]
 
 
 n_defaults = FloorDict(
@@ -195,3 +206,34 @@ def asruns(series):
 class RunsTestResult(TestResult):
     def __str__(self):
         return f"p={self.p3f()}\n" f"Sequence held {self.statistic} number of runs\n"
+
+
+@dataclass
+class LongestRunsTestResult(TestResult):
+    candidate: Any
+    blocksize: int
+    nblocks: int
+    freqbin_ranges: List[int]
+    freqbins_expect: List[float]
+    freqbins: List[int]
+
+    def __str__(self):
+        franges = [str(x) for x in self.freqbin_ranges]
+        franges[0] = f"0-{franges[0]}"
+        franges[-1] = f"{franges[-1]}+"
+
+        fexpect = [f"~{round(count, 1)}" for count in self.freqbins_expect]
+
+        diffs = []
+        for expected, actual in zip(self.freqbins_expect, self.freqbins):
+            diff = expected - actual
+            diffs.append(diff)
+        fdiff = [round(diff, 1) for diff in diffs]
+
+        ftable = tabulate(
+            zip(franges, self.freqbins, fexpect, fdiff),
+            ["maxlen", "nblocks", "expected", "diff"],
+            colalign=("left", "right", "right", "right"),
+        )
+
+        return f"p={self.p3f()}\n" + ftable

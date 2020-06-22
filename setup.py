@@ -77,6 +77,7 @@ setup(
         "pandas",
         "matplotlib",
         "weasyprint",
+        "tabulate",
     ],
     test_requires=["pytest", "hypothesis"],
     setup_requires=["setuptools_scm>=3.3.1"],
