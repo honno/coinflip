@@ -5,9 +5,9 @@ import numpy as np
 from numpy.linalg import matrix_rank
 
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import chunks
+from rngtest.stattests._common import blocks
 from rngtest.stattests._common import elected
-from rngtest.stattests._common import rawchunks
+from rngtest.stattests._common import rawblocks
 from rngtest.stattests._common import stattest
 
 __all__ = ["binary_matrix_rank"]
@@ -44,8 +44,8 @@ def binary_matrix_rank(series, candidate, nrows=32, ncols=32):
     rankable_series = series.map({candidate: 1, noncandidate: 0})
 
     matrices = []
-    for chunk in chunks(rankable_series, blocksize=blocksize):
-        rows = [row for row in rawchunks(chunk, nblocks=nrows)]
+    for block in blocks(rankable_series, blocksize=blocksize):
+        rows = [row for row in rawblocks(block, nblocks=nrows)]
         matrix = np.stack(rows)
         matrices.append(matrix)
 

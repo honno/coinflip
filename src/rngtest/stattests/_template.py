@@ -6,7 +6,7 @@ from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import rawchunks
+from rngtest.stattests._common import rawblocks
 from rngtest.stattests._common import stattest
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
@@ -70,13 +70,13 @@ def non_overlapping_template_matching(series, template, nblocks=968):
     raw_template = template.values
 
     block_matches = []
-    for rawchunk in rawchunks(series, blocksize=blocksize):
+    for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
         pointer = 0
 
-        boundary = len(rawchunk) - template_size
+        boundary = len(block_tup) - template_size
         while pointer < boundary:
-            window = rawchunk[pointer : pointer + template_size]
+            window = block_tup[pointer : pointer + template_size]
 
             if all(x == y for x, y in zip(window, raw_template)):
                 matches += 1
@@ -135,11 +135,11 @@ def overlapping_template_matching(series, template, nblocks=8):
     raw_template = template.values
 
     block_matches = []
-    for rawchunk in rawchunks(series, blocksize=blocksize):
+    for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
 
         for pointer in range(blocksize):
-            window = rawchunk[pointer : pointer + template_size]
+            window = block_tup[pointer : pointer + template_size]
 
             if all(x == y for x, y in zip(window, raw_template)):
                 matches += 1

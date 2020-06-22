@@ -5,10 +5,10 @@ from typing import Tuple
 
 import pandas as pd
 
-__all__ = ["chunks", "rawchunks"]
+__all__ = ["blocks", "rawblocks"]
 
 
-def chunks(series: pd.Series, blocksize=None, nblocks=None) -> Iterable[pd.Series]:
+def blocks(series: pd.Series, blocksize=None, nblocks=None) -> Iterable[pd.Series]:
     if not blocksize and not nblocks:
         raise ValueError()
     elif nblocks is None:
@@ -22,9 +22,9 @@ def chunks(series: pd.Series, blocksize=None, nblocks=None) -> Iterable[pd.Serie
         yield series[i : i + blocksize]
 
 
-def rawchunks(*args, **kwargs) -> Iterable[Tuple[Any]]:
-    for chunk in chunks(*args, **kwargs):
-        chunk_list = chunk.tolist()
-        chunk_tuple = tuple(chunk_list)
+def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
+    for block in blocks(*args, **kwargs):
+        block_list = block.tolist()
+        block_tup = tuple(block_list)
 
-        yield chunk_tuple
+        yield block_tup

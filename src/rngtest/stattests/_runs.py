@@ -10,7 +10,7 @@ from tabulate import tabulate
 
 from rngtest.stattests._common import FloorDict
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import chunks
+from rngtest.stattests._common import blocks
 from rngtest.stattests._common import elected
 from rngtest.stattests._common import stattest
 
@@ -112,8 +112,8 @@ def longest_runs(series, candidate):
     # Test logic
 
     maxlengths = []
-    for chunk in chunks(series, blocksize=blocksize, nblocks=nblocks):
-        candidateruns = (run for run in asruns(chunk) if run.value == candidate)
+    for block in blocks(series, blocksize=blocksize, nblocks=nblocks):
+        candidateruns = (run for run in asruns(block) if run.value == candidate)
 
         maxlen = 0
         for run in candidateruns:

@@ -13,7 +13,7 @@ from scipy.stats import halfnorm
 
 from rngtest.stattests._common import BelowMinimumInputSizeWarning
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import chunks
+from rngtest.stattests._common import blocks
 from rngtest.stattests._common import elected
 from rngtest.stattests._common import plot_chi2
 from rngtest.stattests._common import plot_gammaincc
@@ -87,8 +87,8 @@ def frequency_within_block(series, candidate, blocksize=8):
     nblocks = len(series) // blocksize
 
     occurences = []
-    for chunk in chunks(series, blocksize=blocksize):
-        count = (chunk == candidate).sum()
+    for block in blocks(series, blocksize=blocksize):
+        count = (block == candidate).sum()
         occurences.append(count)
 
     proportions = (count / blocksize for count in occurences)
