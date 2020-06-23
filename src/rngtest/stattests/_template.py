@@ -1,19 +1,26 @@
+from dataclasses import dataclass
 from functools import wraps
 from itertools import product
 from math import exp
 from math import floor
 from math import sqrt
+from typing import List
 from warnings import warn
 
 import pandas as pd
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
+from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import rawblocks
 from rngtest.stattests._common import stattest
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
+
+
+# ------------------------------------------------------------------------------
+# Template decorator for type checking and defaults
 
 
 class TemplateContainsElementsNotInSequenceError(ValueError):
@@ -26,6 +33,7 @@ def template(func):
         if template is None:
             n = len(series)
             template_size = min(floor(sqrt(n)), 9)
+            # TODO random template
             template_list = next(product(series.unique(), repeat=template_size))
             template = pd.Series(template_list)
 
@@ -44,7 +52,11 @@ def template(func):
     return wrapper
 
 
-@stattest(min_input=144)  # template_size=9, nblocks=8, blocksize=2*template_size
+# ------------------------------------------------------------------------------
+# Non-overlapping Template Matching Test
+
+
+@stattest(min_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
 @template
 def non_overlapping_template_matching(series, template, nblocks=8):
     """Matches of template per block is compared to expected result
@@ -85,8 +97,8 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         if success is False:
             warn(f"Input parameters fail recommendation {rec}", UserWarning)
 
-    mean_expect = (blocksize - template_size + 1) / 2 ** template_size
-    variance_expect = blocksize * (
+    matches_expect = (blocksize - template_size + 1) / 2 ** template_size
+    variance = blocksize * (
         (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
     )
 
@@ -109,12 +121,52 @@ def non_overlapping_template_matching(series, template, nblocks=8):
 
         block_matches.append(matches)
 
-    statistic = (
-        sum((matches - mean_expect) ** 2 for matches in block_matches) / variance_expect
-    )
+    match_diffs = [matches - matches_expect for matches in block_matches]
+
+    statistic = sum(diff ** 2 / variance for diff in match_diffs)
     p = gammaincc(nblocks / 2, statistic / 2)
 
-    return TestResult(statistic=statistic, p=p)
+    return NonOverlappingTemplateMatchingTestResult(
+        statistic=statistic,
+        p=p,
+        template=template,
+        matches_expect=matches_expect,
+        variance=variance,
+        block_matches=block_matches,
+        match_diffs=match_diffs,
+    )
+
+
+@dataclass
+class NonOverlappingTemplateMatchingTestResult(TestResult):
+    template: pd.Series
+    matches_expect: float
+    variance: float
+    block_matches: List[int]
+    match_diffs: List[float]
+
+    def __str__(self):
+        ftable = tabulate(
+            {
+                "block": [x for x in range(len(self.block_matches))],
+                "matches": self.block_matches,
+                "diff": [round(diff, 1) for diff in self.match_diffs],
+            },
+            headers="keys",
+        )
+
+        return (
+            f"{self.p3f()}\n"
+            "\n"
+            f"template: {self.template.values}\n"
+            f"expected matches per block: ~{round(self.matches_expect, 1)}\n"
+            "\n"
+            f"{ftable}"
+        )
+
+
+# ------------------------------------------------------------------------------
+# Overlapping Template Matching Test
 
 
 @stattest()
