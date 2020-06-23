@@ -1,10 +1,7 @@
 from colorama import Back
 from colorama import Style
-from colorama import init
 
 __all__ = ["pretty_seq"]
-
-init()
 
 
 def pretty_seq(series, candidate):

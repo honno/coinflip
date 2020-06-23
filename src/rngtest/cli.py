@@ -8,6 +8,8 @@ from click import argument
 from click import echo
 from click import group
 from click import option
+from colorama import Style
+from colorama import init
 
 from rngtest import generators
 from rngtest.report import write_report
@@ -37,6 +39,8 @@ __all__ = [
     "example_run",
     "local_run",
 ]
+
+init()
 
 
 stattest_fnames = {
@@ -83,9 +87,24 @@ def echo_series(series):
 
     candidate = series.unique()[0]
 
-    for block in blocks(series, blocksize=cols, cutoff=False):
-        frow = pretty_seq(block, candidate)
-        echo(frow)
+    if len(series) <= cols:
+        fseries = pretty_seq(series, candidate)
+        echo(fseries)
+    else:
+        l_arrow = Style.DIM + "< " + Style.RESET_ALL
+        r_arrow = Style.DIM + " >" + Style.RESET_ALL
+
+        rows = list(blocks(series, blocksize=cols - 4, cutoff=False))
+
+        frow_first = "  " + pretty_seq(rows[0], candidate) + r_arrow
+        echo(frow_first)
+
+        for row in rows[1:-1]:
+            frow = l_arrow + pretty_seq(row, candidate) + r_arrow
+            echo(frow)
+
+        frow_last = l_arrow + pretty_seq(rows[-1], candidate) + Style.RESET_ALL
+        echo(frow_last)
 
 
 @group()
