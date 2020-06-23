@@ -22,10 +22,7 @@ def determine_rep(candidate, noncandidate):
     return c_rep, nc_rep
 
 
-def pretty_subseq(series, candidate):
-    values = series.unique()
-    noncandidate = next(value for value in values if value != candidate)
-
+def pretty_subseq(series, candidate, noncandidate):
     c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
 
@@ -41,11 +38,11 @@ def pretty_subseq(series, candidate):
     return series_rep
 
 
-# TODO infer_candidate method
 # TODO reverse blocks and other optimisations for large sequences
 def pretty_seq(series, cols):
     values = series.unique()
     candidate = values[0]
+    noncandidate = next(value for value in values if value != candidate)
 
     lines = []
 
@@ -61,7 +58,7 @@ def pretty_seq(series, cols):
         return dim("+" + "".join("-" for _ in range(width - 2)) + "+")
 
     def pretty_row(series):
-        return pretty_subseq(series, candidate)
+        return pretty_subseq(series, candidate, noncandidate)
 
     n = len(series)
     if n <= inner:
