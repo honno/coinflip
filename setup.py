@@ -78,6 +78,7 @@ setup(
         "matplotlib",
         "weasyprint",
         "tabulate",
+        "colorama",
     ],
     test_requires=["pytest", "hypothesis"],
     setup_requires=["setuptools_scm>=3.3.1"],

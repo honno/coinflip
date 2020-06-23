@@ -1,3 +1,5 @@
+from shutil import get_terminal_size
+
 import pandas as pd
 from click import Choice
 from click import File
@@ -10,6 +12,8 @@ from click import option
 from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattests
+from rngtest.stattests._common import blocks
+from rngtest.stattests._common import pretty_seq
 from rngtest.store import TYPES
 from rngtest.store import drop
 from rngtest.store import get_data
@@ -34,9 +38,6 @@ __all__ = [
     "local_run",
 ]
 
-
-# ------------------------------------------------------------------------------
-# Helpers
 
 stattest_fnames = {
     "monobits": "Frequency (Monobits) Test",
@@ -76,8 +77,15 @@ def echo_result(stattest_name, result):
     echo(result)
 
 
-# ------------------------------------------------------------------------------
-# Commands
+def echo_series(series):
+    size = get_terminal_size()
+    cols = max(size.columns, 40)  # 80 / 2
+
+    candidate = series.unique()[0]
+
+    for block in blocks(series, blocksize=cols, cutoff=False):
+        frow = pretty_seq(block, candidate)
+        echo(frow)
 
 
 @group()
@@ -116,7 +124,7 @@ def ls():
 @argument("store", autocompletion=get_stores)
 def cat(store):
     series = get_data(store)
-    echo(series)
+    echo_series(series)
 
 
 @main.command()
@@ -169,7 +177,7 @@ def example_run(example, length, test):
     series = pd.Series(next(generator) for _ in range(length))
     series = series.infer_objects()
 
-    echo(series)
+    echo_series(series)
 
     if test is None:
         for stattest_name, result in run_all_tests(series):

@@ -8,18 +8,23 @@ import pandas as pd
 __all__ = ["blocks", "rawblocks"]
 
 
-def blocks(series: pd.Series, blocksize=None, nblocks=None) -> Iterable[pd.Series]:
+def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Series]:
+    n = len(series)
+
     if not blocksize and not nblocks:
         raise ValueError()
     elif nblocks is None:
-        nblocks = len(series) // blocksize
+        nblocks = n // blocksize
     elif blocksize is None:
-        blocksize = ceil(len(series) / nblocks)
+        blocksize = ceil(n / nblocks)
 
     boundary = blocksize * nblocks
 
     for i in range(0, boundary, blocksize):
         yield series[i : i + blocksize]
+
+    if not cutoff and boundary < n:
+        yield series[boundary:]
 
 
 def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
