@@ -1,5 +1,9 @@
 from functools import wraps
+from itertools import product
 from math import exp
+from math import floor
+from math import sqrt
+from warnings import warn
 
 import pandas as pd
 from scipy.special import gammaincc
@@ -18,15 +22,20 @@ class TemplateContainsElementsNotInSequenceError(ValueError):
 
 def template(func):
     @wraps(func)
-    def wrapper(series: pd.Series, template, *args, **kwargs):
-        if not isinstance(template, pd.Series):
-            template = pd.Series(template)
+    def wrapper(series: pd.Series, template=None, *args, **kwargs):
+        if template is None:
+            n = len(series)
+            template_size = min(floor(sqrt(n)), 9)
+            template_list = next(product(series.unique(), repeat=template_size))
+            template = pd.Series(template_list)
 
-        for value in template.unique():
-            if value not in series.unique():
-                raise TemplateContainsElementsNotInSequenceError()
+        else:
+            if not isinstance(template, pd.Series):
+                template = pd.Series(template)
 
-        # TODO Generate template
+            for value in template.unique():
+                if value not in series.unique():
+                    raise TemplateContainsElementsNotInSequenceError()
 
         result = func(series, template, *args, **kwargs)
 
@@ -35,9 +44,9 @@ def template(func):
     return wrapper
 
 
-@stattest()
+@stattest(min_input=144)  # template_size=9, nblocks=8, blocksize=2*template_size
 @template
-def non_overlapping_template_matching(series, template, nblocks=968):
+def non_overlapping_template_matching(series, template, nblocks=8):
     """Matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of non-overlapping
@@ -65,9 +74,23 @@ def non_overlapping_template_matching(series, template, nblocks=968):
     """
     n = len(series)
     blocksize = n // nblocks
-
     template_size = len(template)
-    raw_template = template.values
+
+    recommendations = {
+        "nblocks <= 100": nblocks <= 100,
+        "blocksize > 0.01 * n": blocksize > 0.01 * n,
+        "nblocks == n // blocksize": nblocks == n // blocksize,
+    }
+    for rec, success in recommendations.items():
+        if success is False:
+            warn(f"Input parameters fail recommendation {rec}", UserWarning)
+
+    mean_expect = (blocksize - template_size + 1) / 2 ** template_size
+    variance_expect = blocksize * (
+        (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
+    )
+
+    template_tup = template.values
 
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
@@ -78,7 +101,7 @@ def non_overlapping_template_matching(series, template, nblocks=968):
         while pointer < boundary:
             window = block_tup[pointer : pointer + template_size]
 
-            if all(x == y for x, y in zip(window, raw_template)):
+            if all(x == y for x, y in zip(window, template_tup)):
                 matches += 1
                 pointer += template_size
             else:
@@ -86,14 +109,8 @@ def non_overlapping_template_matching(series, template, nblocks=968):
 
         block_matches.append(matches)
 
-    mean_expected = (blocksize - template_size + 1) / 2 ** template_size
-    variance_expected = blocksize * (
-        (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
-    )
-
     statistic = (
-        sum((matches - mean_expected) ** 2 for matches in block_matches)
-        / variance_expected
+        sum((matches - mean_expect) ** 2 for matches in block_matches) / variance_expect
     )
     p = gammaincc(nblocks / 2, statistic / 2)
 
@@ -132,7 +149,7 @@ def overlapping_template_matching(series, template, nblocks=8):
     blocksize = n // nblocks
 
     template_size = len(template)
-    raw_template = template.values
+    template_tup = template.values
 
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
@@ -141,7 +158,7 @@ def overlapping_template_matching(series, template, nblocks=8):
         for pointer in range(blocksize):
             window = block_tup[pointer : pointer + template_size]
 
-            if all(x == y for x, y in zip(window, raw_template)):
+            if all(x == y for x, y in zip(window, template_tup)):
                 matches += 1
 
         block_matches.append(matches)
