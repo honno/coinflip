@@ -8,13 +8,10 @@ from click import argument
 from click import echo
 from click import group
 from click import option
-from colorama import Style
-from colorama import init
 
 from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattests
-from rngtest.stattests._common import blocks
 from rngtest.stattests._common import pretty_seq
 from rngtest.store import TYPES
 from rngtest.store import drop
@@ -39,9 +36,6 @@ __all__ = [
     "example_run",
     "local_run",
 ]
-
-init()
-
 
 stattest_fnames = {
     "monobits": "Frequency (Monobits) Test",
@@ -83,28 +77,9 @@ def echo_result(stattest_name, result):
 
 def echo_series(series):
     size = get_terminal_size()
-    cols = max(size.columns, 40)  # 80 / 2
+    cols = min(size.columns, 80)  # 80 / 2
 
-    candidate = series.unique()[0]
-
-    if len(series) <= cols:
-        fseries = pretty_seq(series, candidate)
-        echo(fseries)
-    else:
-        l_arrow = Style.DIM + "< " + Style.RESET_ALL
-        r_arrow = Style.DIM + " >" + Style.RESET_ALL
-
-        rows = list(blocks(series, blocksize=cols - 4, cutoff=False))
-
-        frow_first = "  " + pretty_seq(rows[0], candidate) + r_arrow
-        echo(frow_first)
-
-        for row in rows[1:-1]:
-            frow = l_arrow + pretty_seq(row, candidate) + r_arrow
-            echo(frow)
-
-        frow_last = l_arrow + pretty_seq(rows[-1], candidate) + Style.RESET_ALL
-        echo(frow_last)
+    echo(pretty_seq(series, cols))
 
 
 @group()
