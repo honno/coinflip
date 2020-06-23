@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from colorama import Fore
 from colorama import Style
 from colorama import init
@@ -9,15 +11,22 @@ init()
 __all__ = ["pretty_subseq", "pretty_seq"]
 
 
-def pretty_subseq(series, candidate):
-    values = series.unique()
-    noncandidate = next(value for value in values if value != candidate)
-
+@lru_cache()
+def determine_rep(candidate, noncandidate):
     c_rep = str(candidate)[0]
     nc_rep = str(noncandidate)[0]
     if c_rep.casefold() == nc_rep.casefold():
         c_rep = "1"
         nc_rep = "0"
+
+    return c_rep, nc_rep
+
+
+def pretty_subseq(series, candidate):
+    values = series.unique()
+    noncandidate = next(value for value in values if value != candidate)
+
+    c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
 
     series_rep = Style.BRIGHT
@@ -33,6 +42,7 @@ def pretty_subseq(series, candidate):
 
 
 # TODO infer_candidate method
+# TODO reverse blocks and other optimisations for large sequences
 def pretty_seq(series, cols):
     values = series.unique()
     candidate = values[0]
@@ -100,7 +110,8 @@ def pretty_seq(series, cols):
 
         frow_last = l_arrow + pretty_row(rows[-1]) + r_border
         lines.append(frow_last)
-        border_last = "  " + hline(len(rows[-1]) + 4)
+
+        border_last = "  " + hline(len(rows[-1]) + pad)
         lines.append(border_last + Style.RESET_ALL)
 
     return "\n".join(lines)
