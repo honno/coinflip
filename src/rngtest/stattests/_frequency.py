@@ -1,3 +1,4 @@
+from collections import Counter
 from dataclasses import dataclass
 from math import erfc
 from math import sqrt
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
+from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import blocks
@@ -78,11 +80,17 @@ class MonobitsTestResult(TestResult):
         )
 
     def __str__(self):
-        return (
-            f"p={self.p3f()}\n"
-            f"{self.maxcount.value} occurred {self.maxcount.count} times\n"
-            f"{self.mincount.value} occurred {self.mincount.count} times"
+        f_stats = self.stats_table("normdiff")
+
+        f_table = tabulate(
+            [
+                (self.maxcount.value, self.maxcount.count),
+                (self.mincount.value, self.mincount.count),
+            ],
+            headers=["value", "count"],
         )
+
+        return f"{f_stats}\n" "\n" f"{f_table}"
 
     def _report(self):
         return [
@@ -236,9 +244,29 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: int
     occurences: List[int]
 
-    # TODO better str message
     def __str__(self):
-        return f"p={self.p3f()}"
+        f_stats = self.stats_table()
+
+        occur_expect = self.blocksize / 2
+        f_occur_expect = smartround(occur_expect)
+
+        occur_count = Counter(self.occurences)
+
+        table = []
+        for occur, count in sorted(occur_count.items()):
+            diff = occur - occur_expect
+            f_diff = smartround(diff)
+            table.append([occur, f_diff, count])
+
+        f_table = tabulate(table, headers=["occur", "diff", "count"],)
+
+        return (
+            f"{f_stats}\n"
+            "\n"
+            f"expected occurences per block: {f_occur_expect} (/{self.blocksize})\n"
+            "\n"
+            f"{f_table}"
+        )
 
     def _report(self):
         occurfig, occurax = plt.subplots()
@@ -255,3 +283,10 @@ class FrequencyWithinBlockTestResult(TestResult):
             plot_chi2(self.statistic, df=self.nblocks),
             plot_gammaincc(self.statistic / 2, scale=self.nblocks / 2),
         ]
+
+
+def smartround(num):
+    if num.is_integer():
+        return int(num)
+    else:
+        return round(num, 1)

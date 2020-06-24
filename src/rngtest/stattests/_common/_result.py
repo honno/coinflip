@@ -6,6 +6,7 @@ from typing import Union
 
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
+from tabulate import tabulate
 
 __all__ = ["TestResult"]
 
@@ -17,6 +18,16 @@ class TestResult:
 
     def p3f(self):
         return round(self.p, 3)
+
+    def stats_table(self, statname="statistic"):
+        if isinstance(self.statistic, float):
+            f_statistic = round(self.statistic, 3)
+        else:
+            f_statistic = self.statistic
+
+        f_table = tabulate([(statname, f_statistic), ("p-value", self.p3f())])
+
+        return f_table
 
     def __str__(self):
         raise NotImplementedError()
