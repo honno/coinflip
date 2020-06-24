@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from functools import wraps
-from itertools import product
 from math import exp
 from math import floor
 from math import sqrt
+from random import choice
 from typing import List
 from warnings import warn
 
@@ -30,19 +30,19 @@ class TemplateContainsElementsNotInSequenceError(ValueError):
 def template(func):
     @wraps(func)
     def wrapper(series: pd.Series, template=None, *args, **kwargs):
+        values = series.unique()
+
         if template is None:
             n = len(series)
             template_size = min(floor(sqrt(n)), 9)
-            # TODO random template
-            template_list = next(product(series.unique(), repeat=template_size))
-            template = pd.Series(template_list)
+            template = pd.Series(choice(values) for _ in range(template_size))
 
         else:
             if not isinstance(template, pd.Series):
                 template = pd.Series(template)
 
             for value in template.unique():
-                if value not in series.unique():
+                if value not in values:
                     raise TemplateContainsElementsNotInSequenceError()
 
         result = func(series, template, *args, **kwargs)
@@ -146,6 +146,8 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
     match_diffs: List[float]
 
     def __str__(self):
+        ftemplate = self.template.values
+
         ftable = tabulate(
             {
                 "block": [x for x in range(len(self.block_matches))],
@@ -158,7 +160,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
         return (
             f"{self.p3f()}\n"
             "\n"
-            f"template: {self.template.values}\n"
+            f"template: {ftemplate}\n"
             f"expected matches per block: ~{round(self.matches_expect, 1)}\n"
             "\n"
             f"{ftable}"
