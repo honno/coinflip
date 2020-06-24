@@ -100,20 +100,13 @@ class DiscreteFourierTransformTestResult(TestResult):
         pass
 
     def __str__(self):
-        table = [
-            ("actual", self.nbelow),
-            ("expected", f"~{round(self.nbelow_expected, 1)}"),
-            ("diff", round(self.diff, 1)),
-        ]
-        ftable = tabulate(table, colalign=("left", "right"))
+        f_table = tabulate(
+            [
+                ("actual", self.nbelow),
+                ("expected", f"~{round(self.nbelow_expected, 1)}"),
+                ("diff", round(self.diff, 1)),
+            ],
+            colalign=("left", "right"),
+        )
 
-        return f"p={self.p3f()}\n" + "\npeaks above threshold\n" + ftable
-
-        # return (
-        #     f"p={self.p3f()}\n"
-        #     f"\n"
-        #     f"----------\n"
-        #     f"actual      {self.nbelow} \n"
-        #     f"expected    ~{round(self.nbelow_expected, 1)}\n"
-        #     f"diff        {round(self.diff, 1)}"
-        # )
+        return f"p={self.p3f()}\n" + "\npeaks above threshold\n" + f_table

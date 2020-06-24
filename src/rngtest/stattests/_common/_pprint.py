@@ -66,8 +66,8 @@ def pretty_seq(series, cols):
 
         lines.append(border)
 
-        fseries = l_border + pretty_row(series) + r_border
-        lines.append(fseries)
+        f_series = l_border + pretty_row(series) + r_border
+        lines.append(f_series)
 
         lines.append(border)
 
@@ -77,8 +77,8 @@ def pretty_seq(series, cols):
 
         lines.append(border)
 
-        frow_first = l_border + pretty_row(rows[0]) + r_arrow
-        lines.append(frow_first)
+        f_row_first = l_border + pretty_row(rows[0]) + r_arrow
+        lines.append(f_row_first)
         lines.append(border)
 
         def echo_row(row):
@@ -93,7 +93,8 @@ def pretty_seq(series, cols):
 
             omit_msg = dim(f"..omitting {nrows - 10} rows..")
             omit_pad = "".join(" " for _ in range((cols // 2) - (len(omit_msg) // 2)))
-            lines.append(omit_pad + omit_msg)
+            f_omit = omit_pad + omit_msg
+            lines.append(f_omit)
             lines.append(border)
 
             for row in rows[-5:-1]:
@@ -105,8 +106,8 @@ def pretty_seq(series, cols):
                 echo_row(row)
                 lines.append(border)
 
-        frow_last = l_arrow + pretty_row(rows[-1]) + r_border
-        lines.append(frow_last)
+        f_row_last = l_arrow + pretty_row(rows[-1]) + r_border
+        lines.append(f_row_last)
 
         border_last = "  " + hline(len(rows[-1]) + pad)
         lines.append(border_last + Style.RESET_ALL)

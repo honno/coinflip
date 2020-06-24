@@ -22,6 +22,10 @@ from rngtest.stattests._common import stattest
 __all__ = ["monobits", "frequency_within_block"]
 
 
+# ------------------------------------------------------------------------------
+# Frequency (Monobits) Test
+
+
 @stattest()
 def monobits(series):
     """Proportion of values is compared to expected 1:1 ratio
@@ -52,55 +56,6 @@ def monobits(series):
     p = erfc(normdiff / sqrt(2))
 
     return MonobitsTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
-
-
-@stattest(min_input=100)
-@elected
-def frequency_within_block(series, candidate, blocksize=8):
-    """Proportion of values per block is compared to expected 1:1 ratio
-
-    The difference between the frequency of the two values in each block is
-    found, and referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given series
-        The value which is counted in each block
-    blocksize : int
-        Size of the blocks that partition the given series
-
-    Returns
-    -------
-    FrequencyWithinBlockTestResult
-        Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered. The `__str__` property (i.e. used
-        in `print` statements) contains a printable summary of the result, and
-        the `report()` method produces a HTML summary, which includes embedded
-        graphical plots.
-    """
-    nblocks = len(series) // blocksize
-
-    occurences = []
-    for block in blocks(series, blocksize=blocksize):
-        count = (block == candidate).sum()
-        occurences.append(count)
-
-    proportions = (count / blocksize for count in occurences)
-    deviations = (prop - 1 / 2 for prop in proportions)
-
-    statistic = 4 * blocksize * sum(x ** 2 for x in deviations)
-    p = gammaincc(nblocks / 2, statistic / 2)
-
-    return FrequencyWithinBlockTestResult(
-        statistic=statistic,
-        p=p,
-        candidate=candidate,
-        blocksize=blocksize,
-        nblocks=nblocks,
-        occurences=occurences,
-    )
 
 
 class ValueCount(NamedTuple):
@@ -174,9 +129,8 @@ class MonobitsTestResult(TestResult):
         ax.set_xlabel("Difference between occurences (normalised)")
         ax.set_ylabel("Probability density")
 
-        # ------------------------
+        # ----------------------------------------------------------------------
         # Half-normal distribution
-        # ------------------------
 
         mean = 0
         variance = 1
@@ -188,9 +142,8 @@ class MonobitsTestResult(TestResult):
 
         ax.plot(x, y, color="black")
 
-        # ------------
+        # ----------------------------------------------------------------------
         # p-value area
-        # ------------
 
         fill_x = x[x > self.statistic]
         fill_y = y[-len(fill_x) :]
@@ -204,9 +157,8 @@ class MonobitsTestResult(TestResult):
             fill_x, 0, fill_y, facecolor="none", hatch="//", edgecolor="black"
         )
 
-        # -----------
+        # ----------------------------------------------------------------------
         # Annotations
-        # -----------
 
         ax.set_ylim([0, 1])
         stat2f = round(self.statistic, 2)
@@ -222,6 +174,59 @@ class MonobitsTestResult(TestResult):
         ax.text(xlim, fill_y[0] / 2, f"probability = {probability}", ha="right")
 
         return fig
+
+
+# ------------------------------------------------------------------------------
+# Frequency within Block Test
+
+
+@stattest(min_input=100)
+@elected
+def frequency_within_block(series, candidate, blocksize=8):
+    """Proportion of values per block is compared to expected 1:1 ratio
+
+    The difference between the frequency of the two values in each block is
+    found, and referenced to a hypothetically truly random RNG.
+
+    Parameters
+    ----------
+    sequence : array-like
+        Output of the RNG being tested
+    candidate : Value present in given series
+        The value which is counted in each block
+    blocksize : int
+        Size of the blocks that partition the given series
+
+    Returns
+    -------
+    FrequencyWithinBlockTestResult
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered. The `__str__` property (i.e. used
+        in `print` statements) contains a printable summary of the result, and
+        the `report()` method produces a HTML summary, which includes embedded
+        graphical plots.
+    """
+    nblocks = len(series) // blocksize
+
+    occurences = []
+    for block in blocks(series, blocksize=blocksize):
+        count = (block == candidate).sum()
+        occurences.append(count)
+
+    proportions = (count / blocksize for count in occurences)
+    deviations = (prop - 1 / 2 for prop in proportions)
+
+    statistic = 4 * blocksize * sum(x ** 2 for x in deviations)
+    p = gammaincc(nblocks / 2, statistic / 2)
+
+    return FrequencyWithinBlockTestResult(
+        statistic=statistic,
+        p=p,
+        candidate=candidate,
+        blocksize=blocksize,
+        nblocks=nblocks,
+        occurences=occurences,
+    )
 
 
 @dataclass

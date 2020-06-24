@@ -16,6 +16,13 @@ from rngtest.stattests._common import stattest
 __all__ = ["binary_matrix_rank"]
 
 
+@dataclass
+class RankCounts:
+    full: int = 0
+    runnerup: int = 0
+    remaining: int = 0
+
+
 @stattest(min_input=152)  # nblocks=38, blocksize=4
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
@@ -98,13 +105,6 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
 
 
 @dataclass
-class RankCounts:
-    full: int = 0
-    runnerup: int = 0
-    remaining: int = 0
-
-
-@dataclass
 class BinaryMatrixRankTestResult(TestResult):
     fullrank: int
     rankcounts_expect: RankCounts
@@ -122,23 +122,23 @@ class BinaryMatrixRankTestResult(TestResult):
     def __str__(self):
         runnerup = self.fullrank - 1
         remaining = runnerup - 1
-        franks = [
+        f_ranks = [
             str(self.fullrank),
             str(runnerup),
             "0" if remaining == 0 else f"0-{remaining}",
         ]
 
-        counts = astuple(self.rankcounts)
+        f_counts = astuple(self.rankcounts)
 
         counts_expect = astuple(self.rankcounts_expect)
-        fcounts_expect = [f"~{round(count, 1)}" for count in counts_expect]
+        f_counts_expect = [f"~{round(count, 1)}" for count in counts_expect]
 
-        fdiffs = [round(diff, 1) for diff in self.rankcount_diffs]
+        f_diffs = [round(diff, 1) for diff in self.rankcount_diffs]
 
-        ftable = tabulate(
-            zip(franks, counts, fcounts_expect, fdiffs),
+        f_table = tabulate(
+            zip(f_ranks, f_counts, f_counts_expect, f_diffs),
             headers=["rank", "count", "expected", "diff"],
             colalign=("left", "right", "right", "right"),
         )
 
-        return f"p={self.p3f()}\n" + ftable
+        return f"p={self.p3f()}\n" + f_table

@@ -146,24 +146,24 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
     match_diffs: List[float]
 
     def __str__(self):
-        ftemplate = self.template.values
+        f_template = self.template.values
+        f_matches = f"~{round(self.matches_expect, 1)}"
 
-        ftable = tabulate(
-            {
-                "block": [x for x in range(len(self.block_matches))],
-                "matches": self.block_matches,
-                "diff": [round(diff, 1) for diff in self.match_diffs],
-            },
-            headers="keys",
+        f_blocks = [x for x in range(len(self.block_matches))]
+        f_diffs = [round(diff, 1) for diff in self.match_diffs]
+
+        f_table = tabulate(
+            zip(f_blocks, self.block_matches, f_diffs),
+            headers=["block", "matches", "diff"],
         )
 
         return (
             f"{self.p3f()}\n"
             "\n"
-            f"template: {ftemplate}\n"
-            f"expected matches per block: ~{round(self.matches_expect, 1)}\n"
+            f"template: {f_template}\n"
+            f"expected matches per block: {f_matches}\n"
             "\n"
-            f"{ftable}"
+            f"{f_table}"
         )
 
 
