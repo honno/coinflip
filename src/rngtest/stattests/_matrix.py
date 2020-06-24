@@ -87,12 +87,12 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
         else:
             rankcounts.remaining += 1
 
-    partials = []
+    reality_check = []
     for count, count_expect in zip(astuple(rankcounts), astuple(rankcounts_expect)):
-        partial = (count - count_expect) ** 2 / count_expect
-        partials.append(partial)
+        diff = (count - count_expect) ** 2 / count_expect
+        reality_check.append(diff)
 
-    statistic = sum(partials)
+    statistic = sum(reality_check)
     p = exp(-statistic / 2)
 
     return BinaryMatrixRankTestResult(

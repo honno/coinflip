@@ -94,7 +94,7 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         "nblocks == n // blocksize": nblocks == n // blocksize,
     }
     for rec, success in recommendations.items():
-        if success is False:
+        if not success:
             warn(f"Input parameters fail recommendation {rec}", UserWarning)
 
     matches_expect = (blocksize - template_size + 1) / 2 ** template_size
@@ -147,7 +147,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 
     def __str__(self):
         f_template = self.template.values
-        f_matches = f"~{round(self.matches_expect, 1)}"
+        f_matches_expect = f"~{round(self.matches_expect, 1)}"
 
         f_blocks = [x for x in range(len(self.block_matches))]
         f_diffs = [round(diff, 1) for diff in self.match_diffs]
@@ -161,7 +161,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
             f"{self.p3f()}\n"
             "\n"
             f"template: {f_template}\n"
-            f"expected matches per block: {f_matches}\n"
+            f"expected matches per block: {f_matches_expect}\n"
             "\n"
             f"{f_table}"
         )
@@ -170,7 +170,10 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 # ------------------------------------------------------------------------------
 # Overlapping Template Matching Test
 
+matches_ceil = 5
 
+
+# TODO fix probabilities
 @stattest()
 @template
 def overlapping_template_matching(series, template, nblocks=8):
@@ -203,7 +206,7 @@ def overlapping_template_matching(series, template, nblocks=8):
     blocksize = n // nblocks
 
     template_size = len(template)
-    template_tup = template.values
+    template_tup = tuple(template.tolist())
 
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
@@ -217,25 +220,61 @@ def overlapping_template_matching(series, template, nblocks=8):
 
         block_matches.append(matches)
 
-    tallies = [0 for _ in range(6)]
+    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
+    eta = lambda_ / 2
+    expected_tallies = []
+    for matches in range(matches_ceil + 1):
+        tally_expect = ((eta * exp(-2 * eta)) / 2 ** matches) * hyp1f1(
+            matches + 1, 2, eta
+        )
+        expected_tallies.append(tally_expect)
+
+    tallies = [0 for _ in range(matches_ceil + 1)]
     for matches in block_matches:
         i = min(matches, 5)
         tallies[i] += 1
 
-    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
-    eta = lambda_ / 2
+    reality_check = []
+    for tally_expect, tally in zip(expected_tallies, tallies):
+        diff = (tally - tally_expect) ** 2 / tally_expect
+        reality_check.append(diff)
 
-    probabilities = [
-        ((eta * exp(-2 * eta)) / 2 ** x) * hyp1f1(x + 1, 2, eta)
-        for x in range(len(tallies))
-    ]
+    statistic = sum(reality_check)
 
-    statistic = sum(
-        (tally - nblocks * probability) ** 2 / (nblocks * probability)
-        for tally, probability in zip(tallies, probabilities)
-    )
-
-    df = len(tallies) - 1
+    df = matches_ceil
     p = gammaincc(df / 2, statistic / 2)
 
-    return TestResult(statistic=statistic, p=p)
+    return OverlappingTemplateMatchingTestResult(
+        statistic=statistic,
+        p=p,
+        template=template,
+        expected_tallies=expected_tallies,
+        tallies=tallies,
+        reality_check=reality_check,
+    )
+
+
+@dataclass
+class OverlappingTemplateMatchingTestResult(TestResult):
+    template: pd.Series
+    expected_tallies: List[int]
+    tallies: List[int]
+    reality_check: List[float]
+
+    def __str__(self):
+        f_stats = self.stats_table()
+
+        f_template = self.template.values
+
+        f_matches = [f"{x}" for x in range(matches_ceil + 1)]
+        f_matches[-1] = f"{f_matches[-1]}+"
+
+        f_expected_tallies = [round(tally, 1) for tally in self.expected_tallies]
+        f_reality_check = [round(diff, 1) for diff in self.reality_check]
+
+        f_table = tabulate(
+            zip(f_matches, self.tallies, f_expected_tallies, f_reality_check),
+            headers=["matches", "count", "expected", "diff"],
+        )
+
+        return f"{f_stats}\n" "\n" f"template: {f_template}\n" "\n" f"{f_table}"

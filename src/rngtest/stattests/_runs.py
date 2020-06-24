@@ -122,6 +122,7 @@ def longest_runs(series, candidate):
     n = len(series)
     blocksize, nblocks, freqbin_ranges = n_defaults[n]
 
+    # TODO range list
     def freqbin(runlength):
         minlen = freqbin_ranges[0]
         midlengths = freqbin_ranges[1:-1]
@@ -165,12 +166,12 @@ def longest_runs(series, candidate):
     for runlength in maxlengths:
         freqbins[freqbin(runlength)] += 1
 
-    partials = []
+    reality_check = []
     for count_expect, count in zip(freqbins_expect, freqbins):
-        partial = (count - count_expect) ** 2 / count_expect
-        partials.append(partial)
+        diff = (count - count_expect) ** 2 / count_expect
+        reality_check.append(diff)
 
-    statistic = sum(partials)
+    statistic = sum(reality_check)
     p = gammaincc(df / 2, statistic / 2)
 
     return LongestRunsTestResult(
