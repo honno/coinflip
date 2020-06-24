@@ -109,7 +109,7 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         matches = 0
         pointer = 0
 
-        boundary = len(block_tup) - template_size
+        boundary = blocksize - template_size
         while pointer < boundary:
             window = block_tup[pointer : pointer + template_size]
 
@@ -227,7 +227,8 @@ def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
     for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
 
-        for pointer in range(blocksize):
+        boundary = blocksize - template_size
+        for pointer in range(boundary + 1):
             window = block_tup[pointer : pointer + template_size]
 
             if all(x == y for x, y in zip(window, template_tup)):

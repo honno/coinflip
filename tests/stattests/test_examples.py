@@ -171,17 +171,15 @@ examples = {
     ),
     "overlapping_template_matching": {
         "small": Example(
-            # FAILING Generated probabilities coded to something different then what we got
+            # FAILING p off by ~0.07
             stattest="overlapping_template_matching",
 
             bits=[
-                1, 0, 1, 1, 1, 0, 1, 1,
-                1, 1, 0, 0, 1, 0, 1, 1,
-                0, 1, 0, 0, 0, 1, 1, 1,
-                0, 0, 1, 0, 1, 1, 1, 0,
-                1, 1, 1, 1, 1, 0, 0, 0,
-                0, 1, 0, 1, 1, 0, 1, 0,
-                0, 1,
+                1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
+                0, 0, 1, 0, 1, 1, 0, 1, 1, 0,  # Modifed block 2 of NIST example
+                0, 1, 1, 1, 0, 0, 1, 0, 1, 1,  # originally had 1 match
+                1, 0, 1, 1, 1, 1, 1, 0, 0, 0,  # now has 2 matches, as expected
+                0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
             ],
             kwargs=dict(
                 template=[1, 1],
