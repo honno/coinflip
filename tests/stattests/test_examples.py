@@ -186,6 +186,7 @@ examples = {
             kwargs=dict(
                 template=[1, 1],
                 nblocks=5,
+                df=2,
             ),
 
             statistic=3.167729,

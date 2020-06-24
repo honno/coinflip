@@ -176,7 +176,7 @@ matches_ceil = 5
 # TODO fix probabilities
 @stattest()
 @template
-def overlapping_template_matching(series, template, nblocks=8):
+def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
     """Overlapping matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of overlapping matches
@@ -191,6 +191,8 @@ def overlapping_template_matching(series, template, nblocks=8):
         Template to match with the sequence
     nblocks : int
         Number of blocks to split sequence into
+    df : int, default `5`
+        Desired degrees of freedom
 
     Returns
     -------
@@ -208,6 +210,19 @@ def overlapping_template_matching(series, template, nblocks=8):
     template_size = len(template)
     template_tup = tuple(template.tolist())
 
+    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
+    eta = lambda_ / 2
+
+    first_prob = exp(-eta)
+    probabilities = [first_prob]
+    for matches in range(1, matches_ceil):
+        prob = ((eta * exp(-2 * eta)) / 2 ** matches) * hyp1f1(matches + 1, 2, eta)
+        probabilities.append(prob)
+    last_prob = 1 - sum(probabilities)
+    probabilities.append(last_prob)
+
+    expected_tallies = [prob * nblocks for prob in probabilities]
+
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
@@ -219,15 +234,6 @@ def overlapping_template_matching(series, template, nblocks=8):
                 matches += 1
 
         block_matches.append(matches)
-
-    lambda_ = (blocksize - template_size + 1) / 2 ** template_size
-    eta = lambda_ / 2
-    expected_tallies = []
-    for matches in range(matches_ceil + 1):
-        tally_expect = ((eta * exp(-2 * eta)) / 2 ** matches) * hyp1f1(
-            matches + 1, 2, eta
-        )
-        expected_tallies.append(tally_expect)
 
     tallies = [0 for _ in range(matches_ceil + 1)]
     for matches in block_matches:
@@ -241,7 +247,6 @@ def overlapping_template_matching(series, template, nblocks=8):
 
     statistic = sum(reality_check)
 
-    df = matches_ceil
     p = gammaincc(df / 2, statistic / 2)
 
     return OverlappingTemplateMatchingTestResult(
