@@ -25,7 +25,8 @@ class TestResult:
         else:
             f_statistic = self.statistic
 
-        f_table = tabulate([(statname, f_statistic), ("p-value", self.p3f())])
+        table = [(statname, f_statistic), ("p-value", self.p3f())]
+        f_table = tabulate(table, tablefmt="plain")
 
         return f_table
 
