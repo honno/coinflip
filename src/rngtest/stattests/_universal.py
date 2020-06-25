@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from math import erfc
 from math import log
 from math import sqrt
@@ -10,69 +11,6 @@ from rngtest.stattests._common import rawblocks
 from rngtest.stattests._common import stattest
 
 __all__ = ["maurers_universal"]
-
-
-@stattest()
-def maurers_universal(series, blocksize=None, init_nblocks=None):
-    """Distance between patterns is compared to expected result
-
-    Unique permutations in an initial sequence are identified, and the
-    distances of aforementioned permutations in a remaining sequence are
-    accumulated. The normalised value for the accumulated distances is then
-    compared to a hypothetically truly random RNG.
-
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    blocksize : `int`
-        Size of the blocks that form a permutation
-    init_nblocks : `int`
-        Number of initial blocks to identify permutations
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value
-    """
-    n = len(series)
-
-    # TODO how to handle if only one of kwargs is not None
-    if blocksize is not None and init_nblocks is not None:
-        pass
-    else:
-        _blocksize, _init_nblocks = n_defaults[n]
-        if blocksize is None:
-            blocksize = _blocksize
-        if init_nblocks is None:
-            init_nblocks = _init_nblocks
-
-    init_n = init_nblocks * blocksize
-    init_series, spare_series = series[:init_n], series[init_n:]
-    spare_nblocks = (n - init_n) / blocksize
-
-    last_occurences = defaultdict(int)
-
-    init_blocks = rawblocks(init_series, blocksize=blocksize)
-    for pos, permutation in enumerate(init_blocks, 1):
-        last_occurences[permutation] = pos
-
-    spare_blocks = rawblocks(spare_series, blocksize=blocksize)
-    spare_firstpos = init_nblocks + 1
-    distances_total = 0
-    for pos, permutation in enumerate(spare_blocks, spare_firstpos):
-        last_occurence = last_occurences[permutation]
-        distance = pos - last_occurence
-        distances_total += log(distance, 2)
-
-        last_occurences[permutation] = pos
-
-    statistic = distances_total / spare_nblocks
-    expected_mean, variance = blocksize_dists[blocksize]
-    p = erfc(abs((statistic - expected_mean) / (sqrt(2) * variance)))
-
-    return TestResult(statistic=statistic, p=p)
 
 
 class Dist(NamedTuple):
@@ -126,3 +64,70 @@ n_defaults = FloorDict(
         1059061760: DefaultParams(16, 655360),
     }
 )
+
+
+@stattest()
+def maurers_universal(series, blocksize=None, init_nblocks=None):
+    """Distance between patterns is compared to expected result
+
+    Unique permutations in an initial sequence are identified, and the
+    distances of aforementioned permutations in a remaining sequence are
+    accumulated. The normalised value for the accumulated distances is then
+    compared to a hypothetically truly random RNG.
+
+
+    Parameters
+    ----------
+    sequence : array-like
+        Output of the RNG being tested
+    blocksize : `int`
+        Size of the blocks that form a permutation
+    init_nblocks : `int`
+        Number of initial blocks to identify permutations
+
+    Returns
+    -------
+    TestResult
+        Dataclass that contains the test's statistic and p-value
+    """
+    n = len(series)
+
+    # TODO determine how to handle if only one of kwargs is not None
+    if not blocksize or not init_nblocks:
+        _blocksize, _init_nblocks = n_defaults[n]
+        if not blocksize:
+            blocksize = _blocksize
+        if not init_nblocks:
+            init_nblocks = _init_nblocks
+
+    init_n = init_nblocks * blocksize
+    init_series, spare_series = series[:init_n], series[init_n:]
+    spare_nblocks = (n - init_n) / blocksize
+
+    last_occurences = defaultdict(int)
+
+    init_blocks = rawblocks(init_series, blocksize=blocksize)
+    for pos, permutation in enumerate(init_blocks, 1):
+        last_occurences[permutation] = pos
+
+    spare_blocks = rawblocks(spare_series, blocksize=blocksize)
+    spare_firstpos = init_nblocks + 1
+    distances_total = 0
+    for pos, permutation in enumerate(spare_blocks, spare_firstpos):
+        last_occurence = last_occurences[permutation]
+        distance = pos - last_occurence
+        distances_total += log(distance, 2)
+
+        last_occurences[permutation] = pos
+
+    statistic = distances_total / spare_nblocks
+    expected_mean, variance = blocksize_dists[blocksize]
+    p = erfc(abs((statistic - expected_mean) / (sqrt(2) * variance)))
+
+    return OverlappingTemplateMatchingTestResult(statistic=statistic, p=p)
+
+
+@dataclass
+class OverlappingTemplateMatchingTestResult(TestResult):
+    def __str__(self):
+        return self.stats_table("normalised distances")
