@@ -1,5 +1,6 @@
 from rngtest.stattests._common._collections import FloorDict
 from rngtest.stattests._common._decorators import elected
+from rngtest.stattests._common._decorators import infer_candidate
 from rngtest.stattests._common._decorators import stattest
 from rngtest.stattests._common._methods import blocks
 from rngtest.stattests._common._methods import rawblocks
@@ -17,6 +18,7 @@ __all__ = [
     "plot_gammaincc",
     "stattest",
     "stattest",
+    "infer_candidate",
     "elected",
     "blocks",
     "rawblocks",

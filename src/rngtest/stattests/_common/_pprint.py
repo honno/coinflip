@@ -5,6 +5,7 @@ from colorama import Style
 from colorama import init
 
 from rngtest.stattests._common import blocks
+from rngtest.stattests._common import infer_candidate
 
 init()
 
@@ -41,7 +42,7 @@ def pretty_subseq(series, candidate, noncandidate):
 # TODO reverse blocks and other optimisations for large sequences
 def pretty_seq(series, cols):
     values = series.unique()
-    candidate = values[0]
+    candidate = infer_candidate(values)
     noncandidate = next(value for value in values if value != candidate)
 
     lines = []

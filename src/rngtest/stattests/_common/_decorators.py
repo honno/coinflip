@@ -3,7 +3,7 @@ from warnings import warn
 
 import pandas as pd
 
-__all__ = ["stattest", "elected"]
+__all__ = ["stattest", "infer_candidate", "elected"]
 
 
 class NonBinarySequenceError(ValueError):
@@ -34,14 +34,21 @@ def stattest(min_input=2):
     return decorator
 
 
+def infer_candidate(values):
+    try:
+        candidate = max(values)
+    except TypeError:
+        candidate = values[0]
+
+    return candidate
+
+
 def elected(func):
     @wraps(func)
     def wrapper(series: pd.Series, *args, candidate=None, **kwargs):
         if candidate is None:
-            if 1 in series.unique():
-                candidate = 1
-            else:
-                candidate = series.unique()[0]
+            values = series.unique()
+            candidate = infer_candidate(values)
         else:
             if candidate not in series.unique():
                 raise ValueError()
