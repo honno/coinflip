@@ -1,3 +1,4 @@
+from collections import Counter
 from dataclasses import dataclass
 from functools import wraps
 from math import exp
@@ -151,13 +152,15 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
         f_template = self.template.values
         f_matches_expect = round(self.matches_expect, 1)
 
-        f_blocks = [x for x in range(len(self.block_matches))]
-        f_diffs = [round(diff, 1) for diff in self.match_diffs]
+        matches_count = Counter(self.block_matches)
 
-        f_table = tabulate(
-            zip(f_blocks, self.block_matches, f_diffs),
-            headers=["block", "matches", "diff"],
-        )
+        table = []
+        for matches, count in sorted(matches_count.items()):
+            diff = matches - self.matches_expect
+            f_diff = round(diff, 1)
+            table.append([matches, f_diff, count])
+
+        f_table = tabulate(table, headers=["matches", "diff", "nblocks"])
 
         return (
             f"{f_stats}\n"
