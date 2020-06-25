@@ -218,8 +218,9 @@ def frequency_within_block(series, candidate, blocksize=8):
 
     occurences = []
     for block in blocks(series, blocksize=blocksize):
-        count = (block == candidate).sum()
-        occurences.append(count)
+        matches = block == candidate
+        occur = matches.sum()
+        occurences.append(occur)
 
     proportions = (count / blocksize for count in occurences)
     deviations = (prop - 1 / 2 for prop in proportions)
