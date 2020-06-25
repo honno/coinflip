@@ -256,7 +256,6 @@ def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
         template=template,
         expected_tallies=expected_tallies,
         tallies=tallies,
-        reality_check=reality_check,
     )
 
 
@@ -265,7 +264,12 @@ class OverlappingTemplateMatchingTestResult(TestResult):
     template: pd.Series
     expected_tallies: List[int]
     tallies: List[int]
-    reality_check: List[float]
+
+    def __post_init__(self):
+        self.tally_diffs = []
+        for expect, actual in zip(self.expected_tallies, self.tallies):
+            diff = actual - expect
+            self.tally_diffs.append(diff)
 
     def __str__(self):
         f_stats = self.stats_table()
@@ -276,10 +280,10 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         f_matches[-1] = f"{f_matches[-1]}+"
 
         f_expected_tallies = [round(tally, 1) for tally in self.expected_tallies]
-        f_reality_check = [round(diff, 1) for diff in self.reality_check]
+        f_diffs = [round(diff, 1) for diff in self.tally_diffs]
 
         f_table = tabulate(
-            zip(f_matches, self.tallies, f_expected_tallies, f_reality_check),
+            zip(f_matches, self.tallies, f_expected_tallies, f_diffs),
             headers=["matches", "count", "expected", "diff"],
         )
 
