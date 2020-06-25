@@ -80,7 +80,7 @@ class MonobitsTestResult(TestResult):
         )
 
     def __str__(self):
-        f_stats = self.stats_table("normdiff")
+        f_stats = self.stats_table("normalised diff")
 
         f_table = tabulate(
             [
@@ -245,7 +245,7 @@ class FrequencyWithinBlockTestResult(TestResult):
     occurences: List[int]
 
     def __str__(self):
-        f_stats = self.stats_table()
+        f_stats = self.stats_table("chi-square")
 
         occur_expect = self.blocksize / 2
         f_occur_expect = smartround(occur_expect)
@@ -263,7 +263,7 @@ class FrequencyWithinBlockTestResult(TestResult):
         return (
             f"{f_stats}\n"
             "\n"
-            f"expected occurences per block: {f_occur_expect} (/{self.blocksize})\n"
+            f"expected occurences per block: {f_occur_expect}\n"
             "\n"
             f"{f_table}"
         )

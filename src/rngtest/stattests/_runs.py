@@ -62,7 +62,7 @@ def runs(series, candidate):
 @dataclass
 class RunsTestResult(TestResult):
     def __str__(self):
-        return f"p={self.p3f()}\n" f"Sequence held {self.statistic} number of runs\n"
+        return self.stats_table("no. of runs")
 
 
 # ------------------------------------------------------------------------------
@@ -202,21 +202,22 @@ class LongestRunsTestResult(TestResult):
             self.freqbin_diffs.append(diff)
 
     def __str__(self):
+        f_stats = self.stats_table("chi-square")
+
         f_ranges = [str(x) for x in self.freqbin_ranges]
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        f_expect = [f"~{round(count, 1)}" for count in self.freqbins_expect]
+        f_expect = [round(count, 1) for count in self.freqbins_expect]
 
         f_diffs = [round(diff, 1) for diff in self.freqbin_diffs]
 
         ftable = tabulate(
             zip(f_ranges, self.freqbins, f_expect, f_diffs),
             ["maxlen", "nblocks", "expected", "diff"],
-            colalign=("left", "right", "right", "right"),
         )
 
-        return f"p={self.p3f()}\n" + ftable
+        return f"{f_stats}\n" "\n" f"{ftable}"
 
 
 # ------------------------------------------------------------------------------

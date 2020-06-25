@@ -146,8 +146,10 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
     match_diffs: List[float]
 
     def __str__(self):
+        f_stats = self.stats_table("chi-square")
+
         f_template = self.template.values
-        f_matches_expect = f"~{round(self.matches_expect, 1)}"
+        f_matches_expect = round(self.matches_expect, 1)
 
         f_blocks = [x for x in range(len(self.block_matches))]
         f_diffs = [round(diff, 1) for diff in self.match_diffs]
@@ -158,7 +160,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
         )
 
         return (
-            f"{self.p3f()}\n"
+            f"{f_stats}\n"
             "\n"
             f"template: {f_template}\n"
             f"expected matches per block: {f_matches_expect}\n"
@@ -272,7 +274,7 @@ class OverlappingTemplateMatchingTestResult(TestResult):
             self.tally_diffs.append(diff)
 
     def __str__(self):
-        f_stats = self.stats_table()
+        f_stats = self.stats_table("chi-square")
 
         f_template = self.template.values
 

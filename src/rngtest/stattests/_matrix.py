@@ -120,6 +120,8 @@ class BinaryMatrixRankTestResult(TestResult):
             self.rankcount_diffs.append(diff)
 
     def __str__(self):
+        f_stats = self.stats_table("chi-square")
+
         runnerup = self.fullrank - 1
         remaining = runnerup - 1
         f_ranks = [
@@ -131,14 +133,13 @@ class BinaryMatrixRankTestResult(TestResult):
         f_counts = astuple(self.rankcounts)
 
         counts_expect = astuple(self.rankcounts_expect)
-        f_counts_expect = [f"~{round(count, 1)}" for count in counts_expect]
+        f_counts_expect = [round(count, 1) for count in counts_expect]
 
         f_diffs = [round(diff, 1) for diff in self.rankcount_diffs]
 
         f_table = tabulate(
             zip(f_ranks, f_counts, f_counts_expect, f_diffs),
             headers=["rank", "count", "expected", "diff"],
-            colalign=("left", "right", "right", "right"),
         )
 
-        return f"p={self.p3f()}\n" + f_table
+        return f"{f_stats}\n" "\n" f"{f_table}"
