@@ -122,7 +122,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
 
     statistic = distances_total / spare_nblocks
     expected_mean, variance = blocksize_dists[blocksize]
-    p = erfc(abs((statistic - expected_mean) / (sqrt(2) * variance)))
+    p = erfc(abs((statistic - expected_mean) / (sqrt(2 * variance))))
 
     return OverlappingTemplateMatchingTestResult(statistic=statistic, p=p)
 
