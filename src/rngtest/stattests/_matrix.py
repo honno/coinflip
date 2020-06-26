@@ -1,6 +1,8 @@
 from dataclasses import astuple
 from dataclasses import dataclass
 from math import exp
+from math import floor
+from math import sqrt
 from typing import Tuple
 
 import numpy as np
@@ -23,6 +25,7 @@ class RankCounts:
     remaining: int = 0
 
 
+# TODO counts are wrong
 @stattest(min_input=152)  # nblocks=38, blocksize=4
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
@@ -52,7 +55,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
             ncols = 32
         else:
             blocksize = n // 38
-            nrows = blocksize // 2
+            nrows = floor(sqrt(blocksize))
             ncols = nrows
     else:
         nrows, ncols = matrix_dimen
@@ -63,7 +66,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     fullrank = min(nrows, ncols)
 
     # TODO find expressive and performative calculation for constants
-    rankcounts_expect = RankCounts(
+    expected_rankcounts = RankCounts(
         full=0.2888 * nblocks, runnerup=0.5776 * nblocks, remaining=0.1336 * nblocks,
     )
 
@@ -88,7 +91,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
             rankcounts.remaining += 1
 
     reality_check = []
-    for count, count_expect in zip(astuple(rankcounts), astuple(rankcounts_expect)):
+    for count_expect, count in zip(astuple(expected_rankcounts), astuple(rankcounts)):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
@@ -98,29 +101,35 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     return BinaryMatrixRankTestResult(
         statistic=statistic,
         p=p,
+        nrows=nrows,
+        ncols=ncols,
         fullrank=fullrank,
-        rankcounts_expect=rankcounts_expect,
+        expected_rankcounts=expected_rankcounts,
         rankcounts=rankcounts,
     )
 
 
 @dataclass
 class BinaryMatrixRankTestResult(TestResult):
+    nrows: int
+    ncols: int
     fullrank: int
-    rankcounts_expect: RankCounts
+    expected_rankcounts: RankCounts
     rankcounts: RankCounts
 
     def __post_init__(self):
+        expected_counts = astuple(self.expected_rankcounts)
         counts = astuple(self.rankcounts)
-        counts_expect = astuple(self.rankcounts_expect)
 
         self.rankcount_diffs = []
-        for expected, actual in zip(counts_expect, counts):
-            diff = expected - actual
+        for expect, actual in zip(expected_counts, counts):
+            diff = actual - expect
             self.rankcount_diffs.append(diff)
 
     def __str__(self):
         f_stats = self.stats_table("chi-square")
+
+        f_matrix_dimen = f"nrows: {self.nrows}\n" f"ncols: {self.ncols}"
 
         runnerup = self.fullrank - 1
         remaining = runnerup - 1
@@ -132,7 +141,7 @@ class BinaryMatrixRankTestResult(TestResult):
 
         f_counts = astuple(self.rankcounts)
 
-        counts_expect = astuple(self.rankcounts_expect)
+        counts_expect = astuple(self.expected_rankcounts)
         f_counts_expect = [round(count, 1) for count in counts_expect]
 
         f_diffs = [round(diff, 1) for diff in self.rankcount_diffs]
@@ -142,4 +151,4 @@ class BinaryMatrixRankTestResult(TestResult):
             headers=["rank", "count", "expected", "diff"],
         )
 
-        return f"{f_stats}\n" "\n" f"{f_table}"
+        return f"{f_stats}\n" "\n" f"{f_matrix_dimen}\n" "\n" f"{f_table}"

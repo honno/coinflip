@@ -63,7 +63,8 @@ def discrete_fourier_transform(bits):
 
 
 @named
-def binary_matrix_rank(bits, nrows, ncols):
+def binary_matrix_rank(bits, matrix_dimen):
+    nrows, ncols = matrix_dimen
     nblocks = len(bits) // (nrows * ncols)
     if nblocks < 38:
         raise NotImplementedError()

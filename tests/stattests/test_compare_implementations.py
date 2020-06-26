@@ -1,7 +1,6 @@
-from math import ceil
 from math import floor
 from math import log
-from math import log2
+from math import sqrt
 
 import pandas as pd
 from hypothesis import HealthCheck
@@ -25,9 +24,8 @@ def pclose(left, right) -> bool:
     return diff < margin
 
 
-# -------------------
+# ------------------------------------------------------------------------------
 # Strategy definition
-# -------------------
 
 
 def contains_multiple_values(array):
@@ -63,17 +61,19 @@ def matrix_strategy(draw, min_blocks=1, square_matrix=False):
     nblocks = draw(st.integers(min_value=min_blocks))
 
     if square_matrix:
-        nrows = floor(log2(nblocks))
+        nrows = floor(sqrt(nblocks))
         ncols = nrows
     else:
-        nrows = draw(st.integers(min_value=1, max_value=nblocks))
-        ncols = max(ceil(nblocks / nrows), 2)
+        nrows = draw(st.integers(min_value=1, max_value=nblocks // 2))
+        ncols = draw(st.integers(min_value=2, max_value=max(nrows, 2)))
 
     blocksize = nrows * ncols
     n = nblocks * blocksize
     bits = draw(mixedbits(min_size=n))
 
-    return bits, nrows, ncols
+    matrix_dimen = (nrows, ncols)
+
+    return bits, matrix_dimen
 
 
 @st.composite
@@ -100,9 +100,8 @@ def universal_strategy(draw, min_blocks=2):
     return bits, blocksize, init_nblocks
 
 
-# ----------------
+# ------------------------------------------------------------------------------
 # Property testing
-# ----------------
 
 
 @given(mixedbits())
@@ -184,14 +183,14 @@ def test_longest_runs(bits):
     ]
 )
 def test_dj_binary_matrix_rank(args):
-    bits, nrows, ncols = args
+    bits, matrix_dimen = args
 
-    result = stattests.binary_matrix_rank(pd.Series(bits), nrows=nrows, ncols=ncols)
+    result = stattests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
     dj_stattest = dj_testmap["binary_matrix_rank"].stattest
 
     try:
-        dj_result = dj_stattest(bits, nrows=nrows, ncols=ncols)
+        dj_result = dj_stattest(bits, matrix_dimen=matrix_dimen)
         assert pclose(result.p, dj_result.p)
     except ImplementationError:
         pass
@@ -206,12 +205,12 @@ def test_dj_binary_matrix_rank(args):
     ]
 )
 def test_sgr_binary_matrix_rank(args):
-    bits, nrows, ncols = args
+    bits, matrix_dimen = args
 
-    result = stattests.binary_matrix_rank(bits, nrows=nrows, ncols=ncols)
+    result = stattests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
     sgr_stattest = sgr_testmap["binary_matrix_rank"].stattest
-    sgr_p = sgr_stattest(bits, nrows=nrows, ncols=ncols)
+    sgr_p = sgr_stattest(bits, matrix_dimen=matrix_dimen)
 
     assert pclose(result.p, sgr_p)
 

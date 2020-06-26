@@ -46,7 +46,8 @@ def discrete_fourier_transform(bits):
 
 
 @bits_str
-def binary_matrix_rank(bits, nrows=32, ncols=32):
+def binary_matrix_rank(bits, matrix_dimen):
+    nrows, ncols = matrix_dimen
     if nrows != ncols:
         raise NotImplementedError()
 
