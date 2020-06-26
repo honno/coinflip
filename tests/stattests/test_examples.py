@@ -16,7 +16,7 @@ tests_path = Path(__file__).parent
 data_path = tests_path / "data"
 
 
-def e_expansion():
+def _e_expansion():
     with open(data_path / "e_expansion.txt") as f:
         for line in f:
             for x in line:
@@ -24,6 +24,12 @@ def e_expansion():
                     bit = int(x)
 
                     yield bit
+
+
+def e_expansion(n=1000000):
+    e = _e_expansion()
+    for _ in range(n):
+        yield next(e)
 
 
 class Example(NamedTuple):
@@ -106,21 +112,34 @@ examples = {
         statistic=4.882605,
         p=0.180609,
     ),
-    "binary_matrix_rank": Example(
-        stattest="binary_matrix_rank",
+    "binary_matrix_rank": {
+        "small": Example(
+            stattest="binary_matrix_rank",
 
-        bits=[
-            0, 1, 0, 1, 1, 0, 0, 1,
-            0, 0, 1, 0, 1, 0, 1, 0,
-            1, 1, 0, 1,
-        ],
-        kwargs=dict(
-            matrix_dimen=(3, 3),
+            bits=[
+                0, 1, 0, 1, 1, 0, 0, 1,
+                0, 0, 1, 0, 1, 0, 1, 0,
+                1, 1, 0, 1,
+            ],
+            kwargs={
+                "matrix_dimen": (3, 3),
+            },
+
+            statistic=0.596953,
+            p=0.741948,
         ),
+        "large": Example(
+            stattest="binary_matrix_rank",
 
-        statistic=0.596953,
-        p=0.741948,
-    ),
+            bits=e_expansion(n=100000),
+            kwargs={
+                "matrix_dimen": (32, 32),
+            },
+
+            statistic=1.2619656,
+            p=0.532069,
+        )
+    },
     "discrete_fourier_transform": {
         "small": Example(
             stattest="discrete_fourier_transform",

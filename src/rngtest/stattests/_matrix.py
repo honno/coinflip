@@ -5,8 +5,6 @@ from math import floor
 from math import sqrt
 from typing import Tuple
 
-import numpy as np
-from numpy.linalg import matrix_rank
 from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
@@ -75,11 +73,10 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
 
     matrices = []
     for block in blocks(rankable_series, blocksize=blocksize):
-        rows = [row for row in rawblocks(block, nblocks=nrows)]
-        matrix = np.stack(rows)
+        matrix = [row for row in rawblocks(block, nblocks=nrows)]
         matrices.append(matrix)
 
-    ranks = [matrix_rank(matrix) for matrix in matrices]
+    ranks = [gf2_rank(matrix) for matrix in matrices]
 
     rankcounts = RankCounts()
     for rank in ranks:
@@ -152,3 +149,27 @@ class BinaryMatrixRankTestResult(TestResult):
         )
 
         return f"{f_stats}\n" "\n" f"{f_matrix_dimen}\n" "\n" f"{f_table}"
+
+
+def bits2int(bits):
+    num = 0
+    for bit in bits:
+        num = (num << 1) | bit
+
+    return num
+
+
+def gf2_rank(matrix):
+    numbers = [bits2int(bits) for bits in matrix]
+
+    rank = 0
+    while len(numbers) > 0:
+        pivot = numbers.pop()
+        if pivot:
+            rank += 1
+            lsb = pivot & -pivot
+            for i, num in enumerate(numbers):
+                if lsb & num:
+                    numbers[i] = num ^ pivot
+
+    return rank
