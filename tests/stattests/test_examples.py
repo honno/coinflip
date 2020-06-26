@@ -190,7 +190,7 @@ examples = {
     ),
     "overlapping_template_matching": {
         "small": Example(
-            # FAILING p off by ~0.07
+            # FAILING p off by ~0.07 if gammaincc(df=2/2, statistic/2)
             stattest="overlapping_template_matching",
 
             bits=[
@@ -203,7 +203,6 @@ examples = {
             kwargs=dict(
                 template=[1, 1],
                 nblocks=5,
-                df=2,
             ),
 
             statistic=3.167729,

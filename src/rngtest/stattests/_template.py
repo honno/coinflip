@@ -175,13 +175,14 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 # ------------------------------------------------------------------------------
 # Overlapping Template Matching Test
 
+
 matches_ceil = 5
 
 
 # TODO fix probabilities
 @stattest()
 @template
-def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
+def overlapping_template_matching(series, template, nblocks=8):
     """Overlapping matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of overlapping matches
@@ -196,8 +197,6 @@ def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
         Template to match with the sequence
     nblocks : int
         Number of blocks to split sequence into
-    df : int, default `5`
-        Desired degrees of freedom
 
     Returns
     -------
@@ -253,7 +252,7 @@ def overlapping_template_matching(series, template, nblocks=8, df=matches_ceil):
 
     statistic = sum(reality_check)
 
-    p = gammaincc(df / 2, statistic / 2)
+    p = gammaincc(matches_ceil / 2, statistic / 2)  # TODO should first param be df / 2
 
     return OverlappingTemplateMatchingTestResult(
         statistic=statistic,
