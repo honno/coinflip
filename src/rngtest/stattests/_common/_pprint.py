@@ -9,7 +9,7 @@ from rngtest.stattests._common import infer_candidate
 
 init()
 
-__all__ = ["pretty_subseq", "pretty_seq"]
+__all__ = ["pretty_subseq", "pretty_seq", "dim"]
 
 
 @lru_cache()

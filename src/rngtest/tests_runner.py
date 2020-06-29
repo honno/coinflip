@@ -1,3 +1,4 @@
+import warnings
 from typing import Callable
 from typing import Dict
 from typing import Iterator
@@ -5,12 +6,24 @@ from typing import Tuple
 
 import pandas as pd
 from click import echo
+from colorama import Fore
 from tabulate import tabulate
 
 from rngtest import stattests
 from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import dim
 
 __all__ = ["list_tests", "run_test", "run_all_tests"]
+
+warn_text = Fore.RED + "WARN" + Fore.RESET
+
+
+def formatwarning(msg, *args, **kwargs):
+    line = f"{warn_text} {msg}\n"
+    return dim(line)
+
+
+warnings.formatwarning = formatwarning
 
 signifigance_level = 0.01
 
