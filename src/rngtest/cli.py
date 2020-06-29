@@ -11,7 +11,7 @@ from click import option
 
 from rngtest import generators
 from rngtest.report import write_report
-from rngtest.stattests import __all__ as stattests
+from rngtest.stattests import __all__ as stattest_names
 from rngtest.stattests._common import pretty_seq
 from rngtest.store import TYPES
 from rngtest.store import drop
@@ -37,18 +37,6 @@ __all__ = [
     "local_run",
 ]
 
-stattest_fnames = {
-    "monobits": "Frequency (Monobits) Test",
-    "frequency_within_block": "Frequency within Block Test",
-    "runs": "Runs Test",
-    "longest_runs": "Longest Runs in Block Test",
-    "binary_matrix_rank": "Matrix Rank Test",
-    "discrete_fourier_transform": "Discrete Fourier Transform (Spectral) Test",
-    "non_overlapping_template_matching": "Non-Overlapping Template Matching Test",
-    "overlapping_template_matching": "Overlapping Template Matching Test",
-    "maurers_universal": "Maurer's Universal Test",
-}
-
 
 def get_stores(ctx, args, incomplete):
     """Completition for store names"""
@@ -62,17 +50,7 @@ def get_stores(ctx, args, incomplete):
 
 
 dtype_choice = Choice(TYPES.keys())
-test_choice = Choice(stattests)
-
-
-def echo_result(stattest_name, result):
-    stattest_fname = stattest_fnames[stattest_name]
-    underline = "".join("=" for _ in range(len(stattest_fname)))
-
-    header = "\n" + stattest_fname + "\n" + underline
-
-    echo(header)
-    echo(result)
+test_choice = Choice(stattest_names)
 
 
 def echo_series(series):
@@ -127,16 +105,46 @@ def cat(store):
 def run(store, test):
     series = get_data(store)
 
-    if test is None:
-        results = {}
-        for stattest_name, result in run_all_tests(series):
-            echo_result(stattest_name, result)
-            results[stattest_name] = result
+    if not test:
+        results = run_all_tests(series)
         store_results(store, results)
+        echo("Results stored!")
     else:
         result = run_test(series, test)
-        echo_result(test, result)
         store_result(store, test, result)
+        echo("Result stored!")
+
+
+@main.command()
+@option("-e", "--example", type=Choice(generators.__all__), default="python")
+@option("-n", "--length", type=int, default=512)
+@option("-t", "--test", type=test_choice)
+def example_run(example, length, test):
+    generator_func = getattr(generators, example)
+    generator = generator_func()
+
+    series = pd.Series(next(generator) for _ in range(length))
+    series = series.infer_objects()
+
+    echo_series(series)
+
+    if not test:
+        run_all_tests(series)
+    else:
+        run_test(series, test)
+
+
+@main.command()
+@argument("datafile", type=Path(exists=True))
+@option("-t", "--dtype", type=dtype_choice)
+@option("-t", "--test", type=test_choice)
+def local_run(datafile, dtype, test):
+    series = parse_data(datafile)
+
+    if not test:
+        run_all_tests(series)
+    else:
+        run_test(series, test)
 
 
 @main.command()
@@ -158,39 +166,3 @@ def report(store, outfile):
         write_report(markup, outfile)
     else:
         echo("No report markup available!")
-
-
-@main.command()
-@option("-e", "--example", type=Choice(generators.__all__), default="python")
-@option("-n", "--length", type=int, default=256)
-@option("-t", "--test", type=test_choice)
-def example_run(example, length, test):
-    generator_func = getattr(generators, example)
-    generator = generator_func()
-
-    series = pd.Series(next(generator) for _ in range(length))
-    series = series.infer_objects()
-
-    echo_series(series)
-
-    if test is None:
-        for stattest_name, result in run_all_tests(series):
-            echo_result(stattest_name, result)
-    else:
-        result = run_test(series, test)
-        echo_result(test, result)
-
-
-@main.command()
-@argument("datafile", type=Path(exists=True))
-@option("-t", "--dtype", type=dtype_choice)
-@option("-t", "--test", type=test_choice)
-def local_run(datafile, dtype=None, test=None):
-    series = parse_data(datafile)
-
-    if test is None:
-        for stattest_name, result in run_all_tests(series):
-            echo_result(stattest_name, result)
-    else:
-        result = run_test(series, test)
-        echo_result(test, result)
