@@ -1,14 +1,14 @@
 from collections import Counter
 from dataclasses import dataclass
-from functools import wraps
 from math import exp
 from math import floor
+from math import isclose
+from math import log2
 from math import sqrt
 from random import choice
 from typing import List
 from warnings import warn
 
-import pandas as pd
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 from tabulate import tabulate
@@ -20,37 +20,13 @@ from rngtest.stattests._common import stattest
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 
-# ------------------------------------------------------------------------------
-# Template decorator for type checking and defaults
+def make_template(series, blocksize):
+    template_size = min(max(floor(sqrt(blocksize)), 2), 12)
 
+    values = series.unique()
+    template = [choice(values) for _ in range(template_size)]
 
-class TemplateContainsElementsNotInSequenceError(ValueError):
-    pass
-
-
-def template(func):
-    @wraps(func)
-    def wrapper(series: pd.Series, template=None, *args, **kwargs):
-        values = series.unique()
-
-        if template is None:
-            n = len(series)
-            template_size = min(floor(sqrt(n)), 9)
-            template = pd.Series(choice(values) for _ in range(template_size))
-
-        else:
-            if not isinstance(template, pd.Series):
-                template = pd.Series(template)
-
-            for value in template.unique():
-                if value not in values:
-                    raise TemplateContainsElementsNotInSequenceError()
-
-        result = func(series, template, *args, **kwargs)
-
-        return result
-
-    return wrapper
+    return template
 
 
 # ------------------------------------------------------------------------------
@@ -58,8 +34,7 @@ def template(func):
 
 
 @stattest(min_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
-@template
-def non_overlapping_template_matching(series, template, nblocks=8):
+def non_overlapping_template_matching(series, template: List = None, nblocks=None):
     """Matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of non-overlapping
@@ -70,8 +45,9 @@ def non_overlapping_template_matching(series, template, nblocks=8):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : array-like
-        Template to match with the sequence
+    template : Tuple, optional
+        Template to match with the sequence, randomly generated if not
+        provided.
     nblocks : int
         Number of blocks to split sequence into
 
@@ -86,7 +62,13 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         If template contains values not present in sequence
     """
     n = len(series)
+
+    if not nblocks:
+        nblocks = min(floor(sqrt(n)), 100)
     blocksize = n // nblocks
+
+    if template is None:
+        template = make_template(series, blocksize)
     template_size = len(template)
 
     recommendations = {
@@ -103,8 +85,6 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
     )
 
-    template_tup = template.values
-
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
@@ -114,7 +94,7 @@ def non_overlapping_template_matching(series, template, nblocks=8):
         while pointer < boundary:
             window = block_tup[pointer : pointer + template_size]
 
-            if all(x == y for x, y in zip(window, template_tup)):
+            if all(x == y for x, y in zip(window, template)):
                 matches += 1
                 pointer += template_size
             else:
@@ -140,7 +120,7 @@ def non_overlapping_template_matching(series, template, nblocks=8):
 
 @dataclass
 class NonOverlappingTemplateMatchingTestResult(TestResult):
-    template: pd.Series
+    template: List
     matches_expect: float
     variance: float
     block_matches: List[int]
@@ -149,18 +129,13 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
     def __str__(self):
         f_stats = self.stats_table("chi-square")
 
-        f_template = self.template.values
+        f_template = self.template
         f_matches_expect = round(self.matches_expect, 1)
 
         matches_count = Counter(self.block_matches)
 
-        table = []
-        for matches, count in sorted(matches_count.items()):
-            diff = matches - self.matches_expect
-            f_diff = round(diff, 1)
-            table.append([matches, f_diff, count])
-
-        f_table = tabulate(table, headers=["matches", "diff", "nblocks"])
+        table = sorted(matches_count.items())
+        f_table = tabulate(table, headers=["matches", "nblocks"])
 
         return (
             f"{f_stats}\n"
@@ -179,10 +154,8 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 matches_ceil = 5
 
 
-# TODO fix probabilities
-@stattest()
-@template
-def overlapping_template_matching(series, template, nblocks=8):
+@stattest(min_input=288)  # TODO appropiate min input
+def overlapping_template_matching(series, template: List = None, nblocks=None, df=5):
     """Overlapping matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of overlapping matches
@@ -193,10 +166,13 @@ def overlapping_template_matching(series, template, nblocks=8):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : array-like
-        Template to match with the sequence
+    template : Tuple, optional
+        Template to match with the sequence, randomly generated if not
+        provided.
     nblocks : int
         Number of blocks to split sequence into
+    df : int, default `5`
+        Degrees of freedom to use in p-value calculation
 
     Returns
     -------
@@ -209,10 +185,14 @@ def overlapping_template_matching(series, template, nblocks=8):
         If template contains values not present in sequence
     """
     n = len(series)
+
+    if not nblocks:
+        nblocks = floor(sqrt(n))
     blocksize = n // nblocks
 
+    if not template:
+        template = make_template(series, blocksize)
     template_size = len(template)
-    template_tup = tuple(template.tolist())
 
     lambda_ = (blocksize - template_size + 1) / 2 ** template_size
     eta = lambda_ / 2
@@ -227,6 +207,17 @@ def overlapping_template_matching(series, template, nblocks=8):
 
     expected_tallies = [prob * nblocks for prob in probabilities]
 
+    recommendations = {
+        "n >= nblocks * blocksize": n >= nblocks * blocksize,
+        "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
+        "lambda ~= 2": isclose(lambda_, 2),
+        "template_size ~= log2(nblocks)": isclose(template_size, log2(nblocks)),
+        "df ~= lambda": isclose(template_size, log2(nblocks)),
+    }
+    for rec, success in recommendations.items():
+        if not success:
+            warn(f"Input parameters fail recommendation {rec}", UserWarning)
+
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
         matches = 0
@@ -235,7 +226,7 @@ def overlapping_template_matching(series, template, nblocks=8):
         for pointer in range(boundary + 1):
             window = block_tup[pointer : pointer + template_size]
 
-            if all(x == y for x, y in zip(window, template_tup)):
+            if all(x == y for x, y in zip(window, template)):
                 matches += 1
 
         block_matches.append(matches)
@@ -252,7 +243,7 @@ def overlapping_template_matching(series, template, nblocks=8):
 
     statistic = sum(reality_check)
 
-    p = gammaincc(matches_ceil / 2, statistic / 2)  # TODO should first param be df / 2
+    p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
 
     return OverlappingTemplateMatchingTestResult(
         statistic=statistic,
@@ -265,7 +256,7 @@ def overlapping_template_matching(series, template, nblocks=8):
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(TestResult):
-    template: pd.Series
+    template: List
     expected_tallies: List[int]
     tallies: List[int]
 
@@ -278,7 +269,7 @@ class OverlappingTemplateMatchingTestResult(TestResult):
     def __str__(self):
         f_stats = self.stats_table("chi-square")
 
-        f_template = self.template.values
+        f_template = self.template
 
         f_matches = [f"{x}" for x in range(matches_ceil + 1)]
         f_matches[-1] = f"{f_matches[-1]}+"

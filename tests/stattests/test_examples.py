@@ -180,17 +180,17 @@ examples = {
             1, 0, 1, 1, 1, 0, 0, 1,
             0, 1, 1, 0
         ],
-        kwargs=dict(
-            template=[0, 0, 1],
-            nblocks=2,
-        ),
+        kwargs={
+            "template": (0, 0, 1),
+            "nblocks": 2,
+        },
 
         statistic=2.133333,
         p=0.344154,
     ),
     "overlapping_template_matching": {
         "small": Example(
-            # FAILING p off by ~0.07 if gammaincc(df=2/2, statistic/2)
+            # FAILING p off by ~0.07 if gammaincc(df/2, statistic/2) and df=2
             stattest="overlapping_template_matching",
 
             bits=[
@@ -200,10 +200,11 @@ examples = {
                 1, 0, 1, 1, 1, 1, 1, 0, 0, 0,  # now has 2 matches, as expected
                 0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
             ],
-            kwargs=dict(
-                template=[1, 1],
-                nblocks=5,
-            ),
+            kwargs={
+                "template": (1, 1),
+                "nblocks": 5,
+                "df": 2,
+            },
 
             statistic=3.167729,
             p=0.274932,
@@ -213,10 +214,10 @@ examples = {
             stattest="overlapping_template_matching",
 
             bits=e_expansion(),
-            kwargs=dict(
-                template=[1, 1, 1, 1, 1, 1, 1, 1, 1],
-                nblocks=968,
-            ),
+            kwargs={
+                "template": (1, 1, 1, 1, 1, 1, 1, 1, 1),
+                "nblocks": 968,
+            },
 
             statistic=8.965859,
             p=0.110434
