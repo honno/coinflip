@@ -72,9 +72,9 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     template_size = len(template)
 
     recommendations = {
-        "nblocks <= 100": nblocks <= 100,
+        "nblocks ≤ 100": nblocks <= 100,
         "blocksize > 0.01 * n": blocksize > 0.01 * n,
-        "nblocks == n // blocksize": nblocks == n // blocksize,
+        "nblocks ≡ ⌊n / blocksize⌋ ": nblocks == n // blocksize,
     }
     for rec, success in recommendations.items():
         if not success:
@@ -208,11 +208,11 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     expected_tallies = [prob * nblocks for prob in probabilities]
 
     recommendations = {
-        "n >= nblocks * blocksize": n >= nblocks * blocksize,
+        "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
         "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
-        "lambda ~= 2": isclose(lambda_, 2),
-        "template_size ~= log2(nblocks)": isclose(template_size, log2(nblocks)),
-        "df ~= lambda": isclose(template_size, log2(nblocks)),
+        "lambda ≈ 2": isclose(lambda_, 2),
+        "template_size ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
+        "df ≈ lambda": isclose(template_size, log2(nblocks)),
     }
     for rec, success in recommendations.items():
         if not success:
