@@ -1,3 +1,4 @@
+from rngtest.stattests._common import exceptions
 from rngtest.stattests._common._collections import FloorDict
 from rngtest.stattests._common._decorators import elected
 from rngtest.stattests._common._decorators import infer_candidate
@@ -21,6 +22,7 @@ __all__ = [
     "plot_gammaincc",
     "stattest",
     "stattest",
+    "exceptions",
     "infer_candidate",
     "elected",
     "blocks",

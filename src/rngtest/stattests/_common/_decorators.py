@@ -3,14 +3,13 @@ from warnings import warn
 
 import pandas as pd
 
+from rngtest.stattests._common.exceptions import MinimumInputError
+from rngtest.stattests._common.exceptions import NonBinarySequenceError
+
 __all__ = ["stattest", "infer_candidate", "elected"]
 
 
-class NonBinarySequenceError(ValueError):
-    pass
-
-
-def stattest(min_input=2):
+def stattest(min_input=2, rec_input=2):
     def decorator(func):
         @wraps(func)
         def wrapper(sequence, *args, **kwargs):
@@ -22,8 +21,16 @@ def stattest(min_input=2):
             if series.nunique() != 2:
                 raise NonBinarySequenceError()
 
-            if len(series) < min_input:
-                warn(f"Sequence below recommended input of {min_input}", UserWarning)
+            n = len(series)
+            if n < min_input:
+                raise MinimumInputError(
+                    f"Sequence length {n} below required minimum of {min_input}"
+                )
+            if n < rec_input:
+                warn(
+                    f"Sequence length {n} below recommended minimum of {rec_input}",
+                    UserWarning,
+                )
 
             result = func(series, *args, **kwargs)
 

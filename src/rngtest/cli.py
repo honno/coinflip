@@ -13,6 +13,7 @@ from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattest_names
 from rngtest.stattests._common import pretty_seq
+from rngtest.stattests._common.exceptions import NonBinarySequenceError
 from rngtest.store import TYPES
 from rngtest.store import drop
 from rngtest.store import get_data
@@ -22,6 +23,7 @@ from rngtest.store import parse_data
 from rngtest.store import store_data
 from rngtest.store import store_result
 from rngtest.store import store_results
+from rngtest.tests_runner import TEST_EXCEPTION
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
@@ -105,17 +107,21 @@ def cat(store):
 def run(store, test):
     series = get_data(store)
 
-    if not test:
-        results = run_all_tests(series)
-        store_results(store, results)
-        echo("Results stored!")
-    else:
-        try:
-            result = run_test(series, test)
-            store_result(store, test, result)
-            echo("Result stored!")
-        except NotImplementedError:
-            pass
+    try:
+        if not test:
+            results = run_all_tests(series)
+            store_results(store, results)
+            echo("Results stored!")
+        else:
+            try:
+                result = run_test(series, test)
+                store_result(store, test, result)
+                echo("Result stored!")
+            except TEST_EXCEPTION:
+                pass
+
+    except NonBinarySequenceError:
+        pass
 
 
 @main.command()
@@ -131,10 +137,17 @@ def example_run(example, length, test):
 
     echo_series(series)
 
-    if not test:
-        run_all_tests(series)
-    else:
-        run_test(series, test)
+    try:
+        if not test:
+            run_all_tests(series)
+        else:
+            try:
+                run_test(series, test)
+            except TEST_EXCEPTION:
+                pass
+
+    except NonBinarySequenceError:
+        pass
 
 
 @main.command()
@@ -143,11 +156,15 @@ def example_run(example, length, test):
 @option("-t", "--test", type=test_choice)
 def local_run(datafile, dtype, test):
     series = parse_data(datafile)
+    echo_series(series)
 
     if not test:
         run_all_tests(series)
     else:
-        run_test(series, test)
+        try:
+            run_test(series, test)
+        except TEST_EXCEPTION:
+            pass
 
 
 @main.command()
@@ -161,7 +178,7 @@ def report(store, outfile):
             try:
                 markup = result.report()
                 html.append(markup)
-            except NotImplementedError:
+            except TEST_EXCEPTION:
                 echo(f"No report markup provided for {result.__class__.__name__}")
 
     if len(html) != 0:

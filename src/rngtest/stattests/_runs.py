@@ -95,7 +95,7 @@ blocksize_probabilities = {
 
 
 # TODO allow and handle blocksize/nblocks/freqbin_ranges kwargs
-@stattest(min_input=128)
+@stattest(rec_input=128)
 @elected
 def longest_runs(series, candidate):
     """Longest runs per block is compared to expected result

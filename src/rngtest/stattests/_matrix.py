@@ -24,7 +24,7 @@ class RankCounts:
 
 
 # TODO counts are wrong
-@stattest(min_input=152)  # nblocks=38, blocksize=4
+@stattest(min_input=4, rec_input=152)  # nblocks=38, blocksize=4
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result
@@ -52,7 +52,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
             nrows = 32
             ncols = 32
         else:
-            blocksize = n // 38
+            blocksize = max(n // 38, 4)
             nrows = floor(sqrt(blocksize))
             ncols = nrows
     else:

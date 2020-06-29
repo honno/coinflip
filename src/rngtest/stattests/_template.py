@@ -33,7 +33,7 @@ def make_template(series, blocksize):
 # Non-overlapping Template Matching Test
 
 
-@stattest(min_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
+@stattest(rec_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
 def non_overlapping_template_matching(series, template: List = None, nblocks=None):
     """Matches of template per block is compared to expected result
 
@@ -154,7 +154,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 matches_ceil = 5
 
 
-@stattest(min_input=288)  # TODO appropiate min input
+@stattest(rec_input=288)  # TODO appropiate min input
 def overlapping_template_matching(series, template: List = None, nblocks=None, df=5):
     """Overlapping matches of template per block is compared to expected result
 

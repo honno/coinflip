@@ -188,7 +188,7 @@ class MonobitsTestResult(TestResult):
 # Frequency within Block Test
 
 
-@stattest(min_input=100)
+@stattest(rec_input=100)
 @elected
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio

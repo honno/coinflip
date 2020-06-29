@@ -67,7 +67,7 @@ n_defaults = FloorDict(
 )
 
 
-@stattest(min_input=387840)
+@stattest(min_input=4, rec_input=387840)
 def maurers_universal(series, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 

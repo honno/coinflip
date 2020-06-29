@@ -13,8 +13,10 @@ from tabulate import tabulate
 from rngtest import stattests
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import dim
+from rngtest.stattests._common.exceptions import MinimumInputError
+from rngtest.stattests._common.exceptions import NonBinarySequenceError
 
-__all__ = ["list_tests", "run_test", "run_all_tests"]
+__all__ = ["TEST_EXCEPTION", "list_tests", "run_test", "run_all_tests"]
 
 init()
 
@@ -32,6 +34,21 @@ warnings.formatwarning = formatwarning
 def echo_err(error: Exception):
     line = f"{err_txt} {error}\n"
     echo(line)
+
+
+def binary_check(func):
+    def wrapper(series, *args, **kwargs):
+        if series.nunique() != 2:
+            error = NonBinarySequenceError()
+            echo_err(error)
+            raise error
+
+        return func(series, *args, **kwargs)
+
+    return wrapper
+
+
+TEST_EXCEPTION = (NotImplementedError, MinimumInputError)
 
 
 signifigance_level = 0.01
@@ -77,6 +94,7 @@ class TestNotFoundError(ValueError):
     pass
 
 
+@binary_check
 def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
     """Run a statistical test on RNG output
 
@@ -106,7 +124,7 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
 
             try:
                 result = func(series, **kwargs)
-            except NotImplementedError as e:
+            except TEST_EXCEPTION as e:
                 echo_err(e)
                 raise e
 
@@ -120,6 +138,7 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
         raise TestNotFoundError()
 
 
+@binary_check
 def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
     """Run all available statistical test on RNG output
 
@@ -151,7 +170,7 @@ def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
 
             results[name] = result
 
-        except NotImplementedError as e:
+        except TEST_EXCEPTION as e:
             echo_err(e)
 
     f_names = [f_stattest_names[name] for name in results.keys()]

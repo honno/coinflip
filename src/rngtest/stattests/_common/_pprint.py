@@ -43,7 +43,10 @@ def pretty_subseq(series, candidate, noncandidate):
 def pretty_seq(series, cols):
     values = series.unique()
     candidate = infer_candidate(values)
-    noncandidate = next(value for value in values if value != candidate)
+    try:
+        noncandidate = next(value for value in values if value != candidate)
+    except StopIteration:
+        noncandidate = None
 
     lines = []
 

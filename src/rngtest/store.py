@@ -13,6 +13,7 @@ from appdirs import AppDirs
 
 from rngtest.slugify import slugify
 from rngtest.stattests._common import TestResult
+from rngtest.stattests._common.exceptions import NonBinarySequenceError
 
 __all__ = [
     "TYPES",
@@ -40,9 +41,8 @@ except FileExistsError:
 DATA_FNAME = "series.pickle"
 RESULTS_FNAME = "results.pickle"
 
-# --------------------
+# ------------------------------------------------------------------------------
 # Store initialisation
-# --------------------
 
 TYPES = {
     "bool": np.bool_,
@@ -165,6 +165,8 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
         If supplied dtype_str does not recognise a dtype
     MultipleColumnsError
         If inputted data contains multiple values per line
+    NonBinarySequenceError
+        If sequence does not contain only 2 values
 
     See Also
     --------
@@ -176,6 +178,9 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     if len(df.columns) > 1:
         raise MultipleColumnsError()
     series = df.iloc[:, 0]
+
+    if series.nunique() != 2:
+        raise NonBinarySequenceError()
 
     if dtype_str is not None:
         try:
@@ -190,6 +195,7 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     return series
 
 
+# TODO pretty exception printing like in tests_runner
 def init_store(name=None, overwrite=False):
     """Creates store in local data
 
@@ -220,6 +226,9 @@ def init_store(name=None, overwrite=False):
     StoreExistsError
         If a store of the same name exists already (and overwrite is set to
         `False`)
+    NonBinarySequenceError
+        If sequence does not contain only 2 values
+
 
     See Also
     --------
@@ -259,9 +268,8 @@ def init_store(name=None, overwrite=False):
     return store_name, store_path
 
 
-# -----------------
+# ------------------------------------------------------------------------------
 # Store interaction
-# -----------------
 
 
 class StoreNotFoundError(FileNotFoundError):
@@ -430,9 +438,8 @@ def open_results(store_name, write=False):
                 pickle.dump(results, f)
 
 
-# -------
+# ------------------------------------------------------------------------------
 # Helpers
-# -------
 
 
 def rm_tree(path: Path):
