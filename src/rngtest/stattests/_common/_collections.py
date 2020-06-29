@@ -3,10 +3,6 @@ from collections import UserDict
 __all__ = ["FloorDict"]
 
 
-class KeyTooSmallError(ValueError):
-    pass
-
-
 class FloorDict(UserDict):
     def __getitem__(self, key):
         try:
@@ -16,11 +12,8 @@ class FloorDict(UserDict):
             for realkey, value in self.data.items():
                 if key < realkey:
                     if prevkey is None:
-                        raise KeyTooSmallError()
-                    else:
-                        return self.data[prevkey]
-                else:
-                    prevkey = realkey
-
+                        raise KeyError()
+                    return self.data[prevkey]
+                prevkey = realkey
             else:
                 return self.data[prevkey]

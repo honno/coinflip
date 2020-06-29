@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from math import ceil
 from math import erfc
 from math import log
 from math import sqrt
@@ -66,7 +67,7 @@ n_defaults = FloorDict(
 )
 
 
-@stattest()
+@stattest(min_input=387840)
 def maurers_universal(series, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 
@@ -92,13 +93,13 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     """
     n = len(series)
 
-    # TODO determine how to handle if only one of kwargs is not None
     if not blocksize or not init_nblocks:
-        _blocksize, _init_nblocks = n_defaults[n]
-        if not blocksize:
-            blocksize = _blocksize
-        if not init_nblocks:
-            init_nblocks = _init_nblocks
+        try:
+            blocksize, init_nblocks = n_defaults[n]
+        except KeyError:
+            blocksize = max(ceil(log(n)), 2)
+            nblocks = n // blocksize
+            init_nblocks = max(nblocks // 100, 1)
 
     init_n = init_nblocks * blocksize
     init_series, spare_series = series[:init_n], series[init_n:]
@@ -124,10 +125,10 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     expected_mean, variance = blocksize_dists[blocksize]
     p = erfc(abs((statistic - expected_mean) / (sqrt(2 * variance))))
 
-    return OverlappingTemplateMatchingTestResult(statistic=statistic, p=p)
+    return UniversalTestResult(statistic=statistic, p=p)
 
 
 @dataclass
-class OverlappingTemplateMatchingTestResult(TestResult):
+class UniversalTestResult(TestResult):
     def __str__(self):
         return self.stats_table("normalised distances")
