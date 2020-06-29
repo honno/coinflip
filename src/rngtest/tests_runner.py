@@ -7,6 +7,7 @@ from typing import Tuple
 import pandas as pd
 from click import echo
 from colorama import Fore
+from colorama import init
 from tabulate import tabulate
 
 from rngtest import stattests
@@ -15,15 +16,23 @@ from rngtest.stattests._common import dim
 
 __all__ = ["list_tests", "run_test", "run_all_tests"]
 
-warn_text = Fore.RED + "WARN" + Fore.RESET
+init()
+
+warn_txt = Fore.YELLOW + "WARN" + Fore.RESET
+err_txt = Fore.RED + "ERR!" + Fore.RESET
 
 
 def formatwarning(msg, *args, **kwargs):
-    line = f"{warn_text} {msg}\n"
-    return dim(line)
+    return dim(f"{warn_txt} {msg}\n")
 
 
 warnings.formatwarning = formatwarning
+
+
+def echo_err(error: Exception):
+    line = f"{err_txt} {error}\n"
+    echo(line)
+
 
 signifigance_level = 0.01
 
@@ -95,7 +104,12 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
         if stattest_name == name:
             echo_stattest_name(name)
 
-            result = func(series, **kwargs)
+            try:
+                result = func(series, **kwargs)
+            except NotImplementedError as e:
+                echo_err(e)
+                raise e
+
             echo(result)
 
             echo("PASS" if result.p >= 0.01 else "FAIL")
@@ -129,12 +143,16 @@ def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
     for name, func in list_tests():
         echo_stattest_name(name)
 
-        result = func(series)
-        echo(result)
+        try:
+            result = func(series)
+            echo(result)
 
-        echo()
+            echo()
 
-        results[name] = result
+            results[name] = result
+
+        except NotImplementedError as e:
+            echo_err(e)
 
     f_names = [f_stattest_names[name] for name in results.keys()]
     f_pvalues = [result.p3f() for result in results.values()]

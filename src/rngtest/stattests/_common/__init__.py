@@ -8,6 +8,7 @@ from rngtest.stattests._common._plots import plot_chi2
 from rngtest.stattests._common._plots import plot_erfc
 from rngtest.stattests._common._plots import plot_gammaincc
 from rngtest.stattests._common._plots import range_annotation
+from rngtest.stattests._common._pprint import bright
 from rngtest.stattests._common._pprint import dim
 from rngtest.stattests._common._pprint import pretty_seq
 from rngtest.stattests._common._pprint import pretty_subseq
@@ -30,4 +31,5 @@ __all__ = [
     "pretty_seq",
     "pretty_subseq",
     "dim",
+    "bright",
 ]

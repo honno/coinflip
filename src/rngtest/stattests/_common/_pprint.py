@@ -27,16 +27,16 @@ def pretty_subseq(series, candidate, noncandidate):
     c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
 
-    series_rep = Style.BRIGHT
+    series_rep = ""
     for _, rep in series.iteritems():
         if rep == c_rep:
             colour = Fore.CYAN
         else:
             colour = Fore.YELLOW
         series_rep += colour + rep
-    series_rep += Style.RESET_ALL
+    series_rep += Fore.RESET
 
-    return series_rep
+    return bright(series_rep)
 
 
 # TODO reverse blocks and other optimisations for large sequences
@@ -118,3 +118,7 @@ def pretty_seq(series, cols):
 
 def dim(string):
     return Style.DIM + string + Style.RESET_ALL
+
+
+def bright(string):
+    return Style.BRIGHT + string + Style.RESET_ALL

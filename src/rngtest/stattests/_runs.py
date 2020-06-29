@@ -120,7 +120,12 @@ def longest_runs(series, candidate):
     # Finding test constants
 
     n = len(series)
-    blocksize, nblocks, freqbin_ranges = n_defaults[n]
+    try:
+        blocksize, nblocks, freqbin_ranges = n_defaults[n]
+    except KeyError:
+        raise NotImplementedError(
+            "Test implementation cannot handle sequences below length 128"
+        )
 
     # TODO range list
     def freqbin(runlength):

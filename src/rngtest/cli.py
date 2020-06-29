@@ -110,9 +110,12 @@ def run(store, test):
         store_results(store, results)
         echo("Results stored!")
     else:
-        result = run_test(series, test)
-        store_result(store, test, result)
-        echo("Result stored!")
+        try:
+            result = run_test(series, test)
+            store_result(store, test, result)
+            echo("Result stored!")
+        except NotImplementedError:
+            pass
 
 
 @main.command()
