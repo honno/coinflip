@@ -1,47 +1,23 @@
-import warnings
 from typing import Callable
-from typing import Dict
 from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
 from click import echo
-from colorama import Fore
-from colorama import init
 from tabulate import tabulate
 
 from rngtest import stattests
 from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import dim
 from rngtest.stattests._common.exceptions import MinimumInputError
 from rngtest.stattests._common.exceptions import NonBinarySequenceError
 
 __all__ = ["TEST_EXCEPTION", "list_tests", "run_test", "run_all_tests"]
 
-init()
-
-warn_txt = Fore.YELLOW + "WARN" + Fore.RESET
-err_txt = Fore.RED + "ERR!" + Fore.RESET
-
-
-def formatwarning(msg, *args, **kwargs):
-    return dim(f"{warn_txt} {msg}\n")
-
-
-warnings.formatwarning = formatwarning
-
-
-def echo_err(error: Exception):
-    line = f"{err_txt} {error}\n"
-    echo(line)
-
 
 def binary_check(func):
     def wrapper(series, *args, **kwargs):
         if series.nunique() != 2:
-            error = NonBinarySequenceError()
-            echo_err(error)
-            raise error
+            raise NonBinarySequenceError()
 
         return func(series, *args, **kwargs)
 
@@ -117,17 +93,14 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
     ------
     TestNotFoundError
         If `stattest_name` does not match any available statistical tests
+    exception : `NotImplementedError` or `MinimumInputError`
+        The exception raised when running `stattest_name`
     """
     for name, func in list_tests():
         if stattest_name == name:
             echo_stattest_name(name)
 
-            try:
-                result = func(series, **kwargs)
-            except TEST_EXCEPTION as e:
-                echo_err(e)
-                raise e
-
+            result = func(series, **kwargs)
             echo(result)
 
             echo("PASS" if result.p >= 0.01 else "FAIL")
@@ -139,7 +112,7 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
 
 
 @binary_check
-def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
+def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exception]]:
     """Run all available statistical test on RNG output
 
     Parameters
@@ -147,10 +120,15 @@ def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
     series : `Series`
         Output of the RNG being tested
 
-    Returns
-    -------
-    results : `Dict[str, TestResult]`
-        Name of statistical test mapped to given result.
+    Yields
+    ------
+    stattest_name : `str`
+        Name of statistical test
+    result : `TestResult`
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
+    exception : `NotImplementedError` or `MinimumInputError`
+        The exception raised when running `stattest_name`, otherwise `None`.
 
     Raises
     ------
@@ -165,26 +143,29 @@ def run_all_tests(series: pd.Series) -> Dict[str, TestResult]:
         try:
             result = func(series)
             echo(result)
-
             echo()
 
+            yield name, result, None
             results[name] = result
 
         except TEST_EXCEPTION as e:
-            echo_err(e)
+            yield name, None, e
+            results[name] = None
 
-    f_names = [f_stattest_names[name] for name in results.keys()]
-    f_pvalues = [result.p3f() for result in results.values()]
+    table = []
+    for name, result in results.items():
+        f_name = f_stattest_names[name]
 
-    f_successes = []
-    for result in results.values():
-        success = result.p >= signifigance_level
-        msg = "PASS" if success else "FAIL"
-        f_successes.append(msg)
+        if result:
+            f_pvalue = result.p3f()
+            success = result.p >= signifigance_level
+            f_success = "PASS" if success else "FAIL"
+        else:
+            f_pvalue = 0
+            f_success = "N/A"
 
-    f_table = tabulate(
-        zip(f_names, f_pvalues, f_successes), ["Statistical Test", "p-value", "Result"]
-    )
+        row = [f_name, f_pvalue, f_success]
+        table.append(row)
+
+    f_table = tabulate(table, ["Statistical Test", "p-value", "Result"])
     echo(f"\n\n{f_table}")
-
-    return results

@@ -1,3 +1,4 @@
+import warnings
 from shutil import get_terminal_size
 
 import pandas as pd
@@ -8,10 +9,13 @@ from click import argument
 from click import echo
 from click import group
 from click import option
+from colorama import Fore
+from colorama import init
 
 from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattest_names
+from rngtest.stattests._common import dim
 from rngtest.stattests._common import pretty_seq
 from rngtest.stattests._common.exceptions import NonBinarySequenceError
 from rngtest.store import TYPES
@@ -34,10 +38,42 @@ __all__ = [
     "ls",
     "cat",
     "run",
-    "report",
     "example_run",
     "local_run",
+    "report",
 ]
+
+# ------------------------------------------------------------------------------
+# Pretty printing
+
+
+init()  # colorama's magical method for Windows compatibility
+
+warn_txt = Fore.YELLOW + "WARN" + Fore.RESET
+err_txt = Fore.RED + "ERR!" + Fore.RESET
+
+
+def formatwarning(msg, *args, **kwargs):
+    return dim(f"{warn_txt} {msg}\n")
+
+
+warnings.formatwarning = formatwarning
+
+
+def echo_err(error: Exception):
+    line = f"{err_txt} {error}\n"
+    echo(line)
+
+
+def echo_series(series):
+    size = get_terminal_size()
+    cols = min(size.columns, 80)
+
+    echo(pretty_seq(series, cols))
+
+
+# ------------------------------------------------------------------------------
+# Autocompletion
 
 
 def get_stores(ctx, args, incomplete):
@@ -54,12 +90,8 @@ def get_stores(ctx, args, incomplete):
 dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(stattest_names)
 
-
-def echo_series(series):
-    size = get_terminal_size()
-    cols = min(size.columns, 80)  # 80 / 2
-
-    echo(pretty_seq(series, cols))
+# ------------------------------------------------------------------------------
+# Commands
 
 
 @group()
@@ -101,6 +133,7 @@ def cat(store):
     echo_series(series)
 
 
+# TODO save per result
 @main.command()
 @argument("store", autocompletion=get_stores)
 @option("-t", "--test", type=test_choice)
@@ -109,7 +142,13 @@ def run(store, test):
 
     try:
         if not test:
-            results = run_all_tests(series)
+            results = {}
+            for name, result, e in run_all_tests(series):
+                if e:
+                    echo_err(e)
+                else:
+                    results[name] = result
+
             store_results(store, results)
             echo("Results stored!")
         else:
@@ -117,11 +156,12 @@ def run(store, test):
                 result = run_test(series, test)
                 store_result(store, test, result)
                 echo("Result stored!")
-            except TEST_EXCEPTION:
-                pass
 
-    except NonBinarySequenceError:
-        pass
+            except TEST_EXCEPTION as e:
+                echo_err(e)
+
+    except NonBinarySequenceError as e:
+        echo_err(e)
 
 
 @main.command()
@@ -134,20 +174,22 @@ def example_run(example, length, test):
 
     series = pd.Series(next(generator) for _ in range(length))
     series = series.infer_objects()
-
     echo_series(series)
 
     try:
         if not test:
-            run_all_tests(series)
+            for name, result, e in run_all_tests(series):
+                if e:
+                    echo_err(e)
+
         else:
             try:
                 run_test(series, test)
-            except TEST_EXCEPTION:
-                pass
+            except TEST_EXCEPTION as e:
+                echo_err(e)
 
-    except NonBinarySequenceError:
-        pass
+    except NonBinarySequenceError as e:
+        echo_err(e)
 
 
 @main.command()
@@ -158,13 +200,20 @@ def local_run(datafile, dtype, test):
     series = parse_data(datafile)
     echo_series(series)
 
-    if not test:
-        run_all_tests(series)
-    else:
-        try:
-            run_test(series, test)
-        except TEST_EXCEPTION:
-            pass
+    try:
+        if not test:
+            for name, result, e in run_all_tests(series):
+                if e:
+                    echo_err(e)
+
+        else:
+            try:
+                run_test(series, test)
+            except TEST_EXCEPTION as e:
+                echo_err(e)
+
+    except NonBinarySequenceError as e:
+        echo_err(e)
 
 
 @main.command()
