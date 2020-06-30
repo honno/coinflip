@@ -18,8 +18,8 @@ from rngtest.stattests import __all__ as stattest_names
 from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._pprint import dim
 from rngtest.stattests._pprint import pretty_seq
-from rngtest.store import PARSE_EXCEPTION
-from rngtest.store import STORE_EXCEPTION
+from rngtest.store import PARSE_EXCEPTIONS
+from rngtest.store import STORE_EXCEPTIONS
 from rngtest.store import TYPES
 from rngtest.store import StoreNotFoundError
 from rngtest.store import drop
@@ -30,7 +30,7 @@ from rngtest.store import parse_data
 from rngtest.store import store_data
 from rngtest.store import store_result
 from rngtest.store import store_results
-from rngtest.tests_runner import TEST_EXCEPTION
+from rngtest.tests_runner import TEST_EXCEPTIONS
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
@@ -116,7 +116,7 @@ def main():
 def load(data, name, dtype, overwrite):
     try:
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
-    except STORE_EXCEPTION as e:
+    except STORE_EXCEPTIONS as e:
         echo_err(e)
 
 
@@ -175,7 +175,7 @@ def run(store, test):
                 store_result(store, test, result)
                 echo("Result stored!")
 
-            except TEST_EXCEPTION as e:
+            except TEST_EXCEPTIONS as e:
                 echo_err(e)
 
     except NonBinarySequenceError as e:
@@ -203,7 +203,7 @@ def example_run(example, length, test):
         else:
             try:
                 run_test(series, test)
-            except TEST_EXCEPTION as e:
+            except TEST_EXCEPTIONS as e:
                 echo_err(e)
 
     except NonBinarySequenceError as e:
@@ -218,7 +218,7 @@ def local_run(datafile, dtype, test):
     try:
         series = parse_data(datafile)
         echo_series(series)
-    except PARSE_EXCEPTION as e:
+    except PARSE_EXCEPTIONS as e:
         echo_err(e)
 
     try:
@@ -230,7 +230,7 @@ def local_run(datafile, dtype, test):
         else:
             try:
                 run_test(series, test)
-            except TEST_EXCEPTION as e:
+            except TEST_EXCEPTIONS as e:
                 echo_err(e)
 
     except NonBinarySequenceError as e:

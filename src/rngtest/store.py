@@ -19,9 +19,9 @@ from rngtest.stattests._result import TestResult
 __all__ = [
     "TYPES",
     "data_dir",
-    "PARSE_EXCEPTION",
+    "PARSE_EXCEPTIONS",
     "parse_data",
-    "STORE_EXCEPTION",
+    "STORE_EXCEPTIONS",
     "store_data",
     "get_data",
     "drop",
@@ -67,7 +67,11 @@ class MultipleColumnsError(ValueError):
     """Error for when only one column of data was expected"""
 
 
-PARSE_EXCEPTION = (TypeNotRecognizedError, MultipleColumnsError, NonBinarySequenceError)
+PARSE_EXCEPTIONS = (
+    TypeNotRecognizedError,
+    MultipleColumnsError,
+    NonBinarySequenceError,
+)
 
 
 def parse_data(data_file, dtype_str=None) -> pd.Series:
@@ -206,7 +210,7 @@ def init_store(name=None, overwrite=False):
     return store_name, store_path
 
 
-STORE_EXCEPTION = (
+STORE_EXCEPTIONS = (
     TypeNotRecognizedError,
     MultipleColumnsError,
     NameConflictError,

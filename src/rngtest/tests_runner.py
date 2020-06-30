@@ -12,7 +12,7 @@ from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._result import TestResult
 from rngtest.stattests.fourier import TruncatedInputSingleValueError
 
-__all__ = ["TEST_EXCEPTION", "list_tests", "run_test", "run_all_tests"]
+__all__ = ["TEST_EXCEPTIONS", "list_tests", "run_test", "run_all_tests"]
 
 
 def binary_check(func):
@@ -25,7 +25,7 @@ def binary_check(func):
     return wrapper
 
 
-TEST_EXCEPTION = (
+TEST_EXCEPTIONS = (
     NotImplementedError,
     MinimumInputError,
     TruncatedInputSingleValueError,
@@ -153,7 +153,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             yield name, result, None
             results[name] = result
 
-        except TEST_EXCEPTION as e:
+        except TEST_EXCEPTIONS as e:
             yield name, None, e
             results[name] = None
 
