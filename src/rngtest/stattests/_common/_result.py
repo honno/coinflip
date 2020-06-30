@@ -31,10 +31,14 @@ class TestResult:
         return f_table
 
     def __str__(self):
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"No __str__ method provided for {self.__class__.__name__}"
+        )
 
     def _report(self) -> Iterable[Union[str, Subplot]]:
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"No report markup provided for {self.__class__.__name__}"
+        )
 
     def report(self):
         elements = (TestResult._markup(item) for item in self._report())

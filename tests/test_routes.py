@@ -45,6 +45,7 @@ class CliRoutes(RuleBasedStateMachine):
             f.seek(0)
             result = self.cli.invoke(cli.load, [f.name])
 
+        # TODO outdated way to find store name
         store_name_msg = r_storename.search(result.stdout)
         store_name = store_name_msg.group(1)
 

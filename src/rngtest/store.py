@@ -6,6 +6,7 @@ from os import scandir
 from pathlib import Path
 from time import sleep
 from typing import Dict
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -18,7 +19,9 @@ from rngtest.stattests._common.exceptions import NonBinarySequenceError
 __all__ = [
     "TYPES",
     "data_dir",
+    "PARSE_EXCEPTION",
     "parse_data",
+    "STORE_EXCEPTION",
     "store_data",
     "get_data",
     "drop",
@@ -59,13 +62,156 @@ TYPES = {
 class TypeNotRecognizedError(ValueError):
     """Error for when a given dtype string representation is not recognised"""
 
-    pass
-
 
 class MultipleColumnsError(ValueError):
     """Error for when only one column of data was expected"""
 
-    pass
+
+PARSE_EXCEPTION = (TypeNotRecognizedError, MultipleColumnsError, NonBinarySequenceError)
+
+
+def parse_data(data_file, dtype_str=None) -> pd.Series:
+    """Reads file containing data into a pandas Series
+
+    Reads from file containing RNG output and produces a representitive pandas
+    Series. The appropiate dtype is inferred from the data itself, or optionally
+    from the supplied `dtype_str`.
+
+    Parameters
+    ----------
+    data_file : str, path or file-like object
+        File containing RNG output
+    dtype_str : str, optional
+        String representation of desired dtype. If not supplied, it is inferred
+        from the data.
+
+    Returns
+    -------
+    Series
+        A pandas Series which represents the data
+
+    Raises
+    ------
+    TypeNotRecognizedError
+        If supplied dtype_str does not recognise a dtype
+    MultipleColumnsError
+        If inputted data contains multiple values per line
+    NonBinarySequenceError
+        If sequence does not contain only 2 values
+
+    See Also
+    --------
+    pandas.read_csv : The pandas method for reading `data_file`
+    store_data : Calls this method, and handles subsequent storage of data.
+    """
+    df = pd.read_csv(data_file, header=None)
+
+    if len(df.columns) > 1:
+        raise MultipleColumnsError()
+    series = df.iloc[:, 0]
+
+    if series.nunique() != 2:
+        raise NonBinarySequenceError()
+
+    if dtype_str is not None:
+        try:
+            dtype = TYPES[dtype_str]
+        except KeyError:
+            raise TypeNotRecognizedError()
+
+        series = series.astype(dtype)
+    else:
+        series = series.infer_objects()
+
+    return series
+
+
+class StoreExistsError(FileExistsError):
+    """Exception for when a store is being assumed to not exist but does"""
+
+
+class NameConflictError(FileExistsError):
+    """Error for when a unique storename could not be made"""
+
+
+def init_store(name=None, overwrite=False):
+    """Creates store in local data
+
+    A name supplied or generated is used to initialise a store. If supplied,
+    the name is sanitised to remove invalid characters for filepaths. If
+    generated, the name will be a timestamp of initialisation.
+
+    Parameters
+    ----------
+    name : str, optional
+        Desired name of the store, which will be sanitised. If not supplied, a
+        name is generated automatically.
+    overwrite : boolean, default `False`
+        If a name conflicts with an existing store, this decides whether to
+        overwrite it.
+
+    Returns
+    -------
+    store_name : str
+        Internal name of the initialised store
+    store_path : Path
+        Path of the initialised store
+
+    Raises
+    ------
+    NameConflictError
+        If attempts at generating a unique name fails
+    StoreExistsError
+        If a store of the same name exists already (and overwrite is set to
+        `False`)
+    NonBinarySequenceError
+        If sequence does not contain only 2 values
+
+
+    See Also
+    --------
+    store_data : Parses data and calls this method, to then save data in store.
+    """
+    if name is not None:
+        store_name = slugify(name)
+
+        if store_name != name:
+            warn(f"Name encoded as {store_name}", UserWarning)
+
+    else:
+        for _ in range(3):
+            timestamp = datetime.now()
+            iso8601 = timestamp.strftime("%Y%m%dT%H%M%SZ")
+            store_name = f"store_{iso8601}"
+
+            if store_name not in list_stores():
+                break
+            else:
+                sleep(1.5)
+        else:
+            raise NameConflictError()
+
+        print(f"Store name to be encoded as {store_name}")
+
+    store_path = data_dir / store_name
+    try:
+        Path.mkdir(store_path)
+    except FileExistsError:
+        if overwrite:
+            rm_tree(store_path)
+            Path.mkdir(store_path)
+        else:
+            raise StoreExistsError()
+
+    return store_name, store_path
+
+
+STORE_EXCEPTION = (
+    TypeNotRecognizedError,
+    MultipleColumnsError,
+    NameConflictError,
+    StoreExistsError,
+)
 
 
 def store_data(data_file, name=None, dtype_str=None, overwrite=False):
@@ -127,155 +273,16 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     print(series)
 
 
-class StoreExistsError(FileExistsError):
-    """Exception for when a store is being assumed to not exist but does"""
-
-    pass
-
-
-class NameConflictError(FileExistsError):
-    """Error for when a unique storename could not be made"""
-
-    pass
-
-
-def parse_data(data_file, dtype_str=None) -> pd.Series:
-    """Reads file containing data into a pandas Series
-
-    Reads from file containing RNG output and produces a representitive pandas
-    Series. The appropiate dtype is inferred from the data itself, or optionally
-    from the supplied `dtype_str`.
-
-    Parameters
-    ----------
-    data_file : str, path or file-like object
-        File containing RNG output
-    dtype_str : str, optional
-        String representation of desired dtype. If not supplied, it is inferred
-        from the data.
-
-    Returns
-    -------
-    Series
-        A pandas Series which represents the data
-
-    Raises
-    ------
-    TypeNotRecognizedError
-        If supplied dtype_str does not recognise a dtype
-    MultipleColumnsError
-        If inputted data contains multiple values per line
-    NonBinarySequenceError
-        If sequence does not contain only 2 values
-
-    See Also
-    --------
-    pandas.read_csv : The pandas method for reading `data_file`
-    store_data : Calls this method, and handles subsequent storage of data.
-    """
-    df = pd.read_csv(data_file, header=None)
-
-    if len(df.columns) > 1:
-        raise MultipleColumnsError()
-    series = df.iloc[:, 0]
-
-    if series.nunique() != 2:
-        raise NonBinarySequenceError()
-
-    if dtype_str is not None:
-        try:
-            dtype = TYPES[dtype_str]
-        except KeyError:
-            raise TypeNotRecognizedError()
-
-        series = series.astype(dtype)
-    else:
-        series = series.infer_objects()
-
-    return series
-
-
-# TODO pretty exception printing like in tests_runner
-def init_store(name=None, overwrite=False):
-    """Creates store in local data
-
-    A name supplied or generated is used to initialise a store. If supplied,
-    the name is sanitised to remove invalid characters for filepaths. If
-    generated, the name will be a timestamp of initialisation.
-
-    Parameters
-    ----------
-    name : str, optional
-        Desired name of the store, which will be sanitised. If not supplied, a
-        name is generated automatically.
-    overwrite : boolean, default `False`
-        If a name conflicts with an existing store, this decides whether to
-        overwrite it.
-
-    Returns
-    -------
-    store_name : str
-        Internal name of the initialised store
-    store_path : Path
-        Path of the initialised store
-
-    Raises
-    ------
-    NameConflictError
-        If attempts at generating a unique name fails
-    StoreExistsError
-        If a store of the same name exists already (and overwrite is set to
-        `False`)
-    NonBinarySequenceError
-        If sequence does not contain only 2 values
-
-
-    See Also
-    --------
-    store_data : Parses data and calls this method, to then save data in store.
-    """
-    if name is not None:
-        store_name = slugify(name)
-
-        if store_name != name:
-            print(f"Store name {name} encoded as {store_name}")
-
-    else:
-        for _ in range(3):
-            timestamp = datetime.now()
-            iso8601 = timestamp.strftime("%Y%m%dT%H%M%SZ")
-            store_name = f"store_{iso8601}"
-
-            if store_name not in list_stores():
-                break
-            else:
-                sleep(1.5)
-        else:
-            raise NameConflictError()
-
-        print(f"Store name to be encoded as {store_name}")
-
-    store_path = data_dir / store_name
-    try:
-        Path.mkdir(store_path)
-    except FileExistsError:
-        if overwrite:
-            rm_tree(store_path)
-            Path.mkdir(store_path)
-        else:
-            raise StoreExistsError()
-
-    return store_name, store_path
-
-
 # ------------------------------------------------------------------------------
 # Store interaction
 
 
+# TODO take name as argument to print out
 class StoreNotFoundError(FileNotFoundError):
     """Error for when requested store does not exist"""
 
-    pass
+    def __str__(self):
+        return "Requested store does not exist"
 
 
 class DataNotFoundError(LookupError):
@@ -382,12 +389,6 @@ def store_results(store_name, results_dict: Dict[str, TestResult]):
             results[stattest_name] = result
 
 
-class ChangesNotSavedWarning(UserWarning):
-    """Warning for when changes made to object which will not be saved"""
-
-    pass
-
-
 @contextmanager
 def open_results(store_name, write=False):
     """Context manager to open results of a store
@@ -406,20 +407,24 @@ def open_results(store_name, write=False):
 
     Raises
     ------
-    ChangesNotSavedWarning
-        If `results` is modified but write is set to `False`
+    StoreNotFoundError
+        If requested store does not exist
     """
     store_path = data_dir / store_name
+
+    if not store_path.exists():
+        raise StoreNotFoundError
+
     results_path = store_path / RESULTS_FNAME
 
-    if not results_path.exists():
-        results = {}
-    else:
+    if results_path.exists():
         with open(results_path, "rb") as f:
             try:
                 results = pickle.load(f)
             except EOFError:
                 results = {}
+    else:
+        results = {}
 
     results_old = copy(results)
 
@@ -428,7 +433,7 @@ def open_results(store_name, write=False):
             yield results
 
         if results is not results_old:
-            raise ChangesNotSavedWarning()
+            warn("Changes made to object which will not be saved", UserWarning)
 
     else:
         with open(results_path, "wb") as f:

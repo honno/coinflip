@@ -18,7 +18,10 @@ from rngtest.stattests import __all__ as stattest_names
 from rngtest.stattests._common import dim
 from rngtest.stattests._common import pretty_seq
 from rngtest.stattests._common.exceptions import NonBinarySequenceError
+from rngtest.store import PARSE_EXCEPTION
+from rngtest.store import STORE_EXCEPTION
 from rngtest.store import TYPES
+from rngtest.store import StoreNotFoundError
 from rngtest.store import drop
 from rngtest.store import get_data
 from rngtest.store import list_stores
@@ -60,9 +63,15 @@ def formatwarning(msg, *args, **kwargs):
 warnings.formatwarning = formatwarning
 
 
-def echo_err(error: Exception):
-    line = f"{err_txt} {error}\n"
+def echo_err(error: Exception, final=True):
+    line = f"{err_txt} {error}"
+    if not final:
+        line += "\n"
+
     echo(line)
+
+    if final:
+        exit(1)
 
 
 def echo_series(series):
@@ -105,7 +114,10 @@ def main():
 @option("-t", "--dtype", type=dtype_choice)
 @option("-o", "--overwrite", is_flag=True)
 def load(data, name, dtype, overwrite):
-    store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
+    try:
+        store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
+    except STORE_EXCEPTION as e:
+        echo_err(e)
 
 
 @main.command()
@@ -129,8 +141,11 @@ def ls():
 @main.command()
 @argument("store", autocompletion=get_stores)
 def cat(store):
-    series = get_data(store)
-    echo_series(series)
+    try:
+        series = get_data(store)
+        echo_series(series)
+    except StoreNotFoundError as e:
+        echo_err(e)
 
 
 # TODO save per result
@@ -138,14 +153,17 @@ def cat(store):
 @argument("store", autocompletion=get_stores)
 @option("-t", "--test", type=test_choice)
 def run(store, test):
-    series = get_data(store)
+    try:
+        series = get_data(store)
+    except StoreNotFoundError as e:
+        echo_err(e)
 
     try:
         if not test:
             results = {}
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    echo_err(e, final=False)
                 else:
                     results[name] = result
 
@@ -180,7 +198,7 @@ def example_run(example, length, test):
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    echo_err(e, final=False)
 
         else:
             try:
@@ -197,14 +215,17 @@ def example_run(example, length, test):
 @option("-t", "--dtype", type=dtype_choice)
 @option("-t", "--test", type=test_choice)
 def local_run(datafile, dtype, test):
-    series = parse_data(datafile)
-    echo_series(series)
+    try:
+        series = parse_data(datafile)
+        echo_series(series)
+    except PARSE_EXCEPTION as e:
+        echo_err(e)
 
     try:
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    echo_err(e, final=False)
 
         else:
             try:
@@ -220,15 +241,19 @@ def local_run(datafile, dtype, test):
 @argument("store", autocompletion=get_stores)
 @argument("outfile", type=Path())
 def report(store, outfile):
-    with open_results(store) as results:
-        results = results.values()
-        html = []
-        for result in results:
-            try:
-                markup = result.report()
-                html.append(markup)
-            except TEST_EXCEPTION:
-                echo(f"No report markup provided for {result.__class__.__name__}")
+    try:
+        with open_results(store) as results:
+            results = results.values()
+            html = []
+            for result in results:
+                try:
+                    markup = result.report()
+                    html.append(markup)
+                except NotImplementedError as e:
+                    echo_err(e)
+
+    except StoreNotFoundError as e:
+        echo_err(e)
 
     if len(html) != 0:
         markup = "".join(html)
