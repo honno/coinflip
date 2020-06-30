@@ -4,6 +4,7 @@ from rngtest.stattests._common._decorators import elected
 from rngtest.stattests._common._decorators import infer_candidate
 from rngtest.stattests._common._decorators import stattest
 from rngtest.stattests._common._methods import blocks
+from rngtest.stattests._common._methods import check_recommendation
 from rngtest.stattests._common._methods import rawblocks
 from rngtest.stattests._common._plots import plot_chi2
 from rngtest.stattests._common._plots import plot_erfc
@@ -27,6 +28,7 @@ __all__ = [
     "elected",
     "blocks",
     "rawblocks",
+    "check_recommendation",
     "plots",
     "TestResult",
     "FloorDict",

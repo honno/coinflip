@@ -7,13 +7,13 @@ from math import log2
 from math import sqrt
 from random import choice
 from typing import List
-from warnings import warn
 
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
+from rngtest.stattests._common import check_recommendation
 from rngtest.stattests._common import rawblocks
 from rngtest.stattests._common import stattest
 
@@ -67,18 +67,17 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
         nblocks = min(floor(sqrt(n)), 100)
     blocksize = n // nblocks
 
+    check_recommendation(
+        {
+            "nblocks ≤ 100": nblocks <= 100,
+            "blocksize > 0.01 * n": blocksize > 0.01 * n,
+            "nblocks ≡ ⌊n / blocksize⌋ ": nblocks == n // blocksize,
+        }
+    )
+
     if template is None:
         template = make_template(series, blocksize)
     template_size = len(template)
-
-    recommendations = {
-        "nblocks ≤ 100": nblocks <= 100,
-        "blocksize > 0.01 * n": blocksize > 0.01 * n,
-        "nblocks ≡ ⌊n / blocksize⌋ ": nblocks == n // blocksize,
-    }
-    for rec, success in recommendations.items():
-        if not success:
-            warn(f"Input parameters fail recommendation {rec}", UserWarning)
 
     matches_expect = (blocksize - template_size + 1) / 2 ** template_size
     variance = blocksize * (
@@ -207,16 +206,15 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
 
     expected_tallies = [prob * nblocks for prob in probabilities]
 
-    recommendations = {
-        "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
-        "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
-        "lambda ≈ 2": isclose(lambda_, 2),
-        "template_size ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
-        "df ≈ lambda": isclose(template_size, log2(nblocks)),
-    }
-    for rec, success in recommendations.items():
-        if not success:
-            warn(f"Input parameters fail recommendation {rec}", UserWarning)
+    check_recommendation(
+        {
+            "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
+            "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
+            "λ ≈ 2": isclose(lambda_, 2),
+            "len(template) ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
+            "df ≈ λ": isclose(template_size, log2(nblocks)),
+        }
+    )
 
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):

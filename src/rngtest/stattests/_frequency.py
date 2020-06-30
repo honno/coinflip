@@ -15,6 +15,7 @@ from tabulate import tabulate
 
 from rngtest.stattests._common import TestResult
 from rngtest.stattests._common import blocks
+from rngtest.stattests._common import check_recommendation
 from rngtest.stattests._common import elected
 from rngtest.stattests._common import plot_chi2
 from rngtest.stattests._common import plot_gammaincc
@@ -188,7 +189,7 @@ class MonobitsTestResult(TestResult):
 # Frequency within Block Test
 
 
-@stattest(rec_input=100)
+@stattest(min_input=8, rec_input=100)
 @elected
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
@@ -214,7 +215,16 @@ def frequency_within_block(series, candidate, blocksize=8):
         the `report()` method produces a HTML summary, which includes embedded
         graphical plots.
     """
-    nblocks = len(series) // blocksize
+    n = len(series)
+    nblocks = n // blocksize  # TODO meet 0.01 * n recommendation
+
+    check_recommendation(
+        {
+            "blocksize ≥ 20": blocksize >= 20,
+            "blocksize > 0.01 * n": blocksize > 0.01 * n,
+            "nblocks < 100": nblocks < 100,
+        }
+    )
 
     occurences = []
     for block in blocks(series, blocksize=blocksize):
@@ -282,7 +292,7 @@ class FrequencyWithinBlockTestResult(TestResult):
             f"p={self.p3f()}",
             occurfig,
             plot_chi2(self.statistic, df=self.nblocks),
-            plot_gammaincc(self.statistic / 2, scale=self.nblocks / 2),
+            plot_gammaincc(self.statistic / 2, self.nblocks / 2),
         ]
 
 

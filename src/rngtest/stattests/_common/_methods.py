@@ -1,11 +1,13 @@
 from math import ceil
 from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import Tuple
+from warnings import warn
 
 import pandas as pd
 
-__all__ = ["blocks", "rawblocks"]
+__all__ = ["blocks", "rawblocks", "check_recommendation"]
 
 
 def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Series]:
@@ -33,3 +35,9 @@ def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
         block_tup = tuple(block_list)
 
         yield block_tup
+
+
+def check_recommendation(recommendation: Dict[str, bool]):
+    for expr, success in recommendation.items():
+        if not success:
+            warn(f"Failed NIST recommendation {expr}", UserWarning)
