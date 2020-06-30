@@ -8,11 +8,11 @@ from typing import NamedTuple
 from scipy.special import gammaincc
 from tabulate import tabulate
 
-from rngtest.stattests._common import FloorDict
-from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import blocks
-from rngtest.stattests._common import elected
-from rngtest.stattests._common import stattest
+from rngtest.stattests._collections import FloorDict
+from rngtest.stattests._decorators import elected
+from rngtest.stattests._decorators import stattest
+from rngtest.stattests._result import TestResult
+from rngtest.stattests._testutils import blocks
 
 __all__ = ["runs", "longest_runs"]
 

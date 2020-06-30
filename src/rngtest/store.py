@@ -13,8 +13,8 @@ import pandas as pd
 from appdirs import AppDirs
 
 from rngtest.slugify import slugify
-from rngtest.stattests._common import TestResult
-from rngtest.stattests._common.exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._result import TestResult
 
 __all__ = [
     "TYPES",
@@ -195,7 +195,7 @@ def init_store(name=None, overwrite=False):
 
     store_path = data_dir / store_name
     try:
-        Path.mkdir(store_path)
+        Path.mkdir(store_path, parents=True)
     except FileExistsError:
         if overwrite:
             rm_tree(store_path)
@@ -287,8 +287,6 @@ class StoreNotFoundError(FileNotFoundError):
 
 class DataNotFoundError(LookupError):
     """Error for when requested store has no data"""
-
-    pass
 
 
 def get_data(store_name) -> pd.Series:

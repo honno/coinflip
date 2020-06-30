@@ -7,9 +7,9 @@ from click import echo
 from tabulate import tabulate
 
 from rngtest import stattests
-from rngtest.stattests._common import TestResult
-from rngtest.stattests._common.exceptions import MinimumInputError
-from rngtest.stattests._common.exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import MinimumInputError
+from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._result import TestResult
 
 __all__ = ["TEST_EXCEPTION", "list_tests", "run_test", "run_all_tests"]
 
@@ -168,4 +168,5 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         table.append(row)
 
     f_table = tabulate(table, ["Statistical Test", "p-value", "Result"])
-    echo(f"\n\n{f_table}")
+    echo(f_table)
+    echo()

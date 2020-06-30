@@ -1,12 +1,12 @@
-from rngtest.stattests._fourier import discrete_fourier_transform
-from rngtest.stattests._frequency import frequency_within_block
-from rngtest.stattests._frequency import monobits
-from rngtest.stattests._matrix import binary_matrix_rank
-from rngtest.stattests._runs import longest_runs
-from rngtest.stattests._runs import runs
-from rngtest.stattests._template import non_overlapping_template_matching
-from rngtest.stattests._template import overlapping_template_matching
-from rngtest.stattests._universal import maurers_universal
+from rngtest.stattests.fourier import discrete_fourier_transform
+from rngtest.stattests.frequency import frequency_within_block
+from rngtest.stattests.frequency import monobits
+from rngtest.stattests.matrix import binary_matrix_rank
+from rngtest.stattests.runs import longest_runs
+from rngtest.stattests.runs import runs
+from rngtest.stattests.template import non_overlapping_template_matching
+from rngtest.stattests.template import overlapping_template_matching
+from rngtest.stattests.universal import maurers_universal
 
 __all__ = [
     "monobits",

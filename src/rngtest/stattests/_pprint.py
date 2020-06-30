@@ -4,8 +4,8 @@ from colorama import Fore
 from colorama import Style
 from colorama import init
 
-from rngtest.stattests._common import blocks
-from rngtest.stattests._common import infer_candidate
+from rngtest.stattests._decorators import infer_candidate
+from rngtest.stattests._testutils import blocks
 
 init()
 

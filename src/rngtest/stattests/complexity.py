@@ -1,5 +1,5 @@
-from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import stattest
+from rngtest.stattests._decorators import stattest
+from rngtest.stattests._result import TestResult
 
 __all__ = ["linear_complexity"]
 

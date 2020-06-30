@@ -7,11 +7,11 @@ from typing import Tuple
 
 from tabulate import tabulate
 
-from rngtest.stattests._common import TestResult
-from rngtest.stattests._common import blocks
-from rngtest.stattests._common import elected
-from rngtest.stattests._common import rawblocks
-from rngtest.stattests._common import stattest
+from rngtest.stattests._decorators import elected
+from rngtest.stattests._decorators import stattest
+from rngtest.stattests._result import TestResult
+from rngtest.stattests._testutils import blocks
+from rngtest.stattests._testutils import rawblocks
 
 __all__ = ["binary_matrix_rank"]
 

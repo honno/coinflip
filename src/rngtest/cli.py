@@ -15,9 +15,9 @@ from colorama import init
 from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattest_names
-from rngtest.stattests._common import dim
-from rngtest.stattests._common import pretty_seq
-from rngtest.stattests._common.exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._pprint import dim
+from rngtest.stattests._pprint import pretty_seq
 from rngtest.store import PARSE_EXCEPTION
 from rngtest.store import STORE_EXCEPTION
 from rngtest.store import TYPES
