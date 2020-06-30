@@ -10,6 +10,7 @@ from rngtest import stattests
 from rngtest.stattests._exceptions import MinimumInputError
 from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._result import TestResult
+from rngtest.stattests.fourier import TruncatedInputSingleValueError
 
 __all__ = ["TEST_EXCEPTION", "list_tests", "run_test", "run_all_tests"]
 
@@ -24,7 +25,11 @@ def binary_check(func):
     return wrapper
 
 
-TEST_EXCEPTION = (NotImplementedError, MinimumInputError)
+TEST_EXCEPTION = (
+    NotImplementedError,
+    MinimumInputError,
+    TruncatedInputSingleValueError,
+)
 
 
 signifigance_level = 0.01

@@ -20,7 +20,7 @@ from rngtest.stattests._plots import plot_gammaincc
 from rngtest.stattests._plots import range_annotation
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._testutils import blocks
-from rngtest.stattests._testutils import check_recommendation
+from rngtest.stattests._testutils import check_recommendations
 
 __all__ = ["monobits", "frequency_within_block"]
 
@@ -29,7 +29,7 @@ __all__ = ["monobits", "frequency_within_block"]
 # Frequency (Monobits) Test
 
 
-@stattest()
+@stattest(rec_input=100)
 def monobits(series):
     """Proportion of values is compared to expected 1:1 ratio
 
@@ -218,7 +218,7 @@ def frequency_within_block(series, candidate, blocksize=8):
     n = len(series)
     nblocks = n // blocksize  # TODO meet 0.01 * n recommendation
 
-    check_recommendation(
+    check_recommendations(
         {
             "blocksize ≥ 20": blocksize >= 20,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,

@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import ceil
 from math import erfc
+from math import floor
 from math import log
 from math import sqrt
 from typing import NamedTuple
@@ -9,6 +10,7 @@ from typing import NamedTuple
 from rngtest.stattests._collections import FloorDict
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._testutils import check_recommendations
 from rngtest.stattests._testutils import rawblocks
 
 __all__ = ["maurers_universal"]
@@ -104,6 +106,20 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     init_n = init_nblocks * blocksize
     init_series, spare_series = series[:init_n], series[init_n:]
     spare_nblocks = (n - init_n) / blocksize
+
+    check_recommendations(
+        {
+            "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
+            "init_nblocks ≈ 10 * (2 ** spare_nblocks)": abs(
+                init_nblocks - (10 * (2 ** spare_nblocks))
+            )
+            <= max(n ** (1 / 3), 1),
+            "spare_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": abs(
+                spare_nblocks - (floor(n / blocksize) - init_nblocks)
+            )
+            <= max(n ** (1 / 3), 1),
+        }
+    )
 
     last_occurences = defaultdict(int)
 

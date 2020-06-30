@@ -11,6 +11,7 @@ from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._testutils import blocks
+from rngtest.stattests._testutils import check_recommendations
 from rngtest.stattests._testutils import rawblocks
 
 __all__ = ["binary_matrix_rank"]
@@ -23,7 +24,6 @@ class RankCounts:
     remaining: int = 0
 
 
-# TODO counts are wrong
 @stattest(min_input=4, rec_input=152)  # nblocks=38, blocksize=4
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
@@ -60,6 +60,8 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
 
     blocksize = nrows * ncols
     nblocks = n // blocksize
+
+    check_recommendations({"n ≥ 38 * blocksize": n >= 38 * blocksize})
 
     fullrank = min(nrows, ncols)
 

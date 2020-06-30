@@ -11,14 +11,15 @@ from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
 
-__all__ = ["discrete_fourier_transform"]
+__all__ = ["TruncatedInputSingleValueError", "discrete_fourier_transform"]
 
 
+# TODO str method
 class TruncatedInputSingleValueError(ValueError):
     pass
 
 
-@stattest()
+@stattest(rec_input=1000)
 @elected
 def discrete_fourier_transform(series, candidate):
     """Potency of periodic features in sequence is compared to expected result

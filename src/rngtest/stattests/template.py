@@ -14,7 +14,7 @@ from tabulate import tabulate
 
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
-from rngtest.stattests._testutils import check_recommendation
+from rngtest.stattests._testutils import check_recommendations
 from rngtest.stattests._testutils import rawblocks
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
@@ -67,7 +67,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
         nblocks = min(floor(sqrt(n)), 100)
     blocksize = n // nblocks
 
-    check_recommendation(
+    check_recommendations(
         {
             "nblocks ≤ 100": nblocks <= 100,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
@@ -206,7 +206,7 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
 
     expected_tallies = [prob * nblocks for prob in probabilities]
 
-    check_recommendation(
+    check_recommendations(
         {
             "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
             "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,

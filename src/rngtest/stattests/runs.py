@@ -21,7 +21,7 @@ __all__ = ["runs", "longest_runs"]
 # Runs Test
 
 
-@stattest()
+@stattest(rec_input=100)
 @elected
 def runs(series, candidate):
     """Actual number of runs is compared to expected result
@@ -75,6 +75,7 @@ class DefaultParams(NamedTuple):
     freqbin_ranges: List[int]
 
 
+# TODO use in recommendations
 n_defaults = FloorDict(
     {
         128: DefaultParams(8, 16, [1, 2, 3, 4]),

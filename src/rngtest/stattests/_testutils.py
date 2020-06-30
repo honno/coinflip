@@ -7,7 +7,7 @@ from warnings import warn
 
 import pandas as pd
 
-__all__ = ["blocks", "rawblocks", "check_recommendation"]
+__all__ = ["blocks", "rawblocks", "check_recommendations"]
 
 
 def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Series]:
@@ -37,7 +37,15 @@ def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
         yield block_tup
 
 
-def check_recommendation(recommendation: Dict[str, bool]):
-    for expr, success in recommendation.items():
-        if not success:
-            warn(f"Failed NIST recommendation {expr}", UserWarning)
+def check_recommendations(recommendation: Dict[str, bool]):
+    failures = [expr for expr, success in recommendation.items() if not success]
+
+    nfail = len(failures)
+    if nfail == 1:
+        expr = failures[0]
+        warn(f"NIST recommendation not met: {expr}", UserWarning)
+
+    elif nfail > 1:
+        msg = "Multiple NIST recommendations not met:\n"
+        msg += "\n".join([f"     • {expr}" for expr in failures])
+        warn(msg, UserWarning)
