@@ -71,7 +71,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
         {
             "nblocks ≤ 100": nblocks <= 100,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
-            "nblocks ≡ ⌊n / blocksize⌋ ": nblocks == n // blocksize,
+            "nblocks ≡ ⌊n / blocksize⌋": nblocks == n // blocksize,
         }
     )
 
