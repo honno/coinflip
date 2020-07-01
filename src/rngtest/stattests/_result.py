@@ -6,7 +6,8 @@ from typing import Union
 
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
-from tabulate import tabulate
+
+from rngtest.stattests._tabulate import tabulate
 
 __all__ = ["TestResult"]
 

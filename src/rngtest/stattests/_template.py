@@ -10,10 +10,10 @@ from typing import List
 
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
-from tabulate import tabulate
 
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._tabulate import tabulate
 from rngtest.stattests._testutils import check_recommendations
 from rngtest.stattests._testutils import rawblocks
 

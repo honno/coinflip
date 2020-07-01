@@ -5,11 +5,10 @@ from math import floor
 from math import sqrt
 from typing import Tuple
 
-from tabulate import tabulate
-
 from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._tabulate import tabulate
 from rngtest.stattests._testutils import blocks
 from rngtest.stattests._testutils import check_recommendations
 from rngtest.stattests._testutils import rawblocks

@@ -4,12 +4,12 @@ from typing import Tuple
 
 import pandas as pd
 from click import echo
-from tabulate import tabulate
 
 from rngtest import stattests
 from rngtest.stattests._exceptions import MinimumInputError
 from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._tabulate import tabulate
 from rngtest.stattests.fourier import TruncatedInputSingleValueError
 
 __all__ = ["TEST_EXCEPTIONS", "list_tests", "run_test", "run_all_tests"]

@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
-from tabulate import tabulate
 
 from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
@@ -19,6 +18,7 @@ from rngtest.stattests._plots import plot_chi2
 from rngtest.stattests._plots import plot_gammaincc
 from rngtest.stattests._plots import range_annotation
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._tabulate import tabulate
 from rngtest.stattests._testutils import blocks
 from rngtest.stattests._testutils import check_recommendations
 

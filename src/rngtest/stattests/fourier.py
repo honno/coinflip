@@ -5,11 +5,11 @@ from math import sqrt
 
 import pandas as pd
 from numpy.fft import fft as _fft
-from tabulate import tabulate
 
 from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
 from rngtest.stattests._result import TestResult
+from rngtest.stattests._tabulate import tabulate
 
 __all__ = ["TruncatedInputSingleValueError", "discrete_fourier_transform"]
 
