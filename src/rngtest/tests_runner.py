@@ -32,7 +32,7 @@ TEST_EXCEPTIONS = (
 )
 
 
-signifigance_level = 0.01
+significance_level = 0.01
 
 f_stattest_names = {
     "monobits": "Frequency (Monobits) Test",
@@ -49,7 +49,7 @@ f_stattest_names = {
 
 def echo_stattest_name(stattest_name):
     stattest_fname = f_stattest_names[stattest_name]
-    underline = "".join("-" for char in stattest_fname)
+    underline = "".join("=" for char in stattest_fname)
     echo(stattest_fname + "\n" + underline)
 
 
@@ -107,7 +107,7 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
 
             result = func(series, **kwargs)
             echo(result)
-
+            echo()
             echo("PASS" if result.p >= 0.01 else "FAIL")
 
             return result
@@ -163,7 +163,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
         if result:
             f_pvalue = result.p3f()
-            success = result.p >= signifigance_level
+            success = result.p >= significance_level
             f_success = "PASS" if success else "FAIL"
         else:
             f_pvalue = 0
@@ -172,6 +172,8 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         row = [f_name, f_pvalue, f_success]
         table.append(row)
 
-    f_table = tabulate(table, ["Statistical Test", "p-value", "Result"])
+    f_table = tabulate(
+        table, ["Statistical Test", "p-value", "Result"], tablefmt="fancy_grid"
+    )
+    echo(f"Using a significance level of {significance_level}")
     echo(f_table)
-    echo()

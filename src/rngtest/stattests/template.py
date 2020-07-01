@@ -1,3 +1,4 @@
+# TODO format templates in results to match rngtest.cli.echo_series
 from collections import Counter
 from dataclasses import dataclass
 from math import exp

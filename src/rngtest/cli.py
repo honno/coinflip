@@ -71,11 +71,13 @@ def echo_err(error: Exception, final=True):
         exit(1)
 
 
+# TODO descriptions of the series e.g. length
 def echo_series(series):
     size = get_terminal_size()
     cols = min(size.columns, 80)
 
     echo(pretty_seq(series, cols))
+    echo()
 
 
 # ------------------------------------------------------------------------------
