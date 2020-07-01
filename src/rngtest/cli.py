@@ -10,7 +10,6 @@ from click import echo
 from click import group
 from click import option
 from colorama import Fore
-from colorama import init
 
 from rngtest import generators
 from rngtest.report import write_report
@@ -50,8 +49,6 @@ __all__ = [
 # Pretty printing
 
 
-init()  # colorama's magical method for Windows compatibility
-
 warn_txt = Fore.YELLOW + "WARN" + Fore.RESET
 err_txt = Fore.RED + "ERR!" + Fore.RESET
 
@@ -68,7 +65,7 @@ def echo_err(error: Exception, final=True):
     if not final:
         line += "\n"
 
-    echo(line)
+    echo(line, err=True)
 
     if final:
         exit(1)

@@ -2,12 +2,9 @@ from functools import lru_cache
 
 from colorama import Fore
 from colorama import Style
-from colorama import init
 
 from rngtest.stattests._decorators import infer_candidate
 from rngtest.stattests._testutils import blocks
-
-init()
 
 __all__ = ["pretty_subseq", "pretty_seq", "dim"]
 
@@ -48,8 +45,6 @@ def pretty_seq(series, cols):
     except StopIteration:
         noncandidate = None
 
-    lines = []
-
     pad = 4
     l_border = dim("  | ")
     l_arrow = dim(" <  ")
@@ -58,11 +53,10 @@ def pretty_seq(series, cols):
     outer = cols - pad
     inner = outer - pad
 
-    def hline(width):
-        return dim("+" + "".join("-" for _ in range(width - 2)) + "+")
-
     def pretty_row(series):
         return pretty_subseq(series, candidate, noncandidate)
+
+    lines = []
 
     n = len(series)
     if n <= inner:
@@ -117,6 +111,10 @@ def pretty_seq(series, cols):
         lines.append(border_last + Style.RESET_ALL)
 
     return "\n".join(lines)
+
+
+def hline(width):
+    return dim("+" + "".join("-" for _ in range(width - 2)) + "+")
 
 
 def dim(string):
