@@ -36,7 +36,7 @@ from rngtest.tests_runner import run_test
 __all__ = [
     "load",
     "rm",
-    "clear",
+    "rm_all",
     "ls",
     "cat",
     "run",
@@ -99,20 +99,53 @@ dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(stattest_names)
 
 # ------------------------------------------------------------------------------
+# Help output
+
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+
+help_msg = {
+    "name": "Specify name of the store.",
+    "dtype": "Specify data type of the data.",
+    "test": "Specify single test to run on data.",
+}
+
+# ------------------------------------------------------------------------------
 # Commands
 
 
-@group()
+@group(context_settings=CONTEXT_SETTINGS)
 def main():
-    pass
+    """Randomness tests for RNG output.
+
+    Output of random number generators can be parsed and serialised into a
+    test-ready format via the load command. The data is saved in a folder, which
+    rngtest refers to as a "store". This store is located in the local data
+    directory, but can be easily accessed via the store's name in rngtest
+    commands.
+
+    Randomness tests can then be ran over the store's data via the run command.
+    Rich documents explaining the test results can be produced via the report
+    command.
+    """
 
 
 @main.command()
 @argument("data", type=File("r"))
-@option("-n", "--name", type=str)
-@option("-t", "--dtype", type=dtype_choice)
-@option("-o", "--overwrite", is_flag=True)
+@option("-n", "--name", type=str, help=help_msg["name"])
+@option("-d", "--dtype", type=dtype_choice, help=help_msg["dtype"], metavar="<dtype>")
+@option(
+    "-o", "--overwrite", is_flag=True, help="Overwrite existing store with same name."
+)
 def load(data, name, dtype, overwrite):
+    """Loads DATA into a store.
+
+    DATA is a newline-delimited text file which contains output of a random
+    number generator. The contents are parsed, serialised and saved in local
+    data.
+
+    The stored data can then be applied the randomness tests via the run
+    command, where the results of which are also saved.
+    """
     try:
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
     except STORE_EXCEPTIONS as e:
@@ -122,17 +155,20 @@ def load(data, name, dtype, overwrite):
 @main.command()
 @argument("store", autocompletion=get_stores)
 def rm(store):
+    """Delete STORE."""
     drop(store)
 
 
 @main.command()
-def clear():
+def rm_all():
+    """Delete all stores."""
     for store in list_stores():
         drop(store)
 
 
 @main.command()
 def ls():
+    """List all stores."""
     for store in list_stores():
         echo(store)
 
@@ -140,6 +176,7 @@ def ls():
 @main.command()
 @argument("store", autocompletion=get_stores)
 def cat(store):
+    """Print contents of data in STORE."""
     try:
         series = get_data(store)
         echo_series(series)
@@ -147,11 +184,17 @@ def cat(store):
         echo_err(e)
 
 
-# TODO save per result
+# TODO - save per result
+#      - make store optional, run most recent store
 @main.command()
 @argument("store", autocompletion=get_stores)
-@option("-t", "--test", type=test_choice)
+@option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
 def run(store, test):
+    """Run randomness tests on data in STORE.
+
+    Results of the tests run are saved in STORE, which can be compiled into
+    a rich document via the report command.
+    """
     try:
         series = get_data(store)
     except StoreNotFoundError as e:
@@ -182,10 +225,18 @@ def run(store, test):
 
 
 @main.command()
-@option("-e", "--example", type=Choice(generators.__all__), default="python")
-@option("-n", "--length", type=int, default=512)
-@option("-t", "--test", type=test_choice)
+@option(
+    "-e",
+    "--example",
+    type=Choice(generators.__all__),
+    default="python",
+    help="Example binary output to use.",
+    metavar="<example>",
+)
+@option("-n", "--length", type=int, default=512, help="Length of binary output.")
+@option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
 def example_run(example, length, test):
+    """Run randomness tests on example data."""
     generator_func = getattr(generators, example)
     generator = generator_func()
 
@@ -210,12 +261,13 @@ def example_run(example, length, test):
 
 
 @main.command()
-@argument("datafile", type=Path(exists=True))
-@option("-t", "--dtype", type=dtype_choice)
-@option("-t", "--test", type=test_choice)
-def local_run(datafile, dtype, test):
+@argument("data", type=Path(exists=True))
+@option("-d", "--dtype", type=dtype_choice, help=help_msg["dtype"], metavar="<dtype>")
+@option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
+def local_run(data, dtype, test):
+    """Run randomness tests on DATA directly."""
     try:
-        series = parse_data(datafile)
+        series = parse_data(data)
         echo_series(series)
     except PARSE_EXCEPTIONS as e:
         echo_err(e)
@@ -236,10 +288,12 @@ def local_run(datafile, dtype, test):
         echo_err(e)
 
 
+# TODO implement a non-write, no-with way to access results
 @main.command()
 @argument("store", autocompletion=get_stores)
 @argument("outfile", type=Path())
 def report(store, outfile):
+    """Generate report from test results in STORE."""
     try:
         with open_results(store) as results:
             results = results.values()
@@ -249,7 +303,7 @@ def report(store, outfile):
                     markup = result.report()
                     html.append(markup)
                 except NotImplementedError as e:
-                    echo_err(e)
+                    echo_err(e, final=False)
 
     except StoreNotFoundError as e:
         echo_err(e)

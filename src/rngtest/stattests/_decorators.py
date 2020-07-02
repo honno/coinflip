@@ -28,7 +28,7 @@ def stattest(min_input=2, rec_input=2):
                 )
             if n < rec_input:
                 warn(
-                    f"Sequence length {n} below recommended minimum of {rec_input}",
+                    f"Sequence length {n} below NIST recommended minimum of {rec_input}",
                     UserWarning,
                 )
 
