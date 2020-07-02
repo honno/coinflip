@@ -23,6 +23,8 @@ __all__ = [
     "parse_data",
     "STORE_EXCEPTIONS",
     "store_data",
+    "NoLatestStoreRecordedError",
+    "find_latest_store",
     "get_data",
     "drop",
     "list_stores",
@@ -41,8 +43,9 @@ try:
 except FileExistsError:
     pass
 
+LATEST_STORE_FNAME = "latest_store.txt"
 DATA_FNAME = "series.pickle"
-RESULTS_FNAME = "results"  # shelve appends .db to filename
+RESULTS_FNAME = "results"  # shelve appends .db to filepaths
 
 # ------------------------------------------------------------------------------
 # Store initialisation
@@ -277,12 +280,35 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     data_path = store_path / DATA_FNAME
     pickle.dump(series, open(data_path, "wb"))
 
+    latest_store_path = data_dir / LATEST_STORE_FNAME
+    with open(latest_store_path, "w") as f:
+        f.write(store_name)
+
     print("Data stored successfully!\n")
-    print(series)
 
 
 # ------------------------------------------------------------------------------
 # Store interaction
+
+
+class NoLatestStoreRecordedError(LookupError):
+    """Error for when latest store cannot be identified"""
+
+    def __str__(self):
+        return "No record of the last initialised store was found"
+
+
+def find_latest_store() -> str:
+    latest_store_path = data_dir / LATEST_STORE_FNAME
+    try:
+        with open(latest_store_path) as f:
+            store_name = f.readlines()[0]
+            if store_name in list_stores():
+                return store_name
+    except FileNotFoundError:
+        pass
+
+    raise NoLatestStoreRecordedError()
 
 
 # TODO take name as argument to print out
@@ -295,6 +321,9 @@ class StoreNotFoundError(FileNotFoundError):
 
 class DataNotFoundError(LookupError):
     """Error for when requested store has no data"""
+
+
+# TODO get data exceptions tuple (handle in cli)
 
 
 def get_data(store_name) -> pd.Series:

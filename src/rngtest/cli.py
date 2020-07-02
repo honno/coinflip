@@ -20,8 +20,10 @@ from rngtest.stattests._pprint import pretty_seq
 from rngtest.store import PARSE_EXCEPTIONS
 from rngtest.store import STORE_EXCEPTIONS
 from rngtest.store import TYPES
+from rngtest.store import NoLatestStoreRecordedError
 from rngtest.store import StoreNotFoundError
 from rngtest.store import drop
+from rngtest.store import find_latest_store
 from rngtest.store import get_data
 from rngtest.store import list_stores
 from rngtest.store import open_results
@@ -60,12 +62,9 @@ def formatwarning(msg, *args, **kwargs):
 warnings.formatwarning = formatwarning
 
 
-def echo_err(error: Exception, final=True):
+def echo_err(error: Exception):
     line = f"{err_txt} {error}"
     echo(line, err=True)
-
-    if final:
-        exit(1)
 
 
 # TODO descriptions of the series e.g. length
@@ -74,7 +73,6 @@ def echo_series(series):
     cols = min(size.columns, 80)
 
     echo(pretty_seq(series, cols))
-    echo()
 
 
 # ------------------------------------------------------------------------------
@@ -147,6 +145,14 @@ def load(data, name, dtype, overwrite):
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
     except STORE_EXCEPTIONS as e:
         echo_err(e)
+        exit(1)
+
+    try:
+        store = find_latest_store()
+        series = get_data(store)
+        echo_series(series)
+    except (NoLatestStoreRecordedError, StoreNotFoundError):
+        exit(0)
 
 
 @main.command()
@@ -171,20 +177,28 @@ def ls():
 
 
 @main.command()
-@argument("store", autocompletion=get_stores)
+@argument("store", autocompletion=get_stores, required=False, metavar="STORE")
 def cat(store):
     """Print contents of data in STORE."""
+    if not store:
+        try:
+            store = find_latest_store()
+        except NoLatestStoreRecordedError as e:
+            echo_err(e)
+            echo("Try specifying STORE manually")
+            exit(1)
+
     try:
         series = get_data(store)
         echo_series(series)
     except StoreNotFoundError as e:
         echo_err(e)
+        exit(1)
 
 
-# TODO - save per result
-#      - make store optional, run most recent store
+# TODO save per result
 @main.command()
-@argument("store", autocompletion=get_stores)
+@argument("store", autocompletion=get_stores, required=False, metavar="STORE")
 @option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
 def run(store, test):
     """Run randomness tests on data in STORE.
@@ -192,17 +206,26 @@ def run(store, test):
     Results of the tests run are saved in STORE, which can be compiled into
     a rich document via the report command.
     """
+    if not store:
+        try:
+            store = find_latest_store()
+        except NoLatestStoreRecordedError as e:
+            echo_err(e)
+            echo("Try specifying STORE manually")
+            exit(1)
+
     try:
         series = get_data(store)
     except StoreNotFoundError as e:
         echo_err(e)
+        exit(1)
 
     try:
         if not test:
             results = {}
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e, final=False)
+                    echo_err(e)
                 else:
                     results[name] = result
 
@@ -216,9 +239,11 @@ def run(store, test):
 
             except TEST_EXCEPTIONS as e:
                 echo_err(e)
+                exit(1)
 
     except NonBinarySequenceError as e:
         echo_err(e)
+        exit(1)
 
 
 @main.command()
@@ -240,21 +265,24 @@ def example_run(example, length, test):
     series = pd.Series(next(generator) for _ in range(length))
     series = series.infer_objects()
     echo_series(series)
+    echo()
 
     try:
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e, final=False)
+                    echo_err(e)
 
         else:
             try:
                 run_test(series, test)
             except TEST_EXCEPTIONS as e:
                 echo_err(e)
+                exit(1)
 
     except NonBinarySequenceError as e:
         echo_err(e)
+        exit(1)
 
 
 @main.command()
@@ -268,29 +296,44 @@ def local_run(data, dtype, test):
         echo_series(series)
     except PARSE_EXCEPTIONS as e:
         echo_err(e)
+        exit(1)
 
     try:
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e, final=False)
+                    echo_err(e)
 
         else:
             try:
                 run_test(series, test)
             except TEST_EXCEPTIONS as e:
                 echo_err(e)
+                exit(1)
 
     except NonBinarySequenceError as e:
         echo_err(e)
+        exit(1)
 
 
 # TODO implement a non-write, no-with way to access results
 @main.command()
-@argument("store", autocompletion=get_stores)
-@argument("outfile", type=Path())
+@argument("store", autocompletion=get_stores, required=False, metavar="STORE")
+@option("-o", "--outfile", type=Path())
 def report(store, outfile):
     """Generate report from test results in STORE."""
+    if not outfile:
+        echo("Please specify --outfile! Default behaviour is not implemented yet")
+        exit(1)
+
+    if not store:
+        try:
+            store = find_latest_store()
+        except NoLatestStoreRecordedError as e:
+            echo_err(e)
+            echo("Try specifying STORE manually")
+            exit(1)
+
     try:
         with open_results(store) as results:
             html = []
@@ -299,10 +342,11 @@ def report(store, outfile):
                     markup = result.report()
                     html.append(markup)
                 except NotImplementedError as e:
-                    echo_err(e, final=False)
+                    echo_err(e)
 
     except StoreNotFoundError as e:
         echo_err(e)
+        exit(1)
 
     if len(html) != 0:
         markup = "".join(html)
