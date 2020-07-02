@@ -255,21 +255,16 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: int
     occurences: List[int]
 
+    # TODO table is confusing
     def __str__(self):
         f_stats = self.stats_table("chi-square")
 
         occur_expect = self.blocksize / 2
         f_occur_expect = smartround(occur_expect)
 
-        occur_count = Counter(self.occurences)
-
-        table = []
-        for occur, count in sorted(occur_count.items()):
-            diff = occur - occur_expect
-            f_diff = smartround(diff)
-            table.append([occur, f_diff, count])
-
-        f_table = tabulate(table, headers=["occur", "diff", "count"],)
+        occur_counts = Counter(self.occurences)
+        table = sorted(occur_counts.items())
+        f_table = tabulate(table, headers=["occur", "count"])
 
         return (
             f"{f_stats}\n"
