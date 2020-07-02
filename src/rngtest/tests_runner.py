@@ -148,7 +148,6 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         try:
             result = func(series)
             echo(result)
-            echo()
 
             yield name, result, None
             results[name] = result
@@ -156,6 +155,8 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         except TEST_EXCEPTIONS as e:
             yield name, None, e
             results[name] = None
+
+        echo()
 
     table = []
     for name, result in results.items():

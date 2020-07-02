@@ -62,9 +62,6 @@ warnings.formatwarning = formatwarning
 
 def echo_err(error: Exception, final=True):
     line = f"{err_txt} {error}"
-    if not final:
-        line += "\n"
-
     echo(line, err=True)
 
     if final:
@@ -296,9 +293,8 @@ def report(store, outfile):
     """Generate report from test results in STORE."""
     try:
         with open_results(store) as results:
-            results = results.values()
             html = []
-            for result in results:
+            for result in results.values():
                 try:
                     markup = result.report()
                     html.append(markup)
@@ -311,5 +307,6 @@ def report(store, outfile):
     if len(html) != 0:
         markup = "".join(html)
         write_report(markup, outfile)
+    # TODO catch error raised in write_report
     else:
         echo("No report markup available!")

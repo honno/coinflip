@@ -1,6 +1,6 @@
 import pickle
+import shelve
 from contextlib import contextmanager
-from copy import copy
 from datetime import datetime
 from os import scandir
 from pathlib import Path
@@ -42,7 +42,7 @@ except FileExistsError:
     pass
 
 DATA_FNAME = "series.pickle"
-RESULTS_FNAME = "results.pickle"
+RESULTS_FNAME = "results"  # shelve appends .db to filename
 
 # ------------------------------------------------------------------------------
 # Store initialisation
@@ -130,8 +130,12 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     return series
 
 
+# TODO take store name arg
 class StoreExistsError(FileExistsError):
     """Exception for when a store is being assumed to not exist but does"""
+
+    def __str__(self):
+        return "Store of same name already exists"
 
 
 class NameConflictError(FileExistsError):
@@ -343,9 +347,9 @@ def drop(store_name):
 def list_stores():
     """List all stores in local data"""
     try:
-        for f in scandir(data_dir):
-            if f.is_dir():
-                yield f.name
+        for entry in scandir(data_dir):
+            if entry.is_dir():
+                yield entry.name
 
     except FileNotFoundError:
         pass
@@ -367,7 +371,7 @@ def store_result(store_name, stattest_name, result: TestResult):
     --------
     store_results : Store multiple results from multiple statistical tests
     """
-    with open_results(store_name, write=True) as results:
+    with open_results(store_name) as results:
         results[stattest_name] = result
 
 
@@ -386,21 +390,19 @@ def store_results(store_name, results_dict: Dict[str, TestResult]):
     --------
     store_result : Store a single results from a single statistical test
     """
-    with open_results(store_name, write=True) as results:
+    with open_results(store_name) as results:
         for stattest_name, result in results_dict.items():
             results[stattest_name] = result
 
 
 @contextmanager
-def open_results(store_name, write=False):
-    """Context manager to open results of a store
+def open_results(store_name):
+    """Context manager to read/write results of a store
 
     Parameters
     ----------
     store_name : str
         Name of store to access results in
-    write : bool, default `False`
-        Whether to save changes to modified `results`
 
     Yields
     ------
@@ -419,30 +421,8 @@ def open_results(store_name, write=False):
 
     results_path = store_path / RESULTS_FNAME
 
-    if results_path.exists():
-        with open(results_path, "rb") as f:
-            try:
-                results = pickle.load(f)
-            except EOFError:
-                results = {}
-    else:
-        results = {}
-
-    results_old = copy(results)
-
-    if not write:
-        with open(results_path, "rb") as f:
-            yield results
-
-        if results is not results_old:
-            warn("Changes made to object which will not be saved", UserWarning)
-
-    else:
-        with open(results_path, "wb") as f:
-            yield results
-
-            if results is not results_old:
-                pickle.dump(results, f)
+    with open_shelve(results_path) as results:
+        yield results
 
 
 # ------------------------------------------------------------------------------
@@ -463,3 +443,9 @@ def rm_tree(path: Path):
         else:
             rm_tree(child)
     path.rmdir()
+
+
+def open_shelve(path):
+    path_str = str(path)
+
+    return shelve.open(path_str)
