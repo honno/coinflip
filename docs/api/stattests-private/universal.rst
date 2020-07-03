@@ -2,5 +2,5 @@
 Universal
 =========
 
-.. automodule:: rngtest.stattests._universal
+.. automodule:: rngtest.stattests.universal
     :members:

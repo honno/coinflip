@@ -2,9 +2,9 @@
 API Reference
 =============
 
-
 .. toctree::
+   :maxdepth: 2
 
    wrapper/index
    stattests-public
-   stattests/index
+   stattests-private/index

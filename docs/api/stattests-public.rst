@@ -1,6 +1,6 @@
-==============================
-Statistical tests (public API)
-==============================
+=========================
+Randomness tests (public)
+=========================
 
 .. automodule:: rngtest.stattests
     :members:
