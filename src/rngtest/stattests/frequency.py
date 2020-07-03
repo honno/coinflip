@@ -274,21 +274,21 @@ class FrequencyWithinBlockTestResult(TestResult):
             f"{f_table}"
         )
 
-    def _report(self):
-        occurfig, occurax = plt.subplots()
+    # def _report(self):
+    #     occurfig, occurax = plt.subplots()
 
-        x_axis = [i * self.blocksize for i in range(len(self.occurences))]
+    #     x_axis = [i * self.blocksize for i in range(len(self.occurences))]
 
-        occurax.set_ylim([0, self.blocksize])
-        occurax.bar(x_axis, self.occurences, width=self.blocksize * 0.9, align="edge")
-        occurax.axhline(self.blocksize / 2, color="black")
+    #     occurax.set_ylim([0, self.blocksize])
+    #     occurax.bar(x_axis, self.occurences, width=self.blocksize * 0.9, align="edge")
+    #     occurax.axhline(self.blocksize / 2, color="black")
 
-        return [
-            f"p={self.p3f()}",
-            occurfig,
-            plot_chi2(self.statistic, df=self.nblocks),
-            plot_gammaincc(self.statistic / 2, self.nblocks / 2),
-        ]
+    #     return [
+    #         f"p={self.p3f()}",
+    #         occurfig,
+    #         plot_chi2(self.statistic, df=self.nblocks),
+    #         plot_gammaincc(self.statistic / 2, self.nblocks / 2),
+    #     ]
 
 
 def smartround(num):
