@@ -8,6 +8,7 @@ Contents
    readme
    installation
    usage
+   commands
    api/index
    contributing
    authors
