@@ -45,10 +45,7 @@ def monobits(series):
     -------
     MonobitsTestResult
         Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered. The `__str__` property (i.e. used
-        in `print` statements) contains a printable summary of the result, and
-        the `report()` method produces a HTML summary, which includes embedded
-        graphical plots.
+        other relevant information gathered.
     """
 
     counts = series.value_counts()
@@ -203,17 +200,14 @@ def frequency_within_block(series, candidate, blocksize=8):
         Output of the RNG being tested
     candidate : Value present in given series
         The value which is counted in each block
-    blocksize : int
+    blocksize : `int`
         Size of the blocks that partition the given series
 
     Returns
     -------
     FrequencyWithinBlockTestResult
         Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered. The `__str__` property (i.e. used
-        in `print` statements) contains a printable summary of the result, and
-        the `report()` method produces a HTML summary, which includes embedded
-        graphical plots.
+        other relevant information gathered.
     """
     n = len(series)
     nblocks = n // blocksize  # TODO meet 0.01 * n recommendation
