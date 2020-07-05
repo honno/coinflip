@@ -15,12 +15,13 @@ from rngtest import generators
 from rngtest.report import write_report
 from rngtest.stattests import __all__ as stattest_names
 from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import TestError
 from rngtest.stattests._pprint import dim
 from rngtest.stattests._pprint import pretty_seq
-from rngtest.store import PARSE_EXCEPTIONS
-from rngtest.store import STORE_EXCEPTIONS
 from rngtest.store import TYPES
+from rngtest.store import DataParsingError
 from rngtest.store import NoLatestStoreRecordedError
+from rngtest.store import StoreError
 from rngtest.store import StoreNotFoundError
 from rngtest.store import drop
 from rngtest.store import find_latest_store
@@ -31,7 +32,6 @@ from rngtest.store import parse_data
 from rngtest.store import store_data
 from rngtest.store import store_result
 from rngtest.store import store_results
-from rngtest.tests_runner import TEST_EXCEPTIONS
 from rngtest.tests_runner import run_all_tests
 from rngtest.tests_runner import run_test
 
@@ -143,7 +143,7 @@ def load(data, name, dtype, overwrite):
     """
     try:
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
-    except STORE_EXCEPTIONS as e:
+    except (DataParsingError, StoreError) as e:
         echo_err(e)
         exit(1)
 
@@ -237,7 +237,7 @@ def run(store, test):
                 store_result(store, test, result)
                 echo("Result stored!")
 
-            except TEST_EXCEPTIONS as e:
+            except TestError as e:
                 echo_err(e)
                 exit(1)
 
@@ -276,7 +276,7 @@ def example_run(example, length, test):
         else:
             try:
                 run_test(series, test)
-            except TEST_EXCEPTIONS as e:
+            except TestError as e:
                 echo_err(e)
                 exit(1)
 
@@ -294,7 +294,7 @@ def local_run(data, dtype, test):
     try:
         series = parse_data(data)
         echo_series(series)
-    except PARSE_EXCEPTIONS as e:
+    except (DataParsingError, NonBinarySequenceError) as e:
         echo_err(e)
         exit(1)
 
@@ -307,7 +307,7 @@ def local_run(data, dtype, test):
         else:
             try:
                 run_test(series, test)
-            except TEST_EXCEPTIONS as e:
+            except TestError as e:
                 echo_err(e)
                 exit(1)
 

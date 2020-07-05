@@ -8,14 +8,15 @@ from numpy.fft import fft as _fft
 
 from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
+from rngtest.stattests._exceptions import TestInputError
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._tabulate import tabulate
 
-__all__ = ["TruncatedInputSingleValueError", "discrete_fourier_transform"]
+__all__ = ["discrete_fourier_transform"]
 
 
 # TODO str method
-class TruncatedInputSingleValueError(ValueError):
+class TruncatedInputSingleValueError(TestInputError):
     pass
 
 

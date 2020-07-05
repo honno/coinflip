@@ -3,10 +3,15 @@ from warnings import warn
 
 import pandas as pd
 
-from rngtest.stattests._exceptions import MinimumInputError
 from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import TestInputError
 
 __all__ = ["stattest", "infer_candidate", "elected"]
+
+
+# TODO class-level message using n and min_input values
+class MinimumInputError(TestInputError):
+    pass
 
 
 def stattest(min_input=2, rec_input=2):
@@ -109,7 +114,7 @@ def infer_candidate(unique_values):
 
 
 # TODO take candidate and unique value args
-class CandidateNotInSequenceError(ValueError):
+class CandidateNotInSequenceError(TestInputError):
     """Error for when candidate value is not present in sequence"""
 
     def __str__(self):

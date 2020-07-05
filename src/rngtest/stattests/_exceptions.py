@@ -1,13 +1,25 @@
-__all__ = ["NonBinarySequenceError", "MinimumInputError"]
+__all__ = [
+    "TestError",
+    "TestNotImplementedError",
+    "TestInputError",
+    "NonBinarySequenceError",
+]
 
 
-class NonBinarySequenceError(ValueError):
+class TestError(Exception):
+    pass
+
+
+class TestNotImplementedError(TestError, NotImplementedError):
+    pass
+
+
+class TestInputError(TestError, ValueError):
+    pass
+
+
+class NonBinarySequenceError(TestInputError):
     """Error if sequence does not contain only 2 values"""
 
     def __str__(self):
         return "Sequence does not contain only 2 values (i.e. binary)"
-
-
-# TODO class-level message using n and min_input values
-class MinimumInputError(ValueError):
-    pass

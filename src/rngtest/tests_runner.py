@@ -6,13 +6,12 @@ import pandas as pd
 from click import echo
 
 from rngtest import stattests
-from rngtest.stattests._exceptions import MinimumInputError
 from rngtest.stattests._exceptions import NonBinarySequenceError
+from rngtest.stattests._exceptions import TestError
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._tabulate import tabulate
-from rngtest.stattests.fourier import TruncatedInputSingleValueError
 
-__all__ = ["TEST_EXCEPTIONS", "list_tests", "run_test", "run_all_tests"]
+__all__ = ["list_tests", "run_test", "run_all_tests"]
 
 
 def binary_check(func):
@@ -23,13 +22,6 @@ def binary_check(func):
         return func(series, *args, **kwargs)
 
     return wrapper
-
-
-TEST_EXCEPTIONS = (
-    NotImplementedError,
-    MinimumInputError,
-    TruncatedInputSingleValueError,
-)
 
 
 significance_level = 0.01
@@ -98,8 +90,8 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
     ------
     TestNotFoundError
         If `stattest_name` does not match any available statistical tests
-    exception : `NotImplementedError` or `MinimumInputError`
-        The exception raised when running `stattest_name`
+    TestError
+        Errors raised when running `stattest_name`
     """
     for name, func in list_tests():
         if stattest_name == name:
@@ -152,7 +144,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             yield name, result, None
             results[name] = result
 
-        except TEST_EXCEPTIONS as e:
+        except TestError as e:
             yield name, None, e
             results[name] = None
 

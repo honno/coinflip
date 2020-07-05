@@ -19,9 +19,9 @@ from rngtest.stattests._result import TestResult
 __all__ = [
     "TYPES",
     "data_dir",
-    "PARSE_EXCEPTIONS",
+    "DataParsingError",
     "parse_data",
-    "STORE_EXCEPTIONS",
+    "StoreError",
     "store_data",
     "NoLatestStoreRecordedError",
     "find_latest_store",
@@ -61,20 +61,17 @@ TYPES = {
 }
 
 
+class DataParsingError(ValueError):
+    pass
+
+
 # TODO list valid dtype_str values using the TYPES variable
-class TypeNotRecognizedError(ValueError):
+class TypeNotRecognizedError(DataParsingError):
     """Error for when a given dtype string representation is not recognised"""
 
 
-class MultipleColumnsError(ValueError):
+class MultipleColumnsError(DataParsingError):
     """Error for when only one column of data was expected"""
-
-
-PARSE_EXCEPTIONS = (
-    TypeNotRecognizedError,
-    MultipleColumnsError,
-    NonBinarySequenceError,
-)
 
 
 def parse_data(data_file, dtype_str=None) -> pd.Series:
@@ -133,15 +130,19 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     return series
 
 
+class StoreError(Exception):
+    pass
+
+
 # TODO take store name arg
-class StoreExistsError(FileExistsError):
-    """Exception for when a store is being assumed to not exist but does"""
+class StoreExistsError(StoreError, FileExistsError):
+    """Error for when a store is being assumed to not exist but does"""
 
     def __str__(self):
         return "Store of same name already exists"
 
 
-class NameConflictError(FileExistsError):
+class NameConflictError(StoreError, FileExistsError):
     """Error for when a unique storename could not be made"""
 
 
@@ -215,14 +216,6 @@ def init_store(name=None, overwrite=False):
             raise StoreExistsError()
 
     return store_name, store_path
-
-
-STORE_EXCEPTIONS = (
-    TypeNotRecognizedError,
-    MultipleColumnsError,
-    NameConflictError,
-    StoreExistsError,
-)
 
 
 def store_data(data_file, name=None, dtype_str=None, overwrite=False):

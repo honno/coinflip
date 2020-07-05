@@ -10,6 +10,7 @@ from scipy.special import gammaincc
 from rngtest.stattests._collections import FloorDict
 from rngtest.stattests._decorators import elected
 from rngtest.stattests._decorators import stattest
+from rngtest.stattests._exceptions import TestNotImplementedError
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._tabulate import tabulate
 from rngtest.stattests._testutils import blocks
@@ -124,7 +125,7 @@ def longest_runs(series, candidate):
     try:
         blocksize, nblocks, freqbin_ranges = n_defaults[n]
     except KeyError:
-        raise NotImplementedError(
+        raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         )
 
