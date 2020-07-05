@@ -1,3 +1,4 @@
+# TODO module doc explaining store concept, inits, vars
 import pickle
 import shelve
 from contextlib import contextmanager
@@ -62,16 +63,30 @@ TYPES = {
 
 
 class DataParsingError(ValueError):
-    pass
+    """Base class for parsing-related errors"""
 
 
-# TODO list valid dtype_str values using the TYPES variable
 class TypeNotRecognizedError(DataParsingError):
     """Error for when a given dtype string representation is not recognised"""
+
+    def __init__(self, dtype: str):
+        self.dtype = dtype
+
+    def __str__(self):
+        f_types = ", ".join(TYPES.keys())
+        return f"{self.dtype} is not a recognised data type\n" f"Valid types: {f_types}"
 
 
 class MultipleColumnsError(DataParsingError):
     """Error for when only one column of data was expected"""
+
+    def __init__(self, ncols):
+        self.ncols = ncols
+
+    def __str__(self):
+        return (
+            f"Parsed data contains {self.ncols} columns, but only 1 column was expected"
+        )
 
 
 def parse_data(data_file, dtype_str=None) -> pd.Series:
@@ -106,12 +121,13 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     See Also
     --------
     pandas.read_csv : The pandas method for reading `data_file`
-    store_data : Calls this method, and handles subsequent storage of data.
+    store_data : Calls this method, and handles subsequent storage of data
     """
     df = pd.read_csv(data_file, header=None)
 
-    if len(df.columns) > 1:
-        raise MultipleColumnsError()
+    ncols = len(df.columns)
+    if ncols > 1:
+        raise MultipleColumnsError(ncols)
     series = df.iloc[:, 0]
 
     if series.nunique() != 2:
@@ -121,7 +137,7 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
         try:
             dtype = TYPES[dtype_str]
         except KeyError:
-            raise TypeNotRecognizedError()
+            raise TypeNotRecognizedError(dtype_str)
 
         series = series.astype(dtype)
     else:
@@ -131,19 +147,27 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
 
 
 class StoreError(Exception):
-    pass
+    """Base class for store-related errors"""
+
+    def __init__(self, store_name):
+        self.store_name = store_name
 
 
-# TODO take store name arg
 class StoreExistsError(StoreError, FileExistsError):
     """Error for when a store is being assumed to not exist but does"""
 
     def __str__(self):
-        return "Store of same name already exists"
+        return (
+            f"'{self.store_name}' already exists\n"
+            "Use the --overwrite flag to write over this store"
+        )
 
 
 class NameConflictError(StoreError, FileExistsError):
     """Error for when a unique storename could not be made"""
+
+    def __str__(self):
+        return f"Generated name '{self.store_name}' conflicted with existing store"
 
 
 def init_store(name=None, overwrite=False):
@@ -179,10 +203,9 @@ def init_store(name=None, overwrite=False):
     NonBinarySequenceError
         If sequence does not contain only 2 values
 
-
     See Also
     --------
-    store_data : Parses data and calls this method, to then save data in store.
+    store_data : Parses data and calls this method, to then save data in store
     """
     if name is not None:
         store_name = slugify(name)
@@ -201,7 +224,7 @@ def init_store(name=None, overwrite=False):
             else:
                 sleep(1.5)
         else:
-            raise NameConflictError()
+            raise NameConflictError(store_name)
 
         print(f"Store name to be encoded as {store_name}")
 
@@ -213,7 +236,7 @@ def init_store(name=None, overwrite=False):
             rm_tree(store_path)
             Path.mkdir(store_path)
         else:
-            raise StoreExistsError()
+            raise StoreExistsError(store_name)
 
     return store_name, store_path
 
@@ -232,6 +255,9 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     The representive Series is serialised using Python's pickle module, saved
     in the initialised store.
 
+    The store's name is also written to a file in the user data directory, to
+    be accessed later when identifying the last initialised store.
+
     Parameters
     ----------
     data_file : str, path or file-like object
@@ -245,7 +271,6 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     overwrite : boolean, default `False`
         If a name conflicts with an existing store, this decides whether to
         overwrite it.
-
 
     Raises
     ------
@@ -261,8 +286,9 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
 
     See Also
     --------
-    parse_data : Method used that loads and parses `data_file`
-    init_store : Method used to initialise the store
+    parse_data : Loads and parses `data_file`
+    init_store : Initialises the store
+    find_latest_store : Accesses the name of the last initialised store
     """
     series = parse_data(data_file, dtype_str)
 
@@ -292,6 +318,21 @@ class NoLatestStoreRecordedError(LookupError):
 
 
 def find_latest_store() -> str:
+    """Find out the last initialised store
+
+    A file is kept in the root user data directory to record the last
+    initialised store's name, which this method reads to identify the store.
+
+    Returns
+    -------
+    store_name : str
+        Name of the last initialised store
+
+    Raises
+    ------
+    NoLatestStoreRecordedError
+        When no last initialised store is found
+    """
     latest_store_path = data_dir / LATEST_STORE_FNAME
     try:
         with open(latest_store_path) as f:
@@ -304,19 +345,18 @@ def find_latest_store() -> str:
     raise NoLatestStoreRecordedError()
 
 
-# TODO take name as argument to print out
-class StoreNotFoundError(FileNotFoundError):
+class StoreNotFoundError(StoreError, FileNotFoundError):
     """Error for when requested store does not exist"""
 
     def __str__(self):
-        return "Requested store does not exist"
+        return f"'{self.store_name}' does not exist"
 
 
-class DataNotFoundError(LookupError):
+class DataNotFoundError(StoreError, FileNotFoundError):
     """Error for when requested store has no data"""
 
-
-# TODO get data exceptions tuple (handle in cli)
+    def __str__(self):
+        return f"'{self.store_name}' contains no data"
 
 
 def get_data(store_name) -> pd.Series:
@@ -341,7 +381,7 @@ def get_data(store_name) -> pd.Series:
     """
     store_path = data_dir / store_name
     if not store_path.exists():
-        raise StoreNotFoundError()
+        raise StoreNotFoundError(store_name)
 
     data_path = store_path / DATA_FNAME
     try:
@@ -351,7 +391,7 @@ def get_data(store_name) -> pd.Series:
         return series
 
     except FileNotFoundError:
-        raise DataNotFoundError()
+        raise DataNotFoundError(store_name)
 
 
 def drop(store_name):
@@ -452,13 +492,7 @@ def open_results(store_name):
 
 
 def rm_tree(path: Path):
-    """Recursively remove files and folders in a given directory
-
-    Parameters
-    ----------
-    path : Path
-        Where to recursively remove files in
-    """
+    """Recursively remove files and folders in a given directory"""
     for child in path.glob("*"):
         if child.is_file():
             child.unlink()
@@ -468,6 +502,7 @@ def rm_tree(path: Path):
 
 
 def open_shelve(path):
+    """Adaptor of shelve.open to work with pathlib's Path"""
     path_str = str(path)
 
     return shelve.open(path_str)
