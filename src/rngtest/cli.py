@@ -6,6 +6,7 @@ from click import Choice
 from click import File
 from click import Path
 from click import argument
+from click import confirm
 from click import echo
 from click import group
 from click import option
@@ -18,22 +19,8 @@ from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._exceptions import TestError
 from rngtest.stattests._pprint import dim
 from rngtest.stattests._pprint import pretty_seq
-from rngtest.store import TYPES
-from rngtest.store import DataParsingError
-from rngtest.store import NoLatestStoreRecordedError
-from rngtest.store import StoreError
-from rngtest.store import StoreNotFoundError
-from rngtest.store import drop
-from rngtest.store import find_latest_store
-from rngtest.store import get_data
-from rngtest.store import list_stores
-from rngtest.store import open_results
-from rngtest.store import parse_data
-from rngtest.store import store_data
-from rngtest.store import store_result
-from rngtest.store import store_results
-from rngtest.tests_runner import run_all_tests
-from rngtest.tests_runner import run_test
+from rngtest.store import *
+from rngtest.tests_runner import *
 
 __all__ = [
     "load",
@@ -56,19 +43,23 @@ err_txt = Fore.RED + "ERR!" + Fore.RESET
 
 
 def formatwarning(msg, *args, **kwargs):
+    """Pretty print warnings"""
     return dim(f"{warn_txt} {msg}\n")
 
 
+# Monkey patch python's warning module to use our formatting
 warnings.formatwarning = formatwarning
 
 
-def echo_err(error: Exception):
-    line = f"{err_txt} {error}"
+def echo_err(e: Exception):
+    """Pretty print exceptions"""
+    line = f"{err_txt} {e}"
     echo(line, err=True)
 
 
 # TODO descriptions of the series e.g. length
 def echo_series(series):
+    """Pretty print series that contain binary data"""
     size = get_terminal_size()
     cols = min(size.columns, 80)
 
@@ -90,11 +81,12 @@ def get_stores(ctx, args, incomplete):
                 yield name
 
 
+# TODO extend Choice to use echo_err and newline-delimit lists
 dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(stattest_names)
 
 # ------------------------------------------------------------------------------
-# Help output
+# Help option
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -103,6 +95,30 @@ help_msg = {
     "dtype": "Specify data type of the data.",
     "test": "Specify single test to run on data.",
 }
+
+# ------------------------------------------------------------------------------
+# Prompting
+
+
+def infer_store():
+    """Finds the last initialised store and prompts on using it"""
+    try:
+        store = find_latest_store()
+    except NoLatestStoreRecordedError as e:
+        echo_err(e)
+        echo("Try specifying STORE manually")
+        exit(1)
+
+    msg = (
+        f"No STORE argument provided\n"
+        f"    The most recent STORE to be initialised is '{store}'\n"
+        f"    Pass it as the STORE argument?"
+    )
+    if confirm(msg):
+        return store
+    else:
+        exit(0)
+
 
 # ------------------------------------------------------------------------------
 # Commands
@@ -181,12 +197,7 @@ def ls():
 def cat(store):
     """Print contents of data in STORE."""
     if not store:
-        try:
-            store = find_latest_store()
-        except NoLatestStoreRecordedError as e:
-            echo_err(e)
-            echo("Try specifying STORE manually")
-            exit(1)
+        store = infer_store()
 
     try:
         series = get_data(store)
@@ -207,12 +218,7 @@ def run(store, test):
     a rich document via the report command.
     """
     if not store:
-        try:
-            store = find_latest_store()
-        except NoLatestStoreRecordedError as e:
-            echo_err(e)
-            echo("Try specifying STORE manually")
-            exit(1)
+        store = infer_store()
 
     try:
         series = get_data(store)
@@ -327,12 +333,7 @@ def report(store, outfile):
         exit(1)
 
     if not store:
-        try:
-            store = find_latest_store()
-        except NoLatestStoreRecordedError as e:
-            echo_err(e)
-            echo("Try specifying STORE manually")
-            exit(1)
+        store = infer_store()
 
     try:
         with open_results(store) as results:
@@ -351,6 +352,5 @@ def report(store, outfile):
     if len(html) != 0:
         markup = "".join(html)
         write_report(markup, outfile)
-    # TODO catch error raised in write_report
-    else:
+    else:  # TODO catch error raised in write_report
         echo("No report markup available!")
