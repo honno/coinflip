@@ -1,3 +1,5 @@
+"""Base exception classes and common exceptions for randomness tests."""
+
 __all__ = [
     "TestError",
     "TestNotImplementedError",
@@ -7,15 +9,15 @@ __all__ = [
 
 
 class TestError(Exception):
-    pass
+    """Base class for test-related errors"""
 
 
 class TestNotImplementedError(TestError, NotImplementedError):
-    pass
+    """Error if test is not implemented to handle valid parameters"""
 
 
 class TestInputError(TestError, ValueError):
-    pass
+    """Error if test cannot handle (invalud) parameters"""
 
 
 class NonBinarySequenceError(TestInputError):
