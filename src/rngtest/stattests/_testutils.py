@@ -108,5 +108,5 @@ def check_recommendations(recommendation: Dict[str, bool]):
 
     elif nfail > 1:
         msg = "Multiple NIST recommendations not met:\n"
-        msg += "\n".join([f"• {expr}" for expr in failures])
+        msg += "\n".join([f"\t• {expr}" for expr in failures])
         warn(msg, UserWarning)

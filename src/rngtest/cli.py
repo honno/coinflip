@@ -110,9 +110,9 @@ def infer_store():
         exit(1)
 
     msg = (
-        f"No STORE argument provided\n"
-        f"    The most recent STORE to be initialised is '{store}'\n"
-        f"    Pass it as the STORE argument?"
+        "No STORE argument provided\n"
+        f"\tThe most recent STORE to be initialised is '{store}'\n"
+        "\tPass it as the STORE argument?"
     )
     if confirm(msg):
         return store
