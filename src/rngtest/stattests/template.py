@@ -154,6 +154,8 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 matches_ceil = 5
 
 
+# TODO Review paper "Correction of Overlapping Template Matching Test Included in
+#                    NIST Randomness Test Suite"
 @stattest(rec_input=288)  # TODO appropiate min input
 def overlapping_template_matching(series, template: List = None, nblocks=None, df=5):
     """Overlapping matches of template per block is compared to expected result

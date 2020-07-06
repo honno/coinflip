@@ -12,8 +12,8 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 from appdirs import AppDirs
+from slugify import slugify
 
-from rngtest.slugify import slugify
 from rngtest.stattests._exceptions import NonBinarySequenceError
 from rngtest.stattests._result import TestResult
 
@@ -208,7 +208,7 @@ def init_store(name=None, overwrite=False):
     store_data : Parses data and calls this method, to then save data in store
     """
     if name is not None:
-        store_name = slugify(name)
+        store_name = slugify(name, separator="_")
 
         if store_name != name:
             warn(f"Name encoded as {store_name}", UserWarning)
@@ -303,7 +303,7 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     with open(latest_store_path, "w") as f:
         f.write(store_name)
 
-    print("Data stored successfully!\n")
+    print("Data stored successfully!")
 
 
 # ------------------------------------------------------------------------------
