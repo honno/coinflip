@@ -1,4 +1,9 @@
-# TODO module doc explaining store concept, inits, vars
+"""Store functionality for the CLI
+
+A store is an abstraction for a folder in the user's local data directory
+which pertains to a specific dataset that comprises of RNG output. The store can
+subsequently store test results and report markup for said results.
+"""
 import pickle
 import shelve
 from contextlib import contextmanager
@@ -23,6 +28,7 @@ __all__ = [
     "DataParsingError",
     "parse_data",
     "StoreError",
+    "init_store",
     "store_data",
     "NoLatestStoreRecordedError",
     "find_latest_store",
@@ -98,16 +104,16 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
 
     Parameters
     ----------
-    data_file : str, path or file-like object
+    data_file : file-like object
         File containing RNG output
-    dtype_str : str, optional
+    dtype_str : `str`, optional
         String representation of desired dtype. If not supplied, it is inferred
         from the data.
 
     Returns
     -------
-    Series
-        A pandas Series which represents the data
+    `Series`
+        A pandas `Series` which represents the data
 
     Raises
     ------
@@ -179,18 +185,18 @@ def init_store(name=None, overwrite=False):
 
     Parameters
     ----------
-    name : str, optional
+    name : `str`, optional
         Desired name of the store, which will be sanitised. If not supplied, a
         name is generated automatically.
-    overwrite : boolean, default `False`
+    overwrite : `boolean`, default `False`
         If a name conflicts with an existing store, this decides whether to
         overwrite it.
 
     Returns
     -------
-    store_name : str
+    store_name : `str`
         Internal name of the initialised store
-    store_path : Path
+    store_path : `Path`
         Path of the initialised store
 
     Raises
@@ -260,15 +266,15 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
 
     Parameters
     ----------
-    data_file : str, path or file-like object
+    data_file : file-like object
         File containing RNG output
-    name : str, optional
+    name : `str`, optional
         Desired name of the store, which will be sanitised. If not supplied, a
         name is generated automatically.
-    dtype_str : str, optional
+    dtype_str : `str`, optional
         String representation of desired dtype. If not supplied, it is inferred
         from the data.
-    overwrite : boolean, default `False`
+    overwrite : `bool`, default `False`
         If a name conflicts with an existing store, this decides whether to
         overwrite it.
 
@@ -325,7 +331,7 @@ def find_latest_store() -> str:
 
     Returns
     -------
-    store_name : str
+    store_name : `str`
         Name of the last initialised store
 
     Raises
@@ -364,13 +370,13 @@ def get_data(store_name) -> pd.Series:
 
     Parameters
     ----------
-    store_name : str
+    store_name : `str`
         Name of the store
 
     Returns
     -------
-    Series
-        A pandas Series which represents the data
+    `Series`
+        A pandas `Series` which represents the data
 
     Raises
     ------
@@ -399,7 +405,7 @@ def drop(store_name):
 
     Parameters
     ----------
-    store_name : str
+    store_name : `str`
         Name of store to remove
     """
     store_path = data_dir / store_name
@@ -422,11 +428,11 @@ def store_result(store_name, stattest_name, result: TestResult):
 
     Parameters
     ----------
-    store_name : str
+    store_name : `str`
         Name of store to save result in
-    stattest_name : str
+    stattest_name : `str`
         Name of statistical test the result came from
-    result : TestResult
+    result : `TestResult`
         Result of the statistical test
 
     See Also
@@ -443,9 +449,9 @@ def store_results(store_name, results_dict: Dict[str, TestResult]):
 
     Parameters
     ----------
-    store_name : str
+    store_name : `str`
         Name of store to save result in
-    results_dict : Dict[str, TestResult]
+    results_dict : `Dict[str, TestResult]`
         Mapping of statistical tests to their respective results
 
     See Also
@@ -463,12 +469,12 @@ def open_results(store_name):
 
     Parameters
     ----------
-    store_name : str
+    store_name : `str`
         Name of store to access results in
 
     Yields
     ------
-    results : Dict[str, TestResult]
+    results : `Dict[str, TestResult]`
         Previously stored results of statistical tests
 
     Raises
