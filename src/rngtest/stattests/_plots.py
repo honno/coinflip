@@ -1,3 +1,7 @@
+"""Common plotting methods.
+
+.. deprecated:: 0
+   Randomness test results will  use `Altair` in the future"""
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import inf
