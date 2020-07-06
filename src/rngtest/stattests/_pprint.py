@@ -1,4 +1,6 @@
+"""Coloured ASCII art representations of binary sequences."""
 from functools import lru_cache
+from typing import Tuple
 
 from colorama import Fore
 from colorama import Style
@@ -6,11 +8,31 @@ from colorama import Style
 from rngtest.stattests._decorators import infer_candidate
 from rngtest.stattests._testutils import blocks
 
-__all__ = ["pretty_subseq", "pretty_seq", "dim"]
+__all__ = ["determine_rep", "pretty_subseq", "pretty_seq", "dim", "bright"]
 
 
 @lru_cache()
-def determine_rep(candidate, noncandidate):
+def determine_rep(candidate, noncandidate) -> Tuple[str, str]:
+    """Determine single-character representations of each binary value
+
+    Parameters
+    ----------
+    candidate : `Any`
+        One of the two values in a sequence
+    noncandidate : `Any`
+        Value in a sequence which is not `candidate`
+
+    Returns
+    -------
+    c_rep : `str`
+        Character representation of the `candidate`
+    nc_rep : `str`
+        Character representation of the `noncandidate`
+
+    See Also
+    --------
+    lru_cache : Method used for caching results
+    """
     c_rep = str(candidate)[0]
     nc_rep = str(noncandidate)[0]
     if c_rep.casefold() == nc_rep.casefold():
@@ -20,7 +42,27 @@ def determine_rep(candidate, noncandidate):
     return c_rep, nc_rep
 
 
-def pretty_subseq(series, candidate, noncandidate):
+def pretty_subseq(series, candidate, noncandidate) -> str:
+    """Produce a one-line pretty representation of a subsequence
+
+    Parameters
+    ----------
+    series : `Series`
+        Subsequence to represent
+    candidate : `Any`
+        One of the two values in `series`
+    noncandidate : `Any`
+        Value in a sequence which in `series`
+
+    Returns
+    -------
+    series_rep : `str`
+        Pretty representation of `series`
+
+    See Also
+    --------
+    determine_rep : Method used to determine the `series` character representations
+    """
     c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
 
@@ -36,8 +78,26 @@ def pretty_subseq(series, candidate, noncandidate):
     return bright(series_rep)
 
 
-# TODO reverse blocks and other optimisations for large sequences
-def pretty_seq(series, cols):
+def pretty_seq(series, cols) -> str:
+    """Produce a multi-line representation of a sequence
+
+    Parameters
+    ----------
+    series : `Series`
+        Sequence to represent
+    cols : `int`
+        Maximum number of characters to use per line
+
+    Returns
+    -------
+    series_rep : `str`
+        Pretty represented of a sequence
+
+    See Also
+    --------
+    infer_candidate : Method used to infer the candidate value of the `series`
+    pretty_subseq : Method wrapped to generate rows
+    """
     values = series.unique()
     candidate = infer_candidate(values)
     try:
@@ -113,13 +173,38 @@ def pretty_seq(series, cols):
     return "\n".join(lines)
 
 
-def hline(width):
+def hline(width) -> str:
+    """Construct a horizontal line string"""
     return dim("+" + "".join("-" for _ in range(width - 2)) + "+")
 
 
-def dim(string):
+def dim(string) -> str:
+    """Wrap string in dim character codes
+
+    Parameters
+    ----------
+    string : `str`
+        String to wrap
+
+    Returns
+    -------
+    `str`
+        Wrapped string
+    """
     return Style.DIM + string + Style.RESET_ALL
 
 
-def bright(string):
+def bright(string) -> str:
+    """Wrap string in bright character codes
+
+    Parameters
+    ----------
+    string : `str`
+        String to wrap
+
+    Returns
+    -------
+    `str`
+        Wrapped string
+    """
     return Style.BRIGHT + string + Style.RESET_ALL
