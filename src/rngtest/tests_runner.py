@@ -1,3 +1,5 @@
+"""Methods used to interact with the stattests subpackage."""
+from functools import wraps
 from typing import Callable
 from typing import Iterator
 from typing import Tuple
@@ -11,20 +13,10 @@ from rngtest.stattests._exceptions import TestError
 from rngtest.stattests._result import TestResult
 from rngtest.stattests._tabulate import tabulate
 
-__all__ = ["list_tests", "run_test", "run_all_tests"]
+__all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 
 
-def binary_check(func):
-    def wrapper(series, *args, **kwargs):
-        if series.nunique() != 2:
-            raise NonBinarySequenceError()
-
-        return func(series, *args, **kwargs)
-
-    return wrapper
-
-
-significance_level = 0.01
+SIGLEVEL = 0.01
 
 f_stattest_names = {
     "monobits": "Frequency (Monobits) Test",
@@ -39,7 +31,21 @@ f_stattest_names = {
 }
 
 
+def binary_check(func):
+    """Decorator to check if series comprises of binary values"""
+
+    @wraps(func)
+    def wrapper(series, *args, **kwargs):
+        if series.nunique() != 2:
+            raise NonBinarySequenceError()
+
+        return func(series, *args, **kwargs)
+
+    return wrapper
+
+
 def echo_stattest_name(stattest_name):
+    """Pretty print the stattest's name"""
     stattest_fname = f_stattest_names[stattest_name]
     underline = "".join("=" for char in stattest_fname)
     echo(stattest_fname + "\n" + underline)
@@ -63,8 +69,6 @@ def list_tests() -> Iterator[Tuple[str, Callable]]:
 
 class TestNotFoundError(ValueError):
     """Error for when a statistical test is not found"""
-
-    pass
 
 
 @binary_check
@@ -156,7 +160,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
         if result:
             f_pvalue = result.p3f()
-            success = result.p >= significance_level
+            success = result.p >= SIGLEVEL
             f_success = "PASS" if success else "FAIL"
         else:
             f_pvalue = 0
@@ -166,7 +170,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         table.append(row)
 
     f_table = tabulate(
-        table, ["Statistical Test", "p-value", "Result"], tablefmt="fancy_grid"
+        table, ["Statistical Test", "p-value", "Result"], tablefmt="presto"
     )
-    echo(f"Using a significance level of {significance_level}")
     echo(f_table)
+    echo((f"(significance level of {SIGLEVEL})"))
