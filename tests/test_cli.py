@@ -1,10 +1,9 @@
+"""Model-based testing for the CLI"""
 import re
-from datetime import timedelta
 from shutil import rmtree
 from tempfile import NamedTemporaryFile
 
 from click.testing import CliRunner
-from hypothesis import settings
 from hypothesis.stateful import Bundle
 from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import consumes
@@ -30,6 +29,13 @@ def module_setup_teardown():
 
 
 class CliRoutes(RuleBasedStateMachine):
+    """State machine for routes taken via the CLI
+
+    See Also
+    --------
+    RuleBasedStateMachine : Base class used to help define state machine
+    """
+
     def __init__(self):
         super(CliRoutes, self).__init__()
 
@@ -66,11 +72,6 @@ class CliRoutes(RuleBasedStateMachine):
 
         ls_result = self.cli.invoke(cli.ls)
         assert not re.search(store_name, ls_result.stdout)
-
-
-CliRoutes.TestCase.settings = settings(
-    max_examples=1, stateful_step_count=1, deadline=timedelta(milliseconds=2000)
-)
 
 
 TestStore = CliRoutes.TestCase

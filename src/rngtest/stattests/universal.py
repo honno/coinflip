@@ -99,7 +99,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
         try:
             blocksize, init_nblocks = n_defaults[n]
         except KeyError:
-            blocksize = max(ceil(log(n)), 2)
+            blocksize = min(max(ceil(log(n)), 2), 16)  # largest blocksize_dists key
             nblocks = n // blocksize
             init_nblocks = max(nblocks // 100, 1)
 
