@@ -1,5 +1,5 @@
 ======
-Matrix
+matrix
 ======
 
 .. automodule:: rngtest.stattests.matrix

@@ -1,5 +1,5 @@
 ==========
-Generators
+generators
 ==========
 
 .. automodule:: rngtest.generators

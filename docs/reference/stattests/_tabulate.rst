@@ -1,6 +1,6 @@
-========
-Tabulate
-========
+=========
+_tabulate
+=========
 
 .. automodule:: rngtest.stattests._tabulate
     :members:

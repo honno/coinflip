@@ -1,5 +1,7 @@
 """Store functionality for the CLI
 
+Notes
+-----
 A store is an abstraction for a folder in the user's local data directory
 which pertains to a specific dataset that comprises of RNG output. The store can
 subsequently store test results and report markup for said results.

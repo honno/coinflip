@@ -1,6 +1,6 @@
-==========
-Exceptions
-==========
+===========
+_exceptions
+===========
 
 .. automodule:: rngtest.stattests._exceptions
     :members:

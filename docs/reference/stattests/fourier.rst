@@ -1,5 +1,5 @@
 =======
-Fourier
+fourier
 =======
 
 .. automodule:: rngtest.stattests.fourier

@@ -1,6 +1,6 @@
-==========
-Decorators
-==========
+===========
+_decorators
+===========
 
 .. automodule:: rngtest.stattests._decorators
     :members:

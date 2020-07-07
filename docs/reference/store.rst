@@ -1,6 +1,6 @@
-==========
-Data Store
-==========
+=====
+store
+=====
 
 .. automodule:: rngtest.store
     :members:

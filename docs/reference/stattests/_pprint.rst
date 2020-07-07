@@ -1,6 +1,6 @@
-===============
-Pretty Printing
-===============
+=======
+_pprint
+=======
 
 .. automodule:: rngtest.stattests._pprint
     :members:

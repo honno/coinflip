@@ -8,7 +8,7 @@ __all__ = ["python", "primes"]
 
 
 def python():
-    """Generats random bits using python's `random` module
+    """Generates random bits using python's `random` module
 
     Yields
     ------

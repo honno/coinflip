@@ -11,11 +11,12 @@ from hypothesis.stateful import rule
 from pytest import fixture
 
 from rngtest import cli
+from rngtest.cli import main
 from rngtest.store import data_dir
 
 from .stattests.strategies import mixedbits
 
-__all__ = ["CliRoutes"]
+__all__ = ["test_main", "CliRoutes"]
 
 r_storename = re.compile(
     r"Store name to be encoded as ([a-z\_0-9]+)\n", flags=re.IGNORECASE
@@ -26,6 +27,14 @@ r_storename = re.compile(
 def module_setup_teardown():
     yield
     rmtree(data_dir)
+
+
+# TODO doc
+def test_main():
+    runner = CliRunner()
+    result = runner.invoke(main, [])
+
+    assert result.exit_code == 0
 
 
 class CliRoutes(RuleBasedStateMachine):

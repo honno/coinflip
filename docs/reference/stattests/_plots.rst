@@ -1,6 +1,6 @@
-=====
-Plots
-=====
+======
+_plots
+======
 
 .. automodule:: rngtest.stattests._plots
     :members:

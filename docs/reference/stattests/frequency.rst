@@ -1,5 +1,5 @@
 =========
-Frequency
+frequency
 =========
 
 .. automodule:: rngtest.stattests.frequency

@@ -1,5 +1,5 @@
 ============
-Tests Runner
+tests_runner
 ============
 
 .. automodule:: rngtest.tests_runner

@@ -1,5 +1,5 @@
 ====
-Runs
+runs
 ====
 
 .. automodule:: rngtest.stattests.runs

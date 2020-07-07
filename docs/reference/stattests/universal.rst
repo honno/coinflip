@@ -1,5 +1,5 @@
 =========
-Universal
+universal
 =========
 
 .. automodule:: rngtest.stattests.universal

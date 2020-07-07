@@ -1,5 +1,5 @@
 =======
-Results
+_result
 =======
 
 .. automodule:: rngtest.stattests._result

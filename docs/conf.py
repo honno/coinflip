@@ -1,10 +1,4 @@
 import os
-import sys
-from pathlib import Path
-
-# Add tests to the python path
-root_path = Path(__file__).parents[1]
-sys.path.append(str(root_path))
 
 extensions = [
     "sphinx.ext.autodoc",

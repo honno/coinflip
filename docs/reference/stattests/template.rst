@@ -1,5 +1,5 @@
 ========
-Template
+template
 ========
 
 .. automodule:: rngtest.stattests.template
