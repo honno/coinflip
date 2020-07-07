@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 from shutil import rmtree
 from tempfile import NamedTemporaryFile
 
@@ -15,8 +16,10 @@ from rngtest.store import data_dir
 
 from .stattests.test_compare_implementations import mixedbits
 
+__all__ = ["CliRoutes"]
+
 r_storename = re.compile(
-    "Store name to be encoded as ([a-z0-9]+)\n", flags=re.IGNORECASE
+    r"Store name to be encoded as ([a-z\_0-9]+)\n", flags=re.IGNORECASE
 )
 
 
@@ -40,12 +43,12 @@ class CliRoutes(RuleBasedStateMachine):
         with datafile as f:
             for x in sequence:
                 x_bin = str(x).encode("utf-8")
-                f.write(x_bin)
+                line = x_bin + b"\n"
+                f.write(line)
 
             f.seek(0)
             result = self.cli.invoke(cli.load, [f.name])
 
-        # TODO outdated way to find store name
         store_name_msg = r_storename.search(result.stdout)
         store_name = store_name_msg.group(1)
 
@@ -65,7 +68,9 @@ class CliRoutes(RuleBasedStateMachine):
         assert not re.search(store_name, ls_result.stdout)
 
 
-CliRoutes.TestCase.settings = settings(max_examples=1, stateful_step_count=1)
+CliRoutes.TestCase.settings = settings(
+    max_examples=1, stateful_step_count=1, deadline=timedelta(milliseconds=2000)
+)
 
 
 TestStore = CliRoutes.TestCase

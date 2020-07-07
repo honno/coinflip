@@ -21,7 +21,7 @@ class TestInputError(TestError, ValueError):
 
 
 class NonBinarySequenceError(TestInputError):
-    """Error if sequence does not contain only 2 values"""
+    """Error if sequence does not contain only 2 distinct values"""
 
     def __str__(self):
-        return "Sequence does not contain only 2 values (i.e. binary)"
+        return "Sequence does not contain only 2 distinct values (i.e. binary)"

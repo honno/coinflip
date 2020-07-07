@@ -46,7 +46,6 @@ data_dir = Path(dirs.user_data_dir)
 # Create local data directory if it does not already exist
 try:
     Path.mkdir(data_dir, parents=True)
-    print(f"Created store folder at {data_dir}")
 except FileExistsError:
     pass
 

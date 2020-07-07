@@ -159,7 +159,7 @@ def load(data, name, dtype, overwrite):
     """
     try:
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
-    except (DataParsingError, StoreError) as e:
+    except (DataParsingError, NonBinarySequenceError, StoreError) as e:
         echo_err(e)
         exit(1)
 
