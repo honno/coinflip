@@ -13,7 +13,7 @@ from pytest import fixture
 from rngtest import cli
 from rngtest.store import data_dir
 
-from .stattests.test_compare_implementations import mixedbits
+from .stattests.strategies import mixedbits
 
 __all__ = ["CliRoutes"]
 

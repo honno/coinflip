@@ -14,6 +14,7 @@ import rngtest.stattests as stattests
 from .implementations import ImplementationError
 from .implementations import dj_testmap
 from .implementations import sgr_testmap
+from .strategies import mixedbits
 
 
 def pclose(left, right) -> bool:
@@ -26,23 +27,6 @@ def pclose(left, right) -> bool:
 
 # ------------------------------------------------------------------------------
 # Strategy definition
-
-
-def contains_multiple_values(array):
-    firstval = array[0]
-    for val in array[1:]:
-        if val != firstval:
-            return True
-    else:
-        return False
-
-
-def mixedbits(min_size=2):
-    binary = st.integers(min_value=0, max_value=1)
-    bits = st.lists(binary, min_size=min_size)
-    mixedbits = bits.filter(contains_multiple_values)
-
-    return mixedbits
 
 
 @st.composite
