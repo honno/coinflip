@@ -76,7 +76,6 @@ setup(
         "python-slugify",
         "pandas",
         "matplotlib",
-        "weasyprint",
         "tabulate",
         "colorama",
     ],

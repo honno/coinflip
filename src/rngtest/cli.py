@@ -327,7 +327,7 @@ def local_run(data, dtype, test):
 @argument("store", autocompletion=get_stores, required=False, metavar="STORE")
 @option("-o", "--outfile", type=Path())
 def report(store, outfile):
-    """Generate report from test results in STORE."""
+    """Generate html report from test results in STORE."""
     if not outfile:
         echo("Please specify --outfile! Default behaviour is not implemented yet")
         exit(1)
