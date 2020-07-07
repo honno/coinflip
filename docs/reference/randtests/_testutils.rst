@@ -2,5 +2,5 @@
 _testutils
 ==========
 
-.. automodule:: rngtest.stattests._testutils
+.. automodule:: rngtest.randtests._testutils
     :members:

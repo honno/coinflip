@@ -2,5 +2,5 @@
 _collections
 ============
 
-.. automodule:: rngtest.stattests._collections
+.. automodule:: rngtest.randtests._collections
     :members:

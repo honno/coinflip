@@ -7,7 +7,7 @@ from typing import Union
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
 
-from rngtest.stattests._tabulate import tabulate
+from rngtest.randtests._tabulate import tabulate
 
 __all__ = ["TestResult"]
 
@@ -61,10 +61,14 @@ class TestResult:
         return f_table
 
     def __str__(self):
-        raise NotImplementedError(f"No __str__ method provided for {self.__class__.__name__}")
+        raise NotImplementedError(
+            f"No __str__ method provided for {self.__class__.__name__}"
+        )
 
     def _report(self) -> Iterable[Union[str, Subplot]]:
-        raise NotImplementedError(f"No report markup provided for {self.__class__.__name__}")
+        raise NotImplementedError(
+            f"No report markup provided for {self.__class__.__name__}"
+        )
 
     def report(self):
         """Generate report HTML

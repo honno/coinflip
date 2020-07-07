@@ -10,7 +10,7 @@ from typing import Union
 
 import pytest
 
-from rngtest import stattests
+from rngtest import randtests
 
 tests_path = Path(__file__).parent
 data_path = tests_path / "data"
@@ -282,7 +282,7 @@ def examples_iter(title_substr: str = None):
 # @pytest.mark.parametrize(Example._fields, examples_iter())
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
-    stattest_method = getattr(stattests, stattest)
+    stattest_method = getattr(randtests, stattest)
 
     result = stattest_method(bits, **kwargs)
 

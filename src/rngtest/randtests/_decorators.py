@@ -3,8 +3,8 @@ from warnings import warn
 
 import pandas as pd
 
-from rngtest.stattests._exceptions import NonBinarySequenceError
-from rngtest.stattests._exceptions import TestInputError
+from rngtest.randtests._exceptions import NonBinarySequenceError
+from rngtest.randtests._exceptions import TestInputError
 
 __all__ = ["stattest", "infer_candidate", "elected"]
 

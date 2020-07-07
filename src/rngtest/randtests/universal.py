@@ -7,11 +7,11 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
-from rngtest.stattests._collections import FloorDict
-from rngtest.stattests._decorators import stattest
-from rngtest.stattests._result import TestResult
-from rngtest.stattests._testutils import check_recommendations
-from rngtest.stattests._testutils import rawblocks
+from rngtest.randtests._collections import FloorDict
+from rngtest.randtests._decorators import stattest
+from rngtest.randtests._result import TestResult
+from rngtest.randtests._testutils import check_recommendations
+from rngtest.randtests._testutils import rawblocks
 
 __all__ = ["maurers_universal"]
 

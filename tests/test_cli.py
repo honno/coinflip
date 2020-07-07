@@ -14,7 +14,7 @@ from rngtest import cli
 from rngtest.cli import main
 from rngtest.store import data_dir
 
-from .stattests.strategies import mixedbits
+from .randtests.strategies import mixedbits
 
 __all__ = ["test_main", "CliRoutes"]
 

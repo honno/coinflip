@@ -21,8 +21,8 @@ import pandas as pd
 from appdirs import AppDirs
 from slugify import slugify
 
-from rngtest.stattests._exceptions import NonBinarySequenceError
-from rngtest.stattests._result import TestResult
+from rngtest.randtests._exceptions import NonBinarySequenceError
+from rngtest.randtests._result import TestResult
 
 __all__ = [
     "TYPES",

@@ -9,7 +9,7 @@ from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
 
-import rngtest.stattests as stattests
+import rngtest.randtests as randtests
 
 from .implementations import ImplementationError
 from .implementations import dj_testmap
@@ -90,7 +90,7 @@ def universal_strategy(draw, min_blocks=2, blocksize_max=16):
 
 @given(mixedbits())
 def test_monobits(bits):
-    result = stattests.monobits(pd.Series(bits))
+    result = randtests.monobits(pd.Series(bits))
 
     dj_stattest = dj_testmap["monobits"].stattest
     dj_result = dj_stattest(bits)
@@ -109,7 +109,7 @@ def test_dj_frequency_within_block(bits):
     dj_stattest = _implementation.stattest
     dj_fixedkwargs = _implementation.fixedkwargs
 
-    result = stattests.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
+    result = randtests.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
     dj_result = dj_stattest(bits)
 
     assert pclose(result.p, dj_result.p)
@@ -119,7 +119,7 @@ def test_dj_frequency_within_block(bits):
 def test_sgr_frequency_within_block(args):
     bits, blocksize = args
 
-    result = stattests.frequency_within_block(bits, blocksize=blocksize)
+    result = randtests.frequency_within_block(bits, blocksize=blocksize)
 
     sgr_stattest = sgr_testmap["frequency_within_block"].stattest
     sgr_p = sgr_stattest(bits, blocksize=blocksize)
@@ -129,7 +129,7 @@ def test_sgr_frequency_within_block(args):
 
 @given(mixedbits())
 def test_runs(bits):
-    result = stattests.runs(bits)
+    result = randtests.runs(bits)
 
     dj_stattest = dj_testmap["runs"].stattest
     dj_result = dj_stattest(bits)
@@ -145,7 +145,7 @@ def test_runs(bits):
 @given(mixedbits(min_size=128))
 @settings(suppress_health_check=[HealthCheck.large_base_example])
 def test_longest_runs(bits):
-    result = stattests.longest_runs(pd.Series(bits))
+    result = randtests.longest_runs(pd.Series(bits))
 
     dj_stattest = dj_testmap["longest_runs"].stattest
     dj_result = dj_stattest(bits)
@@ -169,7 +169,7 @@ def test_longest_runs(bits):
 def test_dj_binary_matrix_rank(args):
     bits, matrix_dimen = args
 
-    result = stattests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
+    result = randtests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
     dj_stattest = dj_testmap["binary_matrix_rank"].stattest
 
@@ -191,7 +191,7 @@ def test_dj_binary_matrix_rank(args):
 def test_sgr_binary_matrix_rank(args):
     bits, matrix_dimen = args
 
-    result = stattests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
+    result = randtests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
     sgr_stattest = sgr_testmap["binary_matrix_rank"].stattest
     sgr_p = sgr_stattest(bits, matrix_dimen=matrix_dimen)
@@ -205,7 +205,7 @@ def test_discrete_fourier_transform(bits):
         truncated_bits = bits[:-1]
         assume(0 in truncated_bits and 1 in truncated_bits)
 
-    result = stattests.discrete_fourier_transform(pd.Series(bits))
+    result = randtests.discrete_fourier_transform(pd.Series(bits))
 
     dj_stattest = dj_testmap["discrete_fourier_transform"].stattest
     dj_result = dj_stattest(bits)
@@ -238,7 +238,7 @@ dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
 #     dj_stattest = dj_implementation.stattest
 #     dj_fixedkwargs = dj_implementation.fixedkwargs
 
-#     result = stattests.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
+#     result = randtests.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
 
 #     dj_result = dj_stattest(bits)
 
@@ -251,7 +251,7 @@ dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
 def test_maurers_universal(args):
     bits, blocksize, init_nblocks = args
 
-    result = stattests.maurers_universal(
+    result = randtests.maurers_universal(
         pd.Series(bits), blocksize=blocksize, init_nblocks=init_nblocks
     )
 

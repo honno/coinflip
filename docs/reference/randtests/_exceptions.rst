@@ -2,5 +2,5 @@
 _exceptions
 ===========
 
-.. automodule:: rngtest.stattests._exceptions
+.. automodule:: rngtest.randtests._exceptions
     :members:

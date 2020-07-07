@@ -7,13 +7,13 @@ from typing import NamedTuple
 
 from scipy.special import gammaincc
 
-from rngtest.stattests._collections import FloorDict
-from rngtest.stattests._decorators import elected
-from rngtest.stattests._decorators import stattest
-from rngtest.stattests._exceptions import TestNotImplementedError
-from rngtest.stattests._result import TestResult
-from rngtest.stattests._tabulate import tabulate
-from rngtest.stattests._testutils import blocks
+from rngtest.randtests._collections import FloorDict
+from rngtest.randtests._decorators import elected
+from rngtest.randtests._decorators import stattest
+from rngtest.randtests._exceptions import TestNotImplementedError
+from rngtest.randtests._result import TestResult
+from rngtest.randtests._tabulate import tabulate
+from rngtest.randtests._testutils import blocks
 
 __all__ = ["runs", "longest_runs"]
 

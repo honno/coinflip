@@ -2,5 +2,5 @@
 frequency
 =========
 
-.. automodule:: rngtest.stattests.frequency
+.. automodule:: rngtest.randtests.frequency
     :members:

@@ -7,4 +7,4 @@ Reference
    store
    tests_runner
    generators
-   stattests/index
+   randtests/index

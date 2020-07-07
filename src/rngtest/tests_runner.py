@@ -1,4 +1,4 @@
-"""Methods used to interact with the stattests subpackage."""
+"""Methods used to interact with the randtests subpackage."""
 from functools import wraps
 from typing import Callable
 from typing import Iterator
@@ -7,11 +7,11 @@ from typing import Tuple
 import pandas as pd
 from click import echo
 
-from rngtest import stattests
-from rngtest.stattests._exceptions import NonBinarySequenceError
-from rngtest.stattests._exceptions import TestError
-from rngtest.stattests._result import TestResult
-from rngtest.stattests._tabulate import tabulate
+from rngtest import randtests
+from rngtest.randtests._exceptions import NonBinarySequenceError
+from rngtest.randtests._exceptions import TestError
+from rngtest.randtests._result import TestResult
+from rngtest.randtests._tabulate import tabulate
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 
@@ -61,8 +61,8 @@ def list_tests() -> Iterator[Tuple[str, Callable]]:
     stattest_func : `Callable`
         Function object of the statistical test
     """
-    for stattest_name in stattests.__all__:
-        stattest_func = getattr(stattests, stattest_name)
+    for stattest_name in randtests.__all__:
+        stattest_func = getattr(randtests, stattest_name)
 
         yield stattest_name, stattest_func
 

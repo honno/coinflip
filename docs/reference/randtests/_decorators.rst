@@ -2,5 +2,5 @@
 _decorators
 ===========
 
-.. automodule:: rngtest.stattests._decorators
+.. automodule:: rngtest.randtests._decorators
     :members:

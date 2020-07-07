@@ -14,12 +14,12 @@ from click import option
 from colorama import Fore
 
 from rngtest import generators
+from rngtest.randtests import __all__ as stattest_names
+from rngtest.randtests._exceptions import NonBinarySequenceError
+from rngtest.randtests._exceptions import TestError
+from rngtest.randtests._pprint import dim
+from rngtest.randtests._pprint import pretty_seq
 from rngtest.report import write_report
-from rngtest.stattests import __all__ as stattest_names
-from rngtest.stattests._exceptions import NonBinarySequenceError
-from rngtest.stattests._exceptions import TestError
-from rngtest.stattests._pprint import dim
-from rngtest.stattests._pprint import pretty_seq
 from rngtest.store import *
 from rngtest.tests_runner import *
 

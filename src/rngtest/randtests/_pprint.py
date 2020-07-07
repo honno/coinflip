@@ -5,8 +5,8 @@ from typing import Tuple
 from colorama import Fore
 from colorama import Style
 
-from rngtest.stattests._decorators import infer_candidate
-from rngtest.stattests._testutils import blocks
+from rngtest.randtests._decorators import infer_candidate
+from rngtest.randtests._testutils import blocks
 
 __all__ = ["determine_rep", "pretty_subseq", "pretty_seq", "dim", "bright"]
 
