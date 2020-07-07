@@ -8,6 +8,7 @@ from click import Path
 from click import argument
 from click import confirm
 from click import echo
+from click import get_current_context
 from click import group
 from click import option
 from colorama import Fore
@@ -104,10 +105,9 @@ def infer_store():
     """Finds the last initialised store and prompts on using it"""
     try:
         store = find_latest_store()
-    except NoLatestStoreRecordedError as e:
-        echo_err(e)
-        echo("Try specifying STORE manually")
-        exit(1)
+    except NoLatestStoreRecordedError:
+        ctx = get_current_context()
+        ctx.fail("Missing argument 'STORE'.")
 
     msg = (
         "No STORE argument provided\n"
