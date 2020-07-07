@@ -1,6 +1,6 @@
-=============
-API Reference
-=============
+=========
+Reference
+=========
 
 .. toctree::
    :maxdepth: 2
@@ -8,3 +8,4 @@ API Reference
    wrapper/index
    stattests-public
    stattests-private/index
+   testing

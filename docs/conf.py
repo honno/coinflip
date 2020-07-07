@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import os
+import sys
+from pathlib import Path
+
+# Add tests to the python path
+root_path = Path(__file__).parents[1]
+sys.path.append(str(root_path))
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -29,10 +32,9 @@ extlinks = {
     "issue": ("https://github.com/Honno/rngtest/issues/%s", "#"),
     "pr": ("https://github.com/Honno/rngtest/pull/%s", "PR #"),
 }
-# on_rtd is whether we are on readthedocs.org
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
-if not on_rtd:  # only set the theme if we're building docs locally
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+if not on_rtd:  # set the theme if we're building docs locally
     html_theme = "sphinx_rtd_theme"
 
 html_use_smartypants = True

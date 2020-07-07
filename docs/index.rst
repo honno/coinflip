@@ -9,7 +9,7 @@ Contents
    installation
    usage
    commands
-   api/index
+   reference/index
    contributing
    authors
    changelog
