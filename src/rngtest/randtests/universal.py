@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from math import ceil
 from math import erfc
 from math import floor
+from math import isclose
 from math import log
 from math import sqrt
 from typing import NamedTuple
@@ -107,17 +108,17 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     init_series, spare_series = series[:init_n], series[init_n:]
     spare_nblocks = (n - init_n) / blocksize
 
-    # fmt: off
     check_recommendations(
         {
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
-            "init_nblocks ≈ 10 * (2 ** spare_nblocks)":
-            abs(init_nblocks - (10 * (2 ** spare_nblocks))) <= max(n ** (1 / 3), 1),
-            "spare_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks":
-            abs(spare_nblocks - (floor(n / blocksize) - init_nblocks)) <= max(n ** (1 / 3), 1),
+            "init_nblocks ≈ 10 * 2 ** spare_nblocks": isclose(
+                init_nblocks, 10 * 2 ** spare_nblocks
+            ),
+            "spare_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": isclose(
+                spare_nblocks, floor(n / blocksize) - init_nblocks
+            ),
         }
     )
-    # fmt: on
 
     last_occurences = defaultdict(int)
 
