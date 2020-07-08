@@ -37,7 +37,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    candidate : Value present in given series
+    candidate : Value present in given sequence
         The value which is counted in each block
     matrix_dimen : `Tuple[int, int]`
         Number of rows and columns in each matrix

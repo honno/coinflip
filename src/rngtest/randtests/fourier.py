@@ -40,7 +40,7 @@ def discrete_fourier_transform(series, candidate):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    candidate : Value present in given series
+    candidate : Value present in given sequence
         The value which is considered the peak in oscillations
 
     Returns
