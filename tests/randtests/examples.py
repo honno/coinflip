@@ -1,3 +1,4 @@
+import re
 from collections.abc import Mapping
 from copy import copy
 from pathlib import Path
@@ -265,12 +266,9 @@ def flatten_examples(map_, parentkeys=[]):
             yield exampletitle, value
 
 
-def examples_iter(title_substr: str = None):
-    if title_substr is None:
-        for exampletitle, example in flatten_examples(examples):
-            yield example
+def examples_iter(regex: str = ".*"):
+    regexc = re.compile(regex)
 
-    else:
-        for exampletitle, example in flatten_examples(examples):
-            if title_substr in exampletitle:
-                yield example
+    for exampletitle, example in flatten_examples(examples):
+        if regexc.match(exampletitle):
+            yield example

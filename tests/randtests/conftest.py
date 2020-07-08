@@ -4,7 +4,7 @@ from .examples import examples_iter
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--example", action="store", default=None,
+        "--example", action="store", default=".*",
     )
 
 
