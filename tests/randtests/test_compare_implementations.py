@@ -11,9 +11,9 @@ from hypothesis import strategies as st
 
 import rngtest.randtests as randtests
 
-from .implementations import ImplementationError
 from .implementations import dj_testmap
 from .implementations import sgr_testmap
+from .implementations._implementation import ImplementationError
 from .strategies import mixedbits
 
 

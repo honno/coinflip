@@ -14,5 +14,3 @@ class Implementation(NamedTuple):
 
 class ImplementationError(NotImplementedError):
     """Error raised when an implemention has allowed input it cannot process"""
-
-    pass

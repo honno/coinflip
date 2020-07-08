@@ -1,6 +1,6 @@
 from functools import wraps
 
-from . import Implementation
+from ._implementation import Implementation
 from .r4nd0m.SourceCode.RandomnessTests import RandomnessTester
 
 __all__ = ["testmap"]
