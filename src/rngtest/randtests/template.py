@@ -22,6 +22,7 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 
 def make_template(series, blocksize):
+    """Generate a random template"""
     template_size = min(max(floor(sqrt(blocksize)), 2), 12)
 
     values = series.unique()
