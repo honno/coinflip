@@ -1,4 +1,3 @@
-"""Model-based testing for the CLI"""
 import re
 from shutil import rmtree
 from tempfile import NamedTemporaryFile
@@ -18,27 +17,36 @@ from .randtests.strategies import mixedbits
 
 __all__ = ["test_main", "CliRoutes"]
 
-r_storename = re.compile(
-    r"Store name to be encoded as ([a-z\_0-9]+)\n", flags=re.IGNORECASE
-)
-
 
 @fixture(autouse=True, scope="module")
 def module_setup_teardown():
+    """Clears user data directory on teardown"""
     yield
     rmtree(data_dir)
 
 
-# TODO doc
 def test_main():
+    """Checks main command works"""
     runner = CliRunner()
     result = runner.invoke(main, [])
 
     assert result.exit_code == 0
 
 
+r_storename = re.compile(
+    r"Store name to be encoded as ([a-z\_0-9]+)\n", flags=re.IGNORECASE
+)
+
+
+# TODO add more rules to represent all CLI functionality
 class CliRoutes(RuleBasedStateMachine):
     """State machine for routes taken via the CLI
+
+    Specifies a state machine representation of the CLI to be used in
+    model-based testing.
+
+    See the `hypothesis stateful guide
+    <https://hypothesis.readthedocs.io/en/latest/stateful.html>`_
 
     See Also
     --------
@@ -83,4 +91,4 @@ class CliRoutes(RuleBasedStateMachine):
         assert not re.search(store_name, ls_result.stdout)
 
 
-TestStore = CliRoutes.TestCase
+TestCliRoutes = CliRoutes.TestCase  # top-level TestCase to be picked up by pytest
