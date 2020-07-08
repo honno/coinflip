@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from math import exp
 from math import floor
 from math import sqrt
+from typing import Iterable
 from typing import Tuple
 
 from rngtest.randtests._decorators import elected
@@ -13,7 +14,7 @@ from rngtest.randtests._testutils import blocks
 from rngtest.randtests._testutils import check_recommendations
 from rngtest.randtests._testutils import rawblocks
 
-__all__ = ["binary_matrix_rank"]
+__all__ = ["binary_matrix_rank", "gf2_rank"]
 
 
 @dataclass
@@ -36,6 +37,8 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     ----------
     sequence : array-like
         Output of the RNG being tested
+    candidate : Value present in given series
+        The value which is counted in each block
     matrix_dimen : `Tuple[int, int]`
         Number of rows and columns in each matrix
 
@@ -152,7 +155,8 @@ class BinaryMatrixRankTestResult(TestResult):
         return f"{f_stats}\n" "\n" f"{f_matrix_dimen}\n" "\n" f"{f_table}"
 
 
-def bits2int(bits):
+def bits2int(bits: Iterable[int]) -> int:
+    """Converts a list of bits into a numerical representation"""
     num = 0
     for bit in bits:
         num = (num << 1) | bit
@@ -160,7 +164,24 @@ def bits2int(bits):
     return num
 
 
-def gf2_rank(matrix):
+def gf2_rank(matrix: Iterable[Iterable[int]]) -> int:
+    """Finds the rank of a binary matrix
+
+    Parameters
+    ----------
+    matrix : `List[Tuple[int, ...]]`
+        Binary matrix to rank
+
+    Returns
+    -------
+    rank : int
+        Rank of `matrix`
+
+    Notes
+    -----
+    Implementaton inpisred by a `StackOverflow answer
+    <https://stackoverflow.com/a/56858995/5193926>`_ from Mark Dickinson.
+    """
     numbers = [bits2int(bits) for bits in matrix]
 
     rank = 0
