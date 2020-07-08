@@ -1,3 +1,9 @@
+"""Interfacing for examples_iter
+
+An option `--example <regex>` allows developers to pass a regular expression to
+filter the examples being tested in methods named `test_randtest_on_example`
+(i.e. in `test_examples.py`).
+"""
 from .examples import Example
 from .examples import examples_iter
 
