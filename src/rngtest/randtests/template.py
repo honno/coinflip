@@ -46,7 +46,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : `Tuple`, optional
+    template : `List`, optional
         Template to match with the sequence, randomly generated if not
         provided.
     nblocks : `int`
@@ -165,11 +165,15 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     referenced to the expected mean and variance in matches of a hypothetically
     truly random RNG.
 
+    .. deprecated:: 0
+        `df` will be removed once I figure out the correct value, as I don't
+        quite understand what NIST wants (or if they're even correct!)
+
     Parameters
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : `Tuple`, optional
+    template : `List`, optional
         Template to match with the sequence, randomly generated if not
         provided.
     nblocks : `int`
@@ -208,8 +212,6 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     last_prob = 1 - sum(probabilities)
     probabilities.append(last_prob)
 
-    expected_tallies = [prob * nblocks for prob in probabilities]
-
     check_recommendations(
         {
             "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
@@ -219,6 +221,8 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
             "df ≈ λ": isclose(template_size, log2(nblocks)),
         }
     )
+
+    expected_tallies = [prob * nblocks for prob in probabilities]
 
     block_matches = []
     for block_tup in rawblocks(series, blocksize=blocksize):
