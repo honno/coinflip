@@ -150,6 +150,9 @@ examples = {
         )
     },
     "discrete_fourier_transform": {
+        # FAILING scipys fft produces slightly diff transformations to NIST's sts
+        #         TODO  - check if examples succeed using NIST's fourier transforming
+        #               - performance metrics on both solutions
         "small": Example(
             randtest="discrete_fourier_transform",
 
