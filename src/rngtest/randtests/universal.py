@@ -10,6 +10,7 @@ from typing import NamedTuple
 
 from rngtest.randtests._collections import FloorDict
 from rngtest.randtests._decorators import randtest
+from rngtest.randtests._exceptions import TestNotImplementedError
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._testutils import check_recommendations
 from rngtest.randtests._testutils import rawblocks
@@ -94,6 +95,12 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     TestResult
         Dataclass that contains the test's statistic and p-value
     """
+    if blocksize > 16:
+        # TODO review this policy
+        raise TestNotImplementedError(
+            "Test implementation cannot handle blocksize over 16"
+        )
+
     n = len(series)
 
     if not blocksize or not init_nblocks:
