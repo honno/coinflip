@@ -17,7 +17,7 @@ class TestNotImplementedError(TestError, NotImplementedError):
 
 
 class TestInputError(TestError, ValueError):
-    """Error if test cannot handle (invalud) parameters"""
+    """Error if test cannot handle (invalid) parameters"""
 
 
 class NonBinarySequenceError(TestInputError):

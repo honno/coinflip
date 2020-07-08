@@ -8,16 +8,21 @@ from numpy.fft import fft as _fft
 
 from rngtest.randtests._decorators import elected
 from rngtest.randtests._decorators import randtest
-from rngtest.randtests._exceptions import TestInputError
+from rngtest.randtests._exceptions import NonBinarySequenceError
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
 
-__all__ = ["discrete_fourier_transform"]
+__all__ = ["discrete_fourier_transform", "fft"]
 
 
-# TODO str method
-class TruncatedInputSingleValueError(TestInputError):
-    pass
+class TruncatedNonBinarySequenceError(NonBinarySequenceError):
+    """Error if truncated sequence does not contain only 2 distinct values"""
+
+    def __str__(self):
+        return (
+            "When truncated into an even-length, sequence contains only 1 distinct value\n"
+            "i.e. the sequence was originally binary, but now isn't"
+        )
 
 
 @randtest(rec_input=1000)
@@ -45,8 +50,8 @@ def discrete_fourier_transform(series, candidate):
 
     Raises
     ------
-    TruncatedInputSingleValueError
-        When odd-lengthed sequence is truncated there is only one unique value
+    TruncatedNonBinarySequenceError
+        When odd-lengthed sequence is truncated there is only one distinct value
         present
 
     """
@@ -55,7 +60,7 @@ def discrete_fourier_transform(series, candidate):
     if n % 2 != 0:
         series = series[:-1]
         if series.nunique() != 2:
-            raise TruncatedInputSingleValueError()
+            raise TruncatedNonBinarySequenceError()
 
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expected = 0.95 * n / 2
@@ -86,6 +91,22 @@ def discrete_fourier_transform(series, candidate):
 
 
 def fft(array) -> pd.Series:
+    """Performs fast fourier transform
+
+    Parameters
+    ----------
+    array : array-like
+        Input array
+
+    Returns
+    -------
+    `Series`
+        Fourier transformation of `array`
+
+    See Also
+    --------
+    numpy.fft.fft : Method adapted to return a `Series` as opposed to an `ndarray`
+    """
     fourier_ndarray = _fft(array)
     fourier_series = pd.Series(fourier_ndarray)
 
