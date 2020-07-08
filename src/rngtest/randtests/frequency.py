@@ -5,6 +5,7 @@ from math import sqrt
 from typing import Any
 from typing import List
 from typing import NamedTuple
+from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -283,7 +284,8 @@ class FrequencyWithinBlockTestResult(TestResult):
     #     ]
 
 
-def smartround(num):
+def smartround(num: Union[int, float]) -> Union[int, float]:
+    """Round number only if it's a float"""
     if num.is_integer():
         return int(num)
     else:
