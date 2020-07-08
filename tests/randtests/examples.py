@@ -1,3 +1,21 @@
+"""Defines result examples to run on randomness tests
+
+`SP800-22 <https://github.com/Honno/rngtest/blob/master/SP800-22.pdf>`_
+graciously provides examples to their tests, which are programmatically outlined
+as `Example` named tuples in this module.
+
+They are bundled in the nested dictionary `examples`, grouped by the test they
+correspond and other relevant features.
+
+`examples_iter` iterates all examples present in the dictionary, to assert
+randomness tests with the same parameters result in the same result. It also
+allows for filtering via a `regex` keyword argument.
+
+Notes
+-----
+All examples are made in conjuction with the test specifications in section 2.,
+"Random Number Generation Tests", p. 23-62.
+"""
 import re
 from collections.abc import Mapping
 from copy import copy
@@ -32,7 +50,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
 
     Note
     ----
-    Uses the same bit expansion that NIST used
+    Uses the same bit expansion that are included in NIST's `sts`
     """
     e = _e_expansion()
     for _ in range(n):
