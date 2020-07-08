@@ -1,9 +1,12 @@
+from dataclasses import astuple
 from dataclasses import dataclass
 from math import erfc
 from math import sqrt
 from typing import Any
+from typing import Iterator
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 
 from scipy.special import gammaincc
 
@@ -15,7 +18,7 @@ from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
 from rngtest.randtests._testutils import blocks
 
-__all__ = ["runs", "longest_runs"]
+__all__ = ["runs", "longest_runs", "asruns"]
 
 
 # ------------------------------------------------------------------------------
@@ -161,12 +164,14 @@ def longest_runs(series, candidate):
 
     maxlengths = []
     for block in blocks(series, blocksize=blocksize, nblocks=nblocks):
-        candidateruns = (run for run in asruns(block) if run.value == candidate)
+        c_run_lengths = (
+            length for value, length in asruns(block) if value == candidate
+        )
 
         maxlen = 0
-        for run in candidateruns:
-            if run.length > maxlen:
-                maxlen = run.length
+        for length in c_run_lengths:
+            if length > maxlen:
+                maxlen = length
 
         maxlengths.append(maxlen)
 
@@ -238,14 +243,32 @@ class Run:
     length: int = 1
 
 
-def asruns(series):
+def asruns(series) -> Iterator[Tuple[Any, int]]:
+    """Iterator of runs in a `Series`
+
+    Parameters
+    ----------
+    series: `Series`
+        `Series` to represent as runs
+
+    Yields
+    ------
+    value : `Any`
+        Value of the run
+    length : `int`
+        Length of the run
+
+    Notes
+    -----
+    A "run" is an uninterrupted sequence of the same value.
+    """
     firstval = series.iloc[0]
     current_run = Run(firstval, length=0)
     for _, value in series.iteritems():
         if value == current_run.value:
             current_run.length += 1
         else:
-            yield current_run
+            yield astuple(current_run)
             current_run = Run(value)
     else:
-        yield current_run
+        yield astuple(current_run)
