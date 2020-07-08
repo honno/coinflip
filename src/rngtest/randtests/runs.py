@@ -125,6 +125,7 @@ def longest_runs(series, candidate):
     try:
         blocksize, nblocks, freqbin_ranges = n_defaults[n]
     except KeyError:
+        # TODO handle below 128 or add to min_input
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         )

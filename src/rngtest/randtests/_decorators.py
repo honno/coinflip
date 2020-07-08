@@ -5,13 +5,20 @@ import pandas as pd
 
 from rngtest.randtests._exceptions import NonBinarySequenceError
 from rngtest.randtests._exceptions import TestInputError
+from rngtest.randtests._result import TestResult
 
 __all__ = ["randtest", "infer_candidate", "elected"]
 
 
-# TODO class-level message using n and min_input values
 class MinimumInputError(TestInputError):
-    pass
+    """Error if sequence length is below minimum allowed"""
+
+    def __init__(self, n, min_input):
+        self.n = n
+        self.min_input = min_input
+
+    def __str__(self):
+        return f"Sequence length {self.n} is below required minimum of {self.min_input}"
 
 
 def randtest(min_input=2, rec_input=2):
@@ -55,7 +62,7 @@ def randtest(min_input=2, rec_input=2):
 
     def decorator(func):
         @wraps(func)
-        def wrapper(sequence, *args, **kwargs):
+        def wrapper(sequence, *args, **kwargs) -> TestResult:
             if not isinstance(sequence, pd.Series):
                 series = pd.Series(sequence)
             else:
@@ -66,9 +73,7 @@ def randtest(min_input=2, rec_input=2):
 
             n = len(series)
             if n < min_input:
-                raise MinimumInputError(
-                    f"Sequence length {n} below required minimum of {min_input}"
-                )
+                raise MinimumInputError(n, min_input)
             if n < rec_input:
                 warn(
                     f"Sequence length {n} below NIST recommended minimum of {rec_input}",
@@ -151,7 +156,7 @@ def elected(func):
     """
 
     @wraps(func)
-    def wrapper(series, *args, candidate=None, **kwargs):
+    def wrapper(series, *args, candidate=None, **kwargs) -> TestResult:
         values = series.unique()
         if candidate is None:
             candidate = infer_candidate(values)
