@@ -11,7 +11,7 @@ import pandas as pd
 __all__ = ["blocks", "rawblocks", "check_recommendations"]
 
 
-def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Series]:
+def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterable[pd.Series]:
     """Chunking method for `Series` objects
 
     Parameters
@@ -22,7 +22,7 @@ def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Ser
         Size of the chunks
     nblocks : `int`, required if no `blocksize` passed
         Number of chunks
-    cutoff : `bool`, default `True`
+    truncate : `bool`, default `True`
         Whether to discard remaning series
 
     Yields
@@ -49,7 +49,7 @@ def blocks(series, blocksize=None, nblocks=None, cutoff=True) -> Iterable[pd.Ser
     for i in range(0, boundary, blocksize):
         yield series[i : i + blocksize]
 
-    if not cutoff and boundary < n:
+    if not truncate and boundary < n:
         yield series[boundary:]
 
 
