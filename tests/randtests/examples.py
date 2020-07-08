@@ -4,15 +4,17 @@ from copy import copy
 from pathlib import Path
 from typing import Any
 from typing import Dict
+from typing import Iterator
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 from typing import Union
 
 tests_path = Path(__file__).parent
 data_path = tests_path / "data"
 
 
-__all__ = ["examples", "examples_iter"]
+__all__ = ["examples_iter"]
 
 
 def _e_expansion():
@@ -25,13 +27,21 @@ def _e_expansion():
                     yield bit
 
 
-def e_expansion(n=1000000):
+def e_expansion(n=1000000) -> Iterator[int]:
+    """Generates bits of e
+
+    Note
+    ----
+    Uses the same bit expansion that NIST used
+    """
     e = _e_expansion()
     for _ in range(n):
         yield next(e)
 
 
 class Example(NamedTuple):
+    """Contains template for a NIST example"""
+
     stattest: str
     bits: List[int]
     statistic: Union[int, float]
@@ -253,7 +263,14 @@ examples = {
 # fmt: on
 
 
-def flatten_examples(map_, parentkeys=[]):
+def flatten_examples(
+    map_: Mapping, parentkeys: List[str] = []
+) -> Iterator[Tuple[str, Example]]:
+    """Generates flat list of the `examples` tree
+
+    Each example is paired with a title. The title is a dot-delimited
+    concatenation of the example's parent keys.
+    """
     for key, value in map_.items():
         keys = copy(parentkeys)
         keys.append(key)
@@ -262,13 +279,21 @@ def flatten_examples(map_, parentkeys=[]):
             yield from flatten_examples(value, parentkeys=keys)
 
         elif isinstance(value, Example):
-            exampletitle = ".".join(keys)
-            yield exampletitle, value
+            example_title = ".".join(keys)
+            yield example_title, value
 
 
-def examples_iter(regex: str = ".*"):
+def examples_iter(regex: str = ".*") -> Iterator[Example]:
+    """Generates examples, filtered with regex
+
+    The regex expression is matched to the titles of the examples.
+
+    See Also
+    --------
+    flatten_examples : Method used to flatten the `examples` tree
+    """
     regexc = re.compile(regex)
 
-    for exampletitle, example in flatten_examples(examples):
-        if regexc.match(exampletitle):
+    for example_title, example in flatten_examples(examples):
+        if regexc.match(example_title):
             yield example
