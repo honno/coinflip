@@ -45,12 +45,11 @@ class CliRoutes(RuleBasedStateMachine):
     Specifies a state machine representation of the CLI to be used in
     model-based testing.
 
-    See the `hypothesis stateful guide
-    <https://hypothesis.readthedocs.io/en/latest/stateful.html>`_
-
-    See Also
-    --------
-    RuleBasedStateMachine : Base class used to help define state machine
+    Notes
+    -----
+    Read the `hypothesis stateful guide
+    <https://hypothesis.readthedocs.io/en/latest/stateful.html>`_ for help on
+    understanding and modifying this state machine.
     """
 
     def __init__(self):
@@ -58,10 +57,11 @@ class CliRoutes(RuleBasedStateMachine):
 
         self.cli = CliRunner()
 
-    storenames = Bundle("storenames")
+    stores = Bundle("stores")
 
-    @rule(target=storenames, sequence=mixedbits())
+    @rule(target=stores, sequence=mixedbits())
     def add_store(self, sequence):
+        """Mock data files and load them into initialised stores"""
         datafile = NamedTemporaryFile()
         with datafile as f:
             for x in sequence:
@@ -72,23 +72,25 @@ class CliRoutes(RuleBasedStateMachine):
             f.seek(0)
             result = self.cli.invoke(cli.load, [f.name])
 
-        store_name_msg = r_storename.search(result.stdout)
-        store_name = store_name_msg.group(1)
+        store_msg = r_storename.search(result.stdout)
+        store = store_msg.group(1)
 
-        return store_name
+        return store
 
-    @rule(store_name=storenames)
-    def find_storename_listed(self, store_name):
+    @rule(store=stores)
+    def find_store_listed(self, store):
+        """Check if initialised stores are listed"""
         result = self.cli.invoke(cli.ls)
-        assert re.search(store_name, result.stdout)
+        assert re.search(store, result.stdout)
 
-    @rule(store_name=consumes(storenames))
-    def remove_store(self, store_name):
-        rm_result = self.cli.invoke(cli.rm, [store_name])
+    @rule(store=consumes(stores))
+    def remove_store(self, store):
+        """Remove stores and check they're not listed"""
+        rm_result = self.cli.invoke(cli.rm, [store])
         assert rm_result.exit_code == 0
 
         ls_result = self.cli.invoke(cli.ls)
-        assert not re.search(store_name, ls_result.stdout)
+        assert not re.search(store, ls_result.stdout)
 
 
 TestCliRoutes = CliRoutes.TestCase  # top-level TestCase to be picked up by pytest
