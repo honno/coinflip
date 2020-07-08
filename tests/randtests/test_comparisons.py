@@ -13,9 +13,9 @@ from hypothesis.strategies import SearchStrategy
 
 import rngtest.randtests as randtests
 
-from .implementations import dj_testmap
-from .implementations import sgr_testmap
 from .implementations._implementation import ImplementationError
+from .implementations.dj import testmap as dj_testmap
+from .implementations.sgr import testmap as sgr_testmap
 from .strategies import mixedbits
 
 
