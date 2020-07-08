@@ -9,7 +9,7 @@ from scipy.special import gammaincc
 
 from rngtest.randtests._collections import FloorDict
 from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._exceptions import TestNotImplementedError
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
@@ -22,7 +22,7 @@ __all__ = ["runs", "longest_runs"]
 # Runs Test
 
 
-@stattest(rec_input=100)
+@randtest(rec_input=100)
 @elected
 def runs(series, candidate):
     """Actual number of runs is compared to expected result
@@ -97,7 +97,7 @@ blocksize_probabilities = {
 
 
 # TODO allow and handle blocksize/nblocks/freqbin_ranges kwargs
-@stattest(rec_input=128)
+@randtest(rec_input=128)
 @elected
 def longest_runs(series, candidate):
     """Longest runs per block is compared to expected result

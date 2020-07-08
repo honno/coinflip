@@ -18,7 +18,7 @@ __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 
 SIGLEVEL = 0.01
 
-f_stattest_names = {
+f_randtest_names = {
     "monobits": "Frequency (Monobits) Test",
     "frequency_within_block": "Frequency within Block Test",
     "runs": "Runs Test",
@@ -44,11 +44,11 @@ def binary_check(func):
     return wrapper
 
 
-def echo_stattest_name(stattest_name):
-    """Pretty print the stattest's name"""
-    stattest_fname = f_stattest_names[stattest_name]
-    underline = "".join("=" for char in stattest_fname)
-    echo(stattest_fname + "\n" + underline)
+def echo_randtest_name(randtest_name):
+    """Pretty print the randtest's name"""
+    randtest_fname = f_randtest_names[randtest_name]
+    underline = "".join("=" for char in randtest_fname)
+    echo(randtest_fname + "\n" + underline)
 
 
 def list_tests() -> Iterator[Tuple[str, Callable]]:
@@ -56,15 +56,15 @@ def list_tests() -> Iterator[Tuple[str, Callable]]:
 
     Yields
     ------
-    stattest_name : `str`
+    randtest_name : `str`
         Name of statistical test
-    stattest_func : `Callable`
+    randtest_func : `Callable`
         Function object of the statistical test
     """
-    for stattest_name in randtests.__all__:
-        stattest_func = getattr(randtests, stattest_name)
+    for randtest_name in randtests.__all__:
+        randtest_func = getattr(randtests, randtest_name)
 
-        yield stattest_name, stattest_func
+        yield randtest_name, randtest_func
 
 
 class TestNotFoundError(ValueError):
@@ -72,14 +72,14 @@ class TestNotFoundError(ValueError):
 
 
 @binary_check
-def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
+def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     """Run a statistical test on RNG output
 
     Parameters
     ----------
     series : `Series`
         Output of the RNG being tested
-    stattest_name : `str`
+    randtest_name : `str`
         Name of statistical test
     **kwargs
         Keyword arguments to pass to statistical test
@@ -93,13 +93,13 @@ def run_test(series: pd.Series, stattest_name, **kwargs) -> TestResult:
     Raises
     ------
     TestNotFoundError
-        If `stattest_name` does not match any available statistical tests
+        If `randtest_name` does not match any available statistical tests
     TestError
-        Errors raised when running `stattest_name`
+        Errors raised when running `randtest_name`
     """
     for name, func in list_tests():
-        if stattest_name == name:
-            echo_stattest_name(name)
+        if randtest_name == name:
+            echo_randtest_name(name)
 
             result = func(series, **kwargs)
             echo(result)
@@ -123,13 +123,13 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
     Yields
     ------
-    stattest_name : `str`
+    randtest_name : `str`
         Name of statistical test
     result : `TestResult`
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
     exception : `NotImplementedError` or `MinimumInputError`
-        The exception raised when running `stattest_name`, otherwise `None`.
+        The exception raised when running `randtest_name`, otherwise `None`.
 
     Raises
     ------
@@ -139,7 +139,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     results = {}
 
     for name, func in list_tests():
-        echo_stattest_name(name)
+        echo_randtest_name(name)
 
         try:
             result = func(series)
@@ -156,7 +156,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
     table = []
     for name, result in results.items():
-        f_name = f_stattest_names[name]
+        f_name = f_randtest_names[name]
 
         if result:
             f_pvalue = result.p3f()

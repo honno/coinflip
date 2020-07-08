@@ -12,7 +12,7 @@ from typing import List
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
 from rngtest.randtests._testutils import check_recommendations
@@ -34,7 +34,7 @@ def make_template(series, blocksize):
 # Non-overlapping Template Matching Test
 
 
-@stattest(rec_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
+@randtest(rec_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
 def non_overlapping_template_matching(series, template: List = None, nblocks=None):
     """Matches of template per block is compared to expected result
 
@@ -156,7 +156,7 @@ matches_ceil = 5
 
 # TODO Review paper "Correction of Overlapping Template Matching Test Included in
 #                    NIST Randomness Test Suite"
-@stattest(rec_input=288)  # TODO appropiate min input
+@randtest(rec_input=288)  # TODO appropiate min input
 def overlapping_template_matching(series, template: List = None, nblocks=None, df=5):
     """Overlapping matches of template per block is compared to expected result
 

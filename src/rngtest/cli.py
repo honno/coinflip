@@ -14,7 +14,7 @@ from click import option
 from colorama import Fore
 
 from rngtest import generators
-from rngtest.randtests import __all__ as stattest_names
+from rngtest.randtests import __all__ as randtest_names
 from rngtest.randtests._exceptions import NonBinarySequenceError
 from rngtest.randtests._exceptions import TestError
 from rngtest.randtests._pprint import dim
@@ -84,7 +84,7 @@ def get_stores(ctx, args, incomplete):
 
 # TODO extend Choice to use echo_err and newline-delimit lists
 dtype_choice = Choice(TYPES.keys())
-test_choice = Choice(stattest_names)
+test_choice = Choice(randtest_names)
 
 # ------------------------------------------------------------------------------
 # Help option

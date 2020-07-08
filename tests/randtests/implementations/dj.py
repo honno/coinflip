@@ -27,10 +27,10 @@ class DJResult(NamedTuple):
     unknown: None
 
 
-def named(stattest):
-    @wraps(stattest)
+def named(randtest):
+    @wraps(randtest)
     def wrapper(bits, *args, **kwargs):
-        result = stattest(bits, *args, **kwargs)
+        result = randtest(bits, *args, **kwargs)
 
         return DJResult(*result)
 
@@ -93,19 +93,19 @@ def maurers_universal(bits, blocksize, init_nblocks):
 testmap = {
     "monobits": Implementation(monobits),
     "frequency_within_block": Implementation(
-        stattest=frequency_within_block, fixedkwargs={"blocksize": 20}
+        randtest=frequency_within_block, fixedkwargs={"blocksize": 20}
     ),
     "runs": Implementation(runs),
     "longest_runs": Implementation(longest_runs),
     "binary_matrix_rank": Implementation(binary_matrix_rank),
     "discrete_fourier_transform": Implementation(discrete_fourier_transform),
     "non_overlapping_template_matching": Implementation(
-        stattest=non_overlapping_template_matching,
+        randtest=non_overlapping_template_matching,
         missingkwargs=["template"],
         fixedkwargs={"nblocks": 8},
     ),
     "overlapping_template_matching": Implementation(
-        stattest=overlapping_template_matching,
+        randtest=overlapping_template_matching,
         fixedkwargs={"template": [1 for x in range(10)], "nblocks": 968},
     ),
     "maurers_universal": Implementation(maurers_universal),

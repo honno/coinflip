@@ -7,7 +7,7 @@ __all__ = ["Implementation", "ImplementationError"]
 
 
 class Implementation(NamedTuple):
-    stattest: str
+    randtest: str
     missingkwargs: List[str] = []
     fixedkwargs: Dict[str, Any] = {}
 

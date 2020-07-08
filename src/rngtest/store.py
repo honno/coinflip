@@ -424,14 +424,14 @@ def list_stores():
         pass
 
 
-def store_result(store_name, stattest_name, result: TestResult):
+def store_result(store_name, randtest_name, result: TestResult):
     """Store result of a statistical test
 
     Parameters
     ----------
     store_name : `str`
         Name of store to save result in
-    stattest_name : `str`
+    randtest_name : `str`
         Name of statistical test the result came from
     result : `TestResult`
         Result of the statistical test
@@ -441,7 +441,7 @@ def store_result(store_name, stattest_name, result: TestResult):
     store_results : Store multiple results from multiple statistical tests
     """
     with open_results(store_name) as results:
-        results[stattest_name] = result
+        results[randtest_name] = result
 
 
 # TODO logging or warning for overwritten results
@@ -460,8 +460,8 @@ def store_results(store_name, results_dict: Dict[str, TestResult]):
     store_result : Store a single results from a single statistical test
     """
     with open_results(store_name) as results:
-        for stattest_name, result in results_dict.items():
-            results[stattest_name] = result
+        for randtest_name, result in results_dict.items():
+            results[randtest_name] = result
 
 
 @contextmanager

@@ -9,7 +9,7 @@ from math import sqrt
 from typing import NamedTuple
 
 from rngtest.randtests._collections import FloorDict
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._testutils import check_recommendations
 from rngtest.randtests._testutils import rawblocks
@@ -70,7 +70,7 @@ n_defaults = FloorDict(
 )
 
 
-@stattest(min_input=4, rec_input=387840)
+@randtest(min_input=4, rec_input=387840)
 def maurers_universal(series, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 

@@ -98,13 +98,13 @@ def universal_strategy(
 def test_monobits(bits):
     result = randtests.monobits(pd.Series(bits))
 
-    dj_stattest = dj_testmap["monobits"].stattest
-    dj_result = dj_stattest(bits)
+    dj_randtest = dj_testmap["monobits"].randtest
+    dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_stattest = sgr_testmap["monobits"].stattest
-    sgr_p = sgr_stattest(bits)
+    sgr_randtest = sgr_testmap["monobits"].randtest
+    sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)
 
@@ -112,11 +112,11 @@ def test_monobits(bits):
 @given(mixedbits(min_size=100))
 def test_dj_frequency_within_block(bits):
     _implementation = dj_testmap["frequency_within_block"]
-    dj_stattest = _implementation.stattest
+    dj_randtest = _implementation.randtest
     dj_fixedkwargs = _implementation.fixedkwargs
 
     result = randtests.frequency_within_block(pd.Series(bits), **dj_fixedkwargs)
-    dj_result = dj_stattest(bits)
+    dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
@@ -127,8 +127,8 @@ def test_sgr_frequency_within_block(args):
 
     result = randtests.frequency_within_block(bits, blocksize=blocksize)
 
-    sgr_stattest = sgr_testmap["frequency_within_block"].stattest
-    sgr_p = sgr_stattest(bits, blocksize=blocksize)
+    sgr_randtest = sgr_testmap["frequency_within_block"].randtest
+    sgr_p = sgr_randtest(bits, blocksize=blocksize)
 
     assert pclose(result.p, sgr_p)
 
@@ -137,13 +137,13 @@ def test_sgr_frequency_within_block(args):
 def test_runs(bits):
     result = randtests.runs(bits)
 
-    dj_stattest = dj_testmap["runs"].stattest
-    dj_result = dj_stattest(bits)
+    dj_randtest = dj_testmap["runs"].randtest
+    dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_stattest = sgr_testmap["runs"].stattest
-    sgr_p = sgr_stattest(bits)
+    sgr_randtest = sgr_testmap["runs"].randtest
+    sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)
 
@@ -153,13 +153,13 @@ def test_runs(bits):
 def test_longest_runs(bits):
     result = randtests.longest_runs(pd.Series(bits))
 
-    dj_stattest = dj_testmap["longest_runs"].stattest
-    dj_result = dj_stattest(bits)
+    dj_randtest = dj_testmap["longest_runs"].randtest
+    dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_stattest = sgr_testmap["longest_runs"].stattest
-    sgr_p = sgr_stattest(bits)
+    sgr_randtest = sgr_testmap["longest_runs"].randtest
+    sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)
 
@@ -177,10 +177,10 @@ def test_dj_binary_matrix_rank(args):
 
     result = randtests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
-    dj_stattest = dj_testmap["binary_matrix_rank"].stattest
+    dj_randtest = dj_testmap["binary_matrix_rank"].randtest
 
     try:
-        dj_result = dj_stattest(bits, matrix_dimen=matrix_dimen)
+        dj_result = dj_randtest(bits, matrix_dimen=matrix_dimen)
         assert pclose(result.p, dj_result.p)
     except ImplementationError:
         pass
@@ -199,8 +199,8 @@ def test_sgr_binary_matrix_rank(args):
 
     result = randtests.binary_matrix_rank(bits, matrix_dimen=matrix_dimen)
 
-    sgr_stattest = sgr_testmap["binary_matrix_rank"].stattest
-    sgr_p = sgr_stattest(bits, matrix_dimen=matrix_dimen)
+    sgr_randtest = sgr_testmap["binary_matrix_rank"].randtest
+    sgr_p = sgr_randtest(bits, matrix_dimen=matrix_dimen)
 
     assert pclose(result.p, sgr_p)
 
@@ -213,13 +213,13 @@ def test_discrete_fourier_transform(bits):
 
     result = randtests.discrete_fourier_transform(pd.Series(bits))
 
-    dj_stattest = dj_testmap["discrete_fourier_transform"].stattest
-    dj_result = dj_stattest(bits)
+    dj_randtest = dj_testmap["discrete_fourier_transform"].randtest
+    dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_stattest = sgr_testmap["discrete_fourier_transform"].stattest
-    sgr_p = sgr_stattest(bits)
+    sgr_randtest = sgr_testmap["discrete_fourier_transform"].randtest
+    sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)
 
@@ -241,12 +241,12 @@ dj_template_kwargs = dj_testmap["overlapping_template_matching"].fixedkwargs
 # )
 # def test_overlapping_template_matching(bits):
 #     dj_implementation = dj_testmap["overlapping_template_matching"]
-#     dj_stattest = dj_implementation.stattest
+#     dj_randtest = dj_implementation.randtest
 #     dj_fixedkwargs = dj_implementation.fixedkwargs
 
 #     result = randtests.overlapping_template_matching(pd.Series(bits), **dj_fixedkwargs)
 
-#     dj_result = dj_stattest(bits)
+#     dj_result = dj_randtest(bits)
 
 #     assert pclose(result.p, dj_result.p)
 
@@ -261,7 +261,7 @@ def test_maurers_universal(args):
         pd.Series(bits), blocksize=blocksize, init_nblocks=init_nblocks
     )
 
-    dj_stattest = dj_testmap["maurers_universal"].stattest
-    dj_result = dj_stattest(bits, blocksize=blocksize, init_nblocks=init_nblocks)
+    dj_randtest = dj_testmap["maurers_universal"].randtest
+    dj_result = dj_randtest(bits, blocksize=blocksize, init_nblocks=init_nblocks)
 
     assert pclose(result.p, dj_result.p)

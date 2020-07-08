@@ -7,7 +7,7 @@ import pandas as pd
 from numpy.fft import fft as _fft
 
 from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._exceptions import TestInputError
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
@@ -20,7 +20,7 @@ class TruncatedInputSingleValueError(TestInputError):
     pass
 
 
-@stattest(rec_input=1000)
+@randtest(rec_input=1000)
 @elected
 def discrete_fourier_transform(series, candidate):
     """Potency of periodic features in sequence is compared to expected result

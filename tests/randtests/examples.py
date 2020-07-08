@@ -42,7 +42,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
 class Example(NamedTuple):
     """Contains template for a NIST example"""
 
-    stattest: str
+    randtest: str
     bits: List[int]
     statistic: Union[int, float]
     p: float
@@ -52,7 +52,7 @@ class Example(NamedTuple):
 # fmt: off
 examples = {
     "monobits": Example(
-        stattest="monobits",
+        randtest="monobits",
 
         bits=[1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
 
@@ -60,7 +60,7 @@ examples = {
         p=0.527089,
     ),
     "frequency_within_block": Example(
-        stattest="frequency_within_block",
+        randtest="frequency_within_block",
 
         bits=[
             1, 1, 0, 0, 1, 0, 0, 1,
@@ -85,7 +85,7 @@ examples = {
         p=0.706438,
     ),
     "runs": Example(
-        stattest="runs",
+        randtest="runs",
 
         bits=[
             1, 0, 0, 1, 1, 0, 1, 0,
@@ -96,7 +96,7 @@ examples = {
         p=0.147232,
     ),
     "longest_runs": Example(
-        stattest="longest_runs",
+        randtest="longest_runs",
 
         bits=[
             1, 1, 0, 0, 1, 1, 0, 0,
@@ -123,7 +123,7 @@ examples = {
     ),
     "binary_matrix_rank": {
         "small": Example(
-            stattest="binary_matrix_rank",
+            randtest="binary_matrix_rank",
 
             bits=[
                 0, 1, 0, 1, 1, 0, 0, 1,
@@ -138,7 +138,7 @@ examples = {
             p=0.741948,
         ),
         "large": Example(
-            stattest="binary_matrix_rank",
+            randtest="binary_matrix_rank",
 
             bits=e_expansion(n=100000),
             kwargs={
@@ -151,7 +151,7 @@ examples = {
     },
     "discrete_fourier_transform": {
         "small": Example(
-            stattest="discrete_fourier_transform",
+            randtest="discrete_fourier_transform",
 
             bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
 
@@ -159,7 +159,7 @@ examples = {
             p=0.029523,
         ),
         "large": Example(
-            stattest="discrete_fourier_transform",
+            randtest="discrete_fourier_transform",
 
             bits=[
                 1, 1, 0, 0, 1, 0, 0, 1,
@@ -182,7 +182,7 @@ examples = {
         ),
     },
     "non_overlapping_template_matching": Example(
-        stattest="non_overlapping_template_matching",
+        randtest="non_overlapping_template_matching",
 
         bits=[
             1, 0, 1, 0, 0, 1, 0, 0,
@@ -200,7 +200,7 @@ examples = {
     "overlapping_template_matching": {
         "small": Example(
             # FAILING p off by ~0.07 if gammaincc(df/2, statistic/2) and df=2
-            stattest="overlapping_template_matching",
+            randtest="overlapping_template_matching",
 
             bits=[
                 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
@@ -220,7 +220,7 @@ examples = {
         ),
         "large": Example(
             # FAILING Getting different tallies
-            stattest="overlapping_template_matching",
+            randtest="overlapping_template_matching",
 
             bits=e_expansion(),
             kwargs={
@@ -233,7 +233,7 @@ examples = {
         )
     },
     "maurers_universal": Example(
-        stattest="maurers_universal",
+        randtest="maurers_universal",
 
         bits=[
             0, 1, 0, 1, 1, 0, 1, 0,
@@ -249,7 +249,7 @@ examples = {
         p=0.767189,
     ),
     "linear_complexity": Example(
-        stattest="linear_complexity",
+        randtest="linear_complexity",
 
         bits=e_expansion(),
         kwargs=dict(

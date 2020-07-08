@@ -6,7 +6,7 @@ from math import sqrt
 from typing import Tuple
 
 from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
 from rngtest.randtests._testutils import blocks
@@ -23,7 +23,7 @@ class RankCounts:
     remaining: int = 0
 
 
-@stattest(min_input=4, rec_input=152)  # nblocks=38, blocksize=4
+@randtest(min_input=4, rec_input=152)  # nblocks=38, blocksize=4
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result

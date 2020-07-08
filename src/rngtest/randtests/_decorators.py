@@ -6,7 +6,7 @@ import pandas as pd
 from rngtest.randtests._exceptions import NonBinarySequenceError
 from rngtest.randtests._exceptions import TestInputError
 
-__all__ = ["stattest", "infer_candidate", "elected"]
+__all__ = ["randtest", "infer_candidate", "elected"]
 
 
 # TODO class-level message using n and min_input values
@@ -14,7 +14,7 @@ class MinimumInputError(TestInputError):
     pass
 
 
-def stattest(min_input=2, rec_input=2):
+def randtest(min_input=2, rec_input=2):
     """Decorator factory for parsing sequences in randomness tests
 
     Returns a decorator (a method which returns a wrapper method). The wrapper

@@ -8,10 +8,10 @@ from rngtest import randtests
 # conftest.py is responsible for parametrizing, equivalent to:
 # @pytest.mark.parametrize(Example._fields, examples_iter())
 @pytest.mark.filterwarnings("ignore::UserWarning")
-def test_stattest_on_example(stattest, bits, statistic, p, kwargs):
-    stattest_method = getattr(randtests, stattest)
+def test_randtest_on_example(randtest, bits, statistic, p, kwargs):
+    randtest_method = getattr(randtests, randtest)
 
-    result = stattest_method(bits, **kwargs)
+    result = randtest_method(bits, **kwargs)
 
     if isinstance(statistic, float):
         assert isclose(result.statistic, statistic, rel_tol=0.05)

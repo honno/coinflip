@@ -8,12 +8,12 @@ __all__ = ["testmap"]
 _tester = RandomnessTester(None)
 
 
-def bits_str(stattest):
-    @wraps(stattest)
+def bits_str(randtest):
+    @wraps(randtest)
     def wrapper(bits, *args, **kwargs):
         bits_str = "".join(str(bit) for bit in bits)
 
-        result = stattest(bits_str, *args, **kwargs)
+        result = randtest(bits_str, *args, **kwargs)
 
         return result
 

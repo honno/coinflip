@@ -13,7 +13,7 @@ from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
 from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import stattest
+from rngtest.randtests._decorators import randtest
 from rngtest.randtests._plots import range_annotation
 from rngtest.randtests._result import TestResult
 from rngtest.randtests._tabulate import tabulate
@@ -27,7 +27,7 @@ __all__ = ["monobits", "frequency_within_block"]
 # Frequency (Monobits) Test
 
 
-@stattest(rec_input=100)
+@randtest(rec_input=100)
 def monobits(series):
     """Proportion of values is compared to expected 1:1 ratio
 
@@ -184,7 +184,7 @@ class MonobitsTestResult(TestResult):
 # Frequency within Block Test
 
 
-@stattest(min_input=8, rec_input=100)
+@randtest(min_input=8, rec_input=100)
 @elected
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
