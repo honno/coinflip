@@ -1,6 +1,7 @@
 from math import floor
 from math import log
 from math import sqrt
+from typing import Tuple
 
 import pandas as pd
 from hypothesis import HealthCheck
@@ -8,6 +9,7 @@ from hypothesis import assume
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
+from hypothesis.strategies import SearchStrategy
 
 import rngtest.randtests as randtests
 
@@ -30,7 +32,7 @@ def pclose(left, right) -> bool:
 
 
 @st.composite
-def blocks_strategy(draw, min_size=2):
+def blocks_strategy(draw, min_size=2) -> SearchStrategy[Tuple[int, int]]:
     bits = draw(mixedbits(min_size=min_size))
 
     n = len(bits)
@@ -41,7 +43,9 @@ def blocks_strategy(draw, min_size=2):
 
 
 @st.composite
-def matrix_strategy(draw, min_blocks=1, square_matrix=False):
+def matrix_strategy(
+    draw, min_blocks=1, square_matrix=False
+) -> SearchStrategy[Tuple[int, Tuple[int, int]]]:
     nblocks = draw(st.integers(min_value=min_blocks))
 
     if square_matrix:
@@ -61,7 +65,7 @@ def matrix_strategy(draw, min_blocks=1, square_matrix=False):
 
 
 @st.composite
-def template_strategy(draw, template, nblocks):
+def template_strategy(draw, template, nblocks) -> SearchStrategy[int]:
     templatesize = len(template)
     n = nblocks * templatesize
 
@@ -71,7 +75,9 @@ def template_strategy(draw, template, nblocks):
 
 
 @st.composite
-def universal_strategy(draw, min_blocks=2, blocksize_max=16):
+def universal_strategy(
+    draw, min_blocks=2, blocksize_max=16
+) -> SearchStrategy[Tuple[int, int, int]]:
     nblocks = draw(st.integers(min_value=min_blocks))
 
     blocksize = draw(st.integers(min_value=2, max_value=blocksize_max))
