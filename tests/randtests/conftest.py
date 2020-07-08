@@ -1,5 +1,5 @@
-from .test_examples import Example
-from .test_examples import examples_iter
+from .examples import Example
+from .examples import examples_iter
 
 
 def pytest_addoption(parser):
