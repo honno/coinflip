@@ -1,3 +1,8 @@
+"""Adaptor of StuartGordonReid's r4nd0m
+
+See Stuart Gordon Reid's `GitHub repository
+<https://github.com/StuartGordonReid/r4nd0m>`_ for the original source code.
+"""
 from functools import wraps
 
 from ._implementation import Implementation

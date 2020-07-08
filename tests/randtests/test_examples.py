@@ -1,3 +1,4 @@
+"""Assert test results from examples on our implementations"""
 from math import isclose
 
 import pytest

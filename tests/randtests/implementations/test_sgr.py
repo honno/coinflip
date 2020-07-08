@@ -1,3 +1,4 @@
+"""Assert test results from examples on r4nd0m"""
 from math import isclose
 
 from pytest import skip

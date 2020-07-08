@@ -1,3 +1,4 @@
+"""Assert test results from examples on David Johnston's sts implementation"""
 from math import isclose
 
 from pytest import skip
