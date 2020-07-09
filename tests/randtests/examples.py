@@ -211,7 +211,7 @@ examples = {
             0, 1, 1, 0
         ],
         kwargs={
-            "template": (0, 0, 1),
+            "template": [0, 0, 1],
             "nblocks": 2,
         },
 
@@ -231,7 +231,7 @@ examples = {
                 0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
             ],
             kwargs={
-                "template": (1, 1),
+                "template": [1, 1],
                 "nblocks": 5,
                 "df": 2,
             },
@@ -245,7 +245,7 @@ examples = {
 
             bits=e_expansion(),
             kwargs={
-                "template": (1, 1, 1, 1, 1, 1, 1, 1, 1),
+                "template": [1, 1, 1, 1, 1, 1, 1, 1, 1],
                 "nblocks": 968,
             },
 
