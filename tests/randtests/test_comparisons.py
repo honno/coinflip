@@ -1,3 +1,4 @@
+"""Compares results of our tests to those of other implementations"""
 from math import floor
 from math import log
 from math import sqrt
@@ -19,10 +20,14 @@ from .implementations.sgr import testmap as sgr_testmap
 from .strategies import mixedbits
 
 
-def pclose(left, right) -> bool:
-    p_avg = (left + right) / 2
+def pclose(p1: float, p2: float) -> bool:
+    """Finds if two p-values are reasonably close to each other
+
+    Small p-values tend to vary widely accross implementations, and so the
+    closeness margin is more lenient the closer the p-values are to 0."""
+    p_avg = (p1 + p2) / 2
     margin = max(-log(p_avg), 0.05)
-    diff = abs(left - right)
+    diff = abs(p1 - p2)
 
     return diff < margin
 
