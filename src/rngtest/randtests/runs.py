@@ -10,7 +10,7 @@ from typing import Tuple
 
 from scipy.special import gammaincc
 
-from rngtest.randtests._collections import FloorDict
+from rngtest.randtests._collections import floordict
 from rngtest.randtests._decorators import elected
 from rngtest.randtests._decorators import randtest
 from rngtest.randtests._exceptions import TestNotImplementedError
@@ -80,7 +80,7 @@ class DefaultParams(NamedTuple):
 
 
 # TODO use in recommendations
-n_defaults = FloorDict(
+n_defaults = floordict(
     {
         128: DefaultParams(8, 16, [1, 2, 3, 4]),
         6272: DefaultParams(128, 49, [4, 5, 6, 7, 8, 9]),

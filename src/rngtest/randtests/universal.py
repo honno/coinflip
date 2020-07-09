@@ -8,7 +8,7 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
-from rngtest.randtests._collections import FloorDict
+from rngtest.randtests._collections import floordict
 from rngtest.randtests._decorators import randtest
 from rngtest.randtests._exceptions import TestNotImplementedError
 from rngtest.randtests._result import TestResult
@@ -54,7 +54,7 @@ class DefaultParams(NamedTuple):
 # Values taken from "A Statistical Test Suite for Random and Pseudorandom Number
 #                    Generators for Cryptographic Applications"
 #     See section 2.9.7, "Input Size Recommendation", p. 45
-n_defaults = FloorDict(
+n_defaults = floordict(
     {
         387840: DefaultParams(6, 640),
         904960: DefaultParams(7, 1280),
