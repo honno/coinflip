@@ -95,7 +95,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     TestResult
         Dataclass that contains the test's statistic and p-value
     """
-    if blocksize > 16:
+    if blocksize and blocksize > 16:
         # TODO review this policy
         raise TestNotImplementedError(
             "Test implementation cannot handle blocksize over 16"

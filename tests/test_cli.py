@@ -10,7 +10,6 @@ from hypothesis.stateful import rule
 from pytest import fixture
 
 from rngtest import cli
-from rngtest.cli import main
 from rngtest.store import data_dir
 
 from .randtests.strategies import mixedbits
@@ -28,7 +27,15 @@ def module_setup_teardown():
 def test_main():
     """Checks main command works"""
     runner = CliRunner()
-    result = runner.invoke(main, [])
+    result = runner.invoke(cli.main, [])
+
+    assert result.exit_code == 0
+
+
+def test_example_run():
+    """Checks example-run works"""
+    runner = CliRunner()
+    result = runner.invoke(cli.example_run, [])
 
     assert result.exit_code == 0
 
@@ -55,7 +62,7 @@ class CliRoutes(RuleBasedStateMachine):
     def __init__(self):
         super(CliRoutes, self).__init__()
 
-        self.cli = CliRunner()
+        self.runner = CliRunner()
 
     stores = Bundle("stores")
 
@@ -70,7 +77,7 @@ class CliRoutes(RuleBasedStateMachine):
                 f.write(line)
 
             f.seek(0)
-            result = self.cli.invoke(cli.load, [f.name])
+            result = self.runner.invoke(cli.load, [f.name])
 
         store_msg = r_storename.search(result.stdout)
         store = store_msg.group(1)
@@ -80,16 +87,16 @@ class CliRoutes(RuleBasedStateMachine):
     @rule(store=stores)
     def find_store_listed(self, store):
         """Check if initialised stores are listed"""
-        result = self.cli.invoke(cli.ls)
+        result = self.runner.invoke(cli.ls)
         assert re.search(store, result.stdout)
 
     @rule(store=consumes(stores))
     def remove_store(self, store):
         """Remove stores and check they're not listed"""
-        rm_result = self.cli.invoke(cli.rm, [store])
+        rm_result = self.runner.invoke(cli.rm, [store])
         assert rm_result.exit_code == 0
 
-        ls_result = self.cli.invoke(cli.ls)
+        ls_result = self.runner.invoke(cli.ls)
         assert not re.search(store, ls_result.stdout)
 
 

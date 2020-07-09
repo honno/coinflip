@@ -131,7 +131,7 @@ def pretty_seq(series, cols) -> str:
 
     else:
         border = "  " + hline(outer) + "  "
-        rows = list(blocks(series, blocksize=cols - 8, cutoff=False))
+        rows = list(blocks(series, blocksize=cols - 8, truncate=False))
 
         lines.append(border)
 
