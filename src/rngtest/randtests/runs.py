@@ -77,15 +77,15 @@ class RunsTestResult(TestResult):
 class DefaultParams(NamedTuple):
     blocksize: int
     nblocks: int
-    freqbins: Bins
+    maxlen_bin_intervals: List[int]
 
 
 # TODO use in recommendations
 n_defaults = FloorDict(
     {
-        128: DefaultParams(8, 16, Bins([1, 2, 3, 4])),
-        6272: DefaultParams(128, 49, Bins([4, 5, 6, 7, 8, 9])),
-        750000: DefaultParams(10 ** 4, 75, Bins([10, 11, 12, 13, 14, 15, 16])),
+        128: DefaultParams(8, 16, [1, 2, 3, 4]),
+        6272: DefaultParams(128, 49, [4, 5, 6, 7, 8, 9]),
+        750000: DefaultParams(10 ** 4, 75, [10, 11, 12, 13, 14, 15, 16]),
     }
 )
 
@@ -100,7 +100,7 @@ blocksize_probabilities = {
 }
 
 
-# TODO allow and handle blocksize/nblocks/freqbins kwargs
+# TODO allow and handle blocksize/nblocks/maxlen_bins kwargs
 @randtest(rec_input=128)
 @elected
 def longest_runs(series, candidate):
@@ -123,15 +123,16 @@ def longest_runs(series, candidate):
     """
 
     n = len(series)
+
     try:
-        blocksize, nblocks, freqbins = n_defaults[n]
+        blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]
     except KeyError:
         # TODO handle below 128 or add to min_input
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         )
-
-    df = len(freqbins) - 1
+    df = len(maxlen_bin_intervals) - 1
+    maxlen_bins = Bins(maxlen_bin_intervals)
 
     try:
         maxlen_probs = blocksize_probabilities[blocksize]
@@ -150,10 +151,13 @@ def longest_runs(series, candidate):
             if length > maxlen:
                 maxlen = length
 
-        freqbins[maxlen] += 1
+        print(f"maxlen: {maxlen}")
+        print(f"maxlen bincount b4: {maxlen_bins[maxlen]}")
+        maxlen_bins[maxlen] += 1
+        print(f"maxlen bincount a4: {maxlen_bins[maxlen]}")
 
     reality_check = []
-    bincounts = freqbins.values()
+    bincounts = maxlen_bins.values()
     for count_expect, count in zip(expected_bincounts, bincounts):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
@@ -168,7 +172,7 @@ def longest_runs(series, candidate):
         blocksize=blocksize,
         nblocks=nblocks,
         expected_bincounts=expected_bincounts,
-        freqbins=freqbins,
+        maxlen_bins=maxlen_bins,
     )
 
 
@@ -178,22 +182,22 @@ class LongestRunsTestResult(TestResult):
     blocksize: int
     nblocks: int
     expected_bincounts: List[float]
-    freqbins: Bins
+    maxlen_bins: Bins
 
     def __post_init__(self):
         self.freqbin_diffs = []
-        for expected, actual in zip(self.expected_bincounts, self.freqbins.values()):
+        for expected, actual in zip(self.expected_bincounts, self.maxlen_bins.values()):
             diff = expected - actual
             self.freqbin_diffs.append(diff)
 
     def __str__(self):
         f_stats = self.stats_table("chi-square")
 
-        f_ranges = [str(x) for x in self.freqbins.keys()]
+        f_ranges = [str(x) for x in self.maxlen_bins.keys()]
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        f_bincounts = self.freqbins.values()
+        f_bincounts = self.maxlen_bins.values()
 
         f_expect = [round(count, 1) for count in self.expected_bincounts]
 
