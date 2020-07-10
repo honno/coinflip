@@ -1,11 +1,13 @@
-__all__ = ["floordict"]
+# TODO test non-ordered inputs, subclass OrderedDict
+from typing import Iterable
+
+__all__ = ["FloorDict", "RoundingDict", "Bins"]
 
 
-# TODO test non-ordered inputs
-class floordict(dict):
+class FloorDict(dict):
     """Subclassed `dict` where invalid keys floor to the smallest real key
 
-    If a `floordict` is passed a missing key, the nearest real key that is the
+    If a key is accessed that does not exist, the nearest real key that is the
     less-than of the passed key is used.
     """
 
@@ -15,7 +17,46 @@ class floordict(dict):
             if key < realkey:
                 if prevkey is None:
                     raise KeyError()
-                return dict.__getitem__(self, prevkey)
+                return super().__getitem__(prevkey)
             prevkey = realkey
         else:
-            return dict.__getitem__(self, prevkey)
+            return super().__getitem__(prevkey)
+
+
+class RoundingDict(dict):
+    """Subclassed `dict` where invalid keys are rounded to the nearest real key
+
+    If a key is accessed that does not exist, the nearest real key to the passed
+    key is used.
+    """
+
+    def _roundkey(self, key):
+        realkeys = list(self.keys())
+        minkey = realkeys[0]
+        midkeys = realkeys[1:-1]
+        maxkey = realkeys[-1]
+
+        if key <= minkey:
+            return minkey
+        elif key >= maxkey:
+            return maxkey
+        elif key in midkeys:
+            return key
+        else:
+            raise KeyError()
+
+    def __setitem__(self, key, value):
+        realkey = self._roundkey(key)
+        super().__setitem__(realkey, value)
+
+    def __getitem__(self, key):
+        realkey = self._roundkey(key)
+        return super().__getitem__(realkey)
+
+
+class Bins(RoundingDict):
+    """Subclassed `RoundingDict` to initialise intervals as empty bins"""
+
+    def __init__(self, intervals: Iterable[int]):
+        empty_bins = {interval: 0 for interval in intervals}
+        super().__init__(empty_bins)

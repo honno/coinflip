@@ -50,7 +50,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
 
     Note
     ----
-    Uses the same bit expansion that are included in NIST's `sts`
+    Uses the same bit expansion that's included in NIST's `sts`
     """
     e = _e_expansion()
     for _ in range(n):

@@ -10,7 +10,8 @@ from typing import Tuple
 
 from scipy.special import gammaincc
 
-from rngtest.randtests._collections import floordict
+from rngtest.randtests._collections import Bins
+from rngtest.randtests._collections import FloorDict
 from rngtest.randtests._decorators import elected
 from rngtest.randtests._decorators import randtest
 from rngtest.randtests._exceptions import TestNotImplementedError
@@ -76,15 +77,15 @@ class RunsTestResult(TestResult):
 class DefaultParams(NamedTuple):
     blocksize: int
     nblocks: int
-    freqbin_ranges: List[int]
+    freqbins: Bins
 
 
 # TODO use in recommendations
-n_defaults = floordict(
+n_defaults = FloorDict(
     {
-        128: DefaultParams(8, 16, [1, 2, 3, 4]),
-        6272: DefaultParams(128, 49, [4, 5, 6, 7, 8, 9]),
-        750000: DefaultParams(10 ** 4, 75, [10, 11, 12, 13, 14, 15, 16]),
+        128: DefaultParams(8, 16, Bins([1, 2, 3, 4])),
+        6272: DefaultParams(128, 49, Bins([4, 5, 6, 7, 8, 9])),
+        750000: DefaultParams(10 ** 4, 75, Bins([10, 11, 12, 13, 14, 15, 16])),
     }
 )
 
@@ -99,7 +100,7 @@ blocksize_probabilities = {
 }
 
 
-# TODO allow and handle blocksize/nblocks/freqbin_ranges kwargs
+# TODO allow and handle blocksize/nblocks/freqbins kwargs
 @randtest(rec_input=128)
 @elected
 def longest_runs(series, candidate):
@@ -121,66 +122,39 @@ def longest_runs(series, candidate):
         Dataclass that contains the test's statistic and p-value
     """
 
-    # --------------------------------------------------------------------------
-    # Finding test constants
-
     n = len(series)
     try:
-        blocksize, nblocks, freqbin_ranges = n_defaults[n]
+        blocksize, nblocks, freqbins = n_defaults[n]
     except KeyError:
         # TODO handle below 128 or add to min_input
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         )
 
-    # TODO range list
-    def freqbin(runlength):
-        minlen = freqbin_ranges[0]
-        midlengths = freqbin_ranges[1:-1]
-        maxlen = freqbin_ranges[-1]
-
-        if runlength <= minlen:
-            return 0
-
-        elif minlen < runlength < maxlen:
-            for freqbin, length in enumerate(midlengths, 1):
-                if runlength == length:
-                    return freqbin
-
-        elif runlength >= maxlen:
-            maxbin = len(freqbin_ranges) - 1
-            return maxbin
-
-    df = len(freqbin_ranges) - 1
+    df = len(freqbins) - 1
 
     try:
         maxlen_probs = blocksize_probabilities[blocksize]
     except KeyError:
-        raise NotImplementedError()
-    freqbins_expect = [prob * nblocks for prob in maxlen_probs]
-
-    # --------------------------------------------------------------------------
-    # Test logic
-
-    maxlengths = []
-    for block in blocks(series, blocksize=blocksize, nblocks=nblocks):
-        c_run_lengths = (
-            length for value, length in asruns(block) if value == candidate
+        raise TestNotImplementedError(
+            "Test implementation currently cannot calculate probabilities\n"
+            f"Values are pre-calculated, which do not include blocksizes of {blocksize}"
         )
+    expected_bincounts = [prob * nblocks for prob in maxlen_probs]
+
+    for block in blocks(series, blocksize=blocksize, nblocks=nblocks):
+        runlengths = (length for value, length in asruns(block) if value == candidate)
 
         maxlen = 0
-        for length in c_run_lengths:
+        for length in runlengths:
             if length > maxlen:
                 maxlen = length
 
-        maxlengths.append(maxlen)
-
-    freqbins = [0 for _ in freqbin_ranges]
-    for runlength in maxlengths:
-        freqbins[freqbin(runlength)] += 1
+        freqbins[maxlen] += 1
 
     reality_check = []
-    for count_expect, count in zip(freqbins_expect, freqbins):
+    bincounts = freqbins.values()
+    for count_expect, count in zip(expected_bincounts, bincounts):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
@@ -193,8 +167,7 @@ def longest_runs(series, candidate):
         candidate=candidate,
         blocksize=blocksize,
         nblocks=nblocks,
-        freqbin_ranges=freqbin_ranges,
-        freqbins_expect=freqbins_expect,
+        expected_bincounts=expected_bincounts,
         freqbins=freqbins,
     )
 
@@ -204,29 +177,30 @@ class LongestRunsTestResult(TestResult):
     candidate: Any
     blocksize: int
     nblocks: int
-    freqbin_ranges: List[int]
-    freqbins_expect: List[float]
-    freqbins: List[int]
+    expected_bincounts: List[float]
+    freqbins: Bins
 
     def __post_init__(self):
         self.freqbin_diffs = []
-        for expected, actual in zip(self.freqbins_expect, self.freqbins):
+        for expected, actual in zip(self.expected_bincounts, self.freqbins.values()):
             diff = expected - actual
             self.freqbin_diffs.append(diff)
 
     def __str__(self):
         f_stats = self.stats_table("chi-square")
 
-        f_ranges = [str(x) for x in self.freqbin_ranges]
+        f_ranges = [str(x) for x in self.freqbins.keys()]
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        f_expect = [round(count, 1) for count in self.freqbins_expect]
+        f_bincounts = self.freqbins.values()
+
+        f_expect = [round(count, 1) for count in self.expected_bincounts]
 
         f_diffs = [round(diff, 1) for diff in self.freqbin_diffs]
 
         ftable = tabulate(
-            zip(f_ranges, self.freqbins, f_expect, f_diffs),
+            zip(f_ranges, f_bincounts, f_expect, f_diffs),
             ["maxlen", "nblocks", "expected", "diff"],
         )
 
