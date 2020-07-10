@@ -58,5 +58,6 @@ class Bins(RoundingDict):
     """Subclassed `RoundingDict` to initialise intervals as empty bins"""
 
     def __init__(self, intervals: Iterable[int]):
+        """Initialise intervals as keys to values of 0"""
         empty_bins = {interval: 0 for interval in intervals}
         super().__init__(empty_bins)
