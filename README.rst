@@ -6,6 +6,20 @@ Randomness testing for humans
 
 |travis| |codecov| |docs| |license| |version| |supported-versions| |black|
 
+*rngtest* aims to implement the tests recommended by `NIST SP800-22
+<https://csrc.nist.gov/publications/detail/sp/800-22/rev-1a/final>`_
+to check random number generators for randomness.  A user-friendly command-line
+interface provided allows you to ``load``, ``run`` and ``report`` on your data
+in a step-by-step fashion.
+
+``rngtest.randtests`` acts as the `public API
+<https://rngtest.readthedocs.io/en/latest/reference/randtests/index.html>`_
+for `notebook users <https://jupyter.org/index.html>`_ and developers to use
+the randomness tests directly. The tests are implemented as general solutions,
+and so accept basically any binary sequence you throw at them!
+
+Note that *rngtest* is a temporary project name and `subject to change
+<https://github.com/Honno/rngtest/issues/6>`_ :o
 
 Setup
 =====
@@ -36,8 +50,8 @@ You can install ``rngtest`` via the ``pip`` command like so:
 `pip <https://realpython.com/what-is-pip/>`_ is the standard package manager for
 Python, which should of installed automatically when installing Python 3.7+.
 
-Quickstart
-==========
+Quick start
+===========
 
 Try running the randomness tests on an example binary sequence.
 
@@ -47,6 +61,11 @@ Try running the randomness tests on an example binary sequence.
 
 Output should comprise of the example sequence, test-specific summaries, and a
 final overall summary table.
+
+Foo
+===
+
+(``0`` & ``1``, ``True`` & ``False``, ``"bob"`` & ``"alice"``)
 
 Documentation
 =============
@@ -79,7 +98,7 @@ To run the all tests run::
 
 .. |travis| image:: https://api.travis-ci.com/Honno/rngtest.svg?branch=master
     :alt: Travis-CI build status
-    :target: https://travis-ci.org/Honno/rngtest
+    :target: https://travis-ci.com/Honno/rngtest
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/Honno/rngtest?branch=master&svg=true
     :alt: AppVeyor build status
@@ -89,7 +108,7 @@ To run the all tests run::
     :alt: Requirements status
     :target: https://requires.io/github/Honno/rngtest/requirements/?branch=master
 
-.. |codecov| image:: https://codecov.io/gh/Honno/rngtest/branch/master/graphs/badge.svg?branch=master
+.. |codecov| image:: https://img.shields.io/codecov/c/gh/Honno/rngtest
     :alt: Coverage status
     :target: https://codecov.io/github/Honno/rngtest
 
