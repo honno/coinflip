@@ -151,10 +151,7 @@ def longest_runs(series, candidate):
             if length > maxlen:
                 maxlen = length
 
-        print(f"maxlen: {maxlen}")
-        print(f"maxlen bincount b4: {maxlen_bins[maxlen]}")
         maxlen_bins[maxlen] += 1
-        print(f"maxlen bincount a4: {maxlen_bins[maxlen]}")
 
     reality_check = []
     bincounts = maxlen_bins.values()
@@ -203,12 +200,12 @@ class LongestRunsTestResult(TestResult):
 
         f_diffs = [round(diff, 1) for diff in self.freqbin_diffs]
 
-        ftable = tabulate(
+        f_table = tabulate(
             zip(f_ranges, f_bincounts, f_expect, f_diffs),
             ["maxlen", "nblocks", "expected", "diff"],
         )
 
-        return f"{f_stats}\n" "\n" f"{ftable}"
+        return f"{f_stats}\n" "\n" f"{f_table}"
 
 
 # ------------------------------------------------------------------------------
