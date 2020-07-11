@@ -143,8 +143,8 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     if dtype_str is not None:
         try:
             dtype = TYPES[dtype_str]
-        except KeyError:
-            raise TypeNotRecognizedError(dtype_str)
+        except KeyError as e:
+            raise TypeNotRecognizedError(dtype_str) from e
 
         series = series.astype(dtype)
     else:
@@ -397,8 +397,8 @@ def get_data(store_name) -> pd.Series:
 
         return series
 
-    except FileNotFoundError:
-        raise DataNotFoundError(store_name)
+    except FileNotFoundError as e:
+        raise DataNotFoundError(store_name) from e
 
 
 def drop(store_name):

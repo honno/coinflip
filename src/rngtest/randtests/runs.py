@@ -126,21 +126,21 @@ def longest_runs(series, candidate):
 
     try:
         blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]
-    except KeyError:
+    except KeyError as e:
         # TODO handle below 128 or add to min_input
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
-        )
+        ) from e
     df = len(maxlen_bin_intervals) - 1
     maxlen_bins = Bins(maxlen_bin_intervals)
 
     try:
         maxlen_probs = blocksize_probabilities[blocksize]
-    except KeyError:
+    except KeyError as e:
         raise TestNotImplementedError(
             "Test implementation currently cannot calculate probabilities\n"
             f"Values are pre-calculated, which do not include blocksizes of {blocksize}"
-        )
+        ) from e
     expected_bincounts = [prob * nblocks for prob in maxlen_probs]
 
     for block in blocks(series, blocksize=blocksize, nblocks=nblocks):

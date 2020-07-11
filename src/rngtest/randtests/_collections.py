@@ -16,7 +16,7 @@ class FloorDict(dict):
         for realkey, value in self.items():
             if key < realkey:
                 if prevkey is None:
-                    raise KeyError()
+                    raise KeyError("Passed key smaller than all real keys")
                 return super().__getitem__(prevkey)
             prevkey = realkey
         else:
