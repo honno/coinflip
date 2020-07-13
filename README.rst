@@ -16,9 +16,9 @@ in a step-by-step fashion.
 <https://rngtest.readthedocs.io/en/latest/reference/randtests/index.html>`_
 for `notebook users <https://jupyter.org/index.html>`_ and developers to use
 the randomness tests directly. The tests are implemented as general solutions,
-and so accept basically any binary sequence you throw at them!
+meaning they accept basically any binary sequence you throw at them!
 
-Note that *rngtest* is a temporary project name and `subject to change
+Note that *rngtest* is a temporary project name that is `subject to change
 <https://github.com/Honno/rngtest/issues/6>`_ :o
 
 Setup
@@ -31,7 +31,7 @@ Cross-platform installation instructions for Python  are available at
 `realpython.com/installing-python/ <https://realpython.com/installing-python/>`_.
 
 Note ``rngtest`` only works on **Python 3.7 or above**. Make sure you have
-Python 3.7 (or higher) by checking the version of your installation like so:
+Python 3.7 (or higher) by checking the version of your installation:
 
 .. code-block:: console
 
@@ -41,37 +41,58 @@ Python 3.7 (or higher) by checking the version of your installation like so:
 Install rngtest
 ---------------
 
-You can install ``rngtest`` via the ``pip`` command like so:
+You can install the development build of ``rngtest`` via the ``pip`` command:
 
 .. code-block:: console
 
-    $ pip install rngtest
+    $ pip install https://github.com/Honno/rngtest
 
 `pip <https://realpython.com/what-is-pip/>`_ is the standard package manager for
 Python, which should of installed automatically when installing Python 3.7+.
 
-Quick start
-===========
+Trial run
+---------
 
-Try running the randomness tests on an example binary sequence.
+Try running the randomness tests on a generated binary sequence:
 
 .. code-block:: console
 
     $ rngtest example-run
+    ...
+
+
+Quick start
+===========
+
+Output of random number generators can be parsed and serialised into a
+test-ready format via the ``load`` command:
+
+.. code-block:: console
+
+    $ rngtest load DATA
+    Store name to be encoded as store_<timestamp>
+    Data stored successfully!
+    ...
+
+``DATA`` is the path to newline-delimited text file that contains a binary sequence.
+An example file to use is available on `my gist
+<https://gist.github.com/Honno/dd6f3527e588428fa17a999042e3c6e8>`_.
+
+Randomness tests can then be ran over the store’s data via the ``run`` command.
+You should be prompted by a ``No STORE argument provided`` message, where
+``rngtest`` will assume you want to run the tests over the data you just
+loaded—type ``y`` and hit enter.
+
+.. code-block:: console
+
+    $ rngtest run
+    No STORE argument provided
+      The most recent STORE to be initialised is 'store_<timestamp>'
+      Pass it as the STORE argument? [y/N]: y
+    ...
 
 Output should comprise of the example sequence, test-specific summaries, and a
 final overall summary table.
-
-Foo
-===
-
-(``0`` & ``1``, ``True`` & ``False``, ``"bob"`` & ``"alice"``)
-
-Documentation
-=============
-
-https://rngtest.readthedocs.io/
-
 
 Development
 ===========
@@ -79,17 +100,14 @@ Development
 Install from source
 -------------------
 
-Alternatively you can clone the source code via `Git
-<https://www.freecodecamp.org/news/what-is-git-and-how-to-use-it-c341b049ae61/>`_
-blah
+You can clone the source code via `Git
+<https://www.freecodecamp.org/news/what-is-git-and-how-to-use-it-c341b049ae61/>`_:
 
+.. code-block:: console
 
-Testing
--------
+    $ git clone https://github.com/Honno/rngtest
 
-To run the all tests run::
-
-    tox
+TODO
 
 
 .. |docs| image:: https://readthedocs.org/projects/rngtest/badge/?style=flat
