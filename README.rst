@@ -4,7 +4,7 @@ rngtest
 
 Randomness testing for humans
 
-|travis| |codecov| |docs| |license| |version| |supported-versions| |black|
+|travis| |codecov| |docs| |license| |version| |supported-versions| |hypothesis| |black|
 
 *rngtest* aims to implement the tests recommended by `NIST SP800-22
 <https://csrc.nist.gov/publications/detail/sp/800-22/rev-1a/final>`_
@@ -129,6 +129,10 @@ TODO
 .. |codecov| image:: https://img.shields.io/codecov/c/gh/Honno/rngtest
     :alt: Coverage status
     :target: https://codecov.io/github/Honno/rngtest
+
+.. |hypothesis| image:: https://img.shields.io/badge/hypothesis-tested-brightgreen.svg
+   :alt: Tested with Hypothesis
+   :target: https://hypothesis.readthedocs.io
 
 .. |version| image:: https://img.shields.io/pypi/v/rngtest.svg
     :alt: PyPI package latest release
