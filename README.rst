@@ -24,6 +24,16 @@ Note that *rngtest* is a temporary project name that is `subject to change
 Setup
 =====
 
+*rngtest* is currently in rapid development, so we recommend building from
+source.
+
+.. code-block:: console
+
+    $ pip install git+https://github.com/Honno/rngtest
+
+If that means nothing to you, no fret! Please continue reading the instructions
+below.
+
 Install Python 3.7+
 -------------------
 
@@ -38,14 +48,31 @@ Python 3.7 (or higher) by checking the version of your installation:
     $ python --version
     Python 3.7.X
 
-Install rngtest
----------------
+Clone repository
+----------------
 
-You can install the development build of ``rngtest`` via the ``pip`` command:
+You can clone the source code via `Git
+<https://www.freecodecamp.org/news/what-is-git-and-how-to-use-it-c341b049ae61/>`_:
 
 .. code-block:: console
 
-    $ pip install https://github.com/Honno/rngtest
+    $ git clone https://github.com/Honno/rngtest
+
+
+Install rngtest
+---------------
+
+Enter the directory *rngtest* is downloaded to:
+
+.. code-block:: console
+
+   $ cd rngtest
+
+You can install *rngtest* via the ``pip`` module:
+
+.. code-block:: console
+
+    $ pip install -e .
 
 `pip <https://realpython.com/what-is-pip/>`_ is the standard package manager for
 Python, which should of installed automatically when installing Python 3.7+.
@@ -58,7 +85,21 @@ Try running the randomness tests on a generated binary sequence:
 .. code-block:: console
 
     $ rngtest example-run
-    ...
+
+If the command ``rngtest`` is "not found", you may need to add your local
+binaries folder to your shell's path. For example, in bash you would do the
+following:
+
+.. code-block:: console
+
+    $ echo "export PATH=~/.local/bin:$PATH" >> ~/.bash_profile
+    $ source ~/.bash_profile
+
+In the worst case, you can execute commands via ``python -m``:
+
+.. code-block:: console
+
+    $ python -m rngtest example-run
 
 
 Quick start
@@ -74,12 +115,12 @@ test-ready format via the ``load`` command:
     Data stored successfully!
     ...
 
-``DATA`` is the path to newline-delimited text file that contains a binary sequence.
-An example file to use is available on `my gist
+``DATA`` is the path to newline-delimited text file that contains a binary
+sequence. An example file to use is available on `my gist
 <https://gist.github.com/Honno/dd6f3527e588428fa17a999042e3c6e8>`_.
 
 Randomness tests can then be ran over the store’s data via the ``run`` command.
-You should be prompted by a ``No STORE argument provided`` message, where
+You should be prompted by a "No STORE argument provided" message, where
 ``rngtest`` will assume you want to run the tests over the data you just
 loaded—type ``y`` and hit enter.
 
@@ -93,22 +134,6 @@ loaded—type ``y`` and hit enter.
 
 Output should comprise of the example sequence, test-specific summaries, and a
 final overall summary table.
-
-Development
-===========
-
-Install from source
--------------------
-
-You can clone the source code via `Git
-<https://www.freecodecamp.org/news/what-is-git-and-how-to-use-it-c341b049ae61/>`_:
-
-.. code-block:: console
-
-    $ git clone https://github.com/Honno/rngtest
-
-TODO
-
 
 .. |docs| image:: https://readthedocs.org/projects/rngtest/badge/?style=flat
     :target: https://readthedocs.org/projects/rngtest
