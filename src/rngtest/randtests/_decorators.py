@@ -63,10 +63,10 @@ def randtest(min_input=2, rec_input=2):
     def decorator(func):
         @wraps(func)
         def wrapper(sequence, *args, **kwargs) -> TestResult:
-            if not isinstance(sequence, pd.Series):
-                series = pd.Series(sequence)
-            else:
+            if isinstance(sequence, pd.Series):
                 series = sequence
+            else:
+                series = pd.Series(sequence)
 
             if series.nunique() != 2:
                 raise NonBinarySequenceError()
