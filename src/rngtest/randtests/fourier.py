@@ -65,10 +65,10 @@ def discrete_fourier_transform(series, candidate):
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expected = 0.95 * n / 2
 
-    peaks = candidate
+    peak = candidate
     trough = next(value for value in series.unique() if value != candidate)
 
-    oscillations = series.map({peaks: 1, trough: -1})
+    oscillations = series.map({peak: 1, trough: -1})
     fourier = fft(oscillations)
 
     half_fourier = fourier[: n // 2]
