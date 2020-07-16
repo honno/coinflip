@@ -85,7 +85,7 @@ def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
         yield block_tup
 
 
-def check_recommendations(recommendation: Dict[str, bool]):
+def check_recommendations(recommendations: Dict[str, bool]):
     """Warns on recommendation failures
 
     Parameters
@@ -99,7 +99,7 @@ def check_recommendations(recommendation: Dict[str, bool]):
     UserWarning
         When one or more recommendations fail
     """
-    failures = [expr for expr, success in recommendation.items() if not success]
+    failures = [expr for expr, success in recommendations.items() if not success]
 
     nfail = len(failures)
     if nfail == 1:
