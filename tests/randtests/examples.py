@@ -64,7 +64,7 @@ class Example(NamedTuple):
     bits: List[int]
     statistic: Union[int, float]
     p: float
-    kwargs: Dict[str, Any] = dict()
+    kwargs: Dict[str, Any] = {}
 
 
 # fmt: off
@@ -95,9 +95,9 @@ examples = {
             1, 0, 0, 0, 1, 0, 1, 1,
             1, 0, 0, 0,
         ],
-        kwargs=dict(
-            blocksize=10
-        ),
+        kwargs={
+            "blocksize": 10
+        },
 
         statistic=7.2,
         p=0.706438,
@@ -261,10 +261,10 @@ examples = {
             0, 1, 1, 1, 0, 1, 0, 1,
             0, 1, 1, 1,
         ],
-        kwargs=dict(
-            blocksize=2,
-            init_nblocks=4,
-        ),
+        kwargs={
+            "blocksize": 2,
+            "init_nblocks": 4,
+        },
 
         statistic=1.1949875,
         p=0.767189,
@@ -273,9 +273,9 @@ examples = {
         randtest="linear_complexity",
 
         bits=e_expansion(),
-        kwargs=dict(
-            blocksize=1000
-        ),
+        kwargs={
+            "blocksize": 1000
+        },
 
         statistic=2.700348,
         p=0.845406,
