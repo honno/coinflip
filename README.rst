@@ -179,6 +179,6 @@ final overall summary table.
     :alt: Code style
     :target: https://github.com/psf/black
 
-.. |license| image:: https://img.shields.io/badge/license-GPLv3-blueviolet
+.. |license| image:: https://img.shields.io/badge/license-BSD-blueviolet
     :alt: License
-    :target: https://choosealicense.com/licenses/gpl-3.0/
+    :target: https://github.com/Honno/rngtest/blob/master/LICENSE.md
