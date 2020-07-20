@@ -76,8 +76,8 @@ def binary_matrix_rank(bits, matrix_dimen):
 
     try:
         return _binary_matrix_rank(bits, M=nrows, Q=ncols)
-    except (ZeroDivisionError, IndexError):
-        raise ImplementationError()
+    except (ZeroDivisionError, IndexError) as e:
+        raise ImplementationError() from e
 
 
 @named
