@@ -6,6 +6,7 @@ See Stuart Gordon Reid's `GitHub repository
 from functools import wraps
 
 from ._implementation import Implementation
+from ._implementation import ImplementationError
 from .r4nd0m.SourceCode.RandomnessTests import RandomnessTester
 
 __all__ = ["testmap"]
@@ -54,7 +55,7 @@ def discrete_fourier_transform(bits):
 def binary_matrix_rank(bits, matrix_dimen):
     nrows, ncols = matrix_dimen
     if nrows != ncols:
-        raise NotImplementedError()
+        raise ImplementationError()
 
     return _tester.matrix_rank(bits, nrows)
 

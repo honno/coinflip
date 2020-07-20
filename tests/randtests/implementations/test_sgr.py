@@ -3,7 +3,8 @@ from math import isclose
 
 from pytest import skip
 
-from . import sgr_testmap
+from ._implementation import ImplementationError
+from .sgr import testmap as sgr_testmap
 
 
 def test_randtest_on_example(randtest, bits, statistic, p, kwargs):
@@ -14,7 +15,7 @@ def test_randtest_on_example(randtest, bits, statistic, p, kwargs):
 
     try:
         result = implementation.randtest(bits, **kwargs)
-    except NotImplementedError:
+    except ImplementationError:
         skip()
 
     assert isclose(result, p, abs_tol=0.005)

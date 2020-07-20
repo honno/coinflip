@@ -72,7 +72,7 @@ def binary_matrix_rank(bits, matrix_dimen):
     nrows, ncols = matrix_dimen
     nblocks = len(bits) // (nrows * ncols)
     if nblocks < 38:
-        raise NotImplementedError()
+        raise ImplementationError()
 
     try:
         return _binary_matrix_rank(bits, M=nrows, Q=ncols)
