@@ -15,7 +15,7 @@ from rngtest.randtests._tabulate import tabulate
 __all__ = ["discrete_fourier_transform", "fft"]
 
 
-class TruncatedNonBinarySequenceError(NonBinarySequenceError):
+class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
     """Error if truncated sequence does not contain only 2 distinct values"""
 
     def __str__(self):
@@ -50,7 +50,7 @@ def discrete_fourier_transform(series, candidate):
 
     Raises
     ------
-    TruncatedNonBinarySequenceError
+    NonBinaryTruncatedSequenceError
         When odd-lengthed sequence is truncated there is only one distinct value
         present
 
@@ -60,7 +60,7 @@ def discrete_fourier_transform(series, candidate):
     if n % 2 != 0:
         series = series[:-1]
         if series.nunique() != 2:
-            raise TruncatedNonBinarySequenceError()
+            raise NonBinaryTruncatedSequenceError()
 
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expected = 0.95 * n / 2
