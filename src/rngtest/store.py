@@ -214,7 +214,7 @@ def init_store(name=None, overwrite=False):
     --------
     store_data : Parses data and calls this method, to then save data in store
     """
-    if name is not None:
+    if name:
         store_name = slugify(name, separator="_")
 
         if store_name != name:
