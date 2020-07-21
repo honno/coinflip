@@ -486,7 +486,7 @@ def open_results(store_name):
     store_path = data_dir / store_name
 
     if not store_path.exists():
-        raise StoreNotFoundError
+        raise StoreNotFoundError()
 
     results_path = store_path / RESULTS_FNAME
 
