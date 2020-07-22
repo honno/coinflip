@@ -78,6 +78,7 @@ class CliRoutes(RuleBasedStateMachine):
 
             f.seek(0)
             result = self.runner.invoke(cli.load, [f.name])
+            assert result.exit_code == 0
 
         store_msg = r_storename.search(result.stdout)
         store = store_msg.group(1)
