@@ -47,14 +47,18 @@ setup(
         "Intended Audience :: Developers",
         "Operating System :: Unix",
         "Operating System :: POSIX",
+        "Operating System :: MacOS"
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: BSD License",
         "Topic :: Utilities",
+        "Topic :: Security :: Cryptography",
+        "Topic :: Software Development :: Libraries",
+        "Environment :: Console"
     ],
     project_urls={
         "Documentation": "https://coinflip.readthedocs.io/",
@@ -62,9 +66,9 @@ setup(
         "Issue Tracker": "https://github.com/Honno/coinflip/issues",
     },
     keywords=[
-        # TODO eg: 'keyword1', 'keyword2', 'keyword3',
+        "rng", "prng", "randomness", "nist", "statistics", "tests", "randomness-testing", "cryptography", "rngtest", "diehard", "TestU01", "pandas", "scipy", "cli", "data-science"
     ],
-    python_requires="!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    python_requires=">=3.7",
     install_requires=[
         "click",
         "numpy",
