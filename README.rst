@@ -18,9 +18,6 @@ for `notebook users <https://jupyter.org/index.html>`_ and developers to use
 the randomness tests directly. The tests are implemented as general solutions,
 meaning they accept basically any binary sequence you throw at them!
 
-Note that *coinflip* is a temporary project name that is `subject to change
-<https://github.com/Honno/coinflip/issues/6>`_ :o
-
 Setup
 =====
 
