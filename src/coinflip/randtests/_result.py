@@ -7,7 +7,7 @@ from typing import Union
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
 
-from rngtest.randtests._tabulate import tabulate
+from coinflip.randtests._tabulate import tabulate
 
 __all__ = ["TestResult"]
 

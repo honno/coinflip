@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use rngtest in a project::
+To use coinflip in a project::
 
-	import rngtest
+	import coinflip

@@ -8,7 +8,7 @@ little bit helps, and credit will always be given.
 Bug reports
 ===========
 
-When `reporting a bug <https://github.com/Honno/rngtest/issues>`_ please include:
+When `reporting a bug <https://github.com/Honno/coinflip/issues>`_ please include:
 
     * Your operating system name and version.
     * Any details about your local setup that might be helpful in troubleshooting.
@@ -17,14 +17,14 @@ When `reporting a bug <https://github.com/Honno/rngtest/issues>`_ please include
 Documentation improvements
 ==========================
 
-rngtest could always use more documentation, whether as part of the
-official rngtest docs, in docstrings, or even on the web in blog posts,
+coinflip could always use more documentation, whether as part of the
+official coinflip docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Feature requests and feedback
 =============================
 
-The best way to send feedback is to file an issue at https://github.com/Honno/rngtest/issues.
+The best way to send feedback is to file an issue at https://github.com/Honno/coinflip/issues.
 
 If you are proposing a feature:
 
@@ -35,13 +35,13 @@ If you are proposing a feature:
 Development
 ===========
 
-To set up `rngtest` for local development:
+To set up `coinflip` for local development:
 
-1. Fork `rngtest <https://github.com/Honno/rngtest>`_
+1. Fork `coinflip <https://github.com/Honno/coinflip>`_
    (look for the "Fork" button).
 2. Clone your fork locally::
 
-    git clone git@github.com:Honno/rngtest.git
+    git clone git@github.com:Honno/coinflip.git
 
 3. Create a branch for local development::
 
@@ -74,7 +74,7 @@ For merging, you should:
 4. Add yourself to ``AUTHORS.rst``.
 
 .. [1] If you don't have all the necessary python versions available locally you can rely on Travis - it will
-       `run the tests <https://travis-ci.org/Honno/rngtest/pull_requests>`_ for each change you add in the pull request.
+       `run the tests <https://travis-ci.org/Honno/coinflip/pull_requests>`_ for each change you add in the pull request.
 
        It will be slower though ...
 

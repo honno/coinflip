@@ -6,8 +6,8 @@ generators.
 
 Notes
 -----
-A copy of the NIST paper can be found at the root of the `rngtest` repository as
-`SP800-22.pdf <https://github.com/Honno/rngtest/blob/master/SP800-22.pdf>`_.
+A copy of the NIST paper can be found at the root of the `coinflip` repository as
+`SP800-22.pdf <https://github.com/Honno/coinflip/blob/master/SP800-22.pdf>`_.
 
 The test themselves are defined in section 2., "Random Number Generation Tests",
 p. 23-62. Further detail of the tests are provided in section 3. "Technical
@@ -23,7 +23,7 @@ with some corrections, which is included in the `SP800-22.pdf` document.
 
 Note that the paper assumes a great amount of familiarity with certain
 concepts in statistics. It also uses some constants and algorithms without any
-explaination. Part of the purpose for `rngtest` is to "describe" the NIST tests
+explaination. Part of the purpose for `coinflip` is to "describe" the NIST tests
 more wholly than in the paper itself, whilst also reducing the noise of some
 non-idiomatic programming conventions used in `sts`.
 
@@ -36,15 +36,15 @@ non-idiomatic programming conventions used in `sts`.
 
    Additional annotations provided by Riccardo Paccagnella and Landon Curt Noll.
 """
-from rngtest.randtests.fourier import discrete_fourier_transform
-from rngtest.randtests.frequency import frequency_within_block
-from rngtest.randtests.frequency import monobits
-from rngtest.randtests.matrix import binary_matrix_rank
-from rngtest.randtests.runs import longest_runs
-from rngtest.randtests.runs import runs
-from rngtest.randtests.template import non_overlapping_template_matching
-from rngtest.randtests.template import overlapping_template_matching
-from rngtest.randtests.universal import maurers_universal
+from coinflip.randtests.fourier import discrete_fourier_transform
+from coinflip.randtests.frequency import frequency_within_block
+from coinflip.randtests.frequency import monobits
+from coinflip.randtests.matrix import binary_matrix_rank
+from coinflip.randtests.runs import longest_runs
+from coinflip.randtests.runs import runs
+from coinflip.randtests.template import non_overlapping_template_matching
+from coinflip.randtests.template import overlapping_template_matching
+from coinflip.randtests.universal import maurers_universal
 
 __all__ = [
     "monobits",

@@ -12,7 +12,7 @@ from hypothesis import settings
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
 
-import rngtest.randtests as randtests
+import coinflip.randtests as randtests
 
 from .implementations._implementation import ImplementationError
 from .implementations.dj import testmap as dj_testmap

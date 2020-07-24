@@ -2,5 +2,5 @@
 _result
 =======
 
-.. automodule:: rngtest.randtests._result
+.. automodule:: coinflip.randtests._result
     :members:

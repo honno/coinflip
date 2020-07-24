@@ -2,5 +2,5 @@
 generators
 ==========
 
-.. automodule:: rngtest.generators
+.. automodule:: coinflip.generators
     :members:

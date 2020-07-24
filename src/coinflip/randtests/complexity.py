@@ -1,5 +1,5 @@
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._result import TestResult
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._result import TestResult
 
 __all__ = ["linear_complexity"]
 

@@ -2,5 +2,5 @@
 fourier
 =======
 
-.. automodule:: rngtest.randtests.fourier
+.. automodule:: coinflip.randtests.fourier
     :members:

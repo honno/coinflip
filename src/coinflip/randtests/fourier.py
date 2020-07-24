@@ -6,11 +6,11 @@ from math import sqrt
 import pandas as pd
 from numpy.fft import fft as _fft
 
-from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._exceptions import NonBinarySequenceError
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._tabulate import tabulate
+from coinflip.randtests._decorators import elected
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._exceptions import NonBinarySequenceError
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._tabulate import tabulate
 
 __all__ = ["discrete_fourier_transform", "fft"]
 

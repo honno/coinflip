@@ -2,29 +2,29 @@
 Commands
 ========
 
-.. click:: rngtest.cli:main
-   :prog: rngtest
+.. click:: coinflip.cli:main
+   :prog: coinflip
 
-.. click:: rngtest.cli:load
-   :prog: rngtest load
+.. click:: coinflip.cli:load
+   :prog: coinflip load
 
-.. click:: rngtest.cli:cat
-   :prog: rngtest cat
+.. click:: coinflip.cli:cat
+   :prog: coinflip cat
 
-.. click:: rngtest.cli:rm
-   :prog: rngtest rm
+.. click:: coinflip.cli:rm
+   :prog: coinflip rm
 
-.. click:: rngtest.cli:rm_all
-   :prog: rngtest rm-all
+.. click:: coinflip.cli:rm_all
+   :prog: coinflip rm-all
 
-.. click:: rngtest.cli:run
-   :prog: rngtest run
+.. click:: coinflip.cli:run
+   :prog: coinflip run
 
-.. click:: rngtest.cli:example_run
-   :prog: rngtest example-run
+.. click:: coinflip.cli:example_run
+   :prog: coinflip example-run
 
-.. click:: rngtest.cli:local_run
-   :prog: rngtest local-run
+.. click:: coinflip.cli:local_run
+   :prog: coinflip local-run
 
-.. click:: rngtest.cli:report
-   :prog: rngtest report
+.. click:: coinflip.cli:report
+   :prog: coinflip report

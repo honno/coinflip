@@ -3,7 +3,7 @@ from math import isclose
 
 import pytest
 
-from rngtest import randtests
+from coinflip import randtests
 
 
 # conftest.py is responsible for parametrizing, equivalent to:

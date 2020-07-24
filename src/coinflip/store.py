@@ -21,8 +21,8 @@ import pandas as pd
 from appdirs import AppDirs
 from slugify import slugify
 
-from rngtest.randtests._exceptions import NonBinarySequenceError
-from rngtest.randtests._result import TestResult
+from coinflip.randtests._exceptions import NonBinarySequenceError
+from coinflip.randtests._result import TestResult
 
 __all__ = [
     "TYPES",
@@ -42,7 +42,7 @@ __all__ = [
     "open_results",
 ]
 
-dirs = AppDirs(appname="rngtest", appauthor="MatthewBarber")
+dirs = AppDirs(appname="coinflip", appauthor="MatthewBarber")
 data_dir = Path(dirs.user_data_dir)
 
 # Create local data directory if it does not already exist

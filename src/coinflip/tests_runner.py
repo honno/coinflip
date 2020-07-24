@@ -7,11 +7,11 @@ from typing import Tuple
 import pandas as pd
 from click import echo
 
-from rngtest import randtests
-from rngtest.randtests._exceptions import NonBinarySequenceError
-from rngtest.randtests._exceptions import TestError
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._tabulate import tabulate
+from coinflip import randtests
+from coinflip.randtests._exceptions import NonBinarySequenceError
+from coinflip.randtests._exceptions import TestError
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._tabulate import tabulate
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 

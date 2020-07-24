@@ -3,9 +3,9 @@ from warnings import warn
 
 import pandas as pd
 
-from rngtest.randtests._exceptions import NonBinarySequenceError
-from rngtest.randtests._exceptions import TestInputError
-from rngtest.randtests._result import TestResult
+from coinflip.randtests._exceptions import NonBinarySequenceError
+from coinflip.randtests._exceptions import TestInputError
+from coinflip.randtests._result import TestResult
 
 __all__ = ["randtest", "infer_candidate", "elected"]
 

@@ -4,4 +4,4 @@ Installation
 
 At the command line::
 
-    pip install rngtest
+    pip install coinflip

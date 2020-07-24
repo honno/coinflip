@@ -14,7 +14,7 @@ extensions = [
 ]
 source_suffix = ".rst"
 master_doc = "index"
-project = "rngtest"
+project = "coinflip"
 year = "2020"
 author = "Matthew Barber"
 copyright = "{0}, {1}".format(year, author)
@@ -23,8 +23,8 @@ version = release = "0.0.0"
 pygments_style = "trac"
 templates_path = ["."]
 extlinks = {
-    "issue": ("https://github.com/Honno/rngtest/issues/%s", "#"),
-    "pr": ("https://github.com/Honno/rngtest/pull/%s", "PR #"),
+    "issue": ("https://github.com/Honno/coinflip/issues/%s", "#"),
+    "pr": ("https://github.com/Honno/coinflip/pull/%s", "PR #"),
 }
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"

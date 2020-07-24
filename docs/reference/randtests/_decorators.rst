@@ -2,5 +2,5 @@
 _decorators
 ===========
 
-.. automodule:: rngtest.randtests._decorators
+.. automodule:: coinflip.randtests._decorators
     :members:

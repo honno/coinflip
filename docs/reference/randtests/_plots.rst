@@ -2,5 +2,5 @@
 _plots
 ======
 
-.. automodule:: rngtest.randtests._plots
+.. automodule:: coinflip.randtests._plots
     :members:

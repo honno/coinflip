@@ -2,5 +2,5 @@
 _tabulate
 =========
 
-.. automodule:: rngtest.randtests._tabulate
+.. automodule:: coinflip.randtests._tabulate
     :members:

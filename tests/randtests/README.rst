@@ -5,7 +5,7 @@ Testing the Randomness Tests
 NIST examples
 =============
 
-The  `SP800-22 <https://github.com/Honno/rngtest/blob/master/SP800-22.pdf>`_
+The  `SP800-22 <https://github.com/Honno/coinflip/blob/master/SP800-22.pdf>`_
 authors included worked examples for their recommend randomness tests, which
 have been curated in ``examples.py`` as  heterogeneous dictionary tree. They are
 conveniently exposed through the ``examples_iter`` method.
@@ -18,7 +18,7 @@ flag ``--example <regex>`` filters the test names via a `regular expression
 
 ``test_examples.py`` contains such a method to pass the parameters of the NIST
 examples to our own `randomness tests
-<https://rngtest.readthedocs.io/en/latest/reference/randtests/index.html>`_,
+<https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_,
 and assert whether our results match theirs.
 
 
@@ -28,7 +28,7 @@ Comparing implementations
 Other implementations of randomness tests are kept in the ``implementations/``
 folder, along with modules that adapt said implementations to be accessed the
 same way as our `API
-<https://rngtest.readthedocs.io/en/latest/reference/randtests/index.html>`_.
+<https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_.
 
 The adaptor methods raise an ``ImplementationError`` when a known error is
 raised from the original method. They are also specified of any missing and

@@ -13,15 +13,15 @@ from click import group
 from click import option
 from colorama import Fore
 
-from rngtest import generators
-from rngtest.randtests import __all__ as randtest_names
-from rngtest.randtests._exceptions import NonBinarySequenceError
-from rngtest.randtests._exceptions import TestError
-from rngtest.randtests._pprint import dim
-from rngtest.randtests._pprint import pretty_seq
-from rngtest.report import write_report
-from rngtest.store import *
-from rngtest.tests_runner import *
+from coinflip import generators
+from coinflip.randtests import __all__ as randtest_names
+from coinflip.randtests._exceptions import NonBinarySequenceError
+from coinflip.randtests._exceptions import TestError
+from coinflip.randtests._pprint import dim
+from coinflip.randtests._pprint import pretty_seq
+from coinflip.report import write_report
+from coinflip.store import *
+from coinflip.tests_runner import *
 
 __all__ = [
     "load",
@@ -130,8 +130,8 @@ def main():
 
     Output of random number generators can be parsed and serialised into a
     test-ready format via the load command. The data is saved in a folder, which
-    rngtest refers to as a "store". This store is located in the local data
-    directory, but can be easily accessed via the store's name in rngtest
+    coinflip refers to as a "store". This store is located in the local data
+    directory, but can be easily accessed via the store's name in coinflip
     commands.
 
     Randomness tests can then be ran over the store's data via the run command.

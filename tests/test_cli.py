@@ -9,8 +9,8 @@ from hypothesis.stateful import consumes
 from hypothesis.stateful import rule
 from pytest import fixture
 
-from rngtest import cli
-from rngtest.store import data_dir
+from coinflip import cli
+from coinflip.store import data_dir
 
 from .randtests.strategies import mixedbits
 

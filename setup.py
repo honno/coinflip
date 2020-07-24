@@ -20,10 +20,10 @@ def read(*names, **kwargs):
 
 
 setup(
-    name="rngtest",
+    name="coinflip",
     use_scm_version={
         "local_scheme": "dirty-tag",
-        "write_to": "src/rngtest/_version.py",
+        "write_to": "src/coinflip/_version.py",
         "fallback_version": "0.0.0",
     },
     description="Generated with cookiecutter-pylibrary.",
@@ -36,7 +36,7 @@ setup(
     ),
     author="Matthew Barber",
     author_email="quitesimplymatt@gmail.com",
-    url="https://github.com/Honno/rngtest",
+    url="https://github.com/Honno/coinflip",
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
@@ -57,9 +57,9 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Documentation": "https://rngtest.readthedocs.io/",
-        "Changelog": "https://rngtest.readthedocs.io/en/latest/changelog.html",
-        "Issue Tracker": "https://github.com/Honno/rngtest/issues",
+        "Documentation": "https://coinflip.readthedocs.io/",
+        "Changelog": "https://coinflip.readthedocs.io/en/latest/changelog.html",
+        "Issue Tracker": "https://github.com/Honno/coinflip/issues",
     },
     keywords=[
         # TODO eg: 'keyword1', 'keyword2', 'keyword3',
@@ -78,5 +78,5 @@ setup(
     ],
     test_requires=["pytest", "hypothesis"],
     setup_requires=["setuptools_scm>=3.3.1"],
-    entry_points={"console_scripts": ["rngtest = rngtest.cli:main"]},
+    entry_points={"console_scripts": ["coinflip = coinflip.cli:main"]},
 )

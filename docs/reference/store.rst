@@ -2,5 +2,5 @@
 store
 =====
 
-.. automodule:: rngtest.store
+.. automodule:: coinflip.store
     :members:

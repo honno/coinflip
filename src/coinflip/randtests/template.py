@@ -1,4 +1,4 @@
-# TODO format templates in results to match rngtest.cli.echo_series
+# TODO format templates in results to match coinflip.cli.echo_series
 from collections import Counter
 from dataclasses import dataclass
 from math import exp
@@ -12,11 +12,11 @@ from typing import List
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._tabulate import tabulate
-from rngtest.randtests._testutils import check_recommendations
-from rngtest.randtests._testutils import rawblocks
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._testutils import check_recommendations
+from coinflip.randtests._testutils import rawblocks
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 

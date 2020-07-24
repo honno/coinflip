@@ -2,5 +2,5 @@
 tests_runner
 ============
 
-.. automodule:: rngtest.tests_runner
+.. automodule:: coinflip.tests_runner
     :members:

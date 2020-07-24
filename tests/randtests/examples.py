@@ -1,6 +1,6 @@
 """Defines result examples to run on randomness tests
 
-`SP800-22 <https://github.com/Honno/rngtest/blob/master/SP800-22.pdf>`_
+`SP800-22 <https://github.com/Honno/coinflip/blob/master/SP800-22.pdf>`_
 graciously provides examples to their tests, which are programmatically outlined
 as `Example` named tuples in this module.
 

@@ -2,5 +2,5 @@
 _pprint
 =======
 
-.. automodule:: rngtest.randtests._pprint
+.. automodule:: coinflip.randtests._pprint
     :members:

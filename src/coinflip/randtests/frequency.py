@@ -13,13 +13,13 @@ import pandas as pd
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
-from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._plots import range_annotation
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._tabulate import tabulate
-from rngtest.randtests._testutils import blocks
-from rngtest.randtests._testutils import check_recommendations
+from coinflip.randtests._decorators import elected
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._plots import range_annotation
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._testutils import blocks
+from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["monobits", "frequency_within_block"]
 

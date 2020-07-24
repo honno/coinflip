@@ -2,5 +2,5 @@
 runs
 ====
 
-.. automodule:: rngtest.randtests.runs
+.. automodule:: coinflip.randtests.runs
     :members:

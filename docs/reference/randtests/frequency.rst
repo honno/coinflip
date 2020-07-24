@@ -2,5 +2,5 @@
 frequency
 =========
 
-.. automodule:: rngtest.randtests.frequency
+.. automodule:: coinflip.randtests.frequency
     :members:

@@ -8,12 +8,12 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
-from rngtest.randtests._collections import FloorDict
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._exceptions import TestNotImplementedError
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._testutils import check_recommendations
-from rngtest.randtests._testutils import rawblocks
+from coinflip.randtests._collections import FloorDict
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._exceptions import TestNotImplementedError
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._testutils import check_recommendations
+from coinflip.randtests._testutils import rawblocks
 
 __all__ = ["maurers_universal"]
 

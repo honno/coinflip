@@ -7,5 +7,5 @@ as a state machine, utilising `stateful testing
 store abstraction of the user data directory works as intended.
 
 ``randtests/`` covers the `randomness tests
-<https://rngtest.readthedocs.io/en/latest/reference/randtests/index.html>`_
+<https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_
 themselves—see its `README <./randtests/README.rst>`_ for more information.

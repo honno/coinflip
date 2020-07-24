@@ -6,13 +6,13 @@ from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
-from rngtest.randtests._decorators import elected
-from rngtest.randtests._decorators import randtest
-from rngtest.randtests._result import TestResult
-from rngtest.randtests._tabulate import tabulate
-from rngtest.randtests._testutils import blocks
-from rngtest.randtests._testutils import check_recommendations
-from rngtest.randtests._testutils import rawblocks
+from coinflip.randtests._decorators import elected
+from coinflip.randtests._decorators import randtest
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._testutils import blocks
+from coinflip.randtests._testutils import check_recommendations
+from coinflip.randtests._testutils import rawblocks
 
 __all__ = ["binary_matrix_rank", "gf2_rank"]
 
