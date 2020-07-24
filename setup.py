@@ -26,7 +26,7 @@ setup(
         "write_to": "src/coinflip/_version.py",
         "fallback_version": "0.0.0",
     },
-    description="Generated with cookiecutter-pylibrary.",
+    description="Randomness testing for humans",
     long_description="%s\n%s"
     % (
         re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub(
