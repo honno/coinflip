@@ -17,10 +17,6 @@ These tests were implemented in a complimentary program `sts`, which can be
 downloaded from the `NIST website
 <https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software>`_.
 
-An interesting project to improve the suite is availabe in a `GitHub repository
-<https://github.com/arcetri/sts>`_. The authors annotated the NIST paper [1]_
-with some corrections, which is included in the `SP800-22.pdf` document.
-
 Note that the paper assumes a great amount of familiarity with certain
 concepts in statistics. It also uses some constants and algorithms without any
 explaination. Part of the purpose for `coinflip` is to "describe" the NIST tests
@@ -33,8 +29,6 @@ non-idiomatic programming conventions used in `sts`.
    Lawrence E Bassham II>, "A Statistical Test Suite for Random and Pseudorandom
    Number Generators for Cryptographic Applications", *Special Publication
    800-22 Revision 1a*, April 2010.
-
-   Additional annotations provided by Riccardo Paccagnella and Landon Curt Noll.
 """
 from coinflip.randtests.fourier import discrete_fourier_transform
 from coinflip.randtests.frequency import frequency_within_block
