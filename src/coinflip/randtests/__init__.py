@@ -29,6 +29,17 @@ non-idiomatic programming conventions used in `sts`.
    Lawrence E Bassham II>, "A Statistical Test Suite for Random and Pseudorandom
    Number Generators for Cryptographic Applications", *Special Publication
    800-22 Revision 1a*, April 2010.
+
+
+.. autofunction:: coinflip.randtests.monobits(sequence)
+.. autofunction:: coinflip.randtests.frequency_within_block(sequence, candidate=None, blocksize=8)
+.. autofunction:: coinflip.randtests.runs(sequence, candidate=None)
+.. autofunction:: coinflip.randtests.longest_runs(sequence, candidate=None)
+.. autofunction:: coinflip.randtests.binary_matrix_rank(sequence, candidate=None, matrix_dimen: Tuple[int, int] = None)
+.. autofunction:: coinflip.randtests.discrete_fourier_transform(sequence, candidate=None)
+.. autofunction:: coinflip.randtests.non_overlapping_template_matching(sequence, template: List = None, nblocks=None)
+.. autofunction:: coinflip.randtests.overlapping_template_matching(sequence, template: List = None, nblocks=None, df=5)
+.. autofunction:: coinflip.randtests.maurers_universal(sequence, blocksize=None, init_nblocks=None)
 """
 from coinflip.randtests.fourier import discrete_fourier_transform
 from coinflip.randtests.frequency import frequency_within_block
