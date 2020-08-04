@@ -18,7 +18,7 @@ for `notebook users <https://jupyter.org/index.html>`_ and developers to use
 the randomness tests directly. The tests are implemented as general solutions,
 meaning they accept basically any binary sequence you throw at them!
 
-.. image:: http://img.youtube.com/vi/0xrWG3Ki9Z8/0.jpg
+.. image:: https://raw.githubusercontent.com/Honno/coinflip/report/.video_files/thumb/thumb_thumb.png
    :target: http://www.youtube.com/watch?v=0xrWG3Ki9Z8
 
 Setup
