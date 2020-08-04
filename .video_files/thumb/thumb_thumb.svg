@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="244.62408pt"
+   height="139.22601pt"
+   viewBox="0 0 86.297943 49.115845"
+   version="1.1"
+   id="svg8325"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="thumb_thumb.svg"
+   inkscape:export-filename="/home/honno/gdrive/GitHub/coinflip/report/.video_files/thumb/thumb_thumb.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs8319" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="158.48393"
+     inkscape:cy="163.46446"
+     inkscape:document-units="pt"
+     inkscape:current-layer="layer5"
+     showgrid="false"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     units="pt" />
+  <metadata
+     id="metadata8322">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="shade"
+     style="opacity:0.33200001"
+     transform="translate(-62.31389,-24.948328)">
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70555556;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       id="rect9145"
+       width="84.754219"
+       height="47.431686"
+       x="63.504833"
+       y="26.279707" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-62.31389,-24.948328)">
+    <image
+       sodipodi:absref="/home/honno/gdrive/GitHub/coinflip/report/.video_files/thumb/thumb.png"
+       xlink:href="thumb.png"
+       width="84.666664"
+       height="47.625"
+       preserveAspectRatio="none"
+       style="stroke-width:4;image-rendering:optimizeQuality"
+       id="image8405"
+       x="62.666668"
+       y="25.301105" />
+    <g
+       id="g8454"
+       transform="matrix(0.25,0,0,0.25,65.17684,34.73198)"
+       style="stroke-width:4">
+      <path
+         style="opacity:1;fill:#dc322f;fill-opacity:1;stroke-width:0.62254912"
+         inkscape:connector-curvature="0"
+         id="path7"
+         d="m 179.58736,47.473011 c -0.48818,-1.790364 -1.91788,-3.20198 -3.73118,-3.683993 -3.31271,-0.895182 -16.56363,-0.895182 -16.56363,-0.895182 0,0 -13.25089,0 -16.56364,0.860739 -1.77841,0.482034 -3.24297,1.928072 -3.73117,3.718436 -0.87177,3.270824 -0.87177,10.053488 -0.87177,10.053488 0,0 0,6.817113 0.87177,10.053513 0.4882,1.79035 1.9179,3.201968 3.73117,3.683978 3.34761,0.895181 16.56364,0.895181 16.56364,0.895181 0,0 13.25092,0 16.56363,-0.860758 1.8133,-0.48201 3.243,-1.893631 3.73118,-3.683961 0.87177,-3.27084 0.87177,-10.053509 0.87177,-10.053509 0,0 0.035,-6.817108 -0.87177,-10.087932 z"
+         class="st0" />
+      <polygon
+         transform="matrix(0.34870808,0,0,0.34429811,138.12597,42.893834)"
+         style="opacity:1;fill:#fdf6e3;fill-opacity:1;stroke-width:1.79669857"
+         id="polygon9"
+         points="48.6,60.7 80.2,42.5 48.6,24.3 "
+         class="st1" />
+    </g>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:0.05;stroke:#000000;stroke-width:0.70555556;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       id="rect8469"
+       width="84.666664"
+       height="47.625004"
+       x="62.666668"
+       y="25.301105" />
+  </g>
+</svg>
