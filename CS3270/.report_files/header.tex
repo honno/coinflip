@@ -1,0 +1,60 @@
+\usepackage[edges]{forest}
+
+\usetikzlibrary{arrows.meta}
+\widowpenalties 1 10000
+\raggedbottom
+\sloppy
+
+\usepackage{hyperref}
+\hypersetup{colorlinks, linkcolor={red!50!black}, citecolor={blue!50!black}, urlcolor={blue!80!black}}
+
+\usepackage[nottoc,notlot,notlof]{tocbibind}
+
+\usepackage{caption} 
+\captionsetup[table]{skip=8pt}
+
+% https://aty.sdsu.edu/bibliog/latex/floats.html
+% Alter some LaTeX defaults for better treatment of figures:
+    % See p.105 of "TeX Unbound" for suggested values.
+    % See pp. 199-200 of Lamport's "LaTeX" book for details.
+    %   General parameters, for ALL pages:
+    \renewcommand{\topfraction}{0.9}  % max fraction of floats at top
+    \renewcommand{\bottomfraction}{0.8} % max fraction of floats at bottom
+    %   Parameters for TEXT pages (not float pages):
+    \setcounter{topnumber}{2}
+    \setcounter{bottomnumber}{2}
+    \setcounter{totalnumber}{4}     % 2 may work better
+    \renewcommand{\dbltopfraction}{0.9} % fit big float above 2-col. text
+    \renewcommand{\textfraction}{0.07}  % allow minimal text w. figs
+    %   Parameters for FLOAT pages (not text pages):
+    \renewcommand{\floatpagefraction}{0.7}  % require fuller float pages
+  % N.B.: floatpagefraction MUST be less than topfraction !!
+    \renewcommand{\dblfloatpagefraction}{0.7} % require fuller float pages
+
+  % remember to use [htp] or [htpb] for placement
+
+% https://tex.stackexchange.com/questions/70202/expand-placeins-functonality-to-subsections
+\usepackage[section]{placeins}
+\makeatletter
+\AtBeginDocument{%
+     \expandafter\renewcommand\expandafter\subsection\expandafter
+       {\expandafter\@fb@subsecFB\subsection}%
+     \newcommand\@fb@subsecFB{\FloatBarrier
+     \gdef\@fb@afterHHook{\@fb@topbarrier \gdef\@fb@afterHHook{}}}
+     \g@addto@macro\@afterheading{\@fb@afterHHook}
+     \gdef\@fb@afterHHook{}
+  }
+\AtBeginDocument{%
+     \expandafter\renewcommand\expandafter\subsubsection\expandafter
+       {\expandafter\@fb@subsubsecFB\subsubsection}%
+     \newcommand\@fb@subsubsecFB{\FloatBarrier
+     \gdef\@fb@afterHHook{\@fb@topbarrier \gdef\@fb@afterHHook{}}}
+     \g@addto@macro\@afterheading{\@fb@afterHHook}
+     \gdef\@fb@afterHHook{}
+  }
+\makeatother
+
+\setminted{frame=lines}
+\AtEndEnvironment{listing}{\vspace{-8pt}}
+
+\usepackage{array}
