@@ -47,7 +47,7 @@ setup(
         "Intended Audience :: Developers",
         "Operating System :: Unix",
         "Operating System :: POSIX",
-        "Operating System :: MacOS"
+        "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -58,7 +58,7 @@ setup(
         "Topic :: Utilities",
         "Topic :: Security :: Cryptography",
         "Topic :: Software Development :: Libraries",
-        "Environment :: Console"
+        "Environment :: Console",
     ],
     project_urls={
         "Documentation": "https://coinflip.readthedocs.io/",
@@ -66,7 +66,21 @@ setup(
         "Issue Tracker": "https://github.com/Honno/coinflip/issues",
     },
     keywords=[
-        "rng", "prng", "randomness", "nist", "statistics", "tests", "randomness-testing", "cryptography", "rngtest", "diehard", "TestU01", "pandas", "scipy", "cli", "data-science"
+        "rng",
+        "prng",
+        "randomness",
+        "nist",
+        "statistics",
+        "tests",
+        "randomness-testing",
+        "cryptography",
+        "rngtest",
+        "diehard",
+        "TestU01",
+        "pandas",
+        "scipy",
+        "cli",
+        "data-science",
     ],
     python_requires=">=3.7",
     install_requires=[
@@ -79,6 +93,7 @@ setup(
         "matplotlib",
         "tabulate",
         "colorama",
+        "rich",
     ],
     test_requires=["pytest", "hypothesis"],
     setup_requires=["setuptools_scm>=3.3.1"],

@@ -9,7 +9,8 @@ from typing import Tuple
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._result import make_testvars_table
+from coinflip.randtests._result import vars_list
 from coinflip.randtests._testutils import blocks
 from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import rawblocks
@@ -127,10 +128,14 @@ class BinaryMatrixRankTestResult(TestResult):
             diff = actual - expect
             self.rankcount_diffs.append(diff)
 
-    def __str__(self):
-        f_stats = self.stats_table("chi-square")
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
 
-        f_matrix_dimen = f"nrows: {self.nrows}\n" f"ncols: {self.ncols}"
+        yield ""
+
+        yield vars_list(
+            ("nrows", self.nrows), ("ncols", self.ncols),
+        )
 
         runnerup = self.fullrank - 1
         remaining = runnerup - 1
@@ -140,19 +145,20 @@ class BinaryMatrixRankTestResult(TestResult):
             "0" if remaining == 0 else f"0-{remaining}",
         ]
 
-        f_counts = astuple(self.rankcounts)
-
-        counts_expect = astuple(self.expected_rankcounts)
-        f_counts_expect = [round(count, 1) for count in counts_expect]
-
-        f_diffs = [round(diff, 1) for diff in self.rankcount_diffs]
-
-        f_table = tabulate(
-            zip(f_ranks, f_counts, f_counts_expect, f_diffs),
-            headers=["rank", "count", "expected", "diff"],
+        table = zip(
+            f_ranks,
+            astuple(self.rankcounts),
+            astuple(self.expected_rankcounts),
+            self.rankcount_diffs,
         )
+        f_table = make_testvars_table("rank", "count", "expected", "diff")
+        for f_rank, count, count_expect, diff in table:
+            f_count = str(count)
+            f_count_expect = str(round(count_expect, 1))
+            f_diff = str(round(diff, 1))
+            f_table.add_row(f_rank, f_count, f_count_expect, f_diff)
 
-        return f"{f_stats}\n" "\n" f"{f_matrix_dimen}\n" "\n" f"{f_table}"
+        yield f_table
 
 
 def bits2int(bits: Iterable[int]) -> int:

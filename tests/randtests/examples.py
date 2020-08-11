@@ -69,8 +69,8 @@ class Example(NamedTuple):
 
 # fmt: off
 examples = {
-    "monobits": Example(
-        randtest="monobits",
+    "monobit": Example(
+        randtest="monobit",
 
         bits=[1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
 
@@ -167,12 +167,12 @@ examples = {
             p=0.532069,
         )
     },
-    "discrete_fourier_transform": {
+    "spectral": {
         # FAILING scipys fft produces slightly diff transformations to NIST's sts
         #         TODO  - check if examples succeed using NIST's fourier transforming
         #               - performance metrics on both solutions
         "small": Example(
-            randtest="discrete_fourier_transform",
+            randtest="spectral",
 
             bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
 
@@ -180,7 +180,7 @@ examples = {
             p=0.029523,
         ),
         "large": Example(
-            randtest="discrete_fourier_transform",
+            randtest="spectral",
 
             bits=[
                 1, 1, 0, 0, 1, 0, 0, 1,

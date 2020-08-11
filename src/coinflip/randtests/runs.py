@@ -16,7 +16,7 @@ from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._exceptions import TestNotImplementedError
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._testutils import blocks
 
 __all__ = ["runs", "longest_runs", "asruns"]
@@ -66,8 +66,8 @@ def runs(series, candidate):
 
 @dataclass
 class RunsTestResult(TestResult):
-    def __str__(self):
-        return self.stats_table("no. of runs")
+    def __rich_console__(self, console, options):
+        yield self._results_text("no. of runs")
 
 
 # ------------------------------------------------------------------------------
@@ -187,25 +187,28 @@ class LongestRunsTestResult(TestResult):
             diff = expected - actual
             self.freqbin_diffs.append(diff)
 
-    def __str__(self):
-        f_stats = self.stats_table("chi-square")
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
 
         f_ranges = [str(x) for x in self.maxlen_bins.keys()]
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        f_bincounts = self.maxlen_bins.values()
-
-        f_expect = [round(count, 1) for count in self.expected_bincounts]
-
-        f_diffs = [round(diff, 1) for diff in self.freqbin_diffs]
-
-        f_table = tabulate(
-            zip(f_ranges, f_bincounts, f_expect, f_diffs),
-            ["maxlen", "nblocks", "expected", "diff"],
+        table = zip(
+            f_ranges,
+            self.maxlen_bins.values(),
+            self.expected_bincounts,
+            self.freqbin_diffs,
         )
+        f_table = make_testvars_table("maxlen", "nblocks", "expect", "diff")
+        for f_range, count, count_expect, diff in table:
+            f_count = str(count)
+            f_count_expect = str(round(count_expect, 1))
+            f_diff = str(round(diff, 1))
 
-        return f"{f_stats}\n" "\n" f"{f_table}"
+            f_table.add_row(f_range, f_count, f_count_expect, f_diff)
+
+        yield f_table
 
 
 # ------------------------------------------------------------------------------

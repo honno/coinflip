@@ -10,11 +10,11 @@ from typing import NamedTuple
 from ._implementation import Implementation
 from ._implementation import ImplementationError
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
-from .sp800_22_tests.sp800_22_dft_test import dft_test as _discrete_fourier_transform
+from .sp800_22_tests.sp800_22_dft_test import dft_test as _spectral
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
 from .sp800_22_tests.sp800_22_longest_run_ones_in_a_block_test import longest_run_ones_in_a_block_test as _longest_runs
 from .sp800_22_tests.sp800_22_maurers_universal_test import maurers_universal_test as _maurers_universal
-from .sp800_22_tests.sp800_22_monobit_test import monobit_test as _monobits
+from .sp800_22_tests.sp800_22_monobit_test import monobit_test as _monobit
 from .sp800_22_tests.sp800_22_non_overlapping_template_matching_test import \
     non_overlapping_template_matching_test as _non_overlapping_template_matching
 from .sp800_22_tests.sp800_22_overlapping_template_matching_test import \
@@ -43,8 +43,8 @@ def named(randtest):
 
 
 @named
-def monobits(bits):
-    return _monobits(bits)
+def monobit(bits):
+    return _monobit(bits)
 
 
 @named
@@ -63,8 +63,8 @@ def longest_runs(bits):
 
 
 @named
-def discrete_fourier_transform(bits):
-    return _discrete_fourier_transform(bits)
+def spectral(bits):
+    return _spectral(bits)
 
 
 @named
@@ -96,14 +96,14 @@ def maurers_universal(bits, blocksize, init_nblocks):
 
 
 testmap = {
-    "monobits": Implementation(monobits),
+    "monobit": Implementation(monobit),
     "frequency_within_block": Implementation(
         frequency_within_block, fixedkwargs={"blocksize": 20}
     ),
     "runs": Implementation(runs),
     "longest_runs": Implementation(longest_runs),
     "binary_matrix_rank": Implementation(binary_matrix_rank),
-    "discrete_fourier_transform": Implementation(discrete_fourier_transform),
+    "spectral": Implementation(spectral),
     "non_overlapping_template_matching": Implementation(
         non_overlapping_template_matching,
         missingkwargs=["template"],

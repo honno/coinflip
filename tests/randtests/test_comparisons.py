@@ -100,15 +100,15 @@ def universal_strategy(
 
 
 @given(mixedbits())
-def test_monobits(bits):
-    result = randtests.monobits(pd.Series(bits))
+def test_monobit(bits):
+    result = randtests.monobit(pd.Series(bits))
 
-    dj_randtest = dj_testmap["monobits"].randtest
+    dj_randtest = dj_testmap["monobit"].randtest
     dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_randtest = sgr_testmap["monobits"].randtest
+    sgr_randtest = sgr_testmap["monobit"].randtest
     sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)
@@ -211,19 +211,19 @@ def test_sgr_binary_matrix_rank(args):
 
 
 @given(mixedbits())
-def test_discrete_fourier_transform(bits):
+def test_spectral(bits):
     if len(bits) % 2 != 0:
         truncated_bits = bits[:-1]
         assume(0 in truncated_bits and 1 in truncated_bits)
 
-    result = randtests.discrete_fourier_transform(pd.Series(bits))
+    result = randtests.spectral(pd.Series(bits))
 
-    dj_randtest = dj_testmap["discrete_fourier_transform"].randtest
+    dj_randtest = dj_testmap["spectral"].randtest
     dj_result = dj_randtest(bits)
 
     assert pclose(result.p, dj_result.p)
 
-    sgr_randtest = sgr_testmap["discrete_fourier_transform"].randtest
+    sgr_randtest = sgr_testmap["spectral"].randtest
     sgr_p = sgr_randtest(bits)
 
     assert pclose(result.p, sgr_p)

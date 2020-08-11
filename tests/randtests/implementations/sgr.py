@@ -27,7 +27,7 @@ def bits_str(randtest):
 
 
 @bits_str
-def monobits(bits):
+def monobit(bits):
     return _tester.monobit(bits)
 
 
@@ -47,7 +47,7 @@ def longest_runs(bits):
 
 
 @bits_str
-def discrete_fourier_transform(bits):
+def spectral(bits):
     return _tester.spectral(bits)
 
 
@@ -82,11 +82,11 @@ def maurers_universal(bits):
 
 
 testmap = {
-    "monobits": Implementation(monobits),
+    "monobit": Implementation(monobit),
     "frequency_within_block": Implementation(frequency_within_block),
     "runs": Implementation(runs),
     "longest_runs": Implementation(longest_runs),
-    "discrete_fourier_transform": Implementation(discrete_fourier_transform),
+    "spectral": Implementation(spectral),
     "binary_matrix_rank": Implementation(binary_matrix_rank),
     "non_overlapping_template_matching": Implementation(
         non_overlapping_template_matching

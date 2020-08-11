@@ -5,11 +5,11 @@ from math import sqrt
 from typing import Any
 from typing import List
 from typing import NamedTuple
-from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
@@ -17,19 +17,20 @@ from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._plots import range_annotation
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._result import make_testvars_table
+from coinflip.randtests._result import smartround
 from coinflip.randtests._testutils import blocks
 from coinflip.randtests._testutils import check_recommendations
 
-__all__ = ["monobits", "frequency_within_block"]
+__all__ = ["monobit", "frequency_within_block"]
 
 
 # ------------------------------------------------------------------------------
-# Frequency (Monobits) Test
+# Frequency (Monobit) Test
 
 
 @randtest(rec_input=100)
-def monobits(series):
+def monobit(series):
     """Proportion of values is compared to expected 1:1 ratio
 
     The difference between the frequency of the two values is found, and
@@ -42,7 +43,7 @@ def monobits(series):
 
     Returns
     -------
-    MonobitsTestResult
+    MonobitTestResult
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
     """
@@ -54,7 +55,7 @@ def monobits(series):
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
 
-    return MonobitsTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
+    return MonobitTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
 
 
 class ValueCount(NamedTuple):
@@ -63,7 +64,7 @@ class ValueCount(NamedTuple):
 
 
 @dataclass
-class MonobitsTestResult(TestResult):
+class MonobitTestResult(TestResult):
     counts: pd.Series
     n: int
     diff: int
@@ -76,18 +77,13 @@ class MonobitsTestResult(TestResult):
             value=self.counts.index.values[-1], count=self.counts.values[-1]
         )
 
-    def __str__(self):
-        f_stats = self.stats_table("normalised diff")
+    def __rich_console__(self, console, options):
+        yield self._results_text("normalised diff")
 
-        f_table = tabulate(
-            [
-                (self.maxcount.value, self.maxcount.count),
-                (self.mincount.value, self.mincount.count),
-            ],
-            headers=["value", "count"],
-        )
-
-        return f"{f_stats}\n" "\n" f"{f_table}"
+        counts = make_testvars_table("value", "count")
+        counts.add_row(str(self.maxcount.value), str(self.maxcount.count))
+        counts.add_row(str(self.mincount.value), str(self.mincount.count))
+        yield counts
 
     def _report(self):
         return [
@@ -97,7 +93,7 @@ class MonobitsTestResult(TestResult):
             "The likelihood would decrease with higher differences, assuming that random outputs tends towards uniformity. Such a distribution would follow a half-normal distribution (i.e. a bell-curve shape, but with it's left side flipped and added to the right).",
             f"To compare the difference of {self.diff} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {self.n}. This results in a reference statistic of {round(self.statistic, 2)}.",
             self.plot_reference_dist(),
-            f"Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {self.p3f()}. The lower the p-value, the less confident we can say that this data is random.",
+            f"Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {round(self.p, 3)}. The lower the p-value, the less confident we can say that this data is random.",
         ]
 
     def plot_counts(self):
@@ -248,24 +244,20 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: int
     occurences: List[int]
 
-    # TODO table is confusing
-    def __str__(self):
-        f_stats = self.stats_table("chi-square")
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
+
+        yield ""
 
         occur_expect = self.blocksize / 2
         f_occur_expect = smartround(occur_expect)
+        yield Text(f"expected occurences per block: {f_occur_expect}")
 
         occur_counts = Counter(self.occurences)
-        table = sorted(occur_counts.items())
-        f_table = tabulate(table, headers=["occur", "count"])
-
-        return (
-            f"{f_stats}\n"
-            "\n"
-            f"expected occurences per block: {f_occur_expect}\n"
-            "\n"
-            f"{f_table}"
-        )
+        testvars = make_testvars_table("occur", "count")
+        for occur, count in sorted(occur_counts.items()):
+            testvars.add_row(str(occur), str(count))
+        yield testvars
 
     # def _report(self):
     #     occurfig, occurax = plt.subplots()
@@ -282,11 +274,3 @@ class FrequencyWithinBlockTestResult(TestResult):
     #         plot_chi2(self.statistic, df=self.nblocks),
     #         plot_gammaincc(self.statistic / 2, self.nblocks / 2),
     #     ]
-
-
-def smartround(num: Union[int, float]) -> Union[int, float]:
-    """Round number only if it's a float"""
-    if num.is_integer():
-        return int(num)
-    else:
-        return round(num, 1)

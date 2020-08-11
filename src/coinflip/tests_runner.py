@@ -5,13 +5,15 @@ from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
-from click import echo
+from rich import box
+from rich.table import Table
+from rich.text import Text
 
+from coinflip import console
 from coinflip import randtests
 from coinflip.randtests._exceptions import NonBinarySequenceError
 from coinflip.randtests._exceptions import TestError
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 
@@ -19,12 +21,12 @@ __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 SIGLEVEL = 0.01
 
 f_randtest_names = {
-    "monobits": "Frequency (Monobits) Test",
+    "monobit": "Frequency (Monobit) Test",
     "frequency_within_block": "Frequency within Block Test",
     "runs": "Runs Test",
     "longest_runs": "Longest Runs in Block Test",
     "binary_matrix_rank": "Matrix Rank Test",
-    "discrete_fourier_transform": "Discrete Fourier Transform (Spectral) Test",
+    "spectral": "Discrete Fourier Transform (Spectral) Test",
     "non_overlapping_template_matching": "Non-Overlapping Template Matching Test",
     "overlapping_template_matching": "Overlapping Template Matching Test",
     "maurers_universal": "Maurer's Universal Test",
@@ -44,11 +46,11 @@ def binary_check(func):
     return wrapper
 
 
-def echo_randtest_name(randtest_name):
+def print_randtest_name(randtest_name):
     """Pretty print the randtest's name"""
     randtest_fname = f_randtest_names[randtest_name]
-    underline = "".join("=" for char in randtest_fname)
-    echo(randtest_fname + "\n" + underline)
+    console.print(randtest_fname, style="bold")
+    console.print("".join("─" for char in randtest_fname))
 
 
 def list_tests() -> Iterator[Tuple[str, Callable]]:
@@ -99,12 +101,12 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     """
     for name, func in list_tests():
         if randtest_name == name:
-            echo_randtest_name(name)
+            print_randtest_name(name)
 
             result = func(series, **kwargs)
-            echo(result)
-            echo()
-            echo("PASS" if result.p >= 0.01 else "FAIL")
+            console.print(result)
+            console.print()
+            console.print("PASS" if result.p >= 0.01 else "FAIL")
 
             return result
 
@@ -139,11 +141,11 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     results = {}
 
     for name, func in list_tests():
-        echo_randtest_name(name)
+        print_randtest_name(name)
 
         try:
             result = func(series)
-            echo(result)
+            console.print(result)
 
             yield name, result, None
             results[name] = result
@@ -152,25 +154,27 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             yield name, None, e
             results[name] = None
 
-        echo()
+        console.print()
 
-    table = []
+    f_table = Table(box=box.DOUBLE)
+    f_table.add_column("Statistical Test", justify="left")
+    f_table.add_column("p-value", justify="right")
+    f_table.add_column("Verdict", justify="right")
     for name, result in results.items():
         f_name = f_randtest_names[name]
 
         if result:
-            f_pvalue = result.p3f()
+            f_pvalue = str(round(result.p, 3))
+            f_pvalue += "0" * (5 - len(f_pvalue))  # zero pad
+
             success = result.p >= SIGLEVEL
-            f_success = "PASS" if success else "FAIL"
+            verdict = "PASS" if success else "FAIL"
+            colour = "green" if success else "red"
+            f_verdict = Text(verdict, style=colour)
         else:
-            f_pvalue = 0
-            f_success = "N/A"
+            f_pvalue = "-"
+            f_verdict = Text("N/A", style="yellow")
 
-        row = [f_name, f_pvalue, f_success]
-        table.append(row)
+        f_table.add_row(f_name, f_pvalue, f_verdict)
 
-    f_table = tabulate(
-        table, ["Statistical Test", "p-value", "Result"], tablefmt="presto"
-    )
-    echo(f_table)
-    echo((f"(significance level of {SIGLEVEL})"))
+    console.print(f_table)

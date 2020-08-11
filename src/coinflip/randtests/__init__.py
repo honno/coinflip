@@ -31,19 +31,19 @@ non-idiomatic programming conventions used in `sts`.
    800-22 Revision 1a*, April 2010.
 
 
-.. autofunction:: coinflip.randtests.monobits(sequence)
+.. autofunction:: coinflip.randtests.monobit(sequence)
 .. autofunction:: coinflip.randtests.frequency_within_block(sequence, candidate=None, blocksize=8)
 .. autofunction:: coinflip.randtests.runs(sequence, candidate=None)
 .. autofunction:: coinflip.randtests.longest_runs(sequence, candidate=None)
 .. autofunction:: coinflip.randtests.binary_matrix_rank(sequence, candidate=None, matrix_dimen: Tuple[int, int] = None)
-.. autofunction:: coinflip.randtests.discrete_fourier_transform(sequence, candidate=None)
+.. autofunction:: coinflip.randtests.spectral(sequence, candidate=None)
 .. autofunction:: coinflip.randtests.non_overlapping_template_matching(sequence, template: List = None, nblocks=None)
 .. autofunction:: coinflip.randtests.overlapping_template_matching(sequence, template: List = None, nblocks=None, df=5)
 .. autofunction:: coinflip.randtests.maurers_universal(sequence, blocksize=None, init_nblocks=None)
 """
-from coinflip.randtests.fourier import discrete_fourier_transform
+from coinflip.randtests.fourier import spectral
 from coinflip.randtests.frequency import frequency_within_block
-from coinflip.randtests.frequency import monobits
+from coinflip.randtests.frequency import monobit
 from coinflip.randtests.matrix import binary_matrix_rank
 from coinflip.randtests.runs import longest_runs
 from coinflip.randtests.runs import runs
@@ -52,12 +52,12 @@ from coinflip.randtests.template import overlapping_template_matching
 from coinflip.randtests.universal import maurers_universal
 
 __all__ = [
-    "monobits",
+    "monobit",
     "frequency_within_block",
     "runs",
     "longest_runs",
     "binary_matrix_rank",
-    "discrete_fourier_transform",
+    "spectral",
     "non_overlapping_template_matching",
     "overlapping_template_matching",
     "maurers_universal",

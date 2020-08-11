@@ -152,5 +152,5 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
 
 @dataclass
 class UniversalTestResult(TestResult):
-    def __str__(self):
-        return self.stats_table("normalised distances")
+    def __rich_console__(self, console, options):
+        yield self._results_text("normalised distances")

@@ -10,9 +10,9 @@ from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._exceptions import NonBinarySequenceError
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._result import vars_list
 
-__all__ = ["discrete_fourier_transform", "fft"]
+__all__ = ["spectral", "fft"]
 
 
 class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
@@ -27,7 +27,7 @@ class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
 
 @randtest(rec_input=1000)
 @elected
-def discrete_fourier_transform(series, candidate):
+def spectral(series, candidate):
     """Potency of periodic features in sequence is compared to expected result
 
     The binary values are treated as the peaks and troughs respectively of a
@@ -81,7 +81,7 @@ def discrete_fourier_transform(series, candidate):
 
     p = erfc(abs(normdiff) / sqrt(2))
 
-    return DiscreteFourierTransformTestResult(
+    return SpectralTestResult(
         statistic=normdiff,
         p=p,
         nbelow_expected=nbelow_expected,
@@ -114,7 +114,7 @@ def fft(array) -> pd.Series:
 
 
 @dataclass
-class DiscreteFourierTransformTestResult(TestResult):
+class SpectralTestResult(TestResult):
     nbelow_expected: float
     nbelow: int
     diff: float
@@ -122,16 +122,14 @@ class DiscreteFourierTransformTestResult(TestResult):
     def __post_init__(self):
         pass
 
-    def __str__(self):
-        f_stats = self.stats_table("normalised diff")
+    def __rich_console__(self, console, options):
+        yield self._results_text("normalised diff")
 
-        f_table = tabulate(
-            [
-                ("actual", self.nbelow),
-                ("expected", round(self.nbelow_expected, 1)),
-                ("diff", round(self.diff, 1)),
-            ],
-            colalign=("left", "right"),
+        yield ""
+
+        yield "npeaks above threshold"
+        yield vars_list(
+            ("actual", self.nbelow),
+            ("expected", self.nbelow_expected),
+            ("diff", self.diff),
         )
-
-        return f"{f_stats}\n" "\n" "npeaks above threshold\n" f"{f_table}"

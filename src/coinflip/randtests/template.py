@@ -14,7 +14,7 @@ from scipy.special import hyp1f1
 
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
-from coinflip.randtests._tabulate import tabulate
+from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import rawblocks
 
@@ -127,25 +127,22 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
     block_matches: List[int]
     match_diffs: List[float]
 
-    def __str__(self):
-        f_stats = self.stats_table("chi-square")
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
 
-        f_template = self.template
+        yield ""
+
+        yield f"template: {self.template}"
+
         f_matches_expect = round(self.matches_expect, 1)
+        yield f"expected matches per block: {f_matches_expect}"
 
         matches_count = Counter(self.block_matches)
-
         table = sorted(matches_count.items())
-        f_table = tabulate(table, headers=["matches", "nblocks"])
-
-        return (
-            f"{f_stats}\n"
-            "\n"
-            f"template: {f_template}\n"
-            f"expected matches per block: {f_matches_expect}\n"
-            "\n"
-            f"{f_table}"
-        )
+        f_table = make_testvars_table("matches", "nblocks")
+        for matches, nblocks in table:
+            f_table.add_row(str(matches), str(nblocks))
+        yield f_table
 
 
 # ------------------------------------------------------------------------------
@@ -273,20 +270,22 @@ class OverlappingTemplateMatchingTestResult(TestResult):
             diff = actual - expect
             self.tally_diffs.append(diff)
 
-    def __str__(self):
-        f_stats = self.stats_table("chi-square")
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
 
-        f_template = self.template
+        yield ""
 
-        f_matches = [f"{x}" for x in range(matches_ceil + 1)]
-        f_matches[-1] = f"{f_matches[-1]}+"
+        yield f"template: {self.template}"
 
-        f_expected_tallies = [round(tally, 1) for tally in self.expected_tallies]
-        f_diffs = [round(diff, 1) for diff in self.tally_diffs]
+        f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
+        f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
-        f_table = tabulate(
-            zip(f_matches, self.tallies, f_expected_tallies, f_diffs),
-            headers=["matches", "count", "expected", "diff"],
-        )
+        table = zip(f_nmatches, self.tallies, self.expected_tallies, self.tally_diffs)
+        f_table = make_testvars_table("matches", "count", "expected", "diff")
+        for f_matches, count, count_expect, diff in table:
+            f_count = str(count)
+            f_count_expect = str(round(count_expect, 1))
+            f_diff = str(round(diff, 1))
+            f_table.add_row(f_matches, f_count, f_count_expect, f_diff)
 
-        return f"{f_stats}\n" "\n" f"template: {f_template}\n" "\n" f"{f_table}"
+        yield f_table
