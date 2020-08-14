@@ -1,0 +1,23 @@
+<h2>Frequency (Monobit) Test</h2>
+
+<p>The number of occurences for the {{ result.maxcount.value }} and {{ result.mincount.value }} values are found and the difference is calculated.</p>
+
+<div id="viz-monobit-counts"></div>
+
+<p>We can compare this to the hypothetical output of a truly random RNG. A question is asked&mdash;how likely would such a RNG produce a sequence with <i>at least</i> a difference of {{ result.diff }} between the occurences of binary values?</p>
+
+<p>The likelihood would decrease with higher differences, assuming that random outputs tends towards uniformity. Such a distribution would follow a half-normal distribution (i.e. a bell-curve shape, but with it's left side flipped and added to the right).</p>
+
+<p>To compare the difference of {{ result.diff }} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {{ result.n }}. This results in a reference statistic of {{ result.statistic | round(2) }}.</p>
+
+<div id="viz-monobit-refdist"></div>
+
+<p>Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {{ result.p | round(3) }}. The lower the p-value, the less confident we can say that this data is random.</p>
+
+<script type="text/javascript">
+ var counts = {{ result.plot_counts().to_json() }}
+ vegaEmbed("#viz-monobit-counts", counts);
+
+ var refdist = {{ result.plot_refdist().to_json() }}
+ vegaEmbed("#viz-monobit-refdist", refdist);
+</script>

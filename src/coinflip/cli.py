@@ -337,20 +337,9 @@ def report(store, outfile):
 
     try:
         with open_results(store) as results:
-            html = []
-            for result in results.values():
-                try:
-                    markup = result.report()
-                    html.append(markup)
-                except NotImplementedError as e:
-                    echo_err(e)
+            for e in write_report(results, outfile):
+                echo_err(e)
 
     except StoreNotFoundError as e:
         echo_err(e)
         exit(1)
-
-    if len(html) != 0:
-        markup = "".join(html)
-        write_report(markup, outfile)
-    else:  # TODO catch error raised in write_report
-        echo("No report markup available!")

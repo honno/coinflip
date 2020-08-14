@@ -1,14 +1,9 @@
-from base64 import b64encode
 from dataclasses import dataclass
-from io import BytesIO
 from io import StringIO
-from typing import Iterable
 from typing import List
 from typing import Tuple
 from typing import Union
 
-from matplotlib.axes import Subplot
-from matplotlib.figure import Figure
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -59,41 +54,6 @@ class TestResult:
         console.print(self)
 
         return buf.getvalue()
-
-    def _report(self) -> Iterable[Union[str, Subplot]]:
-        raise NotImplementedError(
-            f"No report markup provided for {self.__class__.__name__}"
-        )
-
-    def report(self):
-        """Generate report HTML
-
-        Returns
-        -------
-        report : `str`
-            Multi-line string of HTML markup"""
-        elements = (TestResult._markup(item) for item in self._report())
-        report = "".join(elements)
-
-        return report
-
-    @classmethod
-    def _markup(cls, item):
-        """Generate appropiate HTML markup for an item"""
-        if isinstance(item, str):
-            return f"<p>{item}</p>"
-
-        elif isinstance(item, Subplot):
-            fig = item.get_figure()
-
-            base64 = fig2base64(fig)
-
-            return f"<img src='data:image/svg+xml;charset=utf-8;base64, {base64}' />"
-
-        elif isinstance(item, Figure):
-            base64 = fig2base64(item)
-
-            return f"<img src='data:image/svg+xml;charset=utf-8;base64, {base64}' />"
 
 
 def make_testvars_table(*columns) -> Table:
@@ -153,15 +113,3 @@ def pad_right(string, maxlen):
     f_string = string + " " * nspaces
 
     return f_string
-
-
-def fig2base64(fig):
-    """Converts matplotlib figures to SVG as base64"""
-    binary = BytesIO()
-    fig.savefig(binary, format="svg")
-
-    binary.seek(0)
-    base64_bstr = b64encode(binary.read())
-    base64_str = base64_bstr.decode("utf-8")
-
-    return base64_str

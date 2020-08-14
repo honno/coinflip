@@ -6,7 +6,7 @@ from typing import Any
 from typing import List
 from typing import NamedTuple
 
-import matplotlib.pyplot as plt
+import altair as alt
 import numpy as np
 import pandas as pd
 from rich.text import Text
@@ -15,7 +15,6 @@ from scipy.stats import halfnorm
 
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
-from coinflip.randtests._plots import range_annotation
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._result import smartround
@@ -85,96 +84,63 @@ class MonobitTestResult(TestResult):
         counts.add_row(str(self.mincount.value), str(self.mincount.count))
         yield counts
 
-    def _report(self):
-        return [
-            f"The number of occurences for the {self.maxcount.value} and {self.mincount.value} values are found and the difference is calculated.",
-            self.plot_counts(),
-            f"We can compare this to the hypothetical output of a truly random RNG. A question is asked&mdash;how likely would such a RNG produce a sequence with <i>at least</i> a difference of {self.diff} between the occurences of binary values?",
-            "The likelihood would decrease with higher differences, assuming that random outputs tends towards uniformity. Such a distribution would follow a half-normal distribution (i.e. a bell-curve shape, but with it's left side flipped and added to the right).",
-            f"To compare the difference of {self.diff} with this reference distribution, we first normalise it by dividing it by the square root of the sequences length, {self.n}. This results in a reference statistic of {round(self.statistic, 2)}.",
-            self.plot_reference_dist(),
-            f"Finding the cumulative likelihood a true RNG would have such a difference or greater comes to a p-value of {round(self.p, 3)}. The lower the p-value, the less confident we can say that this data is random.",
-        ]
-
     def plot_counts(self):
-        ax = self.counts.plot.bar(rot=0)
-        fig = ax.get_figure()
+        df = pd.DataFrame(
+            {
+                "Value": [self.maxcount.value, self.mincount.value],
+                "Count": [self.maxcount.count, self.mincount.count],
+            }
+        )
+        df["Value"] = df["Value"].astype("category")
 
-        ax.set_title(f"Occurences of {self.mincount.value} and {self.maxcount.value}")
-        ax.set_xlabel("Values")
-        ax.set_ylabel("No. of occurences")
-
-        ax.axhline(self.maxcount.count, color="black", linestyle="--")
-
-        margin = 0.1
-        plt.annotate(
-            s="",
-            xy=(1, self.mincount.count + margin),
-            xytext=(1, self.maxcount.count - margin),
-            arrowprops=dict(arrowstyle="<->"),
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                alt.X("Value"),
+                alt.Y("Count", axis=alt.Axis(tickMinStep=1)),
+                tooltip=["Value", "Count"],
+            )
+            .properties(
+                title=f"Counts of {self.maxcount.value} and {self.mincount.value}"
+            )
         )
 
-        ax.text(
-            1 - margin,
-            self.mincount.count + 1 / 2 * self.diff,
-            f"diff = {self.diff}",
-            ha="right",
-        )
+        return chart
 
-        return fig
-
-    def plot_reference_dist(self):
-        fig, ax = plt.subplots()
-
-        ax.set_title("Probability densities for differences")
-        ax.set_xlabel("Difference between occurences (normalised)")
-        ax.set_ylabel("Probability density")
-
-        # ----------------------------------------------------------------------
-        # Half-normal distribution
-
+    def plot_refdist(self):
         mean = 0
         variance = 1
         deviation = sqrt(variance)
 
-        xlim = max(3 * deviation, self.statistic)
+        xlim = max(4 * deviation, self.statistic + deviation)
         x = np.linspace(0, xlim)
         y = halfnorm.pdf(x, mean, deviation)
+        x_stat = np.linspace(self.statistic, xlim)
+        y_stat = halfnorm.pdf(x_stat, mean, deviation)
 
-        ax.plot(x, y, color="black")
+        dist = pd.DataFrame({"x": x, "y": y})
+        dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
 
-        # ----------------------------------------------------------------------
-        # p-value area
-
-        fill_x = x[x > self.statistic]
-        fill_y = y[-len(fill_x) :]
-
-        # Add self.statistic point to plot fill area from its boundary
-        fill_x = np.insert(fill_x, 0, self.statistic)
-        statistic_pdf = halfnorm.pdf(self.statistic, mean, deviation)
-        fill_y = np.insert(fill_y, 0, statistic_pdf)
-
-        ax.fill_between(
-            fill_x, 0, fill_y, facecolor="none", hatch="//", edgecolor="black"
+        chart_dist = (
+            alt.Chart(dist)
+            .mark_area(opacity=0.3)
+            .encode(
+                alt.X(
+                    "x", axis=alt.Axis(title="Difference between counts (normalised)")
+                ),
+                alt.Y(
+                    "y",
+                    axis=alt.Axis(title="Probability density"),
+                    scale=alt.Scale(domain=(0, 1)),
+                ),
+            )
+            .properties(title="Proability density of count differences")
         )
+        chart_stat = alt.Chart(dist_stat).mark_area().encode(x="x", y="y",)
+        chart = chart_dist + chart_stat
 
-        # ----------------------------------------------------------------------
-        # Annotations
-
-        ax.set_ylim([0, 1])
-        stat2f = round(self.statistic, 2)
-        range_annotation(
-            ax=ax,
-            xmin=self.statistic,
-            xmax=xlim,
-            ymin=fill_y[0],
-            text=f"normalised diff of {stat2f} or greater",
-        )
-
-        probability = "{:.1%}".format(self.p)
-        ax.text(xlim, fill_y[0] / 2, f"probability = {probability}", ha="right")
-
-        return fig
+        return chart
 
 
 # ------------------------------------------------------------------------------
@@ -259,6 +225,7 @@ class FrequencyWithinBlockTestResult(TestResult):
             testvars.add_row(str(occur), str(count))
         yield testvars
 
+    # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):
     #     occurfig, occurax = plt.subplots()
 
