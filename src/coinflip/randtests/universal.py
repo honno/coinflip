@@ -147,7 +147,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     expected_mean, variance = blocksize_dists[blocksize]
     p = erfc(abs((statistic - expected_mean) / (sqrt(2 * variance))))
 
-    return UniversalTestResult(statistic=statistic, p=p)
+    return UniversalTestResult(statistic, p)
 
 
 @dataclass

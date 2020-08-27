@@ -61,7 +61,7 @@ def runs(series, candidate):
         / (2 * sqrt(2 * n) * prop_candidates * prop_noncandidates)
     )
 
-    return RunsTestResult(statistic=nruns, p=p)
+    return RunsTestResult(nruns, p)
 
 
 @dataclass
@@ -163,13 +163,7 @@ def longest_runs(series, candidate):
     p = gammaincc(df / 2, statistic / 2)
 
     return LongestRunsTestResult(
-        statistic=statistic,
-        p=p,
-        candidate=candidate,
-        blocksize=blocksize,
-        nblocks=nblocks,
-        expected_bincounts=expected_bincounts,
-        maxlen_bins=maxlen_bins,
+        statistic, p, candidate, blocksize, nblocks, expected_bincounts, maxlen_bins,
     )
 
 

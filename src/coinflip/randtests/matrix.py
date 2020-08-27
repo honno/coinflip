@@ -101,13 +101,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     p = exp(-statistic / 2)
 
     return BinaryMatrixRankTestResult(
-        statistic=statistic,
-        p=p,
-        nrows=nrows,
-        ncols=ncols,
-        fullrank=fullrank,
-        expected_rankcounts=expected_rankcounts,
-        rankcounts=rankcounts,
+        statistic, p, nrows, ncols, fullrank, expected_rankcounts, rankcounts,
     )
 
 

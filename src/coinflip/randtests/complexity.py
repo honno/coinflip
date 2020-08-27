@@ -10,4 +10,4 @@ def linear_complexity(series, blocksize):
     print(n)
     print(series)
 
-    return TestResult(statistic=None, p=None)
+    return TestResult(None, None)

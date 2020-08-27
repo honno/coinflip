@@ -109,13 +109,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     p = gammaincc(nblocks / 2, statistic / 2)
 
     return NonOverlappingTemplateMatchingTestResult(
-        statistic=statistic,
-        p=p,
-        template=template,
-        matches_expect=matches_expect,
-        variance=variance,
-        block_matches=block_matches,
-        match_diffs=match_diffs,
+        statistic, p, template, matches_expect, variance, block_matches, match_diffs,
     )
 
 
@@ -250,11 +244,7 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
 
     return OverlappingTemplateMatchingTestResult(
-        statistic=statistic,
-        p=p,
-        template=template,
-        expected_tallies=expected_tallies,
-        tallies=tallies,
+        statistic, p, template, expected_tallies, tallies,
     )
 
 

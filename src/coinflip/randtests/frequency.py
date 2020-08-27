@@ -54,7 +54,7 @@ def monobit(series):
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
 
-    return MonobitTestResult(statistic=normdiff, p=p, n=n, diff=diff, counts=counts)
+    return MonobitTestResult(normdiff, p, counts, n, diff)
 
 
 class ValueCount(NamedTuple):
@@ -194,12 +194,7 @@ def frequency_within_block(series, candidate, blocksize=8):
     p = gammaincc(nblocks / 2, statistic / 2)
 
     return FrequencyWithinBlockTestResult(
-        statistic=statistic,
-        p=p,
-        candidate=candidate,
-        blocksize=blocksize,
-        nblocks=nblocks,
-        occurences=occurences,
+        statistic, p, candidate, blocksize, nblocks, occurences,
     )
 
 

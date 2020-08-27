@@ -81,13 +81,7 @@ def spectral(series, candidate):
 
     p = erfc(abs(normdiff) / sqrt(2))
 
-    return SpectralTestResult(
-        statistic=normdiff,
-        p=p,
-        nbelow_expected=nbelow_expected,
-        nbelow=nbelow,
-        diff=diff,
-    )
+    return SpectralTestResult(normdiff, p, nbelow_expected, nbelow, diff,)
 
 
 def fft(array) -> pd.Series:
