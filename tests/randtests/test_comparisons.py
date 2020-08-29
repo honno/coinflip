@@ -16,6 +16,7 @@ import coinflip.randtests as randtests
 
 from .implementations._implementation import ImplementationError
 from .implementations.dj import testmap as dj_testmap
+from .implementations.nist import testmap as nist_testmap
 from .implementations.sgr import testmap as sgr_testmap
 from .strategies import mixedbits
 
@@ -101,7 +102,12 @@ def universal_strategy(
 
 @given(mixedbits())
 def test_monobit(bits):
-    result = randtests.monobit(pd.Series(bits))
+    result = randtests.monobit(bits)
+
+    nist_randtest = nist_testmap["monobit"].randtest
+    nist_p = nist_randtest(bits)
+
+    assert pclose(result.p, nist_p)
 
     dj_randtest = dj_testmap["monobit"].randtest
     dj_result = dj_randtest(bits)

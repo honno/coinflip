@@ -2,3 +2,4 @@
 ignore = E203, W503
 per-file-ignores =
     src/coinflip/cli.py:F403,F405
+    tests/randtests/implementations/nist.py:F403,F405
