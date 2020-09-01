@@ -4,8 +4,7 @@ from ._implementation import Implementation
 
 
 def monobit(bits):
-    n = len(bits)
-    return Frequency(bits, n)
+    return frequency(bits)
 
 
 testmap = {
