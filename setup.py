@@ -22,7 +22,7 @@ def read(*names, **kwargs):
 setup(
     name="coinflip",
     use_scm_version={
-        "local_scheme": "dirty-tag",
+        "local_scheme": "no-local-version",
         "write_to": "src/coinflip/_version.py",
         "fallback_version": "'fallback_version': '0.0.2'",
     },
