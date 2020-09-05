@@ -24,7 +24,7 @@ setup(
     use_scm_version={
         "local_scheme": "no-local-version",
         "write_to": "src/coinflip/_version.py",
-        "fallback_version": "'fallback_version': '0.0.2'",
+        "fallback_version": "0.0.2",
     },
     description="Randomness testing for humans",
     long_description="%s\n%s"
