@@ -21,11 +21,7 @@ def read(*names, **kwargs):
 
 setup(
     name="coinflip",
-    use_scm_version={
-        "local_scheme": "no-local-version",
-        "write_to": "src/coinflip/_version.py",
-        "fallback_version": "0.0.3",
-    },
+    version="0.0.3",
     description="Randomness testing for humans",
     long_description="%s\n%s"
     % (
@@ -98,6 +94,5 @@ setup(
         "altair",
     ],
     test_requires=["pytest", "hypothesis"],
-    setup_requires=["setuptools_scm>=3.3.1"],
     entry_points={"console_scripts": ["coinflip = coinflip.cli:main"]},
 )
