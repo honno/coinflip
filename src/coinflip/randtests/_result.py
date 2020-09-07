@@ -1,13 +1,13 @@
 from dataclasses import dataclass
+from io import StringIO
 from typing import List
 from typing import Tuple
 from typing import Union
 
 from rich import box
+from rich.console import Console
 from rich.table import Table
 from rich.text import Text
-
-from coinflip import console
 
 __all__ = ["TestResult", "make_testvars_table", "smartround"]
 
@@ -47,8 +47,13 @@ class TestResult:
             f"No Rich representation provided for {self.__class__.__name__}"
         )
 
-    def pprint(self):
+    def __str__(self):
+        """Mocks stdout file as the stdout of a Rich `Console` to get `str` equivalent"""
+        buf = StringIO()
+        console = Console(file=buf)
         console.print(self)
+
+        return buf.getvalue()
 
 
 def make_testvars_table(*columns) -> Table:
