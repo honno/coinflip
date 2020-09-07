@@ -50,7 +50,7 @@ class TestResult:
     def __str__(self):
         """Mocks stdout file as the stdout of a Rich `Console` to get `str` equivalent"""
         buf = StringIO()
-        console = Console(file=buf)
+        console = Console(file=buf, force_jupyter=False)
         console.print(self)
 
         return buf.getvalue()

@@ -89,7 +89,7 @@ setup(
         "pandas",
         "tabulate",
         "colorama",
-        "rich",
+        "rich>=6.1.0",
         "jinja2",
         "altair",
     ],
