@@ -280,6 +280,44 @@ examples = {
         statistic=2.700348,
         p=0.845406,
     ),
+    "approximate_entropy": {
+        "small": Example(
+            randtest="approximate_entropy",
+
+            bits=[0, 1, 0, 0, 1, 1, 0, 1, 0, 1],
+            kwargs={
+                "blocksize": 3
+            },
+
+            statistic=0.502193,
+            p=0.261961,
+        ),
+        "large": Example(
+            randtest="approximate_entropy",
+
+            bits=[
+                1, 1, 0, 0, 1, 0, 0, 1,
+                0, 0, 0, 0, 1, 1, 1, 1,
+                1, 1, 0, 1, 1, 0, 1, 0,
+                1, 0, 1, 0, 0, 0, 1, 0,
+                0, 0, 1, 0, 0, 0, 0, 1,
+                0, 1, 1, 0, 1, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 1, 0,
+                0, 0, 1, 1, 0, 1, 0, 0,
+                1, 1, 0, 0, 0, 1, 0, 0,
+                1, 1, 0, 0, 0, 1, 1, 0,
+                0, 1, 1, 0, 0, 0, 1, 0,
+                1, 0, 0, 0, 1, 0, 1, 1,
+                1, 0, 0, 0,
+            ],
+            kwargs={
+                "blocksize": 2
+            },
+
+            statistic=5.550792,
+            p=0.235301,
+        ),
+    }
 }
 # fmt: on
 
