@@ -225,7 +225,7 @@ examples = {
 
             bits=[
                 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
-                0, 0, 1, 0, 1, 1, 0, 1, 1, 0,  # Modifed block 2 of NIST example
+                0, 0, 1, 0, 1, 1, 0, 1, 1, 0,  # Modifed 2nd block of NIST example
                 0, 1, 1, 1, 0, 0, 1, 0, 1, 1,  # originally had 1 match
                 1, 0, 1, 1, 1, 1, 1, 0, 0, 0,  # now has 2 matches, as expected
                 0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
@@ -289,7 +289,7 @@ examples = {
                 "blocksize": 3
             },
 
-            statistic=0.502193,
+            statistic=10.043859999999999,  # NIST erroneously had 0.502193
             p=0.261961,
         ),
         "large": Example(
