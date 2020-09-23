@@ -8,7 +8,34 @@ from warnings import warn
 
 import pandas as pd
 
-__all__ = ["blocks", "rawblocks", "check_recommendations"]
+__all__ = ["check_recommendations", "blocks", "rawblocks"]
+
+
+def check_recommendations(recommendations: Dict[str, bool]):
+    """Warns on recommendation failures
+
+    Parameters
+    ----------
+    recommendations : `Dict[str, bool]`
+        Map of recommendation string representations to the actual
+        recommendation outcomes
+
+    Warns
+    -----
+    UserWarning
+        When one or more recommendations fail
+    """
+    failures = [expr for expr, success in recommendations.items() if not success]
+
+    nfail = len(failures)
+    if nfail == 1:
+        expr = failures[0]
+        warn(f"NIST recommendation not met: {expr}", UserWarning)
+
+    elif nfail > 1:
+        msg = "Multiple NIST recommendations not met:\n"
+        msg += "\n".join([f"\t• {expr}" for expr in failures])
+        warn(msg, UserWarning)
 
 
 def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterator[pd.Series]:
@@ -83,30 +110,3 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
         block_tup = tuple(block_list)
 
         yield block_tup
-
-
-def check_recommendations(recommendations: Dict[str, bool]):
-    """Warns on recommendation failures
-
-    Parameters
-    ----------
-    recommendations : `Dict[str, bool]`
-        Map of recommendation string representations to the actual
-        recommendation outcomes
-
-    Warns
-    -----
-    UserWarning
-        When one or more recommendations fail
-    """
-    failures = [expr for expr, success in recommendations.items() if not success]
-
-    nfail = len(failures)
-    if nfail == 1:
-        expr = failures[0]
-        warn(f"NIST recommendation not met: {expr}", UserWarning)
-
-    elif nfail > 1:
-        msg = "Multiple NIST recommendations not met:\n"
-        msg += "\n".join([f"\t• {expr}" for expr in failures])
-        warn(msg, UserWarning)
