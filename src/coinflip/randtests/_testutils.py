@@ -2,7 +2,7 @@
 from math import ceil
 from typing import Any
 from typing import Dict
-from typing import Iterable
+from typing import Iterator
 from typing import Tuple
 from warnings import warn
 
@@ -11,7 +11,7 @@ import pandas as pd
 __all__ = ["blocks", "rawblocks", "check_recommendations"]
 
 
-def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterable[pd.Series]:
+def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterator[pd.Series]:
     """Chunking method for ``Series`` objects
 
     Parameters
@@ -53,7 +53,7 @@ def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterable[pd.S
         yield series[boundary:]
 
 
-def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
+def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
     """Tuple chunking method for ``Series`` objects
 
     Parameters
