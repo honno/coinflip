@@ -9,6 +9,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
+from coinflip import console
+
 __all__ = ["TestResult", "make_testvars_table", "smartround"]
 
 
@@ -28,7 +30,7 @@ class TestResult:
     p: float
 
     def _results_text(self, stat_varname="statistic") -> Text:
-        """Returns Rich `Text` of the statistic and p-value
+        """`Text` of the statistic and p-value
 
         Parameters
         ----------
@@ -47,8 +49,12 @@ class TestResult:
             f"No Rich representation provided for {self.__class__.__name__}"
         )
 
+    def print(self):
+        """Prints results contents to notebook or terminal environment"""
+        console.print(self)
+
     def __str__(self):
-        """Mocks stdout file as the stdout of a Rich `Console` to get `str` equivalent"""
+        # Mocks file as the stdout of a Rich Console
         buf = StringIO()
         console = Console(file=buf, force_jupyter=False)
         console.print(self)
