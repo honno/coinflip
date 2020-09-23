@@ -110,3 +110,21 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
         block_tup = tuple(block_list)
 
         yield block_tup
+
+
+# TODO docstring
+def slider(series, window_size) -> Iterator[pd.Series]:
+    boundary = len(series) - window_size + 1
+    for pointer in range(boundary):
+        window = series[pointer : pointer + window_size]
+
+        yield window
+
+
+# TODO docstring
+def rawslider(*args, **kwargs) -> Iterator[Tuple[Any]]:
+    for window in slider(*args, **kwargs):
+        window_list = window.tolist()
+        window_tup = tuple(window_list)
+
+        yield window_tup

@@ -15,8 +15,9 @@ from scipy.special import hyp1f1
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import make_testvars_table
+from coinflip.randtests._testutils import blocks
 from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawblocks
+from coinflip.randtests._testutils import rawslider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
@@ -87,19 +88,12 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     )
 
     block_matches = []
-    for block_tup in rawblocks(series, blocksize=blocksize):
+    for block in blocks(series, blocksize=blocksize):
         matches = 0
-        pointer = 0
 
-        boundary = blocksize - template_size
-        while pointer < boundary:
-            window = block_tup[pointer : pointer + template_size]
-
-            if all(x == y for x, y in zip(window, template)):
+        for window_tup in rawslider(block, template_size):
+            if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
-                pointer += template_size
-            else:
-                pointer += 1
 
         block_matches.append(matches)
 
@@ -217,14 +211,11 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     expected_tallies = [prob * nblocks for prob in probabilities]
 
     block_matches = []
-    for block_tup in rawblocks(series, blocksize=blocksize):
+    for block in blocks(series, blocksize=blocksize):
         matches = 0
 
-        boundary = blocksize - template_size
-        for pointer in range(boundary + 1):
-            window = block_tup[pointer : pointer + template_size]
-
-            if all(x == y for x, y in zip(window, template)):
+        for window_tup in rawslider(block, template_size):
+            if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 
         block_matches.append(matches)
