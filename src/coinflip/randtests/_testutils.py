@@ -12,28 +12,28 @@ __all__ = ["blocks", "rawblocks", "check_recommendations"]
 
 
 def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterable[pd.Series]:
-    """Chunking method for `Series` objects
+    """Chunking method for ``Series`` objects
 
     Parameters
     ----------
-    series : `Series`
-        The pandas `Series` to chunk
-    blocksize : `int`, required if no `nblocks` passed
+    series : ``Series``
+        The pandas ``Series`` to chunk
+    blocksize : ``int``, required if no ``nblocks`` passed
         Size of the chunks
-    nblocks : `int`, required if no `blocksize` passed
+    nblocks : ``int``, required if no ``blocksize`` passed
         Number of chunks
-    truncate : `bool`, default `True`
+    truncate : ``bool``, default ``True``
         Whether to discard remaning series
 
     Yields
     ------
-    block : `Series`
-        Chunk of the passed `series`
+    block : ``Series``
+        Chunk of the passed ``series``
 
     Raises
     ------
     ValueError
-        When neither `blocksize` or `nblocks` is passed
+        When neither ``blocksize`` or ``nblocks`` is passed
     """
     n = len(series)
 
@@ -54,28 +54,28 @@ def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterable[pd.S
 
 
 def rawblocks(*args, **kwargs) -> Iterable[Tuple[Any]]:
-    """Tuple chunking method for `Series` objects
+    """Tuple chunking method for ``Series`` objects
 
     Parameters
     ----------
     *args
-        Positional arguments to pass to `blocks`
+        Positional arguments to pass to ``blocks``
     **kwargs
-        Keyword arguments to pass to `blocks`
+        Keyword arguments to pass to ``blocks``
 
     Yields
     ------
-    block_tup : `Tuple`
+    block_tup : ``Tuple``
         Tuple representation of the block
 
     Raises
     ------
     ValueError
-        When neither `blocksize` or `nblocks` is passed
+        When neither ``blocksize`` or ``nblocks`` is passed
 
     See Also
     --------
-    blocks: The method `rawblocks` adapts
+    blocks: The method ``rawblocks`` adapts
     """
 
     for block in blocks(*args, **kwargs):

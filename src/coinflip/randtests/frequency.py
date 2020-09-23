@@ -161,7 +161,7 @@ def frequency_within_block(series, candidate, blocksize=8):
         Output of the RNG being tested
     candidate : Value present in given sequence
         The value which is counted in each block
-    blocksize : `int`
+    blocksize : ``int``
         Size of the blocks that partition the given series
 
     Returns

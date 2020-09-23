@@ -216,18 +216,18 @@ class Run:
 
 
 def asruns(series) -> Iterator[Tuple[Any, int]]:
-    """Iterator of runs in a `Series`
+    """Iterator of runs in a ``Series``
 
     Parameters
     ----------
-    series: `Series`
-        `Series` to represent as runs
+    series: ``Series``
+        ``Series`` to represent as runs
 
     Yields
     ------
-    value : `Any`
+    value : ``Any``
         Value of the run
-    length : `int`
+    length : ``int``
         Length of the run
 
     Notes

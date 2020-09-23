@@ -1,6 +1,6 @@
 """Generators of binary sequences
 
-Methods infinitely generate `0` and `1` integers to represent a binary sequence."""
+Methods infinitely generate ``0`` and ``1`` integers to represent a binary sequence."""
 from math import sqrt
 from random import getrandbits
 
@@ -8,11 +8,11 @@ __all__ = ["python", "primes"]
 
 
 def python():
-    """Generates random bits using python's `random` module
+    """Generates random bits using python's ``random`` module
 
     Yields
     ------
-    bit : `0` or `1`
+    bit : ``0`` or `1`
         Random bit
 
     See Also
@@ -28,12 +28,12 @@ def numbers(start=1):
 
     Parameters
     ----------
-    start : `int`, default `1`
+    start : ``int``, default ``1``
         Starting number to count up from
 
     Yields
     ------
-    n : `int`
+    n : ``int``
         Natural number
     """
     n = start
@@ -47,9 +47,9 @@ def primes():
 
     Yields
     ------
-    bit: `0` or `1`
-        Whether next number is prime: `0` represents number is a composite (i.e.
-        not a prime), `1` represents number is a prime.
+    bit: ``0`` or ``1``
+        Whether next number is prime: ``0`` represents number is a composite (i.e.
+        not a prime), ``1`` represents number is a prime.
     """
     yield 0  # n = 1
     yield 1  # n = 2

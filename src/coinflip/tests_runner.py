@@ -58,9 +58,9 @@ def list_tests() -> Iterator[Tuple[str, Callable]]:
 
     Yields
     ------
-    randtest_name : `str`
+    randtest_name : ``str``
         Name of statistical test
-    randtest_func : `Callable`
+    randtest_func : ``Callable``
         Function object of the statistical test
     """
     for randtest_name in randtests.__all__:
@@ -79,16 +79,16 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
 
     Parameters
     ----------
-    series : `Series`
+    series : ``Series``
         Output of the RNG being tested
-    randtest_name : `str`
+    randtest_name : ``str``
         Name of statistical test
     **kwargs
         Keyword arguments to pass to statistical test
 
     Returns
     -------
-    result : `TestResult`
+    result : ``TestResult``
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
 
@@ -97,7 +97,7 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     TestNotFoundError
         If `randtest_name` does not match any available statistical tests
     TestError
-        Errors raised when running `randtest_name`
+        Errors raised when running ``randtest_name``
     """
     for name, func in list_tests():
         if randtest_name == name:
@@ -120,18 +120,18 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
     Parameters
     ----------
-    series : `Series`
+    series : ``Series``
         Output of the RNG being tested
 
     Yields
     ------
-    randtest_name : `str`
+    randtest_name : ``str``
         Name of statistical test
-    result : `TestResult`
+    result : ``TestResult``
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
-    exception : `NotImplementedError` or `MinimumInputError`
-        The exception raised when running `randtest_name`, otherwise `None`.
+    exception : ``NotImplementedError`` or ``MinimumInputError``
+        The exception raised when running ``randtest_name``, otherwise ``None``.
 
     Raises
     ------

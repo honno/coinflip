@@ -25,39 +25,39 @@ def randtest(min_input=2, rec_input=2):
     """Decorator factory for parsing sequences in randomness tests
 
     Returns a decorator (a method which returns a wrapper method). The wrapper
-    checks if passed `sequence` is a pandas `Series`, attempting to convert it
+    checks if passed ``sequence`` is a pandas ``Series``, attempting to convert it
     if not.
 
-    The length of the `sequence` is then checked to see if it meets the
+    The length of the ``sequence`` is then checked to see if it meets the
     passed minimum input requirement, raising an error if not. Subsequently the
     length is checked with the passed recommended input requirement, issuing a
     warning if not.
 
     Parameters
     ----------
-    min_input : `int`, default `2`
+    min_input : ``int``, default ``2``
         Absolute minimum length of sequence the test can handle
-    rec_input : `int`, default `2`
+    rec_input : ``int``, default ``2``
         Recommended minimum length of sequence for the test
 
     Returns
     -------
-    decorator : `Callable[[Callable], Callable]`
+    decorator : ``Callable[[Callable], Callable]``
         Decorator method for parsing sequences in randomness tests
 
     Raises
     ------
     MinimumInputError
-        If `sequence` length exceeds `min_input`
+        If ``sequence`` length exceeds ``min_input``
 
     Warns
     -----
     UserWarning
-        If `sequence` length exceeds `rec_input`
+        If ``sequence`` length exceeds ``rec_input``
 
     See Also
     --------
-    pandas.Series: Initialises with `sequence` if not already a `Series`
+    pandas.Series: Initialises with ``sequence`` if not already a ``Series``
     """
 
     def decorator(func):
@@ -94,7 +94,7 @@ def infer_candidate(unique_values):
 
     An equality check between the values is attempted, where the "largest"
     value is chosen. If the values can not be compared, then the first element
-    of `unique_values` is chosen.
+    of ``unique_values`` is chosen.
 
     Parameters
     ----------
@@ -104,7 +104,7 @@ def infer_candidate(unique_values):
     Returns
     -------
     candidate
-        Inferred candidate of `unique_values`
+        Inferred candidate of ``unique_values``
 
     See Also
     --------
@@ -129,30 +129,30 @@ class CandidateNotInSequenceError(TestInputError):
 def elected(func):
     """Decorator for parsing candidate arguments in randomness tests
 
-    If no `candidate` value is passed, a candidate is inferred from the
-    unique values of the passed `series`.
+    If no ``candidate`` value is passed, a candidate is inferred from the
+    unique values of the passed ``series``.
 
-    If a `candidate` value is passed, it is checked to see the value is present
-    in the passed `series`.
+    If a ``candidate`` value is passed, it is checked to see the value is present
+    in the passed ``series``.
 
     Parameters
     ----------
-    func : `Callable`
+    func : ``Callable``
         Randomness test with candidate kwarg to parse
 
     Returns
     -------
-    wrapper : `Callable`
-        Decorated `func`
+    wrapper : ``Callable``
+        Decorated ``func``
 
     Raises
     ------
     CandidateNotInSequenceError
-        If passed `candidate` value is not present in `series`
+        If passed ``candidate`` value is not present in ``series``
 
     See Also
     --------
-    infer_candidate: Method that infers the value of `candidate`
+    infer_candidate: Method that infers the value of ``candidate``
     """
 
     @wraps(func)

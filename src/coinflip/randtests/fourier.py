@@ -94,12 +94,12 @@ def fft(array) -> pd.Series:
 
     Returns
     -------
-    `Series`
-        Fourier transformation of `array`
+    ``Series``
+        Fourier transformation of ``array``
 
     See Also
     --------
-    numpy.fft.fft : Method adapted to return a `Series` as opposed to an `ndarray`
+    numpy.fft.fft : Method adapted to return a ``Series`` as opposed to an ``ndarray``
     """
     fourier_ndarray = _fft(array)
     fourier_series = pd.Series(fourier_ndarray)

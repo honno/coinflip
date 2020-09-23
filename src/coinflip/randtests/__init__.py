@@ -6,22 +6,22 @@ generators.
 
 Notes
 -----
-A copy of the NIST paper can be found at the root of the `coinflip` repository as
+A copy of the NIST paper can be found at the root of the ``coinflip`` repository as
 `SP800-22.pdf <https://github.com/Honno/coinflip/blob/master/SP800-22.pdf>`_.
 
 The test themselves are defined in section 2., "Random Number Generation Tests",
 p. 23-62. Further detail of the tests are provided in section 3. "Technical
 Descriptions of Tests", p. 63-87.
 
-These tests were implemented in a complimentary program `sts`, which can be
+These tests were implemented in a complimentary program ``sts``, which can be
 downloaded from the `NIST website
 <https://csrc.nist.gov/projects/random-bit-generation/documentation-and-software>`_.
 
 Note that the paper assumes a great amount of familiarity with certain
 concepts in statistics. It also uses some constants and algorithms without any
-explaination. Part of the purpose for `coinflip` is to "describe" the NIST tests
+explaination. Part of the purpose for ``coinflip`` is to "describe" the NIST tests
 more wholly than in the paper itself, whilst also reducing the noise of some
-non-idiomatic programming conventions used in `sts`.
+non-idiomatic programming conventions used in ``sts``.
 
 .. [1] National Institute of Standards and Technology <Andrew Rukhin, Juan Soto,
    James Nechvatal, Miles Smid, Elaine Barker, Stefan Leigh, Mark Levenson, Mark

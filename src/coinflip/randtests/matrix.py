@@ -40,7 +40,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
         Output of the RNG being tested
     candidate : Value present in given sequence
         The value which is counted in each block
-    matrix_dimen : `Tuple[int, int]`
+    matrix_dimen : ``Tuple[int, int]``
         Number of rows and columns in each matrix
 
     Returns
@@ -169,13 +169,13 @@ def gf2_rank(matrix: Iterable[Iterable[int]]) -> int:
 
     Parameters
     ----------
-    matrix : `List[Tuple[int, ...]]`
+    matrix : ``List[Tuple[int, ...]]``
         Binary matrix to rank
 
     Returns
     -------
     rank : int
-        Rank of `matrix`
+        Rank of ``matrix``
 
     Notes
     -----

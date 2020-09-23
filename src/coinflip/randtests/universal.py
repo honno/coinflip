@@ -85,9 +85,9 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     ----------
     sequence : array-like
         Output of the RNG being tested
-    blocksize : `int`
+    blocksize : ``int``
         Size of the blocks that form a permutation
-    init_nblocks : `int`
+    init_nblocks : ``int``
         Number of initial blocks to identify permutations
 
     Returns

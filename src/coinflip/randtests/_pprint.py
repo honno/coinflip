@@ -17,17 +17,17 @@ def determine_rep(candidate, noncandidate) -> Tuple[str, str]:
 
     Parameters
     ----------
-    candidate : `Any`
+    candidate : ``Any``
         One of the two values in a sequence
-    noncandidate : `Any`
-        Value in a sequence which is not `candidate`
+    noncandidate : ``Any``
+        Value in a sequence which is not ``candidate``
 
     Returns
     -------
-    c_rep : `str`
-        Character representation of the `candidate`
-    nc_rep : `str`
-        Character representation of the `noncandidate`
+    c_rep : ``str``
+        Character representation of the ``candidate``
+    nc_rep : ``str``
+        Character representation of the ``noncandidate``
 
     See Also
     --------
@@ -47,21 +47,21 @@ def pretty_subseq(series, candidate, noncandidate) -> str:
 
     Parameters
     ----------
-    series : `Series`
+    series : ``Series``
         Subsequence to represent
-    candidate : `Any`
-        One of the two values in `series`
-    noncandidate : `Any`
-        Value in a sequence which in `series`
+    candidate : ``Any``
+        One of the two values in ``series``
+    noncandidate : ``Any``
+        Value in a sequence which in ``series``
 
     Returns
     -------
-    series_rep : `str`
-        Pretty representation of `series`
+    series_rep : ``str``
+        Pretty representation of ``series``
 
     See Also
     --------
-    determine_rep : Method used to determine the `series` character representations
+    determine_rep : Method used to determine the ``series`` character representations
     """
     c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
@@ -83,19 +83,19 @@ def pretty_seq(series, cols) -> str:
 
     Parameters
     ----------
-    series : `Series`
+    series : ``Series``
         Sequence to represent
-    cols : `int`
+    cols : ``int``
         Maximum number of characters to use per line
 
     Returns
     -------
-    series_rep : `str`
+    series_rep : ``str``
         Pretty represented of a sequence
 
     See Also
     --------
-    infer_candidate : Method used to infer the candidate value of the `series`
+    infer_candidate : Method used to infer the candidate value of the ``series``
     pretty_subseq : Method wrapped to generate rows
     """
     values = series.unique()
@@ -183,12 +183,12 @@ def dim(string) -> str:
 
     Parameters
     ----------
-    string : `str`
+    string : ``str``
         String to wrap
 
     Returns
     -------
-    `str`
+    ``str``
         Wrapped string
     """
     return Style.DIM + string + Style.RESET_ALL
@@ -199,12 +199,12 @@ def bright(string) -> str:
 
     Parameters
     ----------
-    string : `str`
+    string : ``str``
         String to wrap
 
     Returns
     -------
-    `str`
+    ``str``
         Wrapped string
     """
     return Style.BRIGHT + string + Style.RESET_ALL

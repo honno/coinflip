@@ -101,20 +101,20 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
 
     Reads from file containing RNG output and produces a representitive pandas
     Series. The appropiate dtype is inferred from the data itself, or optionally
-    from the supplied `dtype_str`.
+    from the supplied ``dtype_str``.
 
     Parameters
     ----------
     data_file : file-like object
         File containing RNG output
-    dtype_str : `str`, optional
+    dtype_str : ``str``, optional
         String representation of desired dtype. If not supplied, it is inferred
         from the data.
 
     Returns
     -------
-    `Series`
-        A pandas `Series` which represents the data
+    ``Series``
+        A pandas ``Series`` which represents the data
 
     Raises
     ------
@@ -127,7 +127,7 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
 
     See Also
     --------
-    pandas.read_csv : The pandas method for reading `data_file`
+    pandas.read_csv : The pandas method for reading ``data_file``
     store_data : Calls this method, and handles subsequent storage of data
     """
     df = pd.read_csv(data_file, header=None)
@@ -186,18 +186,18 @@ def init_store(name=None, overwrite=False):
 
     Parameters
     ----------
-    name : `str`, optional
+    name : ``str``, optional
         Desired name of the store, which will be sanitised. If not supplied, a
         name is generated automatically.
-    overwrite : `boolean`, default `False`
+    overwrite : ``boolean``, default ``False``
         If a name conflicts with an existing store, this decides whether to
         overwrite it.
 
     Returns
     -------
-    store_name : `str`
+    store_name : ``str``
         Internal name of the initialised store
-    store_path : `Path`
+    store_path : ``Path``
         Path of the initialised store
 
     Raises
@@ -206,7 +206,7 @@ def init_store(name=None, overwrite=False):
         If attempts at generating a unique name fails
     StoreExistsError
         If a store of the same name exists already (and overwrite is set to
-        `False`)
+        ``False``)
     NonBinarySequenceError
         If sequence does not contain only 2 values
 
@@ -253,7 +253,7 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
 
     Reads from file containing RNG output and produces a representitive pandas
     Series. The appropiate dtype is inferred from the data itself, or optionally
-    from the supplied `dtype_str`.
+    from the supplied ``dtype_str``.
 
     A name supplied or generated is used to initialise a store. If supplied,
     the name is sanitised to remove invalid characters for filepaths. If
@@ -269,13 +269,13 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
     ----------
     data_file : file-like object
         File containing RNG output
-    name : `str`, optional
+    name : ``str``, optional
         Desired name of the store, which will be sanitised. If not supplied, a
         name is generated automatically.
-    dtype_str : `str`, optional
+    dtype_str : ``str``, optional
         String representation of desired dtype. If not supplied, it is inferred
         from the data.
-    overwrite : `bool`, default `False`
+    overwrite : ``bool``, default ``False``
         If a name conflicts with an existing store, this decides whether to
         overwrite it.
 
@@ -289,11 +289,11 @@ def store_data(data_file, name=None, dtype_str=None, overwrite=False):
         If attempts at generating a unique name fails
     StoreExistsError
         If a store of the same name exists already (and overwrite is set to
-        `False`)
+        ``False``)
 
     See Also
     --------
-    parse_data : Loads and parses `data_file`
+    parse_data : Loads and parses ``data_file``
     init_store : Initialises the store
     find_latest_store : Accesses the name of the last initialised store
     """
@@ -332,7 +332,7 @@ def find_latest_store() -> str:
 
     Returns
     -------
-    store_name : `str`
+    store_name : ``str``
         Name of the last initialised store
 
     Raises
@@ -371,13 +371,13 @@ def get_data(store_name) -> pd.Series:
 
     Parameters
     ----------
-    store_name : `str`
+    store_name : ``str``
         Name of the store
 
     Returns
     -------
-    `Series`
-        A pandas `Series` which represents the data
+    ``Series``
+        A pandas ``Series`` which represents the data
 
     Raises
     ------
@@ -406,7 +406,7 @@ def drop(store_name):
 
     Parameters
     ----------
-    store_name : `str`
+    store_name : ``str``
         Name of store to remove
     """
     store_path = data_dir / store_name
@@ -429,11 +429,11 @@ def store_result(store_name, randtest_name, result: TestResult):
 
     Parameters
     ----------
-    store_name : `str`
+    store_name : ``str``
         Name of store to save result in
-    randtest_name : `str`
+    randtest_name : ``str``
         Name of statistical test the result came from
-    result : `TestResult`
+    result : ``TestResult``
         Result of the statistical test
 
     See Also
@@ -450,9 +450,9 @@ def store_results(store_name, results_dict: Dict[str, TestResult]):
 
     Parameters
     ----------
-    store_name : `str`
+    store_name : ``str``
         Name of store to save result in
-    results_dict : `Dict[str, TestResult]`
+    results_dict : ``Dict[str, TestResult]``
         Mapping of statistical tests to their respective results
 
     See Also
@@ -470,12 +470,12 @@ def open_results(store_name):
 
     Parameters
     ----------
-    store_name : `str`
+    store_name : ``str``
         Name of store to access results in
 
     Yields
     ------
-    results : `Dict[str, TestResult]`
+    results : ``Dict[str, TestResult]``
         Previously stored results of statistical tests
 
     Raises

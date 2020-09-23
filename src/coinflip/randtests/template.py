@@ -47,10 +47,10 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : `List`, optional
+    template : ``List``, optional
         Template to match with the sequence, randomly generated if not
         provided.
-    nblocks : `int`
+    nblocks : ``int``
         Number of blocks to split sequence into
 
     Returns
@@ -152,25 +152,25 @@ matches_ceil = 5
 def overlapping_template_matching(series, template: List = None, nblocks=None, df=5):
     """Overlapping matches of template per block is compared to expected result
 
-    The sequence is split into `nblocks` blocks, where the number of
+    The sequence is split into ``nblocks`` blocks, where the number of
     overlapping matches to the template in each block is found. This is
     referenced to the expected mean and variance in matches of a hypothetically
     truly random RNG.
 
     .. deprecated:: 0
-        `df` will be removed once I figure out the correct value, as I don't
+        ``df`` will be removed once I figure out the correct value, as I don't
         quite understand what NIST wants (or if they're even correct!)
 
     Parameters
     ----------
     sequence : array-like
         Output of the RNG being tested
-    template : `List`, optional
+    template : ``List``, optional
         Template to match with the sequence, randomly generated if not
         provided.
-    nblocks : `int`
+    nblocks : ``int``
         Number of blocks to split sequence into
-    df : `int`, default `5`
+    df : ``int``, default ``5``
         Degrees of freedom to use in p-value calculation
 
     Returns

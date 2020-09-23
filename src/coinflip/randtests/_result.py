@@ -20,7 +20,7 @@ class TestResult:
 
     Attributes
     ----------
-    statistic : `int` or `float`
+    statistic : ``int`` or ``float``
         Statistic of the test
     p : float
         p-value of the test
@@ -30,17 +30,17 @@ class TestResult:
     p: float
 
     def _results_text(self, stat_varname="statistic") -> Text:
-        """`Text` of the statistic and p-value
+        """``Text`` of the statistic and p-value
 
         Parameters
         ----------
-        stat_varname : `str`, default `"statistic"`
+        stat_varname : ``str``, default ``"statistic"``
             Name describing the statistic
 
         Returns
         -------
-        `Text`
-            Multi-line Rich `Text` variable list
+        ``Text``
+            Multi-line Rich ``Text`` variable list
         """
         return vars_list((stat_varname, self.statistic), ("p-value", self.p))
 

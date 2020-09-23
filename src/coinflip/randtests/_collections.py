@@ -5,7 +5,7 @@ __all__ = ["FloorDict", "RoundingDict", "Bins"]
 
 
 class FloorDict(dict):
-    """Subclassed `dict` where invalid keys floor to the smallest real key
+    """Subclassed ``dict`` where invalid keys floor to the smallest real key
 
     If a key is accessed that does not exist, the nearest real key that is the
     less-than of the passed key is used.
@@ -24,7 +24,7 @@ class FloorDict(dict):
 
 
 class RoundingDict(dict):
-    """Subclassed `dict` where invalid keys are rounded to the nearest real key
+    """Subclassed ``dict`` where invalid keys are rounded to the nearest real key
 
     If a key is accessed that does not exist, the nearest real key to the passed
     key is used.
@@ -55,7 +55,7 @@ class RoundingDict(dict):
 
 
 class Bins(RoundingDict):
-    """Subclassed `RoundingDict` to initialise intervals as empty bins"""
+    """Subclassed ``RoundingDict`` to initialise intervals as empty bins"""
 
     def __init__(self, intervals: Iterable[int]):
         """Initialise intervals as keys to values of 0"""
