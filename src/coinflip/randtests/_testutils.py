@@ -16,7 +16,7 @@ def check_recommendations(recommendations: Dict[str, bool]):
 
     Parameters
     ----------
-    recommendations : `Dict[str, bool]`
+    recommendations : ``Dict[str, bool]``
         Map of recommendation string representations to the actual
         recommendation outcomes
 
