@@ -113,9 +113,10 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
 
 
 # TODO docstring
-def slider(series, window_size) -> Iterator[pd.Series]:
+def slider(series, window_size, overlap=False) -> Iterator[pd.Series]:
     boundary = len(series) - window_size + 1
-    for pointer in range(boundary):
+    step = 1 if overlap else window_size
+    for pointer in range(0, boundary, step):
         window = series[pointer : pointer + window_size]
 
         yield window

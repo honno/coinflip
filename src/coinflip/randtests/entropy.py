@@ -21,7 +21,7 @@ def approximate_entropy(series, blocksize):
         ouroboros = pd.concat([series, head])
 
         permutation_counts = defaultdict(int)
-        for window_tup in rawslider(ouroboros, template_size):
+        for window_tup in rawslider(ouroboros, template_size, overlap=True):
             permutation_counts[window_tup] += 1
 
         normalised_counts = []

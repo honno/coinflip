@@ -214,7 +214,7 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     for block in blocks(series, blocksize=blocksize):
         matches = 0
 
-        for window_tup in rawslider(block, template_size):
+        for window_tup in rawslider(block, template_size, overlap=True):
             if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 
