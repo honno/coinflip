@@ -8,7 +8,7 @@ from warnings import warn
 
 import pandas as pd
 
-__all__ = ["check_recommendations", "blocks", "rawblocks"]
+__all__ = ["check_recommendations", "blocks", "rawblocks", "slider"]
 
 
 def check_recommendations(recommendations: Dict[str, bool]):
@@ -106,26 +106,17 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
     """
 
     for block in blocks(*args, **kwargs):
-        block_list = block.tolist()
-        block_tup = tuple(block_list)
+        block_tup = tuple(block)
 
         yield block_tup
 
 
-# TODO docstring
-def slider(series, window_size, overlap=False) -> Iterator[pd.Series]:
+# TODO desc
+def slider(series, window_size, overlap=False) -> Iterator[Tuple[Any]]:
     boundary = len(series) - window_size + 1
     step = 1 if overlap else window_size
     for pointer in range(0, boundary, step):
         window = series[pointer : pointer + window_size]
-
-        yield window
-
-
-# TODO docstring
-def rawslider(*args, **kwargs) -> Iterator[Tuple[Any]]:
-    for window in slider(*args, **kwargs):
-        window_list = window.tolist()
-        window_tup = tuple(window_list)
+        window_tup = tuple(window)
 
         yield window_tup

@@ -10,7 +10,7 @@ from scipy.special import gammaincc
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawslider
+from coinflip.randtests._testutils import slider
 
 __all__ = ["approximate_entropy"]
 
@@ -30,7 +30,7 @@ def approximate_entropy(series, blocksize=None):
         ouroboros = pd.concat([series, head])
 
         permutation_counts = defaultdict(int)
-        for window_tup in rawslider(ouroboros, template_size, overlap=True):
+        for window_tup in slider(ouroboros, template_size, overlap=True):
             permutation_counts[window_tup] += 1
 
         normalised_counts = []

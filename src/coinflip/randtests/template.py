@@ -17,7 +17,7 @@ from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._testutils import blocks
 from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawslider
+from coinflip.randtests._testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
@@ -91,7 +91,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     for block in blocks(series, blocksize=blocksize):
         matches = 0
 
-        for window_tup in rawslider(block, template_size):
+        for window_tup in slider(block, template_size):
             if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 
@@ -214,7 +214,7 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     for block in blocks(series, blocksize=blocksize):
         matches = 0
 
-        for window_tup in rawslider(block, template_size, overlap=True):
+        for window_tup in slider(block, template_size, overlap=True):
             if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 
