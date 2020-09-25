@@ -1,19 +1,28 @@
 from collections import defaultdict
+from dataclasses import dataclass
+from math import floor
 from math import log
+from math import log2
 
 import pandas as pd
 from scipy.special import gammaincc
 
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
+from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import rawslider
 
 __all__ = ["approximate_entropy"]
 
 
 @randtest()
-def approximate_entropy(series, blocksize):
+def approximate_entropy(series, blocksize=None):
     n = len(series)
+
+    if not blocksize:
+        blocksize = max(floor(log2(n)) - 5 - 1, 2)
+
+    check_recommendations({"blocksize < ⌊log2(n)⌋ - 5": blocksize < floor(log2(n)) - 5})
 
     totals = []
     for template_size in [blocksize, blocksize + 1]:
@@ -36,4 +45,10 @@ def approximate_entropy(series, blocksize):
     statistic = 2 * n * (log(2) - approx_entropy)
     p = gammaincc(2 ** (blocksize - 1), statistic / 2)
 
-    return TestResult(statistic, p)
+    return ApproximateEntropyTestResult(statistic, p)
+
+
+@dataclass
+class ApproximateEntropyTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
