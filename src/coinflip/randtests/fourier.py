@@ -4,7 +4,7 @@ from math import log
 from math import sqrt
 
 import pandas as pd
-from numpy.fft import fft as _fft
+from numpy.fft import fft
 
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
@@ -12,7 +12,7 @@ from coinflip.randtests._exceptions import NonBinarySequenceError
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import vars_list
 
-__all__ = ["spectral", "fft"]
+__all__ = ["spectral"]
 
 
 class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
@@ -69,7 +69,7 @@ def spectral(series, candidate):
     trough = next(value for value in series.unique() if value != candidate)
 
     oscillations = series.map({peak: 1, trough: -1})
-    fourier = fft(oscillations)
+    fourier = pd.Series(fft(oscillations))  # fft returns a ndarray
 
     half_fourier = fourier[: n // 2]
     peaks = half_fourier.abs()
@@ -82,29 +82,6 @@ def spectral(series, candidate):
     p = erfc(abs(normdiff) / sqrt(2))
 
     return SpectralTestResult(normdiff, p, nbelow_expected, nbelow, diff,)
-
-
-def fft(array) -> pd.Series:
-    """Performs fast fourier transform
-
-    Parameters
-    ----------
-    array : array-like
-        Input array
-
-    Returns
-    -------
-    ``Series``
-        Fourier transformation of ``array``
-
-    See Also
-    --------
-    numpy.fft.fft : Method adapted to return a ``Series`` as opposed to an ``ndarray``
-    """
-    fourier_ndarray = _fft(array)
-    fourier_series = pd.Series(fourier_ndarray)
-
-    return fourier_series
 
 
 @dataclass
