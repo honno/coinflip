@@ -4,7 +4,9 @@ Reference
 
 .. toctree::
 
-   store
-   tests_runner
-   generators
    randtests/index
+   algorithms
+   collections
+   generators
+   tests_runner
+   store
