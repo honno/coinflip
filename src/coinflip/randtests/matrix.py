@@ -15,7 +15,7 @@ from coinflip.randtests._testutils import blocks
 from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import rawblocks
 
-__all__ = ["binary_matrix_rank", "gf2_rank"]
+__all__ = ["binary_matrix_rank", "matrix_rank"]
 
 
 @dataclass
@@ -81,7 +81,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
         matrix = [row for row in rawblocks(block, nblocks=nrows)]
         matrices.append(matrix)
 
-    ranks = [gf2_rank(matrix) for matrix in matrices]
+    ranks = [matrix_rank(matrix) for matrix in matrices]
 
     rankcounts = RankCounts()
     for rank in ranks:
@@ -155,21 +155,12 @@ class BinaryMatrixRankTestResult(TestResult):
         yield f_table
 
 
-def bits2int(bits: Iterable[int]) -> int:
-    """Converts a list of bits into a numerical representation"""
-    num = 0
-    for bit in bits:
-        num = (num << 1) | bit
-
-    return num
-
-
-def gf2_rank(matrix: Iterable[Iterable[int]]) -> int:
+def matrix_rank(matrix: Iterable[Iterable[int]]) -> int:
     """Finds the rank of a binary matrix
 
     Parameters
     ----------
-    matrix : ``List[Tuple[int, ...]]``
+    matrix : ``Iterable[Iterable[int]]``
         Binary matrix to rank
 
     Returns
@@ -195,3 +186,12 @@ def gf2_rank(matrix: Iterable[Iterable[int]]) -> int:
                     numbers[i] = num ^ pivot
 
     return rank
+
+
+def bits2int(bits: Iterable[int]) -> int:
+    """Converts a list of bits into a numerical representation"""
+    num = 0
+    for bit in bits:
+        num = (num << 1) | bit
+
+    return num
