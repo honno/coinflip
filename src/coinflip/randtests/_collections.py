@@ -1,4 +1,5 @@
 # TODO test non-ordered inputs, subclass OrderedDict
+from bisect import bisect_left
 from typing import Iterable
 
 __all__ = ["FloorDict", "RoundingDict", "Bins"]
@@ -43,7 +44,18 @@ class RoundingDict(dict):
         elif key in midkeys:
             return key
         else:
-            raise KeyError()
+            try:
+                i = bisect_left(realkeys, key)
+                leftkey = realkeys[i - 1]
+                rightkey = realkeys[i]
+
+                if leftkey - key > rightkey - key:
+                    return leftkey
+                else:
+                    return rightkey
+
+            except Exception as e:  # TODO figure out what the exception(s) would be
+                raise KeyError() from e
 
     def __setitem__(self, key, value):
         realkey = self._roundkey(key)

@@ -9,7 +9,7 @@ from ._implementation import Implementation
 from ._implementation import ImplementationError
 from .r4nd0m.SourceCode.RandomnessTests import RandomnessTester
 
-__all__ = ["testmap"]
+__all__ = ["testmap", "berlekamp_massey"]
 
 _tester = RandomnessTester(None)
 
@@ -98,3 +98,8 @@ testmap = {
         maurers_universal, missingkwargs=["blocksize", "init_nblocks"]
     ),
 }
+
+
+@bits_str
+def berlekamp_massey(bits):
+    return _tester.berlekamp_massey_algorithm(bits)

@@ -12,6 +12,7 @@ from ._implementation import ImplementationError
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _spectral
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
+from .sp800_22_tests.sp800_22_linear_complexity_test import berelekamp_massey as _berlekamp_massey
 from .sp800_22_tests.sp800_22_longest_run_ones_in_a_block_test import longest_run_ones_in_a_block_test as _longest_runs
 from .sp800_22_tests.sp800_22_maurers_universal_test import maurers_universal_test as _maurers_universal
 from .sp800_22_tests.sp800_22_monobit_test import monobit_test as _monobit
@@ -23,7 +24,7 @@ from .sp800_22_tests.sp800_22_runs_test import runs_test as _runs
 
 # fmt: on
 
-__all__ = ["testmap"]
+__all__ = ["testmap", "berlekamp_massey"]
 
 
 class DJResult(NamedTuple):
@@ -115,3 +116,8 @@ testmap = {
     ),
     "maurers_universal": Implementation(maurers_universal),
 }
+
+
+def berlekamp_massey(bits):
+    min_size, error_locator = _berlekamp_massey(bits)
+    return min_size
