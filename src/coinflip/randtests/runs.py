@@ -143,7 +143,7 @@ def longest_runs(series, candidate):
         ) from e
     expected_bincounts = [prob * nblocks for prob in maxlen_probs]
 
-    for block in blocks(series, blocksize=blocksize, nblocks=nblocks):
+    for block in blocks(series, blocksize, nblocks=nblocks):
         runlengths = (length for value, length in asruns(block) if value == candidate)
 
         maxlen = 0

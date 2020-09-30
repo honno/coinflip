@@ -129,11 +129,11 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
 
     last_occurences = defaultdict(int)
 
-    init_blocks = rawblocks(init_series, blocksize=blocksize)
+    init_blocks = rawblocks(init_series, blocksize)
     for pos, permutation in enumerate(init_blocks, 1):
         last_occurences[permutation] = pos
 
-    spare_blocks = rawblocks(spare_series, blocksize=blocksize)
+    spare_blocks = rawblocks(spare_series, blocksize)
     spare_firstpos = init_nblocks + 1
     distances_total = 0
     for pos, permutation in enumerate(spare_blocks, spare_firstpos):

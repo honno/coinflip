@@ -182,7 +182,7 @@ def frequency_within_block(series, candidate, blocksize=8):
     )
 
     occurences = []
-    for block in blocks(series, blocksize=blocksize):
+    for block in blocks(series, blocksize):
         matches = block == candidate
         occur = matches.sum()
         occurences.append(occur)

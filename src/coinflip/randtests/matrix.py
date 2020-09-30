@@ -77,7 +77,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     rankable_series = series.map({candidate: 1, noncandidate: 0})
 
     matrices = []
-    for block in blocks(rankable_series, blocksize=blocksize):
+    for block in blocks(rankable_series, blocksize):
         matrix = [row for row in rawblocks(block, nblocks=nrows)]
         matrices.append(matrix)
 

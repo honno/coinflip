@@ -88,7 +88,7 @@ def non_overlapping_template_matching(series, template: List = None, nblocks=Non
     )
 
     block_matches = []
-    for block in blocks(series, blocksize=blocksize):
+    for block in blocks(series, blocksize):
         matches = 0
 
         for window_tup in slider(block, template_size):
@@ -211,7 +211,7 @@ def overlapping_template_matching(series, template: List = None, nblocks=None, d
     expected_tallies = [prob * nblocks for prob in probabilities]
 
     block_matches = []
-    for block in blocks(series, blocksize=blocksize):
+    for block in blocks(series, blocksize):
         matches = 0
 
         for window_tup in slider(block, template_size, overlap=True):
