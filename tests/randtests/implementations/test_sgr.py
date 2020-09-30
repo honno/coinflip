@@ -4,11 +4,12 @@ from math import isclose
 from pytest import skip
 
 from ._implementation import ImplementationError
-from .sgr import testmap as sgr_testmap
+from .sgr import testmap
+from .sgr import berlekamp_massey
 
 
 def test_randtest_on_example(randtest, bits, statistic, p, kwargs):
-    implementation = sgr_testmap[randtest]
+    implementation = testmap[randtest]
 
     if implementation.missingkwargs or implementation.fixedkwargs:
         skip()

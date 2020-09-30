@@ -4,11 +4,11 @@ from math import isclose
 from pytest import skip
 
 from ._implementation import ImplementationError
-from .dj import testmap as dj_testmap
+from .dj import testmap
 
 
 def test_randtest_on_example(randtest, bits, statistic, p, kwargs):
-    implementation = dj_testmap[randtest]
+    implementation = testmap[randtest]
 
     if implementation.missingkwargs or implementation.fixedkwargs:
         skip()
