@@ -9,7 +9,7 @@ from ._implementation import Implementation
 from ._implementation import ImplementationError
 from .r4nd0m.SourceCode.RandomnessTests import RandomnessTester
 
-__all__ = ["testmap", "berlekamp_massey"]
+__all__ = ["testmap"]
 
 _tester = RandomnessTester(None)
 
@@ -104,8 +104,3 @@ testmap = {
     ),
     "linear_complexity": Implementation(linear_complexity),
 }
-
-
-@bits_str
-def berlekamp_massey(bits):
-    return _tester.berlekamp_massey_algorithm(bits)
