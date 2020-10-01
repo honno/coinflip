@@ -81,6 +81,11 @@ def maurers_universal(bits):
     return _tester.universal(bits)
 
 
+@bits_str
+def linear_complexity(bits, blocksize):
+    return _tester.linear_complexity(bits, block_size=blocksize)
+
+
 testmap = {
     "monobit": Implementation(monobit),
     "frequency_within_block": Implementation(frequency_within_block),
@@ -97,6 +102,7 @@ testmap = {
     "maurers_universal": Implementation(
         maurers_universal, missingkwargs=["blocksize", "init_nblocks"]
     ),
+    "linear_complexity": Implementation(linear_complexity),
 }
 
 

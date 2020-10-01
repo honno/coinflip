@@ -13,6 +13,7 @@ from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _spectral
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
 from .sp800_22_tests.sp800_22_linear_complexity_test import berelekamp_massey as _berlekamp_massey
+from .sp800_22_tests.sp800_22_linear_complexity_test import linear_complexity_test as _linear_complexity
 from .sp800_22_tests.sp800_22_longest_run_ones_in_a_block_test import longest_run_ones_in_a_block_test as _longest_runs
 from .sp800_22_tests.sp800_22_maurers_universal_test import maurers_universal_test as _maurers_universal
 from .sp800_22_tests.sp800_22_monobit_test import monobit_test as _monobit
@@ -96,6 +97,11 @@ def maurers_universal(bits, blocksize, init_nblocks):
     return _maurers_universal(bits, patternlen=blocksize, initblocks=init_nblocks)
 
 
+@named
+def linear_complexity(bits, blocksize):
+    return _linear_complexity(bits, patternlen=blocksize)
+
+
 testmap = {
     "monobit": Implementation(monobit),
     "frequency_within_block": Implementation(
@@ -115,6 +121,7 @@ testmap = {
         fixedkwargs={"template": [1 for x in range(10)], "nblocks": 968},
     ),
     "maurers_universal": Implementation(maurers_universal),
+    "linear_complexity": Implementation(linear_complexity),
 }
 
 
