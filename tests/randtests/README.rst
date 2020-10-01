@@ -7,20 +7,12 @@ NIST examples
 
 The  `SP800-22 <https://github.com/Honno/coinflip/blob/master/SP800-22.pdf>`_
 authors included worked examples for their recommend randomness tests, which
-have been curated in ``examples.py`` as  heterogeneous dictionary tree. They are
-conveniently exposed through the ``examples_iter`` method.
+have been curated in ``test_examples.py``.
 
-Methods named ``test_randtest_on_example`` are passed the examples automatically
-when running these tests via ``pytest`` due to ``conftest.py`` `configuration
-<https://docs.pytest.org/en/stable/example/parametrize.html>`_. The optional
-flag ``--example <regex>`` filters the test names via a `regular expression
-<https://regexone.com/>`_.
-
-``test_examples.py`` contains such a method to pass the parameters of the NIST
-examples to our own `randomness tests
+``test_examples.py`` contains a parametrized method to run the NIST examples on
+our own `randomness tests
 <https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_,
 and assert whether our results match theirs.
-
 
 Comparing implementations
 =========================
@@ -44,3 +36,7 @@ We to `generate paramters
 <https://hypothesis.readthedocs.io/en/latest/quickstart.html#writing-tests>`_
 to randomness tests, pass them to the implementations and our own, and see if
 the results are in the same ballpark.
+
+We can also test the same NIST examples on the implementations through
+``implementations/test_implementations.py``, which also helps contextualise our
+own randomness tests.
