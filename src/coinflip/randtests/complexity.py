@@ -50,15 +50,17 @@ def linear_complexity(series, candidate, blocksize):
     )
     expected_bincounts = [nblocks * prob for prob in probabilities]
 
-    # TODO more appropiate name for counts and t
-    counts = Bins([-2.5, -1.5, -0.5, -0.5, 0.5, 1.5, 2.5])
+    # TODO more appropiate name for t_bins and t
+    t_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
     for block_tup in rawblocks(binary, blocksize):
         linear_complexity = berlekamp_massey(block_tup)
-        t = -(1 ** blocksize) * (linear_complexity - expected_mean) + 2 / 9
-        counts[t] += 1
+        t = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
+        t_bins[t] += 1
+
+    print(t_bins)
 
     reality_check = []
-    for count_expect, count in zip(expected_bincounts, counts.values()):
+    for count_expect, count in zip(expected_bincounts, t_bins.values()):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
