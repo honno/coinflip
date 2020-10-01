@@ -31,31 +31,40 @@ class RoundingDict(dict):
     key is used.
     """
 
+    def __init__(self, *args, **kwargs):
+        self.realkey_cache = {}
+        super().__init__(*args, **kwargs)
+
     def _roundkey(self, key):
+        try:
+            realkey = self.realkey_cache[key]
+            return realkey
+        except KeyError:
+            pass
+
         realkeys = list(self.keys())
         minkey = realkeys[0]
         midkeys = realkeys[1:-1]
         maxkey = realkeys[-1]
 
         if key <= minkey:
-            return minkey
+            realkey = minkey
         elif key >= maxkey:
-            return maxkey
+            realkey = maxkey
         elif key in midkeys:
-            return key
+            realkey = key
         else:
-            try:
-                i = bisect_left(realkeys, key)
-                leftkey = realkeys[i - 1]
-                rightkey = realkeys[i]
+            i = bisect_left(realkeys, key)
+            leftkey = realkeys[i - 1]
+            rightkey = realkeys[i]
 
-                if leftkey - key > rightkey - key:
-                    return leftkey
-                else:
-                    return rightkey
+            if leftkey - key > rightkey - key:
+                realkey = leftkey
+            else:
+                realkey = rightkey
 
-            except Exception as e:  # TODO figure out what the exception(s) would be
-                raise KeyError() from e
+        self.realkey_cache[key] = realkey
+        return realkey
 
     def __setitem__(self, key, value):
         realkey = self._roundkey(key)
