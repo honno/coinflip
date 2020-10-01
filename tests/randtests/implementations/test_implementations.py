@@ -1,4 +1,11 @@
-"""Assert test results from examples on implementations"""
+"""Assert test results from examples on implementations
+
+Notes
+------
+``testmaps`` are not directly passed to ``test_examples``, because pytest's
+generated parameter names (i.e. from --collect-only) won't hold the respective
+implementation names.
+"""
 from math import isclose
 from typing import Iterator
 
@@ -12,21 +19,22 @@ from .dj import testmap as dj_testmap
 from .nist import testmap as nist_testmap
 from .sgr import testmap as sgr_testmap
 
-testmaps = [nist_testmap, sgr_testmap, dj_testmap]
+testmaps = {"nist": nist_testmap, "sgr": sgr_testmap, "dj": dj_testmap}
 
 
-def testmap_examples() -> Iterator:
-    for testmap in testmaps:
+def author_examples() -> Iterator:
+    for author in testmaps.keys():
         for example in examples:
-            yield (testmap, *example)
+            yield (author, *example)
 
 
 fields = list(Example._fields)
-fields.insert(0, "testmap")
+fields.insert(0, "author")
 
 
-@pytest.mark.parametrize(fields, testmap_examples())
-def test_examples(testmap, randtest, bits, statistic, p, kwargs):
+@pytest.mark.parametrize(fields, author_examples())
+def test_examples(author, randtest, bits, statistic, p, kwargs):
+    testmap = testmaps[author]
     implementation = testmap[randtest]
 
     if implementation.missingkwargs or implementation.fixedkwargs:
