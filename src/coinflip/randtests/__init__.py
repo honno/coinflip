@@ -42,6 +42,7 @@ non-idiomatic programming conventions used in ``sts``.
 .. autofunction:: coinflip.randtests.maurers_universal(sequence, blocksize=None, init_nblocks=None)
 """
 from coinflip.randtests.complexity import linear_complexity
+from coinflip.randtests.cusum import cusum
 from coinflip.randtests.entropy import approximate_entropy
 from coinflip.randtests.fourier import spectral
 from coinflip.randtests.frequency import frequency_within_block

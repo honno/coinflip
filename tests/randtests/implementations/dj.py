@@ -3,13 +3,16 @@
 See David Johnston's `GitHub repository
 <https://github.com/dj-on-github/sp800_22_tests>`_ for the original source code.
 """
+# TODO configure single-line imports
 # fmt: off
 from functools import wraps
+from typing import List
 from typing import NamedTuple
 
 from ._implementation import Implementation
 from ._implementation import ImplementationError
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
+from .sp800_22_tests.sp800_22_cumulative_sums_test import cumulative_sums_test as _cusum
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _spectral
 from .sp800_22_tests.sp800_22_frequency_within_block_test import frequency_within_block_test as _frequency_within_block
 from .sp800_22_tests.sp800_22_linear_complexity_test import linear_complexity_test as _linear_complexity
@@ -27,48 +30,58 @@ from .sp800_22_tests.sp800_22_runs_test import runs_test as _runs
 __all__ = ["testmap"]
 
 
-class DJResult(NamedTuple):
+class Result(NamedTuple):
+    """Named tuple for test results in David Johnston's SP800-22 suite
+
+    Notes
+    -----
+    ``p`` is assigned a ``float`` and ``plist`` is assigned ``None`` when only
+    one p-value is returned. Otherwise ``p`` is assigned ``None`` and ``plist``
+    is assigned a list of p-values.
+    """
+
     success: bool
     p: float
-    unknown: None
+    plist: List[float]
 
 
-def named(randtest):
+def return_p(randtest):
     @wraps(randtest)
     def wrapper(bits, *args, **kwargs):
-        result = randtest(bits, *args, **kwargs)
+        _result = randtest(bits, *args, **kwargs)
+        result = Result(*_result)
 
-        return DJResult(*result)
+        return result.p
 
     return wrapper
 
 
-@named
+@return_p
 def monobit(bits):
     return _monobit(bits)
 
 
-@named
+@return_p
 def frequency_within_block(bits):
     return _frequency_within_block(bits)
 
 
-@named
+@return_p
 def runs(bits):
     return _runs(bits)
 
 
-@named
+@return_p
 def longest_runs(bits):
     return _longest_runs(bits)
 
 
-@named
+@return_p
 def spectral(bits):
     return _spectral(bits)
 
 
-@named
+@return_p
 def binary_matrix_rank(bits, matrix_dimen):
     nrows, ncols = matrix_dimen
     nblocks = len(bits) // (nrows * ncols)
@@ -81,24 +94,34 @@ def binary_matrix_rank(bits, matrix_dimen):
         raise ImplementationError() from e
 
 
-@named
+@return_p
 def non_overlapping_template_matching(bits):
     return _non_overlapping_template_matching(bits)
 
 
-@named
+@return_p
 def overlapping_template_matching(bits):
     return _overlapping_template_matching(bits)
 
 
-@named
+@return_p
 def maurers_universal(bits, blocksize, init_nblocks):
     return _maurers_universal(bits, patternlen=blocksize, initblocks=init_nblocks)
 
 
-@named
+@return_p
 def linear_complexity(bits, blocksize):
     return _linear_complexity(bits, patternlen=blocksize)
+
+
+def cusum(bits, reverse=False):
+    _result = _cusum(bits)
+    result = Result(*_result)
+
+    if not reverse:
+        return result.plist[0]
+    else:
+        return result.plist[1]
 
 
 testmap = {
@@ -121,4 +144,5 @@ testmap = {
     ),
     "maurers_universal": Implementation(maurers_universal),
     "linear_complexity": Implementation(linear_complexity),
+    "cusum": Implementation(cusum),
 }
