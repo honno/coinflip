@@ -258,6 +258,32 @@ examples = [
         p=0.845406,
     ),
     Example(
+        # FAILING - SP800-22's result is not replicated by sts
+        #         - sts result matches our own
+        randtest="serial",
+
+        bits=[0, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+        kwargs={
+            "blocksize": 3
+        },
+
+        # using the second p-value (+respective statistic)
+        statistic=0.8,
+        p=0.8805,
+    ),
+    Example(
+        randtest="serial",
+
+        bits=list(e_expansion()),
+        kwargs={
+            "blocksize": 2
+        },
+
+        # using the second p-value (+respective statistic)
+        statistic=0.336400,
+        p=0.561915,
+    ),
+    Example(
         randtest="approximate_entropy",
 
         bits=[0, 1, 0, 0, 1, 1, 0, 1, 0, 1],

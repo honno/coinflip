@@ -49,6 +49,7 @@ from coinflip.randtests.frequency import monobit
 from coinflip.randtests.matrix import binary_matrix_rank
 from coinflip.randtests.runs import longest_runs
 from coinflip.randtests.runs import runs
+from coinflip.randtests.serial import serial
 from coinflip.randtests.template import non_overlapping_template_matching
 from coinflip.randtests.template import overlapping_template_matching
 from coinflip.randtests.universal import maurers_universal
