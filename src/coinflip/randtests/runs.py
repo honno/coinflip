@@ -236,7 +236,7 @@ def asruns(series) -> Iterator[Tuple[Any, int]]:
     """
     firstval = series.iloc[0]
     current_run = Run(firstval, length=0)
-    for _, value in series.iteritems():
+    for _, value in series.items():
         if value == current_run.value:
             current_run.length += 1
         else:
