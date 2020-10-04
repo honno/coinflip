@@ -2,7 +2,7 @@
 from bisect import bisect_left
 from typing import Iterable
 
-__all__ = ["FloorDict", "RoundingDict", "Bins"]
+__all__ = ["FloorDict", "Bins"]
 
 
 class FloorDict(dict):
@@ -24,20 +24,30 @@ class FloorDict(dict):
             return super().__getitem__(prevkey)
 
 
-class RoundingDict(dict):
-    """Subclassed ``dict`` where invalid keys are rounded to the nearest real key
+class Bins(dict):
+    """Subclassed ``dict`` to initialise intervals as empty bins
 
     If a key is accessed that does not exist, the nearest real key to the passed
     key is used.
     """
 
-    def __init__(self, *args, **kwargs):
-        self.realkey_cache = {}
-        super().__init__(*args, **kwargs)
+    def __init__(self, intervals: Iterable[int]):
+        """Initialise intervals as keys to values of 0"""
+        empty_bins = {interval: 0 for interval in intervals}
+        self.realkeys_cache = {}
+        super().__init__(empty_bins)
+
+    def __setitem__(self, key, value):
+        realkey = self._roundkey(key)
+        super().__setitem__(realkey, value)
+
+    def __getitem__(self, key):
+        realkey = self._roundkey(key)
+        return super().__getitem__(realkey)
 
     def _roundkey(self, key):
         try:
-            realkey = self.realkey_cache[key]
+            realkey = self.realkeys_cache[key]
             return realkey
         except KeyError:
             pass
@@ -63,22 +73,5 @@ class RoundingDict(dict):
             else:
                 realkey = rightkey
 
-        self.realkey_cache[key] = realkey
+        self.realkeys_cache[key] = realkey
         return realkey
-
-    def __setitem__(self, key, value):
-        realkey = self._roundkey(key)
-        super().__setitem__(realkey, value)
-
-    def __getitem__(self, key):
-        realkey = self._roundkey(key)
-        return super().__getitem__(realkey)
-
-
-class Bins(RoundingDict):
-    """Subclassed ``RoundingDict`` to initialise intervals as empty bins"""
-
-    def __init__(self, intervals: Iterable[int]):
-        """Initialise intervals as keys to values of 0"""
-        empty_bins = {interval: 0 for interval in intervals}
-        super().__init__(empty_bins)
