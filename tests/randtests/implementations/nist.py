@@ -11,10 +11,6 @@ def linear_complexity(bits, blocksize):
     return sts.linear_complexity(bits, blocksize)
 
 
-def serial(bits, blocksize):
-    return sts.serial(bits, blocksize)
-
-
 def cusum(bits, reverse=False):
     return sts.cumulative_sums(bits, reverse=reverse)
 
@@ -22,6 +18,5 @@ def cusum(bits, reverse=False):
 testmap = {
     "monobit": Implementation(monobit),
     "linear_complexity": Implementation(linear_complexity),
-    "serial": Implementation(serial),
     "cusum": Implementation(cusum),
 }

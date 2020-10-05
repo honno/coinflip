@@ -12,7 +12,7 @@ import pytest
 
 from coinflip import randtests
 
-__all__ = ["Example", "examples"]
+__all__ = ["Example", "MultiExample", "examples", "multi_examples"]
 
 tests_path = Path(__file__).parent
 data_path = tests_path / "data"
@@ -47,6 +47,16 @@ class Example(NamedTuple):
     bits: List[int]
     statistic: Union[int, float]
     p: float
+    kwargs: Dict[str, Any] = {}
+
+
+class MultiExample(NamedTuple):
+    """Contains template for a NIST example with multiple results"""
+
+    randtest: str
+    bits: List[int]
+    statistics: List[Union[int, float]]
+    pvalues: List[float]
     kwargs: Dict[str, Any] = {}
 
 
@@ -258,32 +268,6 @@ examples = [
         p=0.845406,
     ),
     Example(
-        # FAILING - SP800-22's result is not replicated by sts
-        #         - sts result matches our own
-        randtest="serial",
-
-        bits=[0, 0, 1, 1, 0, 1, 1, 1, 0, 1],
-        kwargs={
-            "blocksize": 3
-        },
-
-        # using the second p-value (+respective statistic)
-        statistic=0.8,
-        p=0.8805,
-    ),
-    Example(
-        randtest="serial",
-
-        bits=list(e_expansion()),
-        kwargs={
-            "blocksize": 2
-        },
-
-        # using the second p-value (+respective statistic)
-        statistic=0.336400,
-        p=0.561915,
-    ),
-    Example(
         randtest="approximate_entropy",
 
         bits=[0, 1, 0, 0, 1, 1, 0, 1, 0, 1],
@@ -373,9 +357,46 @@ examples = [
 
         statistic=19,
         p=0.114866,
-    )
+    ),
+]
+
+multi_examples = [
+    MultiExample(
+        # FAILING - SP800-22's result is not replicated by sts
+        #         - sts result matches our own
+        randtest="serial",
+
+        bits=[0, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+        kwargs={
+            "blocksize": 3
+        },
+
+        statistics=[1.6, 0.8],
+        pvalues=[0.9057, 0.8805],
+    ),
+    MultiExample(
+        randtest="serial",
+
+        bits=list(e_expansion()),
+        kwargs={
+            "blocksize": 2
+        },
+
+        statistics=[0.339764, 0.336400],
+        pvalues=[0.843764, 0.561915],
+    ),
+    # MultiExample(
+    #     randtest="random_excursions",
+
+    #     bits=list(e_expansion()),
+
+    #     # using the x=-1 p-value (+ respective statistic)
+    #     statistic=15.692617,
+    #     p=0.007779
+    # )
 
 ]
+# fmt: on
 
 
 @pytest.mark.parametrize(Example._fields, examples)
@@ -391,3 +412,17 @@ def test_examples(randtest, bits, statistic, p, kwargs):
         assert result.statistic == statistic
 
     assert isclose(result.p, p, abs_tol=0.005)
+
+
+@pytest.mark.parametrize(MultiExample._fields, multi_examples)
+@pytest.mark.filterwarnings("ignore::UserWarning")
+def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
+    randtest_method = getattr(randtests, randtest)
+
+    result = randtest_method(bits, **kwargs)
+
+    for statistic_expect, statistic in zip(statistics, result.statistics):
+        assert isclose(statistic, statistic_expect, rel_tol=0.05)
+
+    for p_expect, p in zip(pvalues, result.pvalues):
+        assert isclose(p, p_expect, rel_tol=0.05)

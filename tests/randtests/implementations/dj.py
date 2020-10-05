@@ -24,6 +24,7 @@ from .sp800_22_tests.sp800_22_non_overlapping_template_matching_test import \
 from .sp800_22_tests.sp800_22_overlapping_template_matching_test import \
     overlapping_template_matching_test as _overlapping_template_matching
 from .sp800_22_tests.sp800_22_runs_test import runs_test as _runs
+from .sp800_22_tests.sp800_22_serial_test import serial_test as _serial
 
 # fmt: on
 
@@ -35,14 +36,14 @@ class Result(NamedTuple):
 
     Notes
     -----
-    ``p`` is assigned a ``float`` and ``plist`` is assigned ``None`` when only
-    one p-value is returned. Otherwise ``p`` is assigned ``None`` and ``plist``
+    ``p`` is assigned a ``float`` and ``pvalues`` is assigned ``None`` when only
+    one p-value is returned. Otherwise ``p`` is assigned ``None`` and ``pvalues``
     is assigned a list of p-values.
     """
 
     success: bool
     p: float
-    plist: List[float]
+    pvalues: List[float]
 
 
 def return_p(randtest):
@@ -119,9 +120,16 @@ def cusum(bits, reverse=False):
     result = Result(*_result)
 
     if not reverse:
-        return result.plist[0]
+        return result.pvalues[0]
     else:
-        return result.plist[1]
+        return result.pvalues[1]
+
+
+def serial(bits, blocksize):
+    _result = _serial(bits, patternlen=blocksize)
+    result = Result(*_result)
+
+    return result.pvalues
 
 
 testmap = {
@@ -145,4 +153,5 @@ testmap = {
     "maurers_universal": Implementation(maurers_universal),
     "linear_complexity": Implementation(linear_complexity),
     "cusum": Implementation(cusum),
+    "serial": Implementation(serial),
 }

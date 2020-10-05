@@ -11,18 +11,39 @@ from rich.text import Text
 
 from coinflip import console
 
-__all__ = ["TestResult", "make_testvars_table", "smartround"]
+__all__ = ["TestResult", "MultiTestResult", "make_testvars_table", "smartround"]
+
+
+class _TestResult:
+    """Representation methods for test results"""
+
+    def __rich_console__(self, console, options):
+        raise NotImplementedError(
+            f"No Rich representation provided for {self.__class__.__name__}"
+        )
+
+    def print(self):
+        """Prints results contents to notebook or terminal environment"""
+        console.print(self)
+
+    def __str__(self):
+        # Mocks file as the stdout of a Rich Console
+        buf = StringIO()
+        console = Console(file=buf, force_jupyter=False)
+        console.print(self)
+
+        return buf.getvalue()
 
 
 @dataclass
-class TestResult:
-    """Base container for test result data and subsequent representation methods
+class TestResult(_TestResult):
+    """Base container for test results
 
     Attributes
     ----------
     statistic : ``int`` or ``float``
         Statistic of the test
-    p : float
+    p : ``float``
         p-value of the test
     """
 
@@ -44,22 +65,29 @@ class TestResult:
         """
         return vars_list((stat_varname, self.statistic), ("p-value", self.p))
 
-    def __rich_console__(self, console, options):
+
+class MultiTestResult(_TestResult):
+    """Base container for test results with multiple p-values
+
+    Attributes
+    ----------
+    statistics : ``List[Union[int, float]]``
+        Statistics of the test
+    pvalues : ``List[Union[int, float]]``
+        p-values of the test
+    """
+
+    @property
+    def statistics(self):
         raise NotImplementedError(
-            f"No Rich representation provided for {self.__class__.__name__}"
+            f"No statistics() method provided for {self.__class__.__name__}"
         )
 
-    def print(self):
-        """Prints results contents to notebook or terminal environment"""
-        console.print(self)
-
-    def __str__(self):
-        # Mocks file as the stdout of a Rich Console
-        buf = StringIO()
-        console = Console(file=buf, force_jupyter=False)
-        console.print(self)
-
-        return buf.getvalue()
+    @property
+    def pvalues(self):
+        raise NotImplementedError(
+            f"No pvalues() method provided for {self.__class__.__name__}"
+        )
 
 
 def make_testvars_table(*columns) -> Table:
