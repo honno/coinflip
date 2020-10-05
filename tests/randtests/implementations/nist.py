@@ -19,9 +19,14 @@ def random_excursions(bits):
     return sts.random_excursions(bits)
 
 
+def random_excursions_variant(bits):
+    return sts.random_excursions_variant(bits)
+
+
 testmap = {
     "monobit": Implementation(monobit),
     "linear_complexity": Implementation(linear_complexity),
     "cusum": Implementation(cusum),
     "random_excursions": Implementation(random_excursions),
+    "random_excursions_variant": Implementation(random_excursions_variant),
 }

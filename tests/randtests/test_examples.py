@@ -413,6 +413,54 @@ multi_examples = [
             0.792378,
         ]
     ),
+    MultiExample(
+        # FAILING - SP800-22's result is not replicated by sts
+        #         - sts result matches our own
+        randtest="random_excursions_variant",
+
+        bits=list(e_expansion()),
+
+        statistics=[
+            1450,
+            1435,
+            1380,
+            1366,
+            1412,
+            1475,
+            1480,
+            1468,
+            1502,
+            1409,
+            1369,
+            1396,
+            1479,
+            1599,
+            1628,
+            1619,
+            1620,
+            1610,
+        ],
+        pvalues=[
+            0.858946,
+            0.794755,
+            0.576249,
+            0.493417,
+            0.633873,
+            0.917283,
+            0.934708,
+            0.816012,
+            0.826009,
+            0.137861,
+            0.200642,
+            0.441254,
+            0.939291,
+            0.505683,
+            0.445935,
+            0.512207,
+            0.538635,
+            0.593930,
+        ]
+    )
 ]
 # fmt: on
 
@@ -439,8 +487,12 @@ def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
 
     result = randtest_method(bits, **kwargs)
 
-    for statistic_expect, statistic in zip(statistics, result.statistics):
-        assert isclose(statistic, statistic_expect, rel_tol=0.05)
+    if isinstance(statistics[0], float):
+        for statistic_expect, statistic in zip(statistics, result.statistics):
+            assert isclose(statistic, statistic_expect, rel_tol=0.05)
+    elif isinstance(statistics[0], int):
+        for statistic_expect, statistic in zip(statistics, result.statistics):
+            assert statistic == statistic_expect
 
     for p_expect, p in zip(pvalues, result.pvalues):
         assert isclose(p, p_expect, rel_tol=0.05)

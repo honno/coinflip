@@ -1,5 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
+from math import erfc
+from math import sqrt
 from typing import Dict
 from typing import Tuple
 
@@ -11,7 +13,10 @@ from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import MultiTestResult
 
-__all__ = ["random_excursions"]
+__all__ = ["random_excursions", "random_excursions_variant"]
+
+# ------------------------------------------------------------------------------
+# Random Excursions Test
 
 # TODO comment why these states and df were chosen
 states = [-4, -3, -2, -1, 1, 2, 3, 4]
@@ -99,3 +104,44 @@ def ascycles(walk):
             cycle = [cusum]
         else:
             cycle.append(cusum)
+
+
+# ------------------------------------------------------------------------------
+# Random Excursions Variant Test
+
+variant_states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+
+@randtest()
+@elected
+def random_excursions_variant(series, candidate):
+    n = len(series)
+
+    peak = candidate
+    trough = next(value for value in series.unique() if value != candidate)
+
+    oscillations = series.map({peak: 1, trough: -1})
+
+    cumulative_sums = oscillations.cumsum()
+
+    head = pd.Series({-1: 0})
+    tail = pd.Series({n + 1: 0})
+    walk = pd.concat([head, cumulative_sums, tail])
+
+    state_counts = walk.value_counts()
+    ncycles = state_counts.at[0] - 1
+
+    results = {}
+    for state in variant_states:
+        try:
+            count = state_counts.at[state]
+        except IndexError:
+            count = 0
+
+        p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
+
+        results[state] = (count, p)
+
+    print(results)
+
+    return RandomExcursionsTestResult(results)
