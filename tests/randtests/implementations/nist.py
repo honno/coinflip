@@ -15,8 +15,13 @@ def cusum(bits, reverse=False):
     return sts.cumulative_sums(bits, reverse=reverse)
 
 
+def random_excursions(bits):
+    return sts.random_excursions(bits)
+
+
 testmap = {
     "monobit": Implementation(monobit),
     "linear_complexity": Implementation(linear_complexity),
     "cusum": Implementation(cusum),
+    "random_excursions": Implementation(random_excursions),
 }

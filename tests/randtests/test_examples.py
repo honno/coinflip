@@ -385,16 +385,34 @@ multi_examples = [
         statistics=[0.339764, 0.336400],
         pvalues=[0.843764, 0.561915],
     ),
-    # MultiExample(
-    #     randtest="random_excursions",
+    MultiExample(
+        # FAILING - SP800-22's result is not replicated by sts
+        #         - sts result matches our own
+        randtest="random_excursions",
 
-    #     bits=list(e_expansion()),
+        bits=list(e_expansion()),
 
-    #     # using the x=-1 p-value (+ respective statistic)
-    #     statistic=15.692617,
-    #     p=0.007779
-    # )
-
+        statistics=[
+            3.835698,
+            7.318707,
+            7.861927,
+            15.692617,
+            2.485906,
+            5.429381,
+            2.404171,
+            2.393928,
+        ],
+        pvalues=[
+            0.573306,
+            0.197996,
+            0.164011,
+            0.007779,
+            0.778616,
+            0.365752,
+            0.790853,
+            0.792378,
+        ]
+    ),
 ]
 # fmt: on
 

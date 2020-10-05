@@ -44,6 +44,7 @@ non-idiomatic programming conventions used in ``sts``.
 from coinflip.randtests.complexity import linear_complexity
 from coinflip.randtests.cusum import cusum
 from coinflip.randtests.entropy import approximate_entropy
+from coinflip.randtests.excursions import random_excursions
 from coinflip.randtests.fourier import spectral
 from coinflip.randtests.frequency import frequency_within_block
 from coinflip.randtests.frequency import monobit

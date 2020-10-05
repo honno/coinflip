@@ -23,6 +23,7 @@ from .sp800_22_tests.sp800_22_non_overlapping_template_matching_test import \
     non_overlapping_template_matching_test as _non_overlapping_template_matching
 from .sp800_22_tests.sp800_22_overlapping_template_matching_test import \
     overlapping_template_matching_test as _overlapping_template_matching
+from .sp800_22_tests.sp800_22_random_excursion_test import random_excursion_test as _random_excursions
 from .sp800_22_tests.sp800_22_runs_test import runs_test as _runs
 from .sp800_22_tests.sp800_22_serial_test import serial_test as _serial
 
@@ -53,6 +54,17 @@ def return_p(randtest):
         result = Result(*_result)
 
         return result.p
+
+    return wrapper
+
+
+def return_pvalues(randtest):
+    @wraps(randtest)
+    def wrapper(bits, *args, **kwargs):
+        _result = randtest(bits, *args, **kwargs)
+        result = Result(*_result)
+
+        return result.pvalues
 
     return wrapper
 
@@ -125,11 +137,14 @@ def cusum(bits, reverse=False):
         return result.pvalues[1]
 
 
+@return_pvalues
 def serial(bits, blocksize):
-    _result = _serial(bits, patternlen=blocksize)
-    result = Result(*_result)
+    return _serial(bits, patternlen=blocksize)
 
-    return result.pvalues
+
+@return_pvalues
+def random_excursions(bits):
+    return _random_excursions(bits)
 
 
 testmap = {
@@ -154,4 +169,5 @@ testmap = {
     "linear_complexity": Implementation(linear_complexity),
     "cusum": Implementation(cusum),
     "serial": Implementation(serial),
+    "random_excursions": Implementation(random_excursions),
 }
