@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import lru_cache
 from io import StringIO
 from typing import List
 from typing import Tuple
@@ -18,9 +19,7 @@ class _TestResult:
     """Representation methods for test results"""
 
     def __rich_console__(self, console, options):
-        raise NotImplementedError(
-            f"No Rich representation provided for {self.__class__.__name__}"
-        )
+        pass
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
@@ -35,7 +34,7 @@ class _TestResult:
         return buf.getvalue()
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class TestResult(_TestResult):
     """Base container for test results
 
@@ -66,8 +65,11 @@ class TestResult(_TestResult):
         return vars_list((stat_varname, self.statistic), ("p-value", self.p))
 
 
-class MultiTestResult(_TestResult):
+class MultiTestResult(dict, _TestResult):
     """Base container for test results with multiple p-values
+
+    A dictionary which pairs features of a sub-test and their respective test
+    results.
 
     Attributes
     ----------
@@ -75,19 +77,34 @@ class MultiTestResult(_TestResult):
         Statistics of the test
     pvalues : ``List[Union[int, float]]``
         p-values of the test
+    min_result : ``TestResult``
+        Test result with the smallest p-value
     """
 
-    @property
-    def statistics(self):
-        raise NotImplementedError(
-            f"No statistics() method provided for {self.__class__.__name__}"
-        )
+    # TODO hash() is not collision resistant, so do something which is!
+    def __hash__(self):
+        return hash(frozenset(self.items()))
 
     @property
-    def pvalues(self):
-        raise NotImplementedError(
-            f"No pvalues() method provided for {self.__class__.__name__}"
-        )
+    @lru_cache()
+    def statistics(self) -> List[Union[int, float]]:
+        return [result.statistic for result in self.values()]
+
+    @property
+    @lru_cache()
+    def pvalues(self) -> List[float]:
+        return [result.p for result in self.values()]
+
+    @property
+    @lru_cache()
+    def min_result(self):
+        results = self.items()
+        min_result = next(results)
+        for result in results:
+            if result.p < min_result.p:
+                min_result = result
+
+        return min_result
 
 
 def make_testvars_table(*columns) -> Table:

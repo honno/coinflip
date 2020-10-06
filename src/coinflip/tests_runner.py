@@ -5,9 +5,6 @@ from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
-from rich import box
-from rich.table import Table
-from rich.text import Text
 
 from coinflip import console
 from coinflip import randtests
@@ -90,9 +87,8 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
 
     Returns
     -------
-    result : ``TestResult``
-        Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered.
+    result : ``TestResult`` or ``MultiTestResult``
+        Data containers of the test's result(s).
 
     Raises
     ------
@@ -107,8 +103,6 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
 
             result = func(series, **kwargs)
             console.print(result)
-            console.print()
-            console.print("PASS" if result.p >= 0.01 else "FAIL")
 
             return result
 
@@ -129,9 +123,8 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     ------
     randtest_name : ``str``
         Name of statistical test
-    result : ``TestResult``
-        Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered.
+    result : ``TestResult`` or ``MultiTestResult``
+        Data containers of the test's result(s)
     exception : ``NotImplementedError`` or ``MinimumInputError``
         The exception raised when running ``randtest_name``, otherwise ``None``.
 
@@ -158,25 +151,26 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
         console.print()
 
-    f_table = Table(box=box.DOUBLE)
-    f_table.add_column("Statistical Test", justify="left")
-    f_table.add_column("p-value", justify="right")
-    f_table.add_column("Verdict", justify="right")
-    for name, result in results.items():
-        f_name = f_randtest_names[name]
+    # TODO print a table
+    # f_table = Table(box=box.DOUBLE)
+    # f_table.add_column("Statistical Test", justify="left")
+    # f_table.add_column("p-value", justify="right")
+    # f_table.add_column("Verdict", justify="right")
+    # for name, result in results.items():
+    #     f_name = f_randtest_names[name]
 
-        if result:
-            f_pvalue = str(round(result.p, 3))
-            f_pvalue += "0" * (5 - len(f_pvalue))  # zero pad
+    #     if result:
+    #         f_pvalue = str(round(result.p, 3))
+    #         f_pvalue += "0" * (5 - len(f_pvalue))  # zero pad
 
-            success = result.p >= SIGLEVEL
-            verdict = "PASS" if success else "FAIL"
-            colour = "green" if success else "red"
-            f_verdict = Text(verdict, style=colour)
-        else:
-            f_pvalue = "-"
-            f_verdict = Text("N/A", style="yellow")
+    #         success = result.p >= SIGLEVEL
+    #         verdict = "PASS" if success else "FAIL"
+    #         colour = "green" if success else "red"
+    #         f_verdict = Text(verdict, style=colour)
+    #     else:
+    #         f_pvalue = "-"
+    #         f_verdict = Text("N/A", style="yellow")
 
-        f_table.add_row(f_name, f_pvalue, f_verdict)
+    #     f_table.add_row(f_name, f_pvalue, f_verdict)
 
-    console.print(f_table)
+    # console.print(f_table)

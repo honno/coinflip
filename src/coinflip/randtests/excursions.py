@@ -1,9 +1,6 @@
 from collections import Counter
-from dataclasses import dataclass
 from math import erfc
 from math import sqrt
-from typing import Dict
-from typing import Tuple
 
 import pandas as pd
 from scipy.special import gammaincc
@@ -77,20 +74,7 @@ def random_excursions(series, candidate):
 
         results[state] = (statistic, p)
 
-    return RandomExcursionsTestResult(results)
-
-
-@dataclass
-class RandomExcursionsTestResult(MultiTestResult):
-    results: Dict[int, Tuple[float, float]]
-
-    @property
-    def statistics(self):
-        return [statistic for statistic, _ in self.results.values()]
-
-    @property
-    def pvalues(self):
-        return [p for _, p in self.results.values()]
+    return MultiTestResult(results)
 
 
 def ascycles(walk):
@@ -144,4 +128,4 @@ def random_excursions_variant(series, candidate):
 
     print(results)
 
-    return RandomExcursionsTestResult(results)
+    return MultiTestResult(results)

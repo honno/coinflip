@@ -52,8 +52,8 @@ def non_overlapping_template_matching(
 
     Returns
     -------
-    MetaNonOverlappingTemplateMatchingTestResult
-        Dataclass that contains the test's statistic and p-value.
+    NonOverlappingTemplateMatchingTestResult
+        Dictionary that contains the multiple test results
     """
     n = len(series)
 
@@ -97,15 +97,15 @@ def non_overlapping_template_matching(
         statistic = sum(diff ** 2 / variance for diff in match_diffs)
         p = gammaincc(nblocks / 2, statistic / 2)
 
-        results[template] = NonOverlappingTemplateMatchingTestResult(
+        results[template] = _NonOverlappingTemplateMatchingTestResult(
             statistic, p, matches_expect, variance, block_matches, match_diffs,
         )
 
-    return MetaNonOverlappingTemplateMatchingTestResult(results)
+    return NonOverlappingTemplateMatchingTestResult(results)
 
 
 @dataclass
-class NonOverlappingTemplateMatchingTestResult(TestResult):
+class _NonOverlappingTemplateMatchingTestResult(TestResult):
     matches_expect: float
     variance: float
     block_matches: List[int]
@@ -127,15 +127,7 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
         yield f_table
 
 
-class MetaNonOverlappingTemplateMatchingTestResult(dict, MultiTestResult):
-    @property
-    def statistics(self):
-        return [result.statistic for result in self.values()]
-
-    @property
-    def pvalues(self):
-        return [result.p for result in self.values()]
-
+class NonOverlappingTemplateMatchingTestResult(MultiTestResult):
     # TODO make this much prettier
     def __rich_console__(self, console, options):
         f_table = make_testvars_table("templates", "statistics", "p-values")

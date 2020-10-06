@@ -1,14 +1,13 @@
 from collections import defaultdict
-from dataclasses import dataclass
 from math import floor
 from math import log2
-from typing import Tuple
 
 import pandas as pd
 from scipy.special import gammaincc
 
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import MultiTestResult
+from coinflip.randtests._result import TestResult
 from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import slider
 
@@ -45,18 +44,6 @@ def serial(series, blocksize):
     p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
-    return SerialTestResult((normsum_delta1, p1), (normsum_delta2, p2))
+    results = {1: TestResult(normsum_delta1, p1), 2: TestResult(normsum_delta2, p2)}
 
-
-@dataclass
-class SerialTestResult(MultiTestResult):
-    result1: Tuple[float, float]
-    result2: Tuple[float, float]
-
-    @property
-    def statistics(self):
-        return [self.result1[0], self.result2[0]]
-
-    @property
-    def pvalues(self):
-        return [self.result1[1], self.result2[1]]
+    return MultiTestResult(results)

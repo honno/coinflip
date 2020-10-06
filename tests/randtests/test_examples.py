@@ -469,16 +469,16 @@ def test_examples(randtest, bits, statistic, p, kwargs):
 def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
     randtest_method = getattr(randtests, randtest)
 
-    result = randtest_method(bits, **kwargs)
+    results = randtest_method(bits, **kwargs)
 
     if isinstance(statistics[0], float):
-        for statistic_expect, statistic in zip(statistics, result.statistics):
+        for statistic_expect, statistic in zip(statistics, results.statistics):
             assert isclose(statistic, statistic_expect, rel_tol=0.05)
     elif isinstance(statistics[0], int):
-        for statistic_expect, statistic in zip(statistics, result.statistics):
+        for statistic_expect, statistic in zip(statistics, results.statistics):
             assert statistic == statistic_expect
 
-    for p_expect, p in zip(pvalues, result.pvalues):
+    for p_expect, p in zip(pvalues, results.pvalues):
         assert isclose(p, p_expect, rel_tol=0.05)
 
 
