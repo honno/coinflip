@@ -192,22 +192,6 @@ examples = [
         p=0.168669,
     ),
     Example(
-        randtest="non_overlapping_template_matching",
-
-        bits=[
-            1, 0, 1, 0, 0, 1, 0, 0,
-            1, 0, 1, 1, 1, 0, 0, 1,
-            0, 1, 1, 0
-        ],
-        kwargs={
-            "template": [0, 0, 1],
-            "nblocks": 2,
-        },
-
-        statistic=2.133333,
-        p=0.344154,
-    ),
-    Example(
         # FAILING p off by ~0.07 if gammaincc(df/2, statistic/2) and df=2
         randtest="overlapping_template_matching",
 
@@ -219,7 +203,7 @@ examples = [
             0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
         ],
         kwargs={
-            "template": [1, 1],
+            "template_size": 2,
             "nblocks": 5,
             "df": 2,
         },
@@ -233,7 +217,7 @@ examples = [
 
         bits=list(e_expansion()),
         kwargs={
-            "template": [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "template_size": 9,
             "nblocks": 968,
         },
 
@@ -496,3 +480,18 @@ def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
 
     for p_expect, p in zip(pvalues, result.pvalues):
         assert isclose(p, p_expect, rel_tol=0.05)
+
+
+def test_non_overlapping_template_matching_example():
+    """Tests a specific SP800-22 example for Non-overlapping Template Matching"""
+    bits = [1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0]
+    statistic = 2.133333
+    p = 0.344154
+
+    results = randtests.non_overlapping_template_matching(
+        bits, template_size=3, nblocks=2
+    )
+    result = results[(0, 0, 1)]
+
+    assert isclose(result.statistic, statistic, rel_tol=0.05)
+    assert isclose(result.p, p, rel_tol=0.05)
