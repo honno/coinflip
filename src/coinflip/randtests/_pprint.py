@@ -2,7 +2,6 @@
 from functools import lru_cache
 from typing import Tuple
 
-from colorama import Fore
 from colorama import Style
 
 from coinflip.randtests._decorators import infer_candidate
@@ -28,10 +27,6 @@ def determine_rep(candidate, noncandidate) -> Tuple[str, str]:
         Character representation of the ``candidate``
     nc_rep : ``str``
         Character representation of the ``noncandidate``
-
-    See Also
-    --------
-    lru_cache : Method used for caching results
     """
     c_rep = str(candidate)[0]
     nc_rep = str(noncandidate)[0]
@@ -52,7 +47,7 @@ def pretty_subseq(series, candidate, noncandidate) -> str:
     candidate : ``Any``
         One of the two values in ``series``
     noncandidate : ``Any``
-        Value in a sequence which in ``series``
+        Value in ``series`` which is not ``candidate``
 
     Returns
     -------
@@ -66,14 +61,7 @@ def pretty_subseq(series, candidate, noncandidate) -> str:
     c_rep, nc_rep = determine_rep(candidate, noncandidate)
     series = series.map({candidate: c_rep, noncandidate: nc_rep})
 
-    series_rep = ""
-    for _, rep in series.iteritems():
-        if rep == c_rep:
-            colour = Fore.CYAN
-        else:
-            colour = Fore.YELLOW
-        series_rep += colour + rep
-    series_rep += Fore.RESET
+    series_rep = "".join(rep for _, rep in series.items())
 
     return bright(series_rep)
 

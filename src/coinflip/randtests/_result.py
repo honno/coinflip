@@ -68,7 +68,7 @@ class TestResult(_TestResult):
 class MultiTestResult(dict, _TestResult):
     """Base container for test results with multiple p-values
 
-    A dictionary which pairs features of a sub-test and their respective test
+    A dictionary which pairs features of a sub-test to their respective test
     results.
 
     Attributes

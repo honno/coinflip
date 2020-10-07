@@ -1,4 +1,3 @@
-# TODO format templates in results to match coinflip.cli.echo_series
 from collections import Counter
 from dataclasses import dataclass
 from itertools import product
@@ -7,6 +6,7 @@ from math import floor
 from math import isclose
 from math import log2
 from math import sqrt
+from typing import Any
 from typing import List
 
 from scipy.special import gammaincc
@@ -14,6 +14,7 @@ from scipy.special import hyp1f1
 
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
+from coinflip.randtests._pprint import determine_rep
 from coinflip.randtests._result import MultiTestResult
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import make_testvars_table
@@ -22,6 +23,19 @@ from coinflip.randtests._testutils import check_recommendations
 from coinflip.randtests._testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
+
+
+def pretty_template(template, candidate, noncandidate):
+    c_rep, nc_rep = determine_rep(candidate, noncandidate)
+
+    template_rep = ""
+    for value in template:
+        if value == candidate:
+            template_rep += c_rep
+        elif value == noncandidate:
+            template_rep += nc_rep
+
+    return template_rep
 
 
 # ------------------------------------------------------------------------------
@@ -101,7 +115,7 @@ def non_overlapping_template_matching(
             statistic, p, matches_expect, variance, block_matches, match_diffs,
         )
 
-    return NonOverlappingTemplateMatchingTestResult(results)
+    return NonOverlappingTemplateMatchingTestResult(results, candidate, noncandidate)
 
 
 @dataclass
@@ -128,11 +142,19 @@ class _NonOverlappingTemplateMatchingTestResult(TestResult):
 
 
 class NonOverlappingTemplateMatchingTestResult(MultiTestResult):
+    def __init__(self, results, candidate, noncandidate):
+        self.candidate = candidate
+        self.noncandidate = noncandidate
+        super().__init__(results)
+
     # TODO make this much prettier
     def __rich_console__(self, console, options):
         f_table = make_testvars_table("templates", "statistics", "p-values")
         for template, result in self.items():
-            f_table.add_row(str(template), str(result.statistic), str(result.p))
+            f_template = pretty_template(template, self.candidate, self.noncandidate)
+            f_statistic = str(round(result.statistic, 3))
+            f_p = str(round(result.p, 3))
+            f_table.add_row(f_template, f_statistic, f_p)
         yield f_table
 
 
@@ -148,7 +170,7 @@ matches_ceil = 5
 @randtest(rec_input=288)  # TODO appropiate min input
 @elected
 def overlapping_template_matching(
-    series, candidate, template_size=None, template: List = None, nblocks=None, df=5
+    series, candidate, template_size=None, nblocks=None, df=5
 ):
     """Overlapping matches of template per block is compared to expected result
 
@@ -241,13 +263,16 @@ def overlapping_template_matching(
 
     p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
 
+    noncandidate = next(value for value in series.unique() if value != candidate)
     return OverlappingTemplateMatchingTestResult(
-        statistic, p, template, expected_tallies, tallies,
+        statistic, p, candidate, noncandidate, template, expected_tallies, tallies,
     )
 
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(TestResult):
+    candidate: Any
+    noncandidate: Any
     template: List
     expected_tallies: List[int]
     tallies: List[int]
@@ -263,7 +288,8 @@ class OverlappingTemplateMatchingTestResult(TestResult):
 
         yield ""
 
-        yield f"template: {self.template}"
+        f_template = pretty_template(self.template, self.candidate, self.noncandidate)
+        yield f"template: {f_template}"
 
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
