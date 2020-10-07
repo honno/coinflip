@@ -77,13 +77,14 @@ class MultiTestResult(dict, _TestResult):
         Statistics of the test
     pvalues : ``List[Union[int, float]]``
         p-values of the test
-    min_result : ``TestResult``
-        Test result with the smallest p-value
+    min : ``Tuple[Any, TestResult]``
+        Feature of a sub-test and it's respective result with the smallest
+        p-value
     """
 
-    # TODO hash() is not collision resistant, so do something which is!
+    # TODO once testresults are figured out, don't keep this in please
     def __hash__(self):
-        return hash(frozenset(self.items()))
+        return 0
 
     @property
     @lru_cache()
@@ -97,14 +98,15 @@ class MultiTestResult(dict, _TestResult):
 
     @property
     @lru_cache()
-    def min_result(self):
-        results = self.items()
-        min_result = next(results)
-        for result in results:
+    def min(self):
+        items = iter(self.items())
+        min_feature, min_result = next(items)
+        for feature, result in items:
             if result.p < min_result.p:
+                min_feature = feature
                 min_result = result
 
-        return min_result
+        return min_feature, min_result
 
 
 def make_testvars_table(*columns) -> Table:

@@ -118,7 +118,7 @@ def non_overlapping_template_matching(
     return NonOverlappingTemplateMatchingTestResult(results, candidate, noncandidate)
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class _NonOverlappingTemplateMatchingTestResult(TestResult):
     matches_expect: float
     variance: float
@@ -156,6 +156,13 @@ class NonOverlappingTemplateMatchingTestResult(MultiTestResult):
             f_p = str(round(result.p, 3))
             f_table.add_row(f_template, f_statistic, f_p)
         yield f_table
+
+        min_template, min_result = self.min
+        f_min_template = pretty_template(template, self.candidate, self.noncandidate)
+        yield ""
+        yield f"template {f_min_template} had the smallest p-value"
+        yield ""
+        yield min_result
 
 
 # ------------------------------------------------------------------------------
