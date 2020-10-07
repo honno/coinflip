@@ -7,6 +7,7 @@ from scipy.stats import norm
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import TestResult
+from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["cusum"]
 
@@ -15,6 +16,8 @@ __all__ = ["cusum"]
 @elected
 def cusum(series, candidate, reverse=False):
     n = len(series)
+
+    check_recommendations({"n ≥ 100": n >= 100})
 
     peak = candidate
     trough = next(value for value in series.unique() if value != candidate)

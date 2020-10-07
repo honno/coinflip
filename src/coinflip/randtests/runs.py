@@ -18,6 +18,7 @@ from coinflip.randtests._exceptions import TestNotImplementedError
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._testutils import blocks
+from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["runs", "longest_runs", "asruns"]
 
@@ -26,7 +27,7 @@ __all__ = ["runs", "longest_runs", "asruns"]
 # Runs Test
 
 
-@randtest(rec_input=100)
+@randtest()
 @elected
 def runs(series, candidate):
     """Actual number of runs is compared to expected result
@@ -47,6 +48,8 @@ def runs(series, candidate):
         Dataclass that contains the test's statistic and p-value
     """
     n = len(series)
+
+    check_recommendations({"n ≥ 100": n >= 100})
 
     counts = series.value_counts()
 
@@ -101,7 +104,7 @@ blocksize_probabilities = {
 
 
 # TODO allow and handle blocksize/nblocks/maxlen_bins kwargs
-@randtest(rec_input=128)
+@randtest()
 @elected
 def longest_runs(series, candidate):
     """Longest runs per block is compared to expected result
@@ -123,6 +126,8 @@ def longest_runs(series, candidate):
     """
 
     n = len(series)
+
+    check_recommendations({"n ≥ 128": n >= 128})
 
     try:
         blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]

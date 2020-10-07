@@ -11,6 +11,7 @@ from coinflip.randtests._decorators import randtest
 from coinflip.randtests._exceptions import NonBinarySequenceError
 from coinflip.randtests._result import TestResult
 from coinflip.randtests._result import vars_list
+from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["spectral"]
 
@@ -25,7 +26,7 @@ class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
         )
 
 
-@randtest(rec_input=1000)
+@randtest()
 @elected
 def spectral(series, candidate):
     """Potency of periodic features in sequence is compared to expected result
@@ -56,6 +57,8 @@ def spectral(series, candidate):
 
     """
     n = len(series)
+
+    check_recommendations({"n ≥ 1000": n >= 1000})
 
     if n % 2 != 0:
         series = series[:-1]

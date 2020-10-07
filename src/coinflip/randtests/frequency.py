@@ -28,7 +28,7 @@ __all__ = ["monobit", "frequency_within_block"]
 # Frequency (Monobit) Test
 
 
-@randtest(rec_input=100)
+@randtest()
 def monobit(series):
     """Proportion of values is compared to expected 1:1 ratio
 
@@ -46,10 +46,12 @@ def monobit(series):
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
     """
+    n = len(series)
+
+    check_recommendations({"n ≥ 100": n >= 100})
 
     counts = series.value_counts()
 
-    n = len(series)
     diff = abs(counts.iloc[0] - counts.iloc[1])
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
@@ -147,7 +149,7 @@ class MonobitTestResult(TestResult):
 # Frequency within Block Test
 
 
-@randtest(min_input=8, rec_input=100)
+@randtest(min_input=8)
 @elected
 def frequency_within_block(series, candidate, blocksize=8):
     """Proportion of values per block is compared to expected 1:1 ratio
@@ -175,6 +177,7 @@ def frequency_within_block(series, candidate, blocksize=8):
 
     check_recommendations(
         {
+            "n ≥ 100": n >= 100,
             "blocksize ≥ 20": blocksize >= 20,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
             "nblocks < 100": nblocks < 100,

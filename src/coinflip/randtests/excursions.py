@@ -9,6 +9,7 @@ from coinflip.randtests._collections import Bins
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import MultiTestResult
+from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -35,6 +36,8 @@ state_probabilities = {
 @elected
 def random_excursions(series, candidate):
     n = len(series)
+
+    check_recommendations({"n ≥ 1 000 000": n >= 1000000})
 
     peak = candidate
     trough = next(value for value in series.unique() if value != candidate)
@@ -100,6 +103,8 @@ variant_states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 @elected
 def random_excursions_variant(series, candidate):
     n = len(series)
+
+    check_recommendations({"n ≥ 1 000 000": n >= 1000000})
 
     peak = candidate
     trough = next(value for value in series.unique() if value != candidate)

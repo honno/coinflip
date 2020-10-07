@@ -71,7 +71,7 @@ n_defaults = FloorDict(
 )
 
 
-@randtest(min_input=4, rec_input=387840)
+@randtest(min_input=4)
 def maurers_universal(series, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 
@@ -117,6 +117,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
 
     check_recommendations(
         {
+            "n ≥ 387840": n >= 387840,
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
             "init_nblocks ≈ 10 * 2 ** spare_nblocks": isclose(
                 init_nblocks, 10 * 2 ** spare_nblocks

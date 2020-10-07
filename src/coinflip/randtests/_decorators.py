@@ -1,5 +1,4 @@
 from functools import wraps
-from warnings import warn
 
 import pandas as pd
 
@@ -21,7 +20,7 @@ class MinimumInputError(TestInputError):
         return f"Sequence length {self.n} is below required minimum of {self.min_input}"
 
 
-def randtest(min_input=2, rec_input=2):
+def randtest(min_input=2):
     """Decorator factory for parsing sequences in randomness tests
 
     Returns a decorator (a method which returns a wrapper method). The wrapper
@@ -29,16 +28,12 @@ def randtest(min_input=2, rec_input=2):
     if not.
 
     The length of the ``sequence`` is then checked to see if it meets the
-    passed minimum input requirement, raising an error if not. Subsequently the
-    length is checked with the passed recommended input requirement, issuing a
-    warning if not.
+    passed minimum input requirement, raising an error if not.
 
     Parameters
     ----------
     min_input : ``int``, default ``2``
         Absolute minimum length of sequence the test can handle
-    rec_input : ``int``, default ``2``
-        Recommended minimum length of sequence for the test
 
     Returns
     -------
@@ -49,11 +44,6 @@ def randtest(min_input=2, rec_input=2):
     ------
     MinimumInputError
         If ``sequence`` length exceeds ``min_input``
-
-    Warns
-    -----
-    UserWarning
-        If ``sequence`` length exceeds ``rec_input``
 
     See Also
     --------
@@ -74,11 +64,6 @@ def randtest(min_input=2, rec_input=2):
             n = len(series)
             if n < min_input:
                 raise MinimumInputError(n, min_input)
-            if n < rec_input:
-                warn(
-                    f"Sequence length {n} below NIST recommended minimum of {rec_input}",
-                    UserWarning,
-                )
 
             result = func(series, *args, **kwargs)
 

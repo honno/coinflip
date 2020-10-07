@@ -42,7 +42,7 @@ def pretty_template(template, candidate, noncandidate):
 # Non-overlapping Template Matching Test
 
 
-@randtest(rec_input=288)  # template_size=9, nblocks=8, blocksize=4*template_size
+@randtest()
 @elected
 def non_overlapping_template_matching(
     series, candidate, template_size=None, nblocks=None
@@ -80,6 +80,8 @@ def non_overlapping_template_matching(
 
     check_recommendations(
         {
+            "n ≥ 288": n
+            >= 288,  # template_size=9, nblocks=8, blocksize=4*template_size
             "nblocks ≤ 100": nblocks <= 100,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
             "nblocks ≡ ⌊n / blocksize⌋": nblocks == n // blocksize,
@@ -174,7 +176,7 @@ matches_ceil = 5
 
 # TODO Review paper "Correction of Overlapping Template Matching Test Included in
 #                    NIST Randomness Test Suite"
-@randtest(rec_input=288)  # TODO appropiate min input
+@randtest()  # TODO appropiate min input
 @elected
 def overlapping_template_matching(
     series, candidate, template_size=None, nblocks=None, df=5
@@ -236,6 +238,7 @@ def overlapping_template_matching(
 
     check_recommendations(
         {
+            "n ≥ 288": n >= 288,
             "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
             "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
             "λ ≈ 2": isclose(lambda_, 2),

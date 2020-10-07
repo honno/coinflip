@@ -27,7 +27,7 @@ probabilities = [
 ]
 
 
-@randtest(rec_input=1000000)
+@randtest()
 @elected
 def linear_complexity(series, candidate, blocksize):
     n = len(series)
@@ -35,6 +35,7 @@ def linear_complexity(series, candidate, blocksize):
     nblocks = n // blocksize
     check_recommendations(
         {
+            "n ≥ 1000000": n >= 1000000,
             "500 ≤ blocksize ≤ 5000": 500 <= blocksize <= 5000,
             "nblocks ≥ 200": nblocks >= 200,
         }

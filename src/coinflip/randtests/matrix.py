@@ -25,7 +25,7 @@ class RankCounts:
     remaining: int = 0
 
 
-@randtest(min_input=4, rec_input=152)  # nblocks=38, blocksize=4
+@randtest(min_input=4)
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result
@@ -64,7 +64,12 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     blocksize = nrows * ncols
     nblocks = n // blocksize
 
-    check_recommendations({"n ≥ 38 * blocksize": n >= 38 * blocksize})
+    check_recommendations(
+        {
+            "n ≥ 128": n >= 152,  # nblocks=38, blocksize=4
+            "n ≥ 38 * blocksize": n >= 38 * blocksize,
+        }
+    )
 
     fullrank = min(nrows, ncols)
 
