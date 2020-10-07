@@ -23,7 +23,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
 
     Note
     ----
-    Uses the same bit expansion that's included in NIST's `sts`
+    Uses the same bit expansion that's included in SP800-22's `sts`
     """
 
     def genbits():
@@ -41,7 +41,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
 
 
 class Example(NamedTuple):
-    """Contains template for a NIST example"""
+    """Container for a SP800-22 example"""
 
     randtest: str
     bits: List[int]
@@ -51,12 +51,23 @@ class Example(NamedTuple):
 
 
 class MultiExample(NamedTuple):
-    """Contains template for a NIST example with multiple results"""
+    """Container for a SP800-22 example with multiple results"""
 
     randtest: str
     bits: List[int]
     statistics: List[Union[int, float]]
     pvalues: List[float]
+    kwargs: Dict[str, Any] = {}
+
+
+class SubExample(NamedTuple):
+    """Container for a single SP800-22 example of a test with multiple results"""
+
+    randtest: str
+    key: Any
+    bits: List[int]
+    statistic: Union[int, float]
+    p: float
     kwargs: Dict[str, Any] = {}
 
 
@@ -159,8 +170,8 @@ examples = [
         p=0.532069,
     ),
     Example(
-        # FAILING scipys fft produces slightly diff transformations to NIST's sts
-        #         TODO  - check if examples succeed using NIST's fourier transforming
+        # FAILING scipys fft produces slightly diff transformations to SP800-22's sts
+        #         TODO  - check if examples succeed using SP800-22's fourier transforming
         #               - performance metrics on both solutions
         randtest="spectral",
 
@@ -197,7 +208,7 @@ examples = [
 
         bits=[
             1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
-            0, 0, 1, 0, 1, 1, 0, 1, 1, 0,  # Modifed 2nd block of NIST example
+            0, 0, 1, 0, 1, 1, 0, 1, 1, 0,  # Modifed 2nd block of SP800-22 example
             0, 1, 1, 1, 0, 0, 1, 0, 1, 1,  # originally had 1 match
             1, 0, 1, 1, 1, 1, 1, 0, 0, 0,  # now has 2 matches, as expected
             0, 1, 0, 1, 1, 0, 1, 0, 0, 1,
@@ -259,7 +270,7 @@ examples = [
             "blocksize": 3
         },
 
-        statistic=10.043859999999999,  # NIST erroneously had 0.502193
+        statistic=10.043859999999999,  # SP800-22 erroneously had 0.502193
         p=0.261961,
     ),
     Example(
@@ -446,6 +457,47 @@ multi_examples = [
         ]
     )
 ]
+
+sub_examples = [
+    SubExample(
+        randtest="non_overlapping_template_matching",
+
+        key=(0, 0, 1),
+
+        bits=[
+            1, 0, 1, 0, 0, 1, 0, 0,
+            1, 0, 1, 1, 1, 0, 0, 1,
+            0, 1, 1, 0,
+        ],
+        kwargs={
+            "template_size": 3,
+            "nblocks": 2,
+        },
+
+        statistic=2.133333,
+        p=0.344154,
+    ),
+    SubExample(
+        randtest="random_excursions",
+
+        key=1,
+
+        bits=[0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+
+        statistic=4.333033,
+        p=0.502529,
+    ),
+    SubExample(
+        randtest="random_excursions_variant",
+
+        key=1,
+
+        bits=[0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+
+        statistic=4,
+        p=0.683091,
+    ),
+]
 # fmt: on
 
 
@@ -482,16 +534,17 @@ def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
         assert isclose(p, p_expect, rel_tol=0.05)
 
 
-def test_non_overlapping_template_matching_example():
-    """Tests a specific SP800-22 example for Non-overlapping Template Matching"""
-    bits = [1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0]
-    statistic = 2.133333
-    p = 0.344154
+@pytest.mark.parametrize(SubExample._fields, sub_examples)
+@pytest.mark.filterwarnings("ignore::UserWarning")
+def test_sub_examples(randtest, key, bits, statistic, p, kwargs):
+    randtest_method = getattr(randtests, randtest)
 
-    results = randtests.non_overlapping_template_matching(
-        bits, template_size=3, nblocks=2
-    )
-    result = results[(0, 0, 1)]
+    results = randtest_method(bits, **kwargs)
+    result = results[key]
 
-    assert isclose(result.statistic, statistic, rel_tol=0.05)
-    assert isclose(result.p, p, rel_tol=0.05)
+    if isinstance(statistic, float):
+        assert isclose(result.statistic, statistic, rel_tol=0.05)
+    elif isinstance(statistic, int):
+        assert result.statistic == statistic
+
+    assert isclose(result.p, p, abs_tol=0.005)
