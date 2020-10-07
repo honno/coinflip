@@ -113,15 +113,17 @@ def non_overlapping_template_matching(
         statistic = sum(diff ** 2 / variance for diff in match_diffs)
         p = gammaincc(nblocks / 2, statistic / 2)
 
-        results[template] = _NonOverlappingTemplateMatchingTestResult(
+        results[template] = NonOverlappingTemplateMatchingTestResult(
             statistic, p, matches_expect, variance, block_matches, match_diffs,
         )
 
-    return NonOverlappingTemplateMatchingTestResult(results, candidate, noncandidate)
+    return MultiNonOverlappingTemplateMatchingTestResult(
+        results, candidate, noncandidate
+    )
 
 
 @dataclass(unsafe_hash=True)
-class _NonOverlappingTemplateMatchingTestResult(TestResult):
+class NonOverlappingTemplateMatchingTestResult(TestResult):
     matches_expect: float
     variance: float
     block_matches: List[int]
@@ -143,7 +145,7 @@ class _NonOverlappingTemplateMatchingTestResult(TestResult):
         yield f_table
 
 
-class NonOverlappingTemplateMatchingTestResult(MultiTestResult):
+class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
     def __init__(self, results, candidate, noncandidate):
         self.candidate = candidate
         self.noncandidate = noncandidate
@@ -151,7 +153,7 @@ class NonOverlappingTemplateMatchingTestResult(MultiTestResult):
 
     # TODO make this much prettier
     def __rich_console__(self, console, options):
-        f_table = make_testvars_table("templates", "statistics", "p-values")
+        f_table = make_testvars_table("template", "statistic", "p-value")
         for template, result in self.items():
             f_template = pretty_template(template, self.candidate, self.noncandidate)
             f_statistic = str(round(result.statistic, 3))

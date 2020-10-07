@@ -9,6 +9,8 @@ from coinflip.randtests._collections import Bins
 from coinflip.randtests._decorators import elected
 from coinflip.randtests._decorators import randtest
 from coinflip.randtests._result import MultiTestResult
+from coinflip.randtests._result import TestResult
+from coinflip.randtests._result import make_testvars_table
 from coinflip.randtests._testutils import check_recommendations
 
 __all__ = ["random_excursions", "random_excursions_variant"]
@@ -37,7 +39,7 @@ state_probabilities = {
 def random_excursions(series, candidate):
     n = len(series)
 
-    check_recommendations({"n ≥ 1 000 000": n >= 1000000})
+    check_recommendations({"n ≥ 1000000": n >= 1000000})
 
     peak = candidate
     trough = next(value for value in series.unique() if value != candidate)
@@ -75,9 +77,31 @@ def random_excursions(series, candidate):
         statistic = sum(reality_check)
         p = gammaincc(df / 2, statistic / 2)
 
-        results[state] = (statistic, p)
+        results[state] = RandomExcursionsTestResult(statistic, p)
 
-    return MultiTestResult(results)
+    return MultiRandomExcursionsTestResult(results)
+
+
+class RandomExcursionsTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
+
+
+class MultiRandomExcursionsTestResult(MultiTestResult):
+    def __rich_console__(self, console, options):
+        f_table = make_testvars_table("state", "statistic", "p-value")
+        for state, result in self.items():
+            f_state = f" {state}" if state > 0 else f"{state}"
+            f_statistic = str(round(result.statistic, 3))
+            f_p = str(round(result.p, 3))
+            f_table.add_row(f_state, f_statistic, f_p)
+        yield f_table
+
+        min_state, min_result = self.min
+        yield ""
+        yield f"state {min_state} had the smallest p-value"
+        yield ""
+        yield min_result
 
 
 def ascycles(walk):
@@ -104,7 +128,7 @@ variant_states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 def random_excursions_variant(series, candidate):
     n = len(series)
 
-    check_recommendations({"n ≥ 1 000 000": n >= 1000000})
+    check_recommendations({"n ≥ 1000000": n >= 1000000})
 
     peak = candidate
     trough = next(value for value in series.unique() if value != candidate)
@@ -124,13 +148,33 @@ def random_excursions_variant(series, candidate):
     for state in variant_states:
         try:
             count = state_counts.at[state]
-        except IndexError:
+        except KeyError:
             count = 0
 
         p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
 
-        results[state] = (count, p)
+        results[state] = RandomExcursionsVariantTestResult(count, p)
 
-    print(results)
+    return MultiRandomExcursionsVariantTestResult(results)
 
-    return MultiTestResult(results)
+
+class RandomExcursionsVariantTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("count")
+
+
+class MultiRandomExcursionsVariantTestResult(MultiTestResult):
+    def __rich_console__(self, console, options):
+        f_table = make_testvars_table("state", "statistic", "p-value")
+        for state, result in self.items():
+            f_state = f" {state}" if state > 0 else f"{state}"
+            f_statistic = str(round(result.statistic, 3))
+            f_p = str(round(result.p, 3))
+            f_table.add_row(f_state, f_statistic, f_p)
+        yield f_table
+
+        min_state, min_result = self.min
+        yield ""
+        yield f"state {min_state} had the smallest p-value"
+        yield ""
+        yield min_result

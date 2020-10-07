@@ -15,8 +15,11 @@ __all__ = ["serial"]
 
 
 @randtest()
-def serial(series, blocksize):
+def serial(series, blocksize=None):
     n = len(series)
+
+    if not blocksize:
+        blocksize = floor(log2(n)) - 2 - 1
 
     check_recommendations({"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2})
 
@@ -44,6 +47,23 @@ def serial(series, blocksize):
     p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
-    results = {1: TestResult(normsum_delta1, p1), 2: TestResult(normsum_delta2, p2)}
+    results = {
+        1: SerialTestResult(normsum_delta1, p1),
+        2: SerialTestResult(normsum_delta2, p2),
+    }
 
-    return MultiTestResult(results)
+    return MultiSerialTestResult(results)
+
+
+class SerialTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
+
+
+class MultiSerialTestResult(MultiTestResult):
+    def __rich_console__(self, console, options):
+        yield "First"
+        yield self[1]
+        yield ""
+        yield "Second"
+        yield self[2]

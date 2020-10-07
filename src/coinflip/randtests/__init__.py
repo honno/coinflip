@@ -67,4 +67,10 @@ __all__ = [
     "non_overlapping_template_matching",
     "overlapping_template_matching",
     "maurers_universal",
+    "linear_complexity",
+    "serial",
+    "approximate_entropy",
+    "cusum",
+    "random_excursions",
+    "random_excursions_variant",
 ]

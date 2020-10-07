@@ -1,4 +1,6 @@
 from copy import copy
+from math import floor
+from math import sqrt
 from typing import List
 
 from scipy.special import gammaincc
@@ -29,8 +31,16 @@ probabilities = [
 
 @randtest()
 @elected
-def linear_complexity(series, candidate, blocksize):
+def linear_complexity(series, candidate, blocksize=None):
     n = len(series)
+
+    if not blocksize:
+        for blocksize in [1000, 2500, 500, 5000]:
+            nblocks = n // blocksize
+            if 500 <= blocksize <= 5000 and nblocks >= 200:
+                break
+        else:
+            blocksize = max(floor(sqrt(n)), 2)
 
     nblocks = n // blocksize
     check_recommendations(
@@ -58,8 +68,6 @@ def linear_complexity(series, candidate, blocksize):
         t = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
         t_bins[t] += 1
 
-    print(t_bins)
-
     reality_check = []
     for count_expect, count in zip(expected_bincounts, t_bins.values()):
         diff = (count - count_expect) ** 2 / count_expect
@@ -68,7 +76,12 @@ def linear_complexity(series, candidate, blocksize):
     statistic = sum(reality_check)
     p = gammaincc(df / 2, statistic / 2)
 
-    return TestResult(statistic, p)
+    return LinearComplexityTestResult(statistic, p)
+
+
+class LinearComplexityTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("chi-square")
 
 
 def berlekamp_massey(sequence: List[int]) -> int:

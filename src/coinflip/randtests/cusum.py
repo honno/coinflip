@@ -50,4 +50,9 @@ def cusum(series, candidate, reverse=False):
         )
     )
 
-    return TestResult(max_cusum, p)
+    return CusumTestResult(max_cusum, p)
+
+
+class CusumTestResult(TestResult):
+    def __rich_console__(self, console, options):
+        yield self._results_text("max cusum")

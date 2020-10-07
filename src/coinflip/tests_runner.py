@@ -27,8 +27,12 @@ f_randtest_names = {
     "non_overlapping_template_matching": "Non-Overlapping Template Matching Test",
     "overlapping_template_matching": "Overlapping Template Matching Test",
     "maurers_universal": "Maurer's Universal Test",
-    #
+    "linear_complexity": "Linear Complexity Test",
+    "serial": "Serial Test",
     "approximate_entropy": "Approximate Entropy Test",
+    "cusum": "Cumulative Sums (Cusum) Test",
+    "random_excursions": "Random Excursions Test",
+    "random_excursions_variant": "Random Excursions Variant Test",
 }
 
 
