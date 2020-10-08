@@ -1,11 +1,15 @@
 import re
 from shutil import rmtree
 from tempfile import NamedTemporaryFile
+from time import sleep
 
 from click.testing import CliRunner
+from hypothesis import HealthCheck
+from hypothesis import settings
 from hypothesis.stateful import Bundle
 from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import consumes
+from hypothesis.stateful import invariant
 from hypothesis.stateful import rule
 from pytest import fixture
 
@@ -14,7 +18,7 @@ from coinflip.store import data_dir
 
 from .randtests.strategies import mixedbits
 
-__all__ = ["test_main", "CliRoutes"]
+__all__ = ["test_main", "CliStateMachine"]
 
 
 @fixture(autouse=True, scope="module")
@@ -46,7 +50,7 @@ r_storename = re.compile(
 
 
 # TODO add more rules to represent all CLI functionality
-class CliRoutes(RuleBasedStateMachine):
+class CliStateMachine(RuleBasedStateMachine):
     """State machine for routes taken via the CLI
 
     Specifies a state machine representation of the CLI to be used in
@@ -60,11 +64,16 @@ class CliRoutes(RuleBasedStateMachine):
     """
 
     def __init__(self):
-        super(CliRoutes, self).__init__()
+        super(CliStateMachine, self).__init__()
 
         self.runner = CliRunner()
 
     stores = Bundle("stores")
+
+    @invariant()
+    def sleep(self):
+        """Lag every step to prevent race conditions we're not interested in"""
+        sleep(0.1)
 
     @rule(target=stores, sequence=mixedbits())
     def add_store(self, sequence):
@@ -101,4 +110,10 @@ class CliRoutes(RuleBasedStateMachine):
         assert not re.search(store, ls_result.stdout)
 
 
-TestCliRoutes = CliRoutes.TestCase  # top-level TestCase to be picked up by pytest
+TestCliStateMachine = CliStateMachine.TestCase  # top-level TestCase picked up by pytest
+TestCliStateMachine.settings = settings(
+    max_examples=10,
+    stateful_step_count=20,
+    deadline=None,
+    suppress_health_check=[HealthCheck.data_too_large, HealthCheck.too_slow],
+)

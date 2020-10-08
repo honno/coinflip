@@ -11,15 +11,10 @@ for more information on profiles.
 """
 from datetime import timedelta
 
-from hypothesis import Phase
 from hypothesis import settings
 
 settings.register_profile(
-    "ci",
-    max_examples=1,
-    stateful_step_count=1,
-    deadline=timedelta(minutes=2),
-    phases=(Phase.reuse, Phase.generate, Phase.target),
+    "fast", max_examples=2, stateful_step_count=4, deadline=timedelta(minutes=2)
 )
 
 settings.register_profile(
