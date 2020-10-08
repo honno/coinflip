@@ -132,7 +132,7 @@ def longest_runs(series, candidate):
     try:
         blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]
     except KeyError as e:
-        # TODO handle below 128 or add to min_input
+        # TODO handle below 128 or add to min_n
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         ) from e

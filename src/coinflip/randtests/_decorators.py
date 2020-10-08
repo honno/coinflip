@@ -12,15 +12,15 @@ __all__ = ["randtest", "infer_candidate", "elected"]
 class MinimumInputError(TestInputError):
     """Error if sequence length is below minimum allowed"""
 
-    def __init__(self, n, min_input):
+    def __init__(self, n, min_n):
         self.n = n
-        self.min_input = min_input
+        self.min_n = min_n
 
     def __str__(self):
-        return f"Sequence length {self.n} is below required minimum of {self.min_input}"
+        return f"Sequence length {self.n} is below required minimum of {self.min_n}"
 
 
-def randtest(min_input=2):
+def randtest(min_n=2):
     """Decorator factory for parsing sequences in randomness tests
 
     Returns a decorator (a method which returns a wrapper method). The wrapper
@@ -32,7 +32,7 @@ def randtest(min_input=2):
 
     Parameters
     ----------
-    min_input : ``int``, default ``2``
+    min_n : ``int``, default ``2``
         Absolute minimum length of sequence the test can handle
 
     Returns
@@ -43,7 +43,7 @@ def randtest(min_input=2):
     Raises
     ------
     MinimumInputError
-        If ``sequence`` length exceeds ``min_input``
+        If ``sequence`` length exceeds ``min_n``
 
     See Also
     --------
@@ -62,8 +62,8 @@ def randtest(min_input=2):
                 raise NonBinarySequenceError()
 
             n = len(series)
-            if n < min_input:
-                raise MinimumInputError(n, min_input)
+            if n < min_n:
+                raise MinimumInputError(n, min_n)
 
             result = func(series, *args, **kwargs)
 

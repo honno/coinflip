@@ -25,7 +25,7 @@ class RankCounts:
     remaining: int = 0
 
 
-@randtest(min_input=4)
+@randtest(min_n=4)
 @elected
 def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result

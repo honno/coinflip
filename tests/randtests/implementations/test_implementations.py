@@ -16,12 +16,8 @@ from ..test_examples import Example
 from ..test_examples import MultiExample
 from ..test_examples import examples
 from ..test_examples import multi_examples
+from . import testmaps
 from ._implementation import ImplementationError
-from .dj import testmap as dj_testmap
-from .nist import testmap as nist_testmap
-from .sgr import testmap as sgr_testmap
-
-testmaps = {"nist": nist_testmap, "sgr": sgr_testmap, "dj": dj_testmap}
 
 
 def author_examples() -> Iterator:
@@ -37,7 +33,11 @@ fields.insert(0, "author")
 @pytest.mark.parametrize(fields, author_examples())
 def test_examples(author, randtest, bits, statistic, p, kwargs):
     testmap = testmaps[author]
-    implementation = testmap[randtest]
+
+    try:
+        implementation = testmap[randtest]
+    except KeyError:
+        skip()
 
     if implementation.missingkwargs or implementation.fixedkwargs:
         skip()

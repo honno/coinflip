@@ -211,11 +211,6 @@ def overlapping_template_matching(
     -------
     TestResult
         Dataclass that contains the test's statistic and p-value.
-
-    Raises
-    ------
-    TemplateContainsElementsNotInSequenceError
-        If template contains values not present in sequence
     """
     n = len(series)
 

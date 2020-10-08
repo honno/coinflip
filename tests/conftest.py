@@ -22,8 +22,6 @@ settings.register_profile(
     phases=(Phase.reuse, Phase.generate, Phase.target),
 )
 
-settings.register_profile("slow", deadline=timedelta(hours=1))
-
 settings.register_profile(
-    "fast", max_examples=1, stateful_step_count=1, deadline=timedelta(minutes=2)
+    "debug", max_examples=1, stateful_step_count=1, deadline=timedelta(minutes=5)
 )
