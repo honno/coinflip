@@ -14,11 +14,11 @@ from click import option
 from colorama import Fore
 
 from coinflip import generators
+from coinflip._randtests.exceptions import NonBinarySequenceError
+from coinflip._randtests.exceptions import TestError
+from coinflip._randtests.pprint import dim
+from coinflip._randtests.pprint import pretty_seq
 from coinflip.randtests import __all__ as randtest_names
-from coinflip.randtests._exceptions import NonBinarySequenceError
-from coinflip.randtests._exceptions import TestError
-from coinflip.randtests._pprint import dim
-from coinflip.randtests._pprint import pretty_seq
 from coinflip.report import write_report
 from coinflip.store import *
 from coinflip.tests_runner import *

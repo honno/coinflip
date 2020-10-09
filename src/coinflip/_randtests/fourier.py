@@ -6,12 +6,11 @@ from math import sqrt
 import pandas as pd
 from numpy.fft import fft
 
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._exceptions import NonBinarySequenceError
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import vars_list
-from coinflip.randtests._testutils import check_recommendations
+from coinflip._randtests.exceptions import NonBinarySequenceError
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import vars_list
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
 
 __all__ = ["spectral"]
 
@@ -27,35 +26,7 @@ class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
 
 
 @randtest()
-@elected
-def spectral(series, candidate):
-    """Potency of periodic features in sequence is compared to expected result
-
-    The binary values are treated as the peaks and troughs respectively of a
-    signal, which is applied a Fourier transform so as to find constituent
-    periodic features. The strength of these features is referenced to the
-    expected potent periodic features present in a hypothetically truly random
-    RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is considered the peak in oscillations
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value
-
-    Raises
-    ------
-    NonBinaryTruncatedSequenceError
-        When odd-lengthed sequence is truncated there is only one distinct value
-        present
-
-    """
+def spectral(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 1000": n >= 1000})
@@ -68,10 +39,7 @@ def spectral(series, candidate):
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expected = 0.95 * n / 2
 
-    peak = candidate
-    trough = next(value for value in series.unique() if value != candidate)
-
-    oscillations = series.map({peak: 1, trough: -1})
+    oscillations = series.map({heads: 1, tails: -1})
     fourier = pd.Series(fft(oscillations))  # fft returns a ndarray
 
     half_fourier = fourier[: n // 2]
@@ -84,7 +52,7 @@ def spectral(series, candidate):
 
     p = erfc(abs(normdiff) / sqrt(2))
 
-    return SpectralTestResult(normdiff, p, nbelow_expected, nbelow, diff,)
+    return SpectralTestResult(heads, tails, normdiff, p, nbelow_expected, nbelow, diff,)
 
 
 @dataclass

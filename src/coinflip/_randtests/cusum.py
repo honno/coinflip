@@ -4,25 +4,20 @@ from math import sqrt
 import numpy as np
 from scipy.stats import norm
 
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._testutils import check_recommendations
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
 
 __all__ = ["cusum"]
 
 
 @randtest()
-@elected
-def cusum(series, candidate, reverse=False):
+def cusum(series, heads, tails, reverse=False):
     n = len(series)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
-    peak = candidate
-    trough = next(value for value in series.unique() if value != candidate)
-
-    oscillations = series.map({peak: 1, trough: -1})
+    oscillations = series.map({heads: 1, tails: -1})
 
     if reverse:
         oscillations = oscillations[::1]
@@ -50,7 +45,7 @@ def cusum(series, candidate, reverse=False):
         )
     )
 
-    return CusumTestResult(max_cusum, p)
+    return CusumTestResult(heads, tails, max_cusum, p)
 
 
 class CusumTestResult(TestResult):

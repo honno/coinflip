@@ -6,14 +6,13 @@ from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import make_testvars_table
-from coinflip.randtests._result import vars_list
-from coinflip.randtests._testutils import blocks
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawblocks
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import make_testvars_table
+from coinflip._randtests.result import vars_list
+from coinflip._randtests.testutils import blocks
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import rawblocks
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
 
@@ -26,28 +25,7 @@ class RankCounts:
 
 
 @randtest(min_n=4)
-@elected
-def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
-    """Independence of neighbouring sequences is compared to expected result
-
-    Independence is determined by the matrix rank of a subsequence, where it is
-    split into multiple rows to form a matrix. The counts of different rank bins
-    is referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is counted in each block
-    matrix_dimen : ``Tuple[int, int]``
-        Number of rows and columns in each matrix
-
-    Returns
-    -------
-    BinaryMatrixRankTestResult
-        Dataclass that contains the test's statistic and p-value
-    """
+def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = None):
     n = len(series)
 
     if matrix_dimen is None:
@@ -78,8 +56,7 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
         full=0.2888 * nblocks, runnerup=0.5776 * nblocks, remaining=0.1336 * nblocks,
     )
 
-    noncandidate = next(value for value in series.unique() if value != candidate)
-    rankable_series = series.map({candidate: 1, noncandidate: 0})
+    rankable_series = series.map({heads: 1, tails: 0})
 
     matrices = []
     for block in blocks(rankable_series, blocksize):
@@ -106,7 +83,15 @@ def binary_matrix_rank(series, candidate, matrix_dimen: Tuple[int, int] = None):
     p = exp(-statistic / 2)
 
     return BinaryMatrixRankTestResult(
-        statistic, p, nrows, ncols, fullrank, expected_rankcounts, rankcounts,
+        heads,
+        tails,
+        statistic,
+        p,
+        nrows,
+        ncols,
+        fullrank,
+        expected_rankcounts,
+        rankcounts,
     )
 
 

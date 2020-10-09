@@ -5,13 +5,12 @@ from math import sqrt
 import pandas as pd
 from scipy.special import gammaincc
 
-from coinflip.randtests._collections import Bins
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import MultiTestResult
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import make_testvars_table
-from coinflip.randtests._testutils import check_recommendations
+from coinflip._randtests.collections import Bins
+from coinflip._randtests.result import MultiTestResult
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import make_testvars_table
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -35,16 +34,12 @@ state_probabilities = {
 
 
 @randtest()
-@elected
-def random_excursions(series, candidate):
+def random_excursions(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 1000000": n >= 1000000})
 
-    peak = candidate
-    trough = next(value for value in series.unique() if value != candidate)
-
-    oscillations = series.map({peak: 1, trough: -1})
+    oscillations = series.map({heads: 1, tails: -1})
 
     cumulative_sums = oscillations.cumsum()
 
@@ -77,7 +72,7 @@ def random_excursions(series, candidate):
         statistic = sum(reality_check)
         p = gammaincc(df / 2, statistic / 2)
 
-        results[state] = RandomExcursionsTestResult(statistic, p)
+        results[state] = RandomExcursionsTestResult(heads, tails, statistic, p)
 
     return MultiRandomExcursionsTestResult(results)
 
@@ -124,16 +119,12 @@ variant_states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 @randtest()
-@elected
-def random_excursions_variant(series, candidate):
+def random_excursions_variant(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 1000000": n >= 1000000})
 
-    peak = candidate
-    trough = next(value for value in series.unique() if value != candidate)
-
-    oscillations = series.map({peak: 1, trough: -1})
+    oscillations = series.map({heads: 1, tails: -1})
 
     cumulative_sums = oscillations.cumsum()
 
@@ -153,7 +144,7 @@ def random_excursions_variant(series, candidate):
 
         p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
 
-        results[state] = RandomExcursionsVariantTestResult(count, p)
+        results[state] = RandomExcursionsVariantTestResult(heads, tails, count, p)
 
     return MultiRandomExcursionsVariantTestResult(results)
 

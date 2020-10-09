@@ -7,16 +7,16 @@ from math import log2
 import pandas as pd
 from scipy.special import gammaincc
 
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import slider
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import slider
 
 __all__ = ["approximate_entropy"]
 
 
 @randtest()
-def approximate_entropy(series, blocksize=None):
+def approximate_entropy(series, heads, tails, blocksize=None):
     n = len(series)
 
     if not blocksize:
@@ -45,7 +45,7 @@ def approximate_entropy(series, blocksize=None):
     statistic = 2 * n * (log(2) - approx_entropy)
     p = gammaincc(2 ** (blocksize - 1), statistic / 2)
 
-    return ApproximateEntropyTestResult(statistic, p)
+    return ApproximateEntropyTestResult(heads, tails, statistic, p)
 
 
 @dataclass

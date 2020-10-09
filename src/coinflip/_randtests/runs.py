@@ -10,17 +10,16 @@ from typing import Tuple
 
 from scipy.special import gammaincc
 
-from coinflip.randtests._collections import Bins
-from coinflip.randtests._collections import FloorDict
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._exceptions import TestNotImplementedError
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import make_testvars_table
-from coinflip.randtests._testutils import blocks
-from coinflip.randtests._testutils import check_recommendations
+from coinflip._randtests.collections import Bins
+from coinflip._randtests.collections import FloorDict
+from coinflip._randtests.exceptions import TestNotImplementedError
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import make_testvars_table
+from coinflip._randtests.testutils import blocks
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
 
-__all__ = ["runs", "longest_runs", "asruns"]
+__all__ = ["runs", "longest_runs"]
 
 
 # ------------------------------------------------------------------------------
@@ -28,43 +27,25 @@ __all__ = ["runs", "longest_runs", "asruns"]
 
 
 @randtest()
-@elected
-def runs(series, candidate):
-    """Actual number of runs is compared to expected result
-
-    The number of runs (uninterrupted sequence of the same value) is found, and
-    referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is counted in each block
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value
-    """
+def runs(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
     counts = series.value_counts()
 
-    ncandidates = counts[candidate]
-    prop_candidates = ncandidates / n
-    prop_noncandidates = 1 - prop_candidates
+    ncandidates = counts[heads]
+    prop_heads = ncandidates / n
+    prop_tails = 1 - prop_heads
 
     nruns = sum(1 for _ in asruns(series))
 
     p = erfc(
-        abs(nruns - (2 * ncandidates * prop_noncandidates))
-        / (2 * sqrt(2 * n) * prop_candidates * prop_noncandidates)
+        abs(nruns - (2 * ncandidates * prop_tails))
+        / (2 * sqrt(2 * n) * prop_heads * prop_tails)
     )
 
-    return RunsTestResult(nruns, p)
+    return RunsTestResult(heads, tails, nruns, p)
 
 
 @dataclass
@@ -105,26 +86,7 @@ blocksize_probabilities = {
 
 # TODO allow and handle blocksize/nblocks/maxlen_bins kwargs
 @randtest()
-@elected
-def longest_runs(series, candidate):
-    """Longest runs per block is compared to expected result
-
-    The longest number of runs (uninterrupted sequence of the same value) per
-    block is found, and referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is counted in each block
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value
-    """
-
+def longest_runs(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 128": n >= 128})
@@ -149,7 +111,7 @@ def longest_runs(series, candidate):
     expected_bincounts = [prob * nblocks for prob in maxlen_probs]
 
     for block in blocks(series, blocksize, nblocks=nblocks):
-        runlengths = (length for value, length in asruns(block) if value == candidate)
+        runlengths = (length for value, length in asruns(block) if value == heads)
 
         maxlen = 0
         for length in runlengths:
@@ -168,13 +130,12 @@ def longest_runs(series, candidate):
     p = gammaincc(df / 2, statistic / 2)
 
     return LongestRunsTestResult(
-        statistic, p, candidate, blocksize, nblocks, expected_bincounts, maxlen_bins,
+        heads, tails, statistic, p, blocksize, nblocks, expected_bincounts, maxlen_bins,
     )
 
 
 @dataclass
 class LongestRunsTestResult(TestResult):
-    candidate: Any
     blocksize: int
     nblocks: int
     expected_bincounts: List[float]

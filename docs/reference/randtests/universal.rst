@@ -2,5 +2,5 @@
 universal
 =========
 
-.. automodule:: coinflip.randtests.universal
+.. automodule:: coinflip._randtests.universal
     :members:

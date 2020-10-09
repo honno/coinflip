@@ -2,5 +2,5 @@
 _testutils
 ==========
 
-.. automodule:: coinflip.randtests._testutils
+.. automodule:: coinflip._randtests.testutils
     :members:

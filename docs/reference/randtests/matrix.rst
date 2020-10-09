@@ -2,5 +2,5 @@
 matrix
 ======
 
-.. automodule:: coinflip.randtests.matrix
+.. automodule:: coinflip._randtests.matrix
     :members:

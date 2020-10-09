@@ -1,4 +1,4 @@
 """Specialised container datatypes"""
-from coinflip.randtests._collections import *
+from coinflip._randtests.collections import *
 
-__all__ = ["FloorDict", "RoundingDict", "Bins"]
+__all__ = ["FloorDict", "Bins"]

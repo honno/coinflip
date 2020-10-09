@@ -4,50 +4,50 @@ from typing import Tuple
 
 from colorama import Style
 
-from coinflip.randtests._decorators import infer_candidate
-from coinflip.randtests._testutils import blocks
+from coinflip._randtests.testutils import blocks
+from coinflip._randtests.testutils import infer_faces
 
 __all__ = ["determine_rep", "pretty_subseq", "pretty_seq", "dim", "bright"]
 
 
 @lru_cache()
-def determine_rep(candidate, noncandidate) -> Tuple[str, str]:
+def determine_rep(heads, tails) -> Tuple[str, str]:
     """Determine single-character representations of each binary value
 
     Parameters
     ----------
-    candidate : ``Any``
-        One of the two values in a sequence
-    noncandidate : ``Any``
-        Value in a sequence which is not ``candidate``
+    heads: ``Any``
+        The ``1`` abstraction
+    tails: ``Any``
+        The ``0`` abstraction
 
     Returns
     -------
-    c_rep : ``str``
-        Character representation of the ``candidate``
-    nc_rep : ``str``
-        Character representation of the ``noncandidate``
+    heads_rep : ``str``
+        Character representation of the ``heads``
+    tails_rep : ``str``
+        Character representation of the ``tails``
     """
-    c_rep = str(candidate)[0]
-    nc_rep = str(noncandidate)[0]
-    if c_rep.casefold() == nc_rep.casefold():
-        c_rep = "1"
-        nc_rep = "0"
+    heads_rep = str(heads)[0]
+    tails_rep = str(tails)[0]
+    if heads_rep == tails_rep:
+        heads_rep = "1"
+        tails_rep = "0"
 
-    return c_rep, nc_rep
+    return heads_rep, tails_rep
 
 
-def pretty_subseq(series, candidate, noncandidate) -> str:
+def pretty_subseq(series, heads, tails) -> str:
     """Produce a one-line pretty representation of a subsequence
 
     Parameters
     ----------
     series : ``Series``
         Subsequence to represent
-    candidate : ``Any``
+    heads : ``Any``
         One of the two values in ``series``
-    noncandidate : ``Any``
-        Value in ``series`` which is not ``candidate``
+    tails : ``Any``
+        Value in ``series`` which is not ``heads``
 
     Returns
     -------
@@ -58,8 +58,8 @@ def pretty_subseq(series, candidate, noncandidate) -> str:
     --------
     determine_rep : Method used to determine the ``series`` character representations
     """
-    c_rep, nc_rep = determine_rep(candidate, noncandidate)
-    series = series.map({candidate: c_rep, noncandidate: nc_rep})
+    heads_rep, tails_rep = determine_rep(heads, tails)
+    series = series.map({heads: heads_rep, tails: tails_rep})
 
     series_rep = "".join(rep for _, rep in series.items())
 
@@ -83,15 +83,11 @@ def pretty_seq(series, cols) -> str:
 
     See Also
     --------
-    infer_candidate : Method used to infer the candidate value of the ``series``
+    infer_faces : Method used to infer the `heads` and `tails` of the ``series``
     pretty_subseq : Method wrapped to generate rows
     """
     values = series.unique()
-    candidate = infer_candidate(values)
-    try:
-        noncandidate = next(value for value in values if value != candidate)
-    except StopIteration:
-        noncandidate = None
+    heads, tails = infer_faces(tuple(values))
 
     pad = 4
     l_border = dim("  | ")
@@ -102,7 +98,7 @@ def pretty_seq(series, cols) -> str:
     inner = outer - pad
 
     def pretty_row(series):
-        return pretty_subseq(series, candidate, noncandidate)
+        return pretty_subseq(series, heads, tails)
 
     lines = []
 

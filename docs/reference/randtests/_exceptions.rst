@@ -2,5 +2,5 @@
 _exceptions
 ===========
 
-.. automodule:: coinflip.randtests._exceptions
+.. automodule:: coinflip._randtests.exceptions
     :members:

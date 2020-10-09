@@ -8,9 +8,9 @@ import pandas as pd
 
 from coinflip import console
 from coinflip import randtests
-from coinflip.randtests._exceptions import NonBinarySequenceError
-from coinflip.randtests._exceptions import TestError
-from coinflip.randtests._result import TestResult
+from coinflip._randtests.exceptions import NonBinarySequenceError
+from coinflip._randtests.exceptions import TestError
+from coinflip._randtests.result import TestResult
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 

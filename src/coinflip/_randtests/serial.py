@@ -5,17 +5,17 @@ from math import log2
 import pandas as pd
 from scipy.special import gammaincc
 
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import MultiTestResult
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import slider
+from coinflip._randtests.result import MultiTestResult
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import slider
 
 __all__ = ["serial"]
 
 
 @randtest()
-def serial(series, blocksize=None):
+def serial(series, heads, tails, blocksize=None):
     n = len(series)
 
     if not blocksize:
@@ -48,8 +48,8 @@ def serial(series, blocksize=None):
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
     results = {
-        1: SerialTestResult(normsum_delta1, p1),
-        2: SerialTestResult(normsum_delta2, p2),
+        1: SerialTestResult(heads, tails, normsum_delta1, p1),
+        2: SerialTestResult(heads, tails, normsum_delta2, p2),
     }
 
     return MultiSerialTestResult(results)

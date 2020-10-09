@@ -2,5 +2,5 @@
 _collections
 ============
 
-.. automodule:: coinflip.randtests._collections
+.. automodule:: coinflip._randtests.collections
     :members:

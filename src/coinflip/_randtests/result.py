@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from functools import lru_cache
 from io import StringIO
+from typing import Any
 from typing import List
 from typing import Tuple
 from typing import Union
@@ -12,10 +13,16 @@ from rich.text import Text
 
 from coinflip import console
 
-__all__ = ["TestResult", "MultiTestResult", "make_testvars_table", "smartround"]
+__all__ = [
+    "BaseTestResult",
+    "TestResult",
+    "MultiTestResult",
+    "make_testvars_table",
+    "smartround",
+]
 
 
-class _TestResult:
+class BaseTestResult:
     """Representation methods for test results"""
 
     def __rich_console__(self, console, options):
@@ -35,17 +42,23 @@ class _TestResult:
 
 
 @dataclass(unsafe_hash=True)
-class TestResult(_TestResult):
+class TestResult(BaseTestResult):
     """Base container for test results
 
     Attributes
     ----------
+    heads: ``Any``
+        The ``1`` abstraction
+    tails: ``Any``
+        The ``0`` abstraction
     statistic : ``int`` or ``float``
         Statistic of the test
     p : ``float``
         p-value of the test
     """
 
+    heads: Any
+    tails: Any
     statistic: Union[int, float]
     p: float
 
@@ -65,7 +78,7 @@ class TestResult(_TestResult):
         return vars_list((stat_varname, self.statistic), ("p-value", self.p))
 
 
-class MultiTestResult(dict, _TestResult):
+class MultiTestResult(dict, BaseTestResult):
     """Base container for test results with multiple p-values
 
     A dictionary which pairs features of a sub-test to their respective test

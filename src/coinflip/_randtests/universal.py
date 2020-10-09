@@ -8,12 +8,12 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
-from coinflip.randtests._collections import FloorDict
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._exceptions import TestNotImplementedError
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawblocks
+from coinflip._randtests.collections import FloorDict
+from coinflip._randtests.exceptions import TestNotImplementedError
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import rawblocks
 
 __all__ = ["maurers_universal"]
 
@@ -72,29 +72,7 @@ n_defaults = FloorDict(
 
 
 @randtest(min_n=4)
-def maurers_universal(series, blocksize=None, init_nblocks=None):
-    """Distance between patterns is compared to expected result
-
-    Unique permutations in an initial sequence are identified, and the
-    distances of aforementioned permutations in a remaining sequence are
-    accumulated. The normalised value for the accumulated distances is then
-    compared to a hypothetically truly random RNG.
-
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    blocksize : ``int``
-        Size of the blocks that form a permutation
-    init_nblocks : ``int``
-        Number of initial blocks to identify permutations
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value
-    """
+def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
     if blocksize and blocksize > 16:
         # TODO review this policy
         raise TestNotImplementedError(
@@ -148,7 +126,7 @@ def maurers_universal(series, blocksize=None, init_nblocks=None):
     expected_mean, variance = blocksize_dists[blocksize]
     p = erfc(abs((statistic - expected_mean) / (sqrt(2 * variance))))
 
-    return UniversalTestResult(statistic, p)
+    return UniversalTestResult(heads, tails, statistic, p)
 
 
 @dataclass

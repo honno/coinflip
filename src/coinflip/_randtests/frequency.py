@@ -13,13 +13,12 @@ from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import make_testvars_table
-from coinflip.randtests._result import smartround
-from coinflip.randtests._testutils import blocks
-from coinflip.randtests._testutils import check_recommendations
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import make_testvars_table
+from coinflip._randtests.result import smartround
+from coinflip._randtests.testutils import blocks
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
 
 __all__ = ["monobit", "frequency_within_block"]
 
@@ -29,23 +28,7 @@ __all__ = ["monobit", "frequency_within_block"]
 
 
 @randtest()
-def monobit(series):
-    """Proportion of values is compared to expected 1:1 ratio
-
-    The difference between the frequency of the two values is found, and
-    referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-
-    Returns
-    -------
-    MonobitTestResult
-        Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered.
-    """
+def monobit(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 100": n >= 100})
@@ -56,7 +39,7 @@ def monobit(series):
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
 
-    return MonobitTestResult(normdiff, p, counts, n, diff)
+    return MonobitTestResult(heads, tails, normdiff, p, counts, n, diff)
 
 
 class ValueCount(NamedTuple):
@@ -150,30 +133,15 @@ class MonobitTestResult(TestResult):
 
 
 @randtest(min_n=8)
-@elected
-def frequency_within_block(series, candidate, blocksize=8):
-    """Proportion of values per block is compared to expected 1:1 ratio
-
-    The difference between the frequency of the two values in each block is
-    found, and referenced to a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is counted in each block
-    blocksize : ``int``
-        Size of the blocks that partition the given series
-
-    Returns
-    -------
-    FrequencyWithinBlockTestResult
-        Dataclass that contains the test's statistic and p-value as well as
-        other relevant information gathered.
-    """
+def frequency_within_block(series, heads, tails, blocksize=None):
     n = len(series)
-    nblocks = n // blocksize  # TODO meet 0.01 * n recommendation
+
+    # TODO - smarter defaults
+    #      - meet 0.01 * n recommendation
+    if not blocksize:
+        blocksize = 8
+
+    nblocks = n // blocksize
 
     check_recommendations(
         {
@@ -186,7 +154,7 @@ def frequency_within_block(series, candidate, blocksize=8):
 
     occurences = []
     for block in blocks(series, blocksize):
-        matches = block == candidate
+        matches = block == heads
         occur = matches.sum()
         occurences.append(occur)
 
@@ -197,13 +165,12 @@ def frequency_within_block(series, candidate, blocksize=8):
     p = gammaincc(nblocks / 2, statistic / 2)
 
     return FrequencyWithinBlockTestResult(
-        statistic, p, candidate, blocksize, nblocks, occurences,
+        heads, tails, statistic, p, blocksize, nblocks, occurences,
     )
 
 
 @dataclass
 class FrequencyWithinBlockTestResult(TestResult):
-    candidate: Any
     blocksize: int
     nblocks: int
     occurences: List[int]

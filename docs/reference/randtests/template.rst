@@ -2,5 +2,5 @@
 template
 ========
 
-.. automodule:: coinflip.randtests.template
+.. automodule:: coinflip._randtests.template
     :members:

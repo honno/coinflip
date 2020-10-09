@@ -8,31 +8,31 @@ from math import log2
 from math import sqrt
 from typing import Any
 from typing import List
+from typing import Tuple
 
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._pprint import determine_rep
-from coinflip.randtests._result import MultiTestResult
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._result import make_testvars_table
-from coinflip.randtests._testutils import blocks
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import slider
+from coinflip._randtests.pprint import determine_rep
+from coinflip._randtests.result import MultiTestResult
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.result import make_testvars_table
+from coinflip._randtests.testutils import blocks
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 
-def pretty_template(template, candidate, noncandidate):
-    c_rep, nc_rep = determine_rep(candidate, noncandidate)
+def pretty_template(template, heads, tails):
+    c_rep, nc_rep = determine_rep(heads, tails)
 
     template_rep = ""
     for value in template:
-        if value == candidate:
+        if value == heads:
             template_rep += c_rep
-        elif value == noncandidate:
+        elif value == tails:
             template_rep += nc_rep
 
     return template_rep
@@ -43,32 +43,9 @@ def pretty_template(template, candidate, noncandidate):
 
 
 @randtest()
-@elected
 def non_overlapping_template_matching(
-    series, candidate, template_size=None, nblocks=None
+    series, heads, tails, template_size=None, nblocks=None
 ):
-    """Matches of template per block is compared to expected result
-
-    The sequence is split into blocks, where the number of non-overlapping
-    matches to the template in each block is found. This is referenced to the
-    expected mean and variance in matches of a hypothetically truly random RNG.
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value that determines the sequence of templates generated
-    template_size : ``int``
-        Size of all the templates to be generated
-    nblocks : ``int``
-        Number of blocks to split sequence into
-
-    Returns
-    -------
-    NonOverlappingTemplateMatchingTestResult
-        Dictionary that contains the multiple test results
-    """
     n = len(series)
 
     if not nblocks:
@@ -88,10 +65,10 @@ def non_overlapping_template_matching(
         }
     )
 
-    noncandidate = next(value for value in series.unique() if value != candidate)
+    tails = next(value for value in series.unique() if value != heads)
 
     results = {}
-    for template in product([candidate, noncandidate], repeat=template_size):
+    for template in product([heads, tails], repeat=template_size):
         matches_expect = (blocksize - template_size + 1) / 2 ** template_size
         variance = blocksize * (
             (1 / 2 ** template_size)
@@ -114,16 +91,23 @@ def non_overlapping_template_matching(
         p = gammaincc(nblocks / 2, statistic / 2)
 
         results[template] = NonOverlappingTemplateMatchingTestResult(
-            statistic, p, matches_expect, variance, block_matches, match_diffs,
+            heads,
+            tails,
+            statistic,
+            p,
+            template,
+            matches_expect,
+            variance,
+            block_matches,
+            match_diffs,
         )
 
-    return MultiNonOverlappingTemplateMatchingTestResult(
-        results, candidate, noncandidate
-    )
+    return MultiNonOverlappingTemplateMatchingTestResult(results, heads, tails)
 
 
 @dataclass(unsafe_hash=True)
 class NonOverlappingTemplateMatchingTestResult(TestResult):
+    template: Tuple[Any, ...]
     matches_expect: float
     variance: float
     block_matches: List[int]
@@ -146,23 +130,23 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 
 
 class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
-    def __init__(self, results, candidate, noncandidate):
-        self.candidate = candidate
-        self.noncandidate = noncandidate
+    def __init__(self, results, heads, tails):
+        self.heads = heads
+        self.tails = tails
         super().__init__(results)
 
     # TODO make this much prettier
     def __rich_console__(self, console, options):
         f_table = make_testvars_table("template", "statistic", "p-value")
         for template, result in self.items():
-            f_template = pretty_template(template, self.candidate, self.noncandidate)
+            f_template = pretty_template(template, self.heads, self.tails)
             f_statistic = str(round(result.statistic, 3))
             f_p = str(round(result.p, 3))
             f_table.add_row(f_template, f_statistic, f_p)
         yield f_table
 
         min_template, min_result = self.min
-        f_min_template = pretty_template(template, self.candidate, self.noncandidate)
+        f_min_template = pretty_template(template, self.heads, self.tails)
         yield ""
         yield f"template {f_min_template} had the smallest p-value"
         yield ""
@@ -179,39 +163,9 @@ matches_ceil = 5
 # TODO Review paper "Correction of Overlapping Template Matching Test Included in
 #                    NIST Randomness Test Suite"
 @randtest()  # TODO appropiate min input
-@elected
 def overlapping_template_matching(
-    series, candidate, template_size=None, nblocks=None, df=5
+    series, heads, tails, template_size=None, nblocks=None, df=5
 ):
-    """Overlapping matches of template per block is compared to expected result
-
-    The sequence is split into ``nblocks`` blocks, where the number of
-    overlapping matches to the template in each block is found. This is
-    referenced to the expected mean and variance in matches of a hypothetically
-    truly random RNG.
-
-    .. deprecated:: 0
-        ``df`` will be removed once I figure out the correct value, as I don't
-        quite understand what NIST wants (or if they're even correct!)
-
-    Parameters
-    ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which fills the generated template
-    template_size : ``int``
-        Size of the template to be generated
-    nblocks : ``int``
-        Number of blocks to split sequence into
-    df : ``int``, default ``5``
-        Degrees of freedom to use in p-value calculation
-
-    Returns
-    -------
-    TestResult
-        Dataclass that contains the test's statistic and p-value.
-    """
     n = len(series)
 
     if not nblocks:
@@ -220,7 +174,7 @@ def overlapping_template_matching(
 
     if not template_size:
         template_size = min(max(floor(sqrt(blocksize)), 2), 12)
-    template = [candidate for _ in range(template_size)]
+    template = [heads for _ in range(template_size)]
 
     lambda_ = (blocksize - template_size + 1) / 2 ** template_size
     eta = lambda_ / 2
@@ -270,16 +224,13 @@ def overlapping_template_matching(
 
     p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
 
-    noncandidate = next(value for value in series.unique() if value != candidate)
     return OverlappingTemplateMatchingTestResult(
-        statistic, p, candidate, noncandidate, template, expected_tallies, tallies,
+        heads, tails, statistic, p, template, expected_tallies, tallies,
     )
 
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(TestResult):
-    candidate: Any
-    noncandidate: Any
     template: List
     expected_tallies: List[int]
     tallies: List[int]
@@ -295,7 +246,7 @@ class OverlappingTemplateMatchingTestResult(TestResult):
 
         yield ""
 
-        f_template = pretty_template(self.template, self.candidate, self.noncandidate)
+        f_template = pretty_template(self.template, self.heads, self.tails)
         yield f"template: {f_template}"
 
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]

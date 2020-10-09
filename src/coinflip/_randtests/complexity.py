@@ -5,12 +5,11 @@ from typing import List
 
 from scipy.special import gammaincc
 
-from coinflip.randtests._collections import Bins
-from coinflip.randtests._decorators import elected
-from coinflip.randtests._decorators import randtest
-from coinflip.randtests._result import TestResult
-from coinflip.randtests._testutils import check_recommendations
-from coinflip.randtests._testutils import rawblocks
+from coinflip._randtests.collections import Bins
+from coinflip._randtests.result import TestResult
+from coinflip._randtests.testutils import check_recommendations
+from coinflip._randtests.testutils import randtest
+from coinflip._randtests.testutils import rawblocks
 
 __all__ = ["linear_complexity"]
 
@@ -30,8 +29,7 @@ probabilities = [
 
 
 @randtest()
-@elected
-def linear_complexity(series, candidate, blocksize=None):
+def linear_complexity(series, heads, tails, blocksize=None):
     n = len(series)
 
     if not blocksize:
@@ -51,8 +49,7 @@ def linear_complexity(series, candidate, blocksize=None):
         }
     )
 
-    noncandidate = next(value for value in series.unique() if value != candidate)
-    binary = series.map({candidate: 1, noncandidate: 0})
+    binary = series.map({heads: 1, tails: 0})
 
     expected_mean = (
         blocksize / 2
@@ -76,7 +73,7 @@ def linear_complexity(series, candidate, blocksize=None):
     statistic = sum(reality_check)
     p = gammaincc(df / 2, statistic / 2)
 
-    return LinearComplexityTestResult(statistic, p)
+    return LinearComplexityTestResult(heads, tails, statistic, p)
 
 
 class LinearComplexityTestResult(TestResult):
