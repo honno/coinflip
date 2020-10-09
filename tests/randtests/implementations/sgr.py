@@ -55,7 +55,7 @@ def spectral(bits):
 def binary_matrix_rank(bits, matrix_dimen):
     nrows, ncols = matrix_dimen
     if nrows != ncols:
-        raise ImplementationError()
+        raise ImplementationError("Can't handle non-square matrices")
 
     return _tester.matrix_rank(bits, nrows)
 

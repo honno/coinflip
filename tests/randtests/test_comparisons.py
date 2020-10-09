@@ -41,8 +41,17 @@ def blocksize_strategy(draw, min_n=2) -> ArgsStrategy:
 
 @st.composite
 def matrix_strategy(draw) -> ArgsStrategy:
-    nrows = draw(st.integers(min_value=2))
-    ncols = draw(st.integers(min_value=2))
+    max_blocksize = draw(st.integers(min_value=4, max_value=1000000))
+
+    naxis1 = draw(st.integers(min_value=2, max_value=max_blocksize // 2))
+    naxis2 = max_blocksize // naxis1
+
+    if draw(st.booleans()):
+        nrows = naxis1
+        ncols = naxis2
+    else:
+        ncols = naxis1
+        nrows = naxis2
 
     blocksize = nrows * ncols
     bits = draw(mixedbits(min_size=blocksize))
