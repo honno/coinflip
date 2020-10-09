@@ -4,7 +4,7 @@ Reference
 
 .. toctree::
 
-   randtests/index
+   randtests
    algorithms
    collections
    generators
