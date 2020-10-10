@@ -9,6 +9,7 @@ subsequently store test results and report markup for said results.
 import pickle
 import shelve
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime
 from os import scandir
 from pathlib import Path
@@ -73,22 +74,22 @@ class DataParsingError(ValueError):
     """Base class for parsing-related errors"""
 
 
+@dataclass
 class TypeNotRecognizedError(DataParsingError):
     """Error for when a given dtype string representation is not recognised"""
 
-    def __init__(self, dtype: str):
-        self.dtype = dtype
+    dtype: str
 
     def __str__(self):
         f_types = ", ".join(TYPES.keys())
         return f"{self.dtype} is not a recognised data type\n" f"Valid types: {f_types}"
 
 
+@dataclass
 class MultipleColumnsError(DataParsingError):
     """Error for when only one column of data was expected"""
 
-    def __init__(self, ncols):
-        self.ncols = ncols
+    ncols: int
 
     def __str__(self):
         return (
@@ -153,11 +154,11 @@ def parse_data(data_file, dtype_str=None) -> pd.Series:
     return series
 
 
+@dataclass
 class StoreError(Exception):
     """Base class for store-related errors"""
 
-    def __init__(self, store_name):
-        self.store_name = store_name
+    store_name: str
 
 
 class StoreExistsError(StoreError, FileExistsError):

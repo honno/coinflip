@@ -1,4 +1,5 @@
 """Compares results of our tests to those of other implementations"""
+from dataclasses import dataclass
 from math import log
 from typing import Dict
 from typing import List
@@ -70,10 +71,10 @@ stratmap = {
 }
 
 
+@dataclass
 class AdaptorError(TypeError):
-    def __init__(self, author, e: TypeError):
-        self.author = author
-        self._e = e
+    author: str
+    _e: TypeError
 
     def __str__(self):
         message = str(self._e)

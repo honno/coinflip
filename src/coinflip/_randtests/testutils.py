@@ -1,4 +1,5 @@
 """Utility methods for randomness tests."""
+from dataclasses import dataclass
 from functools import lru_cache
 from functools import wraps
 from math import ceil
@@ -24,12 +25,10 @@ __all__ = [
 ]
 
 
+@dataclass
 class MinimumInputError(TestInputError):
-    """Error if sequence length is below minimum allowed"""
-
-    def __init__(self, n, min_n):
-        self.n = n
-        self.min_n = min_n
+    n: int
+    min_n: int
 
     def __str__(self):
         return f"Sequence length {self.n} is below required minimum of {self.min_n}"
