@@ -8,12 +8,12 @@ from math import log
 from math import sqrt
 from typing import NamedTuple
 
-from coinflip._randtests.collections import FloorDict
-from coinflip._randtests.exceptions import TestNotImplementedError
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
-from coinflip._randtests.testutils import rawblocks
+from coinflip._randtests.common.collections import FloorDict
+from coinflip._randtests.common.exceptions import TestNotImplementedError
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
+from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["maurers_universal"]
 
@@ -123,8 +123,10 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
         last_occurences[permutation] = pos
 
     statistic = distances_total / spare_nblocks
+
     expected_mean, variance = blocksize_dists[blocksize]
-    p = erfc(abs((statistic - expected_mean) / (sqrt(2 * variance))))
+    normdiff = abs((statistic - expected_mean) / (sqrt(2 * variance)))
+    p = erfc(normdiff)
 
     return UniversalTestResult(heads, tails, statistic, p)
 

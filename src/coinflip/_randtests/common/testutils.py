@@ -11,9 +11,9 @@ from warnings import warn
 
 import pandas as pd
 
-from coinflip._randtests.exceptions import NonBinarySequenceError
-from coinflip._randtests.exceptions import TestInputError
-from coinflip._randtests.result import BaseTestResult
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.exceptions import TestInputError
+from coinflip._randtests.common.result import BaseTestResult
 
 __all__ = [
     "randtest",

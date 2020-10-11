@@ -6,12 +6,12 @@ import pandas as pd
 from rich.text import Text
 from scipy.special import gammaincc
 
-from coinflip._randtests.collections import Bins
-from coinflip._randtests.result import MultiTestResult
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.result import make_testvars_table
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
+from coinflip._randtests.common.collections import Bins
+from coinflip._randtests.common.result import MultiTestResult
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 

@@ -4,9 +4,9 @@ from math import sqrt
 import numpy as np
 from scipy.stats import norm
 
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["cusum"]
 

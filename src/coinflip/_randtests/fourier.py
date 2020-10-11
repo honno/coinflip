@@ -6,11 +6,11 @@ from math import sqrt
 import pandas as pd
 from numpy.fft import fft
 
-from coinflip._randtests.exceptions import NonBinarySequenceError
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.result import vars_list
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import vars_list
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["spectral"]
 

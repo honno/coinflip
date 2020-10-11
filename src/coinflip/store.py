@@ -22,8 +22,8 @@ import pandas as pd
 from appdirs import AppDirs
 from slugify import slugify
 
-from coinflip._randtests.exceptions import NonBinarySequenceError
-from coinflip._randtests.result import TestResult
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.result import TestResult
 
 __all__ = [
     "TYPES",

@@ -7,10 +7,10 @@ from math import log2
 import pandas as pd
 from scipy.special import gammaincc
 
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
-from coinflip._randtests.testutils import slider
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
+from coinflip._randtests.common.testutils import slider
 
 __all__ = ["approximate_entropy"]
 

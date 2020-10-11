@@ -16,9 +16,9 @@ from rich.text import Text
 
 from coinflip import console
 from coinflip import generators
-from coinflip._randtests.exceptions import NonBinarySequenceError
-from coinflip._randtests.exceptions import TestError
-from coinflip._randtests.pprint import pretty_sequence
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.exceptions import TestError
+from coinflip._randtests.common.pprint import pretty_sequence
 from coinflip.randtests import __all__ as randtest_names
 from coinflip.report import write_report
 from coinflip.store import *

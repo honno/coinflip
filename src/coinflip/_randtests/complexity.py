@@ -5,11 +5,11 @@ from typing import List
 
 from scipy.special import gammaincc
 
-from coinflip._randtests.collections import Bins
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
-from coinflip._randtests.testutils import rawblocks
+from coinflip._randtests.common.collections import Bins
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
+from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["linear_complexity"]
 

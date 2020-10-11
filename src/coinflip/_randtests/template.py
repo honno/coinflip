@@ -14,14 +14,14 @@ from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from coinflip._randtests.pprint import pretty_subseq
-from coinflip._randtests.result import MultiTestResult
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.result import make_testvars_table
-from coinflip._randtests.testutils import blocks
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
-from coinflip._randtests.testutils import slider
+from coinflip._randtests.common.pprint import pretty_subseq
+from coinflip._randtests.common.result import MultiTestResult
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.testutils import blocks
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
+from coinflip._randtests.common.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 

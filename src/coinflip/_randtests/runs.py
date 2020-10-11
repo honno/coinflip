@@ -10,14 +10,14 @@ from typing import Tuple
 
 from scipy.special import gammaincc
 
-from coinflip._randtests.collections import Bins
-from coinflip._randtests.collections import FloorDict
-from coinflip._randtests.exceptions import TestNotImplementedError
-from coinflip._randtests.result import TestResult
-from coinflip._randtests.result import make_testvars_table
-from coinflip._randtests.testutils import blocks
-from coinflip._randtests.testutils import check_recommendations
-from coinflip._randtests.testutils import randtest
+from coinflip._randtests.common.collections import Bins
+from coinflip._randtests.common.collections import FloorDict
+from coinflip._randtests.common.exceptions import TestNotImplementedError
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.testutils import blocks
+from coinflip._randtests.common.testutils import check_recommendations
+from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["runs", "longest_runs"]
 
