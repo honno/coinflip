@@ -1,4 +1,5 @@
 from copy import copy
+from dataclasses import dataclass
 from math import floor
 from math import sqrt
 from typing import List
@@ -73,10 +74,13 @@ def linear_complexity(series, heads, tails, blocksize=None):
     statistic = sum(reality_check)
     p = gammaincc(df / 2, statistic / 2)
 
-    return LinearComplexityTestResult(heads, tails, statistic, p)
+    return LinearComplexityTestResult(heads, tails, statistic, p, blocksize)
 
 
+@dataclass
 class LinearComplexityTestResult(TestResult):
+    blocksize: int
+
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 

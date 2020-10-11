@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from math import floor
 from math import log2
 
@@ -48,14 +49,17 @@ def serial(series, heads, tails, blocksize=None):
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
     results = {
-        1: SerialTestResult(heads, tails, normsum_delta1, p1),
-        2: SerialTestResult(heads, tails, normsum_delta2, p2),
+        1: SerialTestResult(heads, tails, blocksize, normsum_delta1, p1),
+        2: SerialTestResult(heads, tails, blocksize, normsum_delta2, p2),
     }
 
     return MultiSerialTestResult(results)
 
 
+@dataclass
 class SerialTestResult(TestResult):
+    blocksize: int
+
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 

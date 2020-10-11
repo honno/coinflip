@@ -29,6 +29,8 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 @dataclass
 class BaseTemplateMatchingTestResult(TestResult):
     template: Tuple[Any, ...]
+    template_size: int
+    nblocks: int
 
     def pretty_template(self) -> Text:
         return pretty_subseq(self.template, self.heads, self.tails)
@@ -92,6 +94,8 @@ def non_overlapping_template_matching(
             statistic,
             p,
             template,
+            template_size,
+            nblocks,
             matches_expect,
             variance,
             block_matches,
@@ -221,7 +225,15 @@ def overlapping_template_matching(
     p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
 
     return OverlappingTemplateMatchingTestResult(
-        heads, tails, statistic, p, template, expected_tallies, tallies,
+        heads,
+        tails,
+        statistic,
+        p,
+        template,
+        template_size,
+        nblocks,
+        expected_tallies,
+        tallies,
     )
 
 

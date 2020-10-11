@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from math import floor
 from math import sqrt
 
@@ -45,9 +46,12 @@ def cusum(series, heads, tails, reverse=False):
         )
     )
 
-    return CusumTestResult(heads, tails, max_cusum, p)
+    return CusumTestResult(heads, tails, max_cusum, p, reverse)
 
 
+@dataclass
 class CusumTestResult(TestResult):
+    reverse: bool
+
     def __rich_console__(self, console, options):
         yield self._results_text("max cusum")

@@ -128,10 +128,13 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
     normdiff = abs((statistic - expected_mean) / (sqrt(2 * variance)))
     p = erfc(normdiff)
 
-    return UniversalTestResult(heads, tails, statistic, p)
+    return UniversalTestResult(heads, tails, statistic, p, blocksize, init_nblocks)
 
 
 @dataclass
 class UniversalTestResult(TestResult):
+    blocksize: int
+    init_nblocks: int
+
     def __rich_console__(self, console, options):
         yield self._results_text("normalised distances")
