@@ -73,14 +73,14 @@ def pretty_subseq(subseq: Iterable, heads, tails) -> Text:
 
 
 @render_group()
-def pretty_sequence(series, cols) -> RenderGroup:
+def pretty_sequence(series, ncols) -> RenderGroup:
     """Produce a multi-line representation of a sequence
 
     Parameters
     ----------
     series : ``Series``
         Sequence to represent
-    cols : ``int``
+    ncols : ``int``
         Maximum number of characters to use per line
 
     Returns
@@ -93,7 +93,7 @@ def pretty_sequence(series, cols) -> RenderGroup:
 
     gap = 2
 
-    outer_w = cols - 2 * gap
+    outer_w = ncols - 2 * gap
     inner_w = outer_w - 2 * gap
 
     pad = Text("".join(" " for _ in range(gap)))
@@ -138,7 +138,7 @@ def pretty_sequence(series, cols) -> RenderGroup:
                 yield border
 
             omit_msg = f"..omitting {nrows - 10} rows.."
-            omit_gap = cols // 2 - len(omit_msg) // 2
+            omit_gap = ncols // 2 - len(omit_msg) // 2
             omit_pad = "".join(" " for _ in range(omit_gap))
 
             yield Text(omit_pad + omit_msg, style=dim)

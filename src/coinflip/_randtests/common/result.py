@@ -8,6 +8,9 @@ from typing import Union
 
 from rich import box
 from rich.console import Console
+from rich.console import ConsoleRenderable
+from rich.console import RenderableType
+from rich.padding import Padding
 from rich.table import Table
 from rich.text import Text
 
@@ -22,11 +25,8 @@ __all__ = [
 ]
 
 
-class BaseTestResult:
+class BaseTestResult(ConsoleRenderable):
     """Representation methods for test results"""
-
-    def __rich_console__(self, console, options):
-        pass
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
@@ -109,7 +109,6 @@ class MultiTestResult(dict, BaseTestResult):
     def pvalues(self) -> List[float]:
         return [result.p for result in self.values()]
 
-    @property
     @lru_cache()
     def min(self):
         items = iter(self.items())
@@ -120,6 +119,33 @@ class MultiTestResult(dict, BaseTestResult):
                 min_result = result
 
         return min_feature, min_result
+
+    def _pretty_feature(self, result: TestResult) -> RenderableType:
+        pass
+
+    def _results_table(self, feature_varname: str, stat_varname: str) -> Table:
+        min_feature, min_result = self.min()
+
+        table = make_testvars_table(feature_varname, stat_varname, "p")
+        for feature, result in self.items():
+            f_feature = self._pretty_feature(result)
+            if feature == min_feature:
+                f_feature.stylize("on blue")
+
+            f_statistic = str(round(result.statistic, 3))
+            f_p = str(round(result.p, 3))
+
+            table.add_row(f_feature, f_statistic, f_p)
+
+        meta_table = Table.grid()
+
+        example = Table.grid()
+        example.add_row(Text.assemble(("*", "bold blue"), " "), min_result)
+
+        padded_example = Padding(example, (3, 0, 0, 3))
+        meta_table.add_row(table, padded_example)
+
+        return meta_table
 
 
 def make_testvars_table(*columns) -> Table:
@@ -143,7 +169,7 @@ def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:
 # Helpers
 
 
-def vars_list(*varname_value_pairs: List[Tuple[str, Union[int, float]]]) -> Text:
+def vars_list(*varname_value_pairs: Tuple[str, Union[int, float]]) -> Text:
     varnames, values = zip(*varname_value_pairs)
 
     varname_maxlen = max(len(varname) for varname in varnames)
@@ -167,9 +193,12 @@ def align_nums(nums):
             pos = len(f_num)
         dot_positions.append(pos)
     maxpos = max(dot_positions)
-    f_aligned_nums = [
-        " " * (maxpos - pos) + f_num for f_num, pos in zip(f_nums, dot_positions)
-    ]
+
+    f_aligned_nums = []
+    for f_num, pos in zip(f_nums, dot_positions):
+        left_pad = " " * (maxpos - pos)
+        f_num = left_pad + f_num
+        f_aligned_nums.append(f_num)
 
     return f_aligned_nums
 

@@ -1,4 +1,5 @@
 from collections import Counter
+from dataclasses import dataclass
 from math import erfc
 from math import sqrt
 
@@ -9,7 +10,6 @@ from scipy.special import gammaincc
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 
@@ -73,37 +73,25 @@ def random_excursions(series, heads, tails):
         statistic = sum(reality_check)
         p = gammaincc(df / 2, statistic / 2)
 
-        results[state] = RandomExcursionsTestResult(heads, tails, statistic, p)
+        results[state] = RandomExcursionsTestResult(heads, tails, statistic, p, state)
 
     return MultiRandomExcursionsTestResult(results)
 
 
+@dataclass
 class RandomExcursionsTestResult(TestResult):
+    state: int
+
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 
 
 class MultiRandomExcursionsTestResult(MultiTestResult):
+    def _pretty_feature(self, result: RandomExcursionsTestResult):
+        return Text(str(result.state), style="bold")
+
     def __rich_console__(self, console, options):
-        min_state, min_result = self.min
-
-        f_table = make_testvars_table("state", "statistic", "p-value")
-        for state, result in self.items():
-            f_state = Text(f"{state}")
-            if state == min_state:
-                f_state.stylize("on blue")
-
-            f_statistic = str(round(result.statistic, 3))
-            f_p = str(round(result.p, 3))
-
-            f_table.add_row(f_state, f_statistic, f_p)
-
-        yield f_table
-
-        yield ""
-
-        yield Text("lowest p-value", style="on blue")
-        yield min_result
+        yield self._results_table("state", "χ²")
 
 
 def ascycles(walk):
@@ -151,34 +139,24 @@ def random_excursions_variant(series, heads, tails):
 
         p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
 
-        results[state] = RandomExcursionsVariantTestResult(heads, tails, count, p)
+        results[state] = RandomExcursionsVariantTestResult(
+            heads, tails, count, p, state
+        )
 
     return MultiRandomExcursionsVariantTestResult(results)
 
 
+@dataclass
 class RandomExcursionsVariantTestResult(TestResult):
+    state: int
+
     def __rich_console__(self, console, options):
         yield self._results_text("count")
 
 
 class MultiRandomExcursionsVariantTestResult(MultiTestResult):
+    def _pretty_feature(self, result: RandomExcursionsVariantTestResult):
+        return Text(str(result.state), style="bold")
+
     def __rich_console__(self, console, options):
-        min_state, min_result = self.min
-
-        f_table = make_testvars_table("state", "statistic", "p-value")
-        for state, result in self.items():
-            f_state = Text(f"{state}")
-            if state == min_state:
-                f_state.stylize("on blue")
-
-            f_statistic = str(round(result.statistic, 3))
-            f_p = str(round(result.p, 3))
-
-            f_table.add_row(f_state, f_statistic, f_p)
-
-        yield f_table
-
-        yield ""
-
-        yield Text("lowest p-value", style="on blue")
-        yield min_result
+        yield self._results_table("state", "ξ")

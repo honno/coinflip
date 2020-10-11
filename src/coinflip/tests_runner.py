@@ -1,10 +1,12 @@
 """Methods used to interact with the randtests subpackage."""
 from functools import wraps
+from shutil import get_terminal_size
 from typing import Callable
 from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
+from rich.text import Text
 
 from coinflip import console
 from coinflip import randtests
@@ -49,11 +51,22 @@ def binary_check(func):
     return wrapper
 
 
-def print_randtest_name(randtest_name):
+rule_char = "─"
+
+
+def print_randtest_name(randtest_name: str, ncols):
     """Pretty print the randtest's name"""
     randtest_fname = f_randtest_names[randtest_name]
-    console.print(randtest_fname, style="bold")
-    console.print("".join("─" for char in randtest_fname))
+    fname_w = len(randtest_fname)
+
+    right_w = (ncols - fname_w) // 2
+    right = rule_char * (right_w - 1)
+
+    left_w = ncols - right_w - fname_w
+    left = rule_char * (left_w - 1)
+
+    text = Text.assemble((right, "green"), " ", randtest_fname, " ", (left, "green"))
+    console.print(text)
 
 
 def list_tests() -> Iterator[Tuple[str, Callable]]:
@@ -101,9 +114,12 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     TestError
         Errors raised when running ``randtest_name``
     """
+    size = get_terminal_size()
+    ncols = min(size.columns, 80)
+
     for name, func in list_tests():
         if randtest_name == name:
-            print_randtest_name(name)
+            print_randtest_name(name, ncols)
 
             result = func(series, **kwargs)
             console.print(result)
@@ -137,10 +153,12 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     NonBinarySequenceError
         If series contains a sequence made of non-binary values
     """
-    results = {}
+    size = get_terminal_size()
+    ncols = min(size.columns, 80)
 
+    results = {}
     for name, func in list_tests():
-        print_randtest_name(name)
+        print_randtest_name(name, ncols)
 
         try:
             result = func(series)
@@ -156,10 +174,10 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         console.print()
 
     # TODO print a table
-    # f_table = Table(box=box.DOUBLE)
-    # f_table.add_column("Statistical Test", justify="left")
-    # f_table.add_column("p-value", justify="right")
-    # f_table.add_column("Verdict", justify="right")
+    # table = Table(box=box.DOUBLE)
+    # table.add_column("Statistical Test", justify="eft")
+    # table.add_column("p-value", justify="left")
+    # table.add_column("Verdict", justify="left")
     # for name, result in results.items():
     #     f_name = f_randtest_names[name]
 
@@ -175,6 +193,6 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     #         f_pvalue = "-"
     #         f_verdict = Text("N/A", style="yellow")
 
-    #     f_table.add_row(f_name, f_pvalue, f_verdict)
+    #     table.add_row(f_name, f_pvalue, f_verdict)
 
-    # console.print(f_table)
+    # console.print(table)

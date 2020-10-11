@@ -131,26 +131,13 @@ class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
 
 
 class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
+    def _pretty_feature(self, result: NonOverlappingTemplateMatchingTestResult):
+        f_template = result.pretty_template()
+        return f_template
+
+    # TODO q value
     def __rich_console__(self, console, options):
-        min_template, min_result = self.min
-
-        f_table = make_testvars_table("template", "statistic", "p-value")
-        for template, result in self.items():
-            f_template = result.pretty_template()
-            if template == min_template:
-                f_template.stylize("on blue")
-
-            f_statistic = str(round(result.statistic, 3))
-            f_p = str(round(result.p, 3))
-
-            f_table.add_row(f_template, f_statistic, f_p)
-
-        yield f_table
-
-        yield ""
-
-        yield Text("lowest p-value", style="on blue")
-        yield min_result
+        yield self._results_table("template", "χ²")
 
 
 # ------------------------------------------------------------------------------
@@ -259,7 +246,7 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
         table = zip(f_nmatches, self.tallies, self.expected_tallies, self.tally_diffs)
-        f_table = make_testvars_table("matches", "count", "expected", "diff")
+        f_table = make_testvars_table("matches", "count", "expect", "diff")
         for f_matches, count, count_expect, diff in table:
             f_count = str(count)
             f_count_expect = str(round(count_expect, 1))

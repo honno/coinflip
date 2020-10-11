@@ -71,9 +71,9 @@ def print_err(e: Exception):
 def print_series(series):
     """Pretty print series that contain binary data"""
     size = get_terminal_size()
-    cols = min(size.columns, 80)
+    ncols = min(size.columns, 80)
 
-    console.print(pretty_sequence(series, cols))
+    console.print(pretty_sequence(series, ncols))
 
 
 # ------------------------------------------------------------------------------

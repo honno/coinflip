@@ -135,7 +135,7 @@ class BinaryMatrixRankTestResult(TestResult):
             astuple(self.expected_rankcounts),
             self.rankcount_diffs,
         )
-        f_table = make_testvars_table("rank", "count", "expected", "diff")
+        f_table = make_testvars_table("rank", "count", "expect", "diff")
         for f_rank, count, count_expect, diff in table:
             f_count = str(count)
             f_count_expect = str(round(count_expect, 1))

@@ -5,6 +5,8 @@ from math import sqrt
 
 import pandas as pd
 from numpy.fft import fft
+from rich.padding import Padding
+from rich.text import Text
 
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
@@ -69,9 +71,10 @@ class SpectralTestResult(TestResult):
 
         yield ""
 
-        yield "npeaks above threshold"
-        yield vars_list(
+        yield Text("npeaks above threshold", style="bold")
+        f_vars_list = vars_list(
             ("actual", self.nbelow),
             ("expected", self.nbelow_expected),
             ("diff", self.diff),
         )
+        yield Padding(f_vars_list, (0, 0, 0, 2))

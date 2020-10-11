@@ -5,12 +5,18 @@ from math import erfc
 from math import floor
 from math import isclose
 from math import log
+from math import log2
 from math import sqrt
+from typing import Any
+from typing import DefaultDict
+from typing import List
 from typing import NamedTuple
+from typing import Tuple
 
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import vars_list
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
@@ -90,51 +96,88 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
             init_nblocks = max(nblocks // 100, 1)
 
     init_n = init_nblocks * blocksize
-    init_series, spare_series = series[:init_n], series[init_n:]
-    spare_nblocks = (n - init_n) / blocksize
+    init_series, segment_series = series[:init_n], series[init_n:]
+    segment_nblocks = (n - init_n) // blocksize
 
     check_recommendations(
         {
             "n ≥ 387840": n >= 387840,
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
-            "init_nblocks ≈ 10 * 2 ** spare_nblocks": isclose(
-                init_nblocks, 10 * 2 ** spare_nblocks
+            # TODO fix large isclose
+            "init_nblocks ≈ 10 * 2 ** segment_nblocks": isclose(
+                init_nblocks, 10 * 2 ** segment_nblocks
             ),
-            "spare_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": isclose(
-                spare_nblocks, floor(n / blocksize) - init_nblocks
+            "segment_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": isclose(
+                segment_nblocks, floor(n / blocksize) - init_nblocks
             ),
         }
     )
 
-    last_occurences = defaultdict(int)
+    permutations_last_init_pos = defaultdict(int)
 
     init_blocks = rawblocks(init_series, blocksize)
     for pos, permutation in enumerate(init_blocks, 1):
-        last_occurences[permutation] = pos
+        permutations_last_init_pos[permutation] = pos
 
-    spare_blocks = rawblocks(spare_series, blocksize)
-    spare_firstpos = init_nblocks + 1
+    segment_blocks = rawblocks(segment_series, blocksize)
+    permutation_positions = defaultdict(list)
+    segment_firstpos = init_nblocks + 1
+    for pos, permutation in enumerate(segment_blocks, segment_firstpos):
+        permutation_positions[permutation].append(pos)
+
     distances_total = 0
-    for pos, permutation in enumerate(spare_blocks, spare_firstpos):
-        last_occurence = last_occurences[permutation]
-        distance = pos - last_occurence
-        distances_total += log(distance, 2)
+    for permutation, positions in permutation_positions.items():
+        last_occurence = permutations_last_init_pos[permutation]
+        for pos in positions:
+            distance = pos - last_occurence
+            distances_total += log2(distance)
 
-        last_occurences[permutation] = pos
+            last_occurence = pos
 
-    statistic = distances_total / spare_nblocks
+    statistic = distances_total / segment_nblocks
 
     expected_mean, variance = blocksize_dists[blocksize]
     normdiff = abs((statistic - expected_mean) / (sqrt(2 * variance)))
     p = erfc(normdiff)
 
-    return UniversalTestResult(heads, tails, statistic, p, blocksize, init_nblocks)
+    return UniversalTestResult(
+        heads,
+        tails,
+        statistic,
+        p,
+        blocksize,
+        init_nblocks,
+        segment_nblocks,
+        permutations_last_init_pos,
+        permutation_positions,
+    )
 
 
 @dataclass
 class UniversalTestResult(TestResult):
     blocksize: int
     init_nblocks: int
+    segment_nblocks: int
+    permutations_last_init_pos: DefaultDict[Tuple[Any, ...], int]
+    permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
 
     def __rich_console__(self, console, options):
-        yield self._results_text("normalised distances")
+        yield self._results_text("log2 distances")
+
+        yield ""
+
+        yield vars_list(
+            ("init nblocks", self.init_nblocks), ("test nblocks", self.segment_nblocks)
+        )
+
+        # TODO maybe use this table for a verbose option or something (it's huge)
+        # table = make_testvars_table("permutation", "init pos", "test positions", justify=False)
+        # for permutation, positions in self.permutation_positions.items():
+        #     f_permutation = pretty_subseq(permutation, self.heads, self.tails)
+
+        #     init_pos = self.permutations_last_init_pos[permutation]
+        #     f_init_pos = str(init_pos)
+
+        #     f_positions = ", ".join(str(pos) for pos in positions)
+
+        #     table.add_row(f_permutation, f_init_pos, f_positions)
