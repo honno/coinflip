@@ -3,6 +3,7 @@ from math import erfc
 from math import sqrt
 
 import pandas as pd
+from rich.text import Text
 from scipy.special import gammaincc
 
 from coinflip._randtests.collections import Bins
@@ -84,18 +85,24 @@ class RandomExcursionsTestResult(TestResult):
 
 class MultiRandomExcursionsTestResult(MultiTestResult):
     def __rich_console__(self, console, options):
+        min_state, min_result = self.min
+
         f_table = make_testvars_table("state", "statistic", "p-value")
         for state, result in self.items():
-            f_state = f" {state}" if state > 0 else f"{state}"
+            f_state = Text(f"{state}")
+            if state == min_state:
+                f_state.stylize("on blue")
+
             f_statistic = str(round(result.statistic, 3))
             f_p = str(round(result.p, 3))
+
             f_table.add_row(f_state, f_statistic, f_p)
+
         yield f_table
 
-        min_state, min_result = self.min
         yield ""
-        yield f"state {min_state} had the smallest p-value"
-        yield ""
+
+        yield Text("lowest p-value", style="on blue")
         yield min_result
 
 
@@ -156,16 +163,22 @@ class RandomExcursionsVariantTestResult(TestResult):
 
 class MultiRandomExcursionsVariantTestResult(MultiTestResult):
     def __rich_console__(self, console, options):
+        min_state, min_result = self.min
+
         f_table = make_testvars_table("state", "statistic", "p-value")
         for state, result in self.items():
-            f_state = f" {state}" if state > 0 else f"{state}"
+            f_state = Text(f"{state}")
+            if state == min_state:
+                f_state.stylize("on blue")
+
             f_statistic = str(round(result.statistic, 3))
             f_p = str(round(result.p, 3))
+
             f_table.add_row(f_state, f_statistic, f_p)
+
         yield f_table
 
-        min_state, min_result = self.min
         yield ""
-        yield f"state {min_state} had the smallest p-value"
-        yield ""
+
+        yield Text("lowest p-value", style="on blue")
         yield min_result
