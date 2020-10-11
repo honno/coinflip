@@ -1,3 +1,4 @@
+import sys
 import warnings
 from shutil import get_terminal_size
 
@@ -7,17 +8,17 @@ from click import File
 from click import Path
 from click import argument
 from click import confirm
-from click import echo
 from click import get_current_context
 from click import group
 from click import option
-from colorama import Fore
+from rich.console import Console
+from rich.text import Text
 
+from coinflip import console
 from coinflip import generators
 from coinflip._randtests.exceptions import NonBinarySequenceError
 from coinflip._randtests.exceptions import TestError
-from coinflip._randtests.pprint import dim
-from coinflip._randtests.pprint import pretty_seq
+from coinflip._randtests.pprint import pretty_sequence
 from coinflip.randtests import __all__ as randtest_names
 from coinflip.report import write_report
 from coinflip.store import *
@@ -39,32 +40,40 @@ __all__ = [
 # Pretty printing
 
 
-warn_txt = Fore.YELLOW + "WARN" + Fore.RESET
-err_txt = Fore.RED + "ERR!" + Fore.RESET
+warn_text = Text("WARN", style="yellow")
+err_text = Text("ERR!", style="red")
 
 
-def formatwarning(msg, *args, **kwargs):
-    """Pretty print warnings"""
-    return dim(f"{warn_txt} {msg}\n")
+def showwarning(msg, *args, **kwargs) -> str:
+    text = Text(style="dim")
+    text.append(warn_text)
+    text.append(f" {msg}")
+
+    console.print(text)
 
 
 # Monkey patch python's warning module to use our formatting
-warnings.formatwarning = formatwarning
+warnings.showwarning = showwarning
+
+err_console = Console(file=sys.stderr)
 
 
-def echo_err(e: Exception):
+def print_err(e: Exception):
     """Pretty print exceptions"""
-    line = f"{err_txt} {e}"
-    echo(line, err=True)
+    text = Text(style="bright")
+    text.append(err_text)
+    text.append(f" {e}")
+
+    err_console.print(text)
 
 
 # TODO descriptions of the series e.g. length
-def echo_series(series):
+def print_series(series):
     """Pretty print series that contain binary data"""
     size = get_terminal_size()
     cols = min(size.columns, 80)
 
-    echo(pretty_seq(series, cols))
+    console.print(pretty_sequence(series, cols))
 
 
 # ------------------------------------------------------------------------------
@@ -82,7 +91,7 @@ def get_stores(ctx, args, incomplete):
                 yield name
 
 
-# TODO extend Choice to use echo_err and newline-delimit lists
+# TODO extend Choice to use print_err and newline-delimit lists
 dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(randtest_names)
 
@@ -160,13 +169,13 @@ def load(data, name, dtype, overwrite):
     try:
         store_data(data, name=name, dtype_str=dtype, overwrite=overwrite)
     except (DataParsingError, NonBinarySequenceError, StoreError) as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
     try:
         store = find_latest_store()
         series = get_data(store)
-        echo_series(series)
+        print_series(series)
     except (NoLatestStoreRecordedError, StoreNotFoundError):
         exit(0)
 
@@ -189,7 +198,7 @@ def rm_all():
 def ls():
     """List all stores."""
     for store in list_stores():
-        echo(store)
+        console.print(store)
 
 
 @main.command()
@@ -201,9 +210,9 @@ def cat(store):
 
     try:
         series = get_data(store)
-        echo_series(series)
+        print_series(series)
     except StoreNotFoundError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
 
@@ -223,7 +232,7 @@ def run(store, test):
     try:
         series = get_data(store)
     except StoreNotFoundError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
     try:
@@ -231,24 +240,24 @@ def run(store, test):
             results = {}
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    print_err(e)
                 else:
                     results[name] = result
 
             store_results(store, results)
-            echo("Results stored!")
+            console.print("Results stored!")
         else:
             try:
                 result = run_test(series, test)
                 store_result(store, test, result)
-                echo("Result stored!")
+                console.print("Result stored!")
 
             except TestError as e:
-                echo_err(e)
+                print_err(e)
                 exit(1)
 
     except NonBinarySequenceError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
 
@@ -270,24 +279,24 @@ def example_run(example, length, test):
 
     series = pd.Series(next(generator) for _ in range(length))
     series = series.infer_objects()
-    echo_series(series)
-    echo()
+    print_series(series)
+    console.print()
 
     try:
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    print_err(e)
 
         else:
             try:
                 run_test(series, test)
             except TestError as e:
-                echo_err(e)
+                print_err(e)
                 exit(1)
 
     except NonBinarySequenceError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
 
@@ -299,26 +308,26 @@ def local_run(data, dtype, test):
     """Run randomness tests on DATA directly."""
     try:
         series = parse_data(data)
-        echo_series(series)
+        print_series(series)
     except (DataParsingError, NonBinarySequenceError) as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
     try:
         if not test:
             for name, result, e in run_all_tests(series):
                 if e:
-                    echo_err(e)
+                    print_err(e)
 
         else:
             try:
                 run_test(series, test)
             except TestError as e:
-                echo_err(e)
+                print_err(e)
                 exit(1)
 
     except NonBinarySequenceError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)
 
 
@@ -329,7 +338,9 @@ def local_run(data, dtype, test):
 def report(store, outfile):
     """Generate html report from test results in STORE."""
     if not outfile:
-        echo("Please specify --outfile! Default behaviour is not implemented yet")
+        console.print(
+            "Please specify --outfile! Default behaviour is not implemented yet"
+        )
         exit(1)
 
     if not store:
@@ -338,8 +349,8 @@ def report(store, outfile):
     try:
         with open_results(store) as results:
             for e in write_report(results, outfile):
-                echo_err(e)
+                print_err(e)
 
     except StoreNotFoundError as e:
-        echo_err(e)
+        print_err(e)
         exit(1)

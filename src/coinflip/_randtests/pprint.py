@@ -1,13 +1,19 @@
-"""Coloured ASCII art representations of binary sequences."""
 from functools import lru_cache
+from typing import Iterable
 from typing import Tuple
 
-from colorama import Style
+from rich.console import RenderGroup
+from rich.console import render_group
+from rich.style import Style
+from rich.text import Text
 
-from coinflip._randtests.testutils import blocks
 from coinflip._randtests.testutils import infer_faces
+from coinflip._randtests.testutils import rawblocks
 
-__all__ = ["determine_rep", "pretty_subseq", "pretty_seq", "dim", "bright"]
+__all__ = ["determine_rep", "pretty_subseq", "pretty_sequence"]
+
+dim = Style(dim=True)
+bright = Style(bold=True, dim=False)
 
 
 @lru_cache()
@@ -37,36 +43,37 @@ def determine_rep(heads, tails) -> Tuple[str, str]:
     return heads_rep, tails_rep
 
 
-def pretty_subseq(series, heads, tails) -> str:
+def pretty_subseq(subseq: Iterable, heads, tails) -> Text:
     """Produce a one-line pretty representation of a subsequence
 
     Parameters
     ----------
-    series : ``Series``
+    subseq : ``List``
         Subsequence to represent
     heads : ``Any``
-        One of the two values in ``series``
+        One of the two values in ``subseq``
     tails : ``Any``
-        Value in ``series`` which is not ``heads``
+        Value in ``subseq`` which is not ``heads``
 
     Returns
     -------
-    series_rep : ``str``
-        Pretty representation of ``series``
-
-    See Also
-    --------
-    determine_rep : Method used to determine the ``series`` character representations
+    subseq_rep: ``Text``
+        Pretty representation of ``subseq``
     """
     heads_rep, tails_rep = determine_rep(heads, tails)
-    series = series.map({heads: heads_rep, tails: tails_rep})
 
-    series_rep = "".join(rep for _, rep in series.items())
+    subseq_rep = ""
+    for element in subseq:
+        if element == heads:
+            subseq_rep += heads_rep
+        else:
+            subseq_rep += tails_rep
 
-    return bright(series_rep)
+    return Text(subseq_rep, style=bright)
 
 
-def pretty_seq(series, cols) -> str:
+@render_group()
+def pretty_sequence(series, cols) -> RenderGroup:
     """Produce a multi-line representation of a sequence
 
     Parameters
@@ -78,117 +85,68 @@ def pretty_seq(series, cols) -> str:
 
     Returns
     -------
-    series_rep : ``str``
+    series_rep : ``RenderGroup``
         Pretty represented of a sequence
-
-    See Also
-    --------
-    infer_faces : Method used to infer the `heads` and `tails` of the ``series``
-    pretty_subseq : Method wrapped to generate rows
     """
     values = series.unique()
     heads, tails = infer_faces(tuple(values))
 
-    pad = 4
-    l_border = dim("  | ")
-    l_arrow = dim(" <  ")
-    r_border = dim(" |  ")
-    r_arrow = dim("  > ")
-    outer = cols - pad
-    inner = outer - pad
+    gap = 2
 
-    def pretty_row(series):
-        return pretty_subseq(series, heads, tails)
+    outer_w = cols - 2 * gap
+    inner_w = outer_w - 2 * gap
 
-    lines = []
+    pad = Text("".join(" " for _ in range(gap)))
+
+    l_border = Text("  | ", style=dim)
+    r_border = Text(" |  ", style=dim)
+
+    l_arrow = Text(" <  ", style=dim)
+    r_arrow = Text("  > ", style=dim)
+
+    def make_hline(width) -> Text:
+        return Text("+" + "".join("-" for _ in range(width - 2)) + "+", style=dim)
+
+    def pretty_row(row) -> Text:
+        return pretty_subseq(row, heads, tails)
 
     n = len(series)
-    if n <= inner:
-        border = "  " + hline(n + 4) + "  "
+    if n <= inner_w:
+        border = pad + make_hline(n + 4) + pad
 
-        lines.append(border)
-
-        f_series = l_border + pretty_row(series) + r_border
-        lines.append(f_series)
-
-        lines.append(border)
+        yield border
+        yield l_border + pretty_row(series.array) + r_border
+        yield border
 
     else:
-        border = "  " + hline(outer) + "  "
-        rows = list(blocks(series, blocksize=cols - 8, truncate=False))
+        border = pad + make_hline(outer_w) + pad
+        rows = list(rawblocks(series, blocksize=inner_w, truncate=False))
 
-        lines.append(border)
-
-        f_row_first = l_border + pretty_row(rows[0]) + r_arrow
-        lines.append(f_row_first)
-        lines.append(border)
-
-        def echo_row(row):
-            frow = l_arrow + pretty_row(row) + r_arrow
-            lines.append(frow)
+        yield border
+        yield l_border + pretty_row(rows[0]) + r_arrow
+        yield border
 
         nrows = len(rows)
-        if nrows > 10:
-            for row in rows[1:5]:
-                echo_row(row)
-                lines.append(border)
-
-            omit_msg = dim(f"..omitting {nrows - 10} rows..")
-            omit_pad = "".join(" " for _ in range((cols // 2) - (len(omit_msg) // 2)))
-            f_omit = omit_pad + omit_msg
-            lines.append(f_omit)
-            lines.append(border)
-
-            for row in rows[-5:-1]:
-                echo_row(row)
-                lines.append(border)
+        if nrows <= 12:
+            for row in rows[1:-1]:
+                yield l_arrow + pretty_row(row) + r_arrow
+                yield border
 
         else:
-            for row in rows[1:-1]:
-                echo_row(row)
-                lines.append(border)
+            for row in rows[1:4]:
+                yield l_arrow + pretty_row(row) + r_arrow
+                yield border
 
-        f_row_last = l_arrow + pretty_row(rows[-1]) + r_border
-        lines.append(f_row_last)
+            omit_msg = f"..omitting {nrows - 10} rows.."
+            omit_gap = cols // 2 - len(omit_msg) // 2
+            omit_pad = "".join(" " for _ in range(omit_gap))
 
-        border_last = "  " + hline(len(rows[-1]) + pad)
-        lines.append(border_last + Style.RESET_ALL)
+            yield Text(omit_pad + omit_msg, style=dim)
+            yield border
 
-    return "\n".join(lines)
+            for row in rows[-4:-1]:
+                yield l_arrow + pretty_row(row) + r_arrow
+                yield border
 
-
-def hline(width) -> str:
-    """Construct a horizontal line string"""
-    return dim("+" + "".join("-" for _ in range(width - 2)) + "+")
-
-
-def dim(string) -> str:
-    """Wrap string in dim character codes
-
-    Parameters
-    ----------
-    string : ``str``
-        String to wrap
-
-    Returns
-    -------
-    ``str``
-        Wrapped string
-    """
-    return Style.DIM + string + Style.RESET_ALL
-
-
-def bright(string) -> str:
-    """Wrap string in bright character codes
-
-    Parameters
-    ----------
-    string : ``str``
-        String to wrap
-
-    Returns
-    -------
-    ``str``
-        Wrapped string
-    """
-    return Style.BRIGHT + string + Style.RESET_ALL
+        yield l_arrow + pretty_row(rows[-1]) + r_border
+        yield pad + make_hline(len(rows[-1]) + 2 * gap)

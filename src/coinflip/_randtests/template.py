@@ -10,10 +10,11 @@ from typing import Any
 from typing import List
 from typing import Tuple
 
+from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
 
-from coinflip._randtests.pprint import determine_rep
+from coinflip._randtests.pprint import pretty_subseq
 from coinflip._randtests.result import MultiTestResult
 from coinflip._randtests.result import TestResult
 from coinflip._randtests.result import make_testvars_table
@@ -23,19 +24,6 @@ from coinflip._randtests.testutils import randtest
 from coinflip._randtests.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
-
-
-def pretty_template(template, heads, tails):
-    c_rep, nc_rep = determine_rep(heads, tails)
-
-    template_rep = ""
-    for value in template:
-        if value == heads:
-            template_rep += c_rep
-        elif value == tails:
-            template_rep += nc_rep
-
-    return template_rep
 
 
 # ------------------------------------------------------------------------------
@@ -118,6 +106,9 @@ class NonOverlappingTemplateMatchingTestResult(TestResult):
 
         yield ""
 
+        f_template = pretty_subseq(self.template, self.heads, self.tails)
+        yield Text("template used: ") + f_template
+
         f_matches_expect = round(self.matches_expect, 1)
         yield f"expected matches per block: {f_matches_expect}"
 
@@ -139,16 +130,13 @@ class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
     def __rich_console__(self, console, options):
         f_table = make_testvars_table("template", "statistic", "p-value")
         for template, result in self.items():
-            f_template = pretty_template(template, self.heads, self.tails)
+            f_template = pretty_subseq(template, self.heads, self.tails)
             f_statistic = str(round(result.statistic, 3))
             f_p = str(round(result.p, 3))
             f_table.add_row(f_template, f_statistic, f_p)
         yield f_table
 
         min_template, min_result = self.min
-        f_min_template = pretty_template(template, self.heads, self.tails)
-        yield ""
-        yield f"template {f_min_template} had the smallest p-value"
         yield ""
         yield min_result
 
@@ -246,8 +234,8 @@ class OverlappingTemplateMatchingTestResult(TestResult):
 
         yield ""
 
-        f_template = pretty_template(self.template, self.heads, self.tails)
-        yield f"template: {f_template}"
+        f_template = pretty_subseq(self.template, self.heads, self.tails)
+        yield Text("template used: ") + f_template
 
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
