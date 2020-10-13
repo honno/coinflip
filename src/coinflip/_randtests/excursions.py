@@ -83,7 +83,7 @@ class RandomExcursionsTestResult(TestResult):
     state: int
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
 
 class MultiRandomExcursionsTestResult(MultiTestResult):
@@ -151,7 +151,7 @@ class RandomExcursionsVariantTestResult(TestResult):
     state: int
 
     def __rich_console__(self, console, options):
-        yield self._results_text("count")
+        yield self._pretty_result("count")
 
 
 class MultiRandomExcursionsVariantTestResult(MultiTestResult):

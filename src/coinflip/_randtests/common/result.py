@@ -11,6 +11,8 @@ from rich import box
 from rich.console import Console
 from rich.console import ConsoleRenderable
 from rich.console import RenderableType
+from rich.console import RenderGroup
+from rich.console import render_group
 from rich.padding import Padding
 from rich.table import Table
 from rich.text import Text
@@ -23,7 +25,6 @@ __all__ = [
     "MultiTestResult",
     "make_testvars_table",
     "make_reality_check_table",
-    "vars_list",
     "smartround",
 ]
 
@@ -65,20 +66,18 @@ class TestResult(BaseTestResult):
     statistic: Union[int, float]
     p: float
 
-    def _results_text(self, stat_varname="statistic") -> Text:
-        """``Text`` of the statistic and p-value
+    def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
+        return make_testvars_list(
+            "result", (stat_varname, self.statistic), ("p-value", self.p)
+        )
 
-        Parameters
-        ----------
-        stat_varname : ``str``, default ``"statistic"``
-            Name describing the statistic
-
-        Returns
-        -------
-        ``Text``
-            Multi-line Rich ``Text`` variable list
-        """
-        return vars_list((stat_varname, self.statistic), ("p-value", self.p))
+    def _pretty_inputs(
+        self, *name_value_pairs: Iterable[Union[int, float]]
+    ) -> RenderGroup:
+        title = "test input"
+        if len(name_value_pairs) > 1:
+            title += "s"
+        return make_testvars_list(title, *name_value_pairs)
 
 
 class MultiTestResult(dict, BaseTestResult):
@@ -184,7 +183,12 @@ def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
     return table
 
 
-def vars_list(*varname_value_pairs: Tuple[str, Union[int, float]]) -> Text:
+@render_group()
+def make_testvars_list(
+    title: str, *varname_value_pairs: Tuple[str, Union[int, float]]
+) -> RenderGroup:
+    yield Text(title, style="bold")
+
     varnames, values = zip(*varname_value_pairs)
 
     varname_maxlen = max(len(varname) for varname in varnames)
@@ -192,10 +196,8 @@ def vars_list(*varname_value_pairs: Tuple[str, Union[int, float]]) -> Text:
 
     f_values = align_nums(values)
 
-    f_varname_value_pairs = [
-        f_varname + "  " + f_value for f_varname, f_value in zip(f_varnames, f_values)
-    ]
-    return Text("\n".join(f_varname_value_pairs))
+    for f_varname, f_value in zip(f_varnames, f_values):
+        yield f"  {f_varname}  {f_value}"
 
 
 def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:

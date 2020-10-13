@@ -114,7 +114,7 @@ class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     match_diffs: List[float]
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
         yield ""
 
@@ -231,7 +231,7 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     tallies: List[int]
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
         yield ""
 

@@ -5,12 +5,10 @@ from math import sqrt
 
 import pandas as pd
 from numpy.fft import fft
-from rich.padding import Padding
-from rich.text import Text
 
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import vars_list
+from coinflip._randtests.common.result import make_testvars_list
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 
@@ -67,14 +65,11 @@ class SpectralTestResult(TestResult):
         pass
 
     def __rich_console__(self, console, options):
-        yield self._results_text("normalised diff")
+        yield self._pretty_result("normalised diff")
 
-        yield ""
-
-        yield Text("npeaks above threshold", style="bold")
-        f_vars_list = vars_list(
+        yield make_testvars_list(
+            "npeaks above threshold",
             ("actual", self.nbelow),
             ("expected", self.nbelow_expected),
             ("diff", self.diff),
         )
-        yield Padding(f_vars_list, (0, 0, 0, 2))

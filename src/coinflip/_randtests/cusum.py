@@ -54,4 +54,4 @@ class CusumTestResult(TestResult):
     reverse: bool
 
     def __rich_console__(self, console, options):
-        yield self._results_text("max cusum")
+        yield self._pretty_result("max cusum")

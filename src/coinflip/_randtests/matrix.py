@@ -8,7 +8,6 @@ from typing import Tuple
 
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_reality_check_table
-from coinflip._randtests.common.result import vars_list
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
@@ -104,12 +103,12 @@ class BinaryMatrixRankTestResult(TestResult):
     rankcounts: RankCounts
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
         yield ""
 
-        yield vars_list(
-            ("nrows", self.nrows), ("ncols", self.ncols),
+        yield self._pretty_inputs(
+            ("no. of rows", self.nrows), ("no. of cols", self.ncols),
         )
 
         runnerup = self.fullrank - 1

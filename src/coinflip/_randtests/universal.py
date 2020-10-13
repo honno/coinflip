@@ -16,7 +16,6 @@ from typing import Tuple
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import vars_list
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
@@ -162,11 +161,11 @@ class UniversalTestResult(TestResult):
     permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
 
     def __rich_console__(self, console, options):
-        yield self._results_text("log2 distances")
+        yield self._pretty_result("log2 distances")
 
         yield ""
 
-        yield vars_list(
+        yield self._pretty_inputs(
             ("init nblocks", self.init_nblocks), ("test nblocks", self.segment_nblocks)
         )
 

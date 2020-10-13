@@ -62,7 +62,7 @@ class MonobitTestResult(TestResult):
         )
 
     def __rich_console__(self, console, options):
-        yield self._results_text("normalised diff")
+        yield self._pretty_result("normalised diff")
 
         counts = make_testvars_table("value", "count")
         counts.add_row(str(self.maxcount.value), str(self.maxcount.count))
@@ -176,7 +176,7 @@ class FrequencyWithinBlockTestResult(TestResult):
     occurences: List[int]
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
         yield ""
 

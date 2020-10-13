@@ -86,7 +86,7 @@ class LinearComplexityTestResult(TestResult):
     variance_bins: Bins
 
     def __rich_console__(self, console, options):
-        yield self._results_text("chi-square")
+        yield self._pretty_result("chi-square")
 
         table = make_reality_check_table(
             "variance",
