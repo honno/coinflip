@@ -8,13 +8,13 @@ from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
-from scipy.special import gammaincc
+from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_reality_check_table
+from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
@@ -98,7 +98,6 @@ def longest_runs(series, heads, tails):
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         ) from e
-    df = len(maxlen_bin_intervals) - 1
     maxlen_bins = Bins(maxlen_bin_intervals)
 
     try:
@@ -120,14 +119,7 @@ def longest_runs(series, heads, tails):
 
         maxlen_bins[maxlen] += 1
 
-    reality_check = []
-    bincounts = maxlen_bins.values()
-    for count_expect, count in zip(expected_bincounts, bincounts):
-        diff = (count - count_expect) ** 2 / count_expect
-        reality_check.append(diff)
-
-    statistic = sum(reality_check)
-    p = gammaincc(df / 2, statistic / 2)
+    statistic, p = chisquare(list(maxlen_bins.values()), expected_bincounts)
 
     return LongestRunsTestResult(
         heads, tails, statistic, p, blocksize, nblocks, expected_bincounts, maxlen_bins,
@@ -148,7 +140,7 @@ class LongestRunsTestResult(TestResult):
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        table = make_reality_check_table(
+        table = make_chisquare_table(
             "maxlen", f_ranges, self.expected_bincounts, self.maxlen_bins.values(),
         )
 

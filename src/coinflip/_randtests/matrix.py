@@ -1,13 +1,14 @@
 from dataclasses import astuple
 from dataclasses import dataclass
-from math import exp
 from math import floor
 from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
+from scipy.stats import chisquare
+
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_reality_check_table
+from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
@@ -78,8 +79,7 @@ def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = Non
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
-    statistic = sum(reality_check)
-    p = exp(-statistic / 2)
+    statistic, p = chisquare(astuple(rankcounts), astuple(expected_rankcounts))
 
     return BinaryMatrixRankTestResult(
         heads,
@@ -119,7 +119,7 @@ class BinaryMatrixRankTestResult(TestResult):
             "0" if remaining == 0 else f"0-{remaining}",
         ]
 
-        table = make_reality_check_table(
+        table = make_chisquare_table(
             "ranks",
             f_ranks,
             astuple(self.expected_rankcounts),

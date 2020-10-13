@@ -13,11 +13,12 @@ from typing import Tuple
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
+from scipy.stats import chisquare
 
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_reality_check_table
+from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
@@ -203,14 +204,7 @@ def overlapping_template_matching(
         i = min(matches, 5)
         tallies[i] += 1
 
-    reality_check = []
-    for tally_expect, tally in zip(expected_tallies, tallies):
-        diff = (tally - tally_expect) ** 2 / tally_expect
-        reality_check.append(diff)
-
-    statistic = sum(reality_check)
-
-    p = gammaincc(df / 2, statistic / 2)  # TODO should first param be df / 2
+    statistic, p = chisquare(tallies, expected_tallies)
 
     return OverlappingTemplateMatchingTestResult(
         heads,
@@ -240,7 +234,7 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
-        table = make_reality_check_table(
+        table = make_chisquare_table(
             "matches", f_nmatches, self.expected_tallies, self.tallies,
         )
 

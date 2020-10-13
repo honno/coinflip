@@ -24,7 +24,7 @@ __all__ = [
     "TestResult",
     "MultiTestResult",
     "make_testvars_table",
-    "make_reality_check_table",
+    "make_chisquare_table",
     "smartround",
 ]
 
@@ -150,7 +150,7 @@ class MultiTestResult(dict, BaseTestResult):
         return meta_table
 
 
-def make_reality_check_table(
+def make_chisquare_table(
     feature: str,
     classes: Iterable[Any],
     expected_occurences: Iterable[Union[int, float]],

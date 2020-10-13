@@ -5,7 +5,7 @@ from math import sqrt
 
 import pandas as pd
 from rich.text import Text
-from scipy.special import gammaincc
+from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.result import MultiTestResult
@@ -65,13 +65,7 @@ def random_excursions(series, heads, tails):
         probabilities = state_probabilities[abs(state)]
         expected_bincounts = [ncycles * prob for prob in probabilities]
 
-        reality_check = []
-        for count_expect, count in zip(expected_bincounts, bincounts):
-            diff = (count - count_expect) ** 2 / count_expect
-            reality_check.append(diff)
-
-        statistic = sum(reality_check)
-        p = gammaincc(df / 2, statistic / 2)
+        statistic, p = chisquare(list(bincounts), expected_bincounts)
 
         results[state] = RandomExcursionsTestResult(heads, tails, statistic, p, state)
 

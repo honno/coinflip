@@ -4,11 +4,11 @@ from math import floor
 from math import sqrt
 from typing import List
 
-from scipy.special import gammaincc
+from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_reality_check_table
+from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
@@ -66,13 +66,7 @@ def linear_complexity(series, heads, tails, blocksize=None):
         variance = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
         variance_bins[variance] += 1
 
-    reality_check = []
-    for count_expect, count in zip(expected_bincounts, variance_bins.values()):
-        diff = (count - count_expect) ** 2 / count_expect
-        reality_check.append(diff)
-
-    statistic = sum(reality_check)
-    p = gammaincc(df / 2, statistic / 2)
+    statistic, p = chisquare(list(variance_bins.values()), expected_bincounts)
 
     return LinearComplexityTestResult(
         heads, tails, statistic, p, blocksize, expected_bincounts, variance_bins
@@ -88,7 +82,7 @@ class LinearComplexityTestResult(TestResult):
     def __rich_console__(self, console, options):
         yield self._pretty_result("chi-square")
 
-        table = make_reality_check_table(
+        table = make_chisquare_table(
             "variance",
             self.variance_bins.keys(),
             self.expected_bincounts,
