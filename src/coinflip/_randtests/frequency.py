@@ -182,13 +182,14 @@ class FrequencyWithinBlockTestResult(TestResult):
 
         occur_expect = self.blocksize / 2
         f_occur_expect = smartround(occur_expect)
-        yield Text(f"expected occurences per block: {f_occur_expect}")
+        yield Text(f"expected occurences of {self.heads} per block: {f_occur_expect}")
 
         occur_counts = Counter(self.occurences)
-        testvars = make_testvars_table("occur", "count")
+        table = make_testvars_table("count", "nblocks")
         for occur, count in sorted(occur_counts.items()):
-            testvars.add_row(str(occur), str(count))
-        yield testvars
+            table.add_row(str(occur), str(count))
+
+        yield table
 
     # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):

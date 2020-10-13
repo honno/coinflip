@@ -8,6 +8,7 @@ from scipy.special import gammaincc
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import make_reality_check_table
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
@@ -59,30 +60,41 @@ def linear_complexity(series, heads, tails, blocksize=None):
     )
     expected_bincounts = [nblocks * prob for prob in probabilities]
 
-    # TODO more appropiate name for t_bins and t
-    t_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
+    variance_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
     for block_tup in rawblocks(binary, blocksize):
         linear_complexity = berlekamp_massey(block_tup)
-        t = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
-        t_bins[t] += 1
+        variance = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
+        variance_bins[variance] += 1
 
     reality_check = []
-    for count_expect, count in zip(expected_bincounts, t_bins.values()):
+    for count_expect, count in zip(expected_bincounts, variance_bins.values()):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
     statistic = sum(reality_check)
     p = gammaincc(df / 2, statistic / 2)
 
-    return LinearComplexityTestResult(heads, tails, statistic, p, blocksize)
+    return LinearComplexityTestResult(
+        heads, tails, statistic, p, blocksize, expected_bincounts, variance_bins
+    )
 
 
 @dataclass
 class LinearComplexityTestResult(TestResult):
     blocksize: int
+    expected_bincounts: List[float]
+    variance_bins: Bins
 
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
+
+        table = make_reality_check_table(
+            "variance",
+            self.variance_bins.keys(),
+            self.expected_bincounts,
+            self.variance_bins.values(),
+        )
+        yield table
 
 
 def berlekamp_massey(sequence: List[int]) -> int:

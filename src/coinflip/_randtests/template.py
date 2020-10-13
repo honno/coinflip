@@ -17,6 +17,7 @@ from scipy.special import hyp1f1
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import make_reality_check_table
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
@@ -229,12 +230,6 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     expected_tallies: List[int]
     tallies: List[int]
 
-    def __post_init__(self):
-        self.tally_diffs = []
-        for expect, actual in zip(self.expected_tallies, self.tallies):
-            diff = actual - expect
-            self.tally_diffs.append(diff)
-
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 
@@ -245,12 +240,8 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
-        table = zip(f_nmatches, self.tallies, self.expected_tallies, self.tally_diffs)
-        f_table = make_testvars_table("matches", "count", "expect", "diff")
-        for f_matches, count, count_expect, diff in table:
-            f_count = str(count)
-            f_count_expect = str(round(count_expect, 1))
-            f_diff = str(round(diff, 1))
-            f_table.add_row(f_matches, f_count, f_count_expect, f_diff)
+        table = make_reality_check_table(
+            "matches", f_nmatches, self.expected_tallies, self.tallies,
+        )
 
-        yield f_table
+        yield table

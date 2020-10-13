@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from io import StringIO
 from typing import Any
+from typing import Iterable
 from typing import List
 from typing import Tuple
 from typing import Union
@@ -21,6 +22,8 @@ __all__ = [
     "TestResult",
     "MultiTestResult",
     "make_testvars_table",
+    "make_reality_check_table",
+    "vars_list",
     "smartround",
 ]
 
@@ -148,25 +151,37 @@ class MultiTestResult(dict, BaseTestResult):
         return meta_table
 
 
-def make_testvars_table(*columns) -> Table:
-    table = Table(box=box.SQUARE)
+def make_reality_check_table(
+    feature: str,
+    classes: Iterable[Any],
+    expected_occurences: Iterable[Union[int, float]],
+    actual_occurences: Iterable[Union[int, float]],
+) -> Table:
+    f_table = make_testvars_table(
+        feature, "expect", "actual", "diff", title=f"occurences of {feature}"
+    )
+
+    table = zip(classes, expected_occurences, actual_occurences)
+    for class_, nblocks_expect, nblocks in table:
+        f_class = str(class_)
+        f_nblocks_expect = str(smartround(nblocks_expect))
+        f_nblocks = str(nblocks)
+
+        diff = nblocks - nblocks_expect
+        f_diff = str(smartround(diff, 1))
+
+        f_table.add_row(f_class, f_nblocks_expect, f_nblocks, f_diff)
+
+    return f_table
+
+
+def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
+    table = Table(box=box, **kwargs)
     table.add_column(columns[0], justify="left")
     for col in columns[1:]:
         table.add_column(col, justify="right")
 
     return table
-
-
-def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:
-    """Round number only if it's a float"""
-    if isinstance(num, int):
-        return int(num)
-    else:
-        return round(num, ndigits)
-
-
-# ------------------------------------------------------------------------------
-# Helpers
 
 
 def vars_list(*varname_value_pairs: Tuple[str, Union[int, float]]) -> Text:
@@ -181,6 +196,18 @@ def vars_list(*varname_value_pairs: Tuple[str, Union[int, float]]) -> Text:
         f_varname + "  " + f_value for f_varname, f_value in zip(f_varnames, f_values)
     ]
     return Text("\n".join(f_varname_value_pairs))
+
+
+def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:
+    """Round number only if it's a float"""
+    if isinstance(num, int):
+        return int(num)
+    else:
+        return round(num, ndigits)
+
+
+# ------------------------------------------------------------------------------
+# Helpers
 
 
 def align_nums(nums):

@@ -7,7 +7,7 @@ from typing import Iterable
 from typing import Tuple
 
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.result import make_reality_check_table
 from coinflip._randtests.common.result import vars_list
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
@@ -103,15 +103,6 @@ class BinaryMatrixRankTestResult(TestResult):
     expected_rankcounts: RankCounts
     rankcounts: RankCounts
 
-    def __post_init__(self):
-        expected_counts = astuple(self.expected_rankcounts)
-        counts = astuple(self.rankcounts)
-
-        self.rankcount_diffs = []
-        for expect, actual in zip(expected_counts, counts):
-            diff = actual - expect
-            self.rankcount_diffs.append(diff)
-
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 
@@ -129,20 +120,14 @@ class BinaryMatrixRankTestResult(TestResult):
             "0" if remaining == 0 else f"0-{remaining}",
         ]
 
-        table = zip(
+        table = make_reality_check_table(
+            "ranks",
             f_ranks,
-            astuple(self.rankcounts),
             astuple(self.expected_rankcounts),
-            self.rankcount_diffs,
+            astuple(self.rankcounts),
         )
-        f_table = make_testvars_table("rank", "count", "expect", "diff")
-        for f_rank, count, count_expect, diff in table:
-            f_count = str(count)
-            f_count_expect = str(round(count_expect, 1))
-            f_diff = str(round(diff, 1))
-            f_table.add_row(f_rank, f_count, f_count_expect, f_diff)
 
-        yield f_table
+        yield table
 
 
 def matrix_rank(matrix: Iterable[Iterable[int]]) -> int:

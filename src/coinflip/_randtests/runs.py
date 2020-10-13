@@ -14,7 +14,7 @@ from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.result import make_reality_check_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
@@ -141,12 +141,6 @@ class LongestRunsTestResult(TestResult):
     expected_bincounts: List[float]
     maxlen_bins: Bins
 
-    def __post_init__(self):
-        self.freqbin_diffs = []
-        for expected, actual in zip(self.expected_bincounts, self.maxlen_bins.values()):
-            diff = expected - actual
-            self.freqbin_diffs.append(diff)
-
     def __rich_console__(self, console, options):
         yield self._results_text("chi-square")
 
@@ -154,21 +148,11 @@ class LongestRunsTestResult(TestResult):
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
-        table = zip(
-            f_ranges,
-            self.maxlen_bins.values(),
-            self.expected_bincounts,
-            self.freqbin_diffs,
+        table = make_reality_check_table(
+            "maxlen", f_ranges, self.expected_bincounts, self.maxlen_bins.values(),
         )
-        f_table = make_testvars_table("maxlen", "nblocks", "expect", "diff")
-        for f_range, count, count_expect, diff in table:
-            f_count = str(count)
-            f_count_expect = str(round(count_expect, 1))
-            f_diff = str(round(diff, 1))
 
-            f_table.add_row(f_range, f_count, f_count_expect, f_diff)
-
-        yield f_table
+        yield table
 
 
 # ------------------------------------------------------------------------------
