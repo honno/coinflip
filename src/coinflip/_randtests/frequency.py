@@ -1,5 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 from math import erfc
 from math import sqrt
 from typing import Any
@@ -27,54 +28,66 @@ __all__ = ["monobit", "frequency_within_block"]
 # Frequency (Monobit) Test
 
 
+class ValueCount(NamedTuple):
+    value: Any
+    count: int
+
+
+class FaceCounts(NamedTuple):
+    heads: ValueCount
+    tails: ValueCount
+
+    @property
+    @lru_cache()
+    def max(self):
+        return max(*self, key=lambda value_count: value_count.count)
+
+    @property
+    @lru_cache()
+    def min(self):
+        return min(*self, key=lambda value_count: value_count.count)
+
+    @classmethod
+    def from_series(cls, series, heads, tails):
+        heads = ValueCount(heads, series[heads])
+        tails = ValueCount(tails, series[tails])
+        return cls(heads, tails)
+
+
 @randtest()
 def monobit(series, heads, tails):
     n = len(series)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
-    counts = series.value_counts()
+    counts = FaceCounts.from_series(series.value_counts(), heads, tails)
 
-    diff = abs(counts.iloc[0] - counts.iloc[1])
+    diff = counts.max.count - counts.min.count
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
 
-    return MonobitTestResult(heads, tails, normdiff, p, counts, n, diff)
-
-
-class ValueCount(NamedTuple):
-    value: Any
-    count: int
+    return MonobitTestResult(heads, tails, normdiff, p, n, counts, diff)
 
 
 @dataclass
 class MonobitTestResult(TestResult):
-    counts: pd.Series
     n: int
+    counts: FaceCounts
     diff: int
-
-    # TODO logic in test itself
-    def __post_init__(self):
-        self.maxcount = ValueCount(
-            value=self.counts.index.values[0], count=self.counts.values[0]
-        )
-        self.mincount = ValueCount(
-            value=self.counts.index.values[-1], count=self.counts.values[-1]
-        )
 
     def _render(self):
         yield self._pretty_result("normalised diff")
 
         counts = make_testvars_table("value", "count")
-        counts.add_row(str(self.maxcount.value), str(self.maxcount.count))
-        counts.add_row(str(self.mincount.value), str(self.mincount.count))
+        counts.add_row(str(self.counts.max.value), str(self.counts.max.count))
+        counts.add_row(str(self.counts.min.value), str(self.counts.min.count))
         yield counts
 
     def plot_counts(self):
         df = pd.DataFrame(
             {
-                "Value": [self.maxcount.value, self.mincount.value],
-                "Count": [self.maxcount.count, self.mincount.count],
+                "Value": [self.counts.max.value, self.counts.min.value],
+                "Count": [self.counts.max.count, self.counts.min.count],
             }
         )
         df["Value"] = df["Value"].astype("category")
@@ -88,7 +101,7 @@ class MonobitTestResult(TestResult):
                 tooltip=["Value", "Count"],
             )
             .properties(
-                title=f"Counts of {self.maxcount.value} and {self.mincount.value}"
+                title=f"Counts of {self.counts.max.value} and {self.counts.min.value}"
             )
         )
 

@@ -121,6 +121,7 @@ class MultiTestResult(dict, BaseTestResult):
     def pvalues(self) -> List[float]:
         return [result.p for result in self.values()]
 
+    @property
     @lru_cache()
     def min(self):
         items = iter(self.items())
@@ -136,7 +137,7 @@ class MultiTestResult(dict, BaseTestResult):
         pass
 
     def _results_table(self, feature_varname: str, stat_varname: str) -> Table:
-        min_feature, min_result = self.min()
+        min_feature, min_result = self.min
 
         table = make_testvars_table(feature_varname, stat_varname, "p")
         for feature, result in self.items():
