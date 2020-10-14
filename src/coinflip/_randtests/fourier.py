@@ -64,7 +64,7 @@ class SpectralTestResult(TestResult):
     def __post_init__(self):
         pass
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("normalised diff")
 
         yield make_testvars_list(

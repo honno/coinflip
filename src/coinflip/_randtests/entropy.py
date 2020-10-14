@@ -52,5 +52,5 @@ def approximate_entropy(series, heads, tails, blocksize=None):
 class ApproximateEntropyTestResult(TestResult):
     blocksize: int
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")

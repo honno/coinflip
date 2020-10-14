@@ -171,8 +171,6 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             yield name, None, e
             results[name] = None
 
-        console.print()
-
     # TODO print a table
     # table = Table(box=box.DOUBLE)
     # table.add_column("Statistical Test", justify="eft")

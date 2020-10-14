@@ -60,14 +60,13 @@ def serial(series, heads, tails, blocksize=None):
 class SerialTestResult(TestResult):
     blocksize: int
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
 
 
 class MultiSerialTestResult(MultiTestResult):
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield "First"
         yield self[1]
-        yield ""
         yield "Second"
         yield self[2]

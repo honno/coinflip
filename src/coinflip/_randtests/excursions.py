@@ -144,7 +144,7 @@ def random_excursions_variant(series, heads, tails):
 class RandomExcursionsVariantTestResult(TestResult):
     state: int
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("count")
 
 

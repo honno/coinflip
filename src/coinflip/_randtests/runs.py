@@ -50,7 +50,7 @@ def runs(series, heads, tails):
 
 @dataclass
 class RunsTestResult(TestResult):
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("no. of runs")
 
 
@@ -133,7 +133,7 @@ class LongestRunsTestResult(TestResult):
     expected_bincounts: List[float]
     maxlen_bins: Bins
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
 
         f_ranges = [str(x) for x in self.maxlen_bins.keys()]

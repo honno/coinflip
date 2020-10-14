@@ -3,17 +3,18 @@ from functools import lru_cache
 from io import StringIO
 from typing import Any
 from typing import Iterable
+from typing import Iterator
 from typing import List
 from typing import Tuple
 from typing import Union
 
 from rich import box
 from rich.console import Console
-from rich.console import ConsoleRenderable
 from rich.console import RenderableType
 from rich.console import RenderGroup
 from rich.console import render_group
 from rich.padding import Padding
+from rich.segment import Segment
 from rich.table import Table
 from rich.text import Text
 
@@ -29,8 +30,17 @@ __all__ = [
 ]
 
 
-class BaseTestResult(ConsoleRenderable):
+class BaseTestResult:
     """Representation methods for test results"""
+
+    def _render(self) -> Iterator[RenderableType]:
+        pass
+
+    def __rich_console__(self, console, options):
+        renderables = self._render()
+        for renderable in renderables:
+            yield renderable
+            yield Segment.line()
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""

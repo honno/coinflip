@@ -114,10 +114,8 @@ class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     block_matches: List[int]
     match_diffs: List[float]
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
-
-        yield ""
 
         yield Text("template: ") + self.pretty_template()
 
@@ -138,7 +136,7 @@ class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
         return f_template
 
     # TODO q value
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._results_table("template", "χ²")
 
 
@@ -224,10 +222,8 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     expected_tallies: List[int]
     tallies: List[int]
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
-
-        yield ""
 
         yield Text("template: ") + self.pretty_template()
 

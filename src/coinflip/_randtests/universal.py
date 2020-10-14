@@ -160,10 +160,8 @@ class UniversalTestResult(TestResult):
     permutations_last_init_pos: DefaultDict[Tuple[Any, ...], int]
     permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("log2 distances")
-
-        yield ""
 
         yield self._pretty_inputs(
             ("init nblocks", self.init_nblocks), ("test nblocks", self.segment_nblocks)

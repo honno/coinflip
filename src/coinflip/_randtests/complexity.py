@@ -79,7 +79,7 @@ class LinearComplexityTestResult(TestResult):
     expected_bincounts: List[float]
     variance_bins: Bins
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
 
         table = make_chisquare_table(

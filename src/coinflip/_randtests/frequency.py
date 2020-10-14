@@ -53,6 +53,7 @@ class MonobitTestResult(TestResult):
     n: int
     diff: int
 
+    # TODO logic in test itself
     def __post_init__(self):
         self.maxcount = ValueCount(
             value=self.counts.index.values[0], count=self.counts.values[0]
@@ -61,7 +62,7 @@ class MonobitTestResult(TestResult):
             value=self.counts.index.values[-1], count=self.counts.values[-1]
         )
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("normalised diff")
 
         counts = make_testvars_table("value", "count")
@@ -175,10 +176,8 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: int
     occurences: List[int]
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
-
-        yield ""
 
         occur_expect = self.blocksize / 2
         f_occur_expect = smartround(occur_expect)
