@@ -139,11 +139,14 @@ class MultiTestResult(dict, BaseTestResult):
 
             table.add_row(f_feature, f_statistic, f_p)
 
-        meta_table = Table.grid()
+        min_title = Text(f"sub-test result for {feature_varname} ", style="italic")
+        min_title.append(self._pretty_feature(min_result))
+        titled_result = RenderGroup(min_title, "", min_result,)
 
         example = Table.grid()
-        example.add_row(Text.assemble(("*", "bold blue"), " "), min_result)
+        example.add_row(Text.assemble(("*", "bold blue"), " "), titled_result)
 
+        meta_table = Table.grid()
         padded_example = Padding(example, (3, 0, 0, 3))
         meta_table.add_row(table, padded_example)
 
