@@ -8,6 +8,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+import numpy as np
 from rich import box
 from rich.console import Console
 from rich.console import RenderableType
@@ -215,12 +216,17 @@ def make_testvars_list(
         yield f"  {f_varname}  {f_value}"
 
 
-def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:
+def smartround(num: Union[int, float, np.int64], ndigits=1) -> Union[int, float]:
     """Round number only if it's a float"""
     if isinstance(num, int):
+        return num
+    elif isinstance(num, float):
+        if num.is_integer():
+            return int(num)
+        else:
+            return round(num, ndigits)
+    elif isinstance(num, np.int64):
         return int(num)
-    else:
-        return round(num, ndigits)
 
 
 # ------------------------------------------------------------------------------

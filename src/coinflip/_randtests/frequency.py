@@ -10,6 +10,7 @@ from typing import NamedTuple
 import altair as alt
 import numpy as np
 import pandas as pd
+from rich.console import RenderGroup
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
@@ -166,20 +167,21 @@ def frequency_within_block(series, heads, tails, blocksize=None):
         }
     )
 
-    occurences = []
+    counts = []
     for block in blocks(series, blocksize):
         matches = block == heads
-        occur = matches.sum()
-        occurences.append(occur)
+        count = matches.sum()
+        counts.append(count)
 
-    proportions = (count / blocksize for count in occurences)
-    deviations = (prop - 1 / 2 for prop in proportions)
+    proportions = (count / blocksize for count in counts)
+    deviations = [prop - 1 / 2 for prop in proportions]
 
+    # TODO figure out the chi-square test being used
     statistic = 4 * blocksize * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
 
     return FrequencyWithinBlockTestResult(
-        heads, tails, statistic, p, blocksize, nblocks, occurences,
+        heads, tails, statistic, p, blocksize, nblocks, counts,
     )
 
 
@@ -187,30 +189,44 @@ def frequency_within_block(series, heads, tails, blocksize=None):
 class FrequencyWithinBlockTestResult(TestResult):
     blocksize: int
     nblocks: int
-    occurences: List[int]
+    counts: List[int]
 
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        occur_expect = self.blocksize / 2
-        f_occur_expect = smartround(occur_expect)
-        yield Text(f"expected occurences of {self.heads} per block: {f_occur_expect}")
+        yield self._pretty_inputs(
+            ("blocksize", self.blocksize), ("nblocks", self.nblocks)
+        )
 
-        occur_counts = Counter(self.occurences)
-        table = make_testvars_table("count", "nblocks")
-        for occur, count in sorted(occur_counts.items()):
-            table.add_row(str(occur), str(count))
+        title = "count frequencies"
 
-        yield table
+        count_expect = self.blocksize / 2
+        f_count_expect = smartround(count_expect)
+        caption = Text.assemble(
+            "expected ",
+            (str(self.heads), "bold"),
+            f" to occur {f_count_expect} times per block",
+        )
+        caption.stylize("table.caption")
+
+        count_nblocks = Counter(self.counts)
+        table = make_testvars_table("count", "nblocks", title=title)
+        for count in range(self.blocksize + 1):
+            nblocks = count_nblocks[count]
+            table.add_row(str(count), str(nblocks))
+
+        yield RenderGroup(
+            table, caption  # manually add caption so that it isn't wrapped
+        )
 
     # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):
     #     occurfig, occurax = plt.subplots()
 
-    #     x_axis = [i * self.blocksize for i in range(len(self.occurences))]
+    #     x_axis = [i * self.blocksize for i in range(len(self.counts))]
 
     #     occurax.set_ylim([0, self.blocksize])
-    #     occurax.bar(x_axis, self.occurences, width=self.blocksize * 0.9, align="edge")
+    #     occurax.bar(x_axis, self.counts, width=self.blocksize * 0.9, align="edge")
     #     occurax.axhline(self.blocksize / 2, color="black")
 
     #     return [
