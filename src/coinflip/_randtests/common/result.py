@@ -37,10 +37,11 @@ class BaseTestResult:
         pass
 
     def __rich_console__(self, console, options):
+        newline = Segment.line()
         renderables = self._render()
         for renderable in renderables:
             yield renderable
-            yield Segment.line()
+            yield newline
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
