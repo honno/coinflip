@@ -9,6 +9,7 @@ from scipy.stats import chisquare
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
+from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import check_recommendations
 from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
@@ -69,24 +70,36 @@ def linear_complexity(series, heads, tails, blocksize=None):
     statistic, p = chisquare(list(variance_bins.values()), expected_bincounts)
 
     return LinearComplexityTestResult(
-        heads, tails, statistic, p, blocksize, expected_bincounts, variance_bins
+        heads,
+        tails,
+        statistic,
+        p,
+        blocksize,
+        expected_mean,
+        expected_bincounts,
+        variance_bins,
     )
 
 
 @dataclass
 class LinearComplexityTestResult(TestResult):
     blocksize: int
+    expected_mean: float
     expected_bincounts: List[float]
     variance_bins: Bins
 
     def _render(self):
         yield self._pretty_result("chi-square")
 
+        f_expected_mean = smartround(self.expected_mean)
+
         table = make_chisquare_table(
+            "linear complexity deviations per block",
             "variance",
             self.variance_bins.keys(),
             self.expected_bincounts,
             self.variance_bins.values(),
+            caption=f"from expected mean {f_expected_mean}",
         )
         yield table
 

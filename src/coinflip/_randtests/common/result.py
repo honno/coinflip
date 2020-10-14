@@ -83,6 +83,7 @@ class TestResult(BaseTestResult):
             "result", (stat_varname, self.statistic), ("p-value", self.p)
         )
 
+    @classmethod
     def _pretty_inputs(
         self, *name_value_pairs: Iterable[Union[int, float]]
     ) -> RenderGroup:
@@ -167,13 +168,15 @@ class MultiTestResult(dict, BaseTestResult):
 
 
 def make_chisquare_table(
-    feature: str,
+    title: Union[str, Text],
+    feature: Union[Text, str],
     classes: Iterable[Any],
     expected_occurences: Iterable[Union[int, float]],
     actual_occurences: Iterable[Union[int, float]],
+    **kwargs,
 ) -> Table:
     f_table = make_testvars_table(
-        feature, "expect", "actual", "diff", title=f"occurences of {feature}"
+        feature, "expect", "actual", "diff", title=title, **kwargs
     )
 
     table = zip(classes, expected_occurences, actual_occurences)
@@ -191,7 +194,7 @@ def make_chisquare_table(
 
 
 def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
-    table = Table(box=box, **kwargs)
+    table = OverflowTable(box=box, **kwargs)
     table.add_column(columns[0], justify="left")
     for col in columns[1:]:
         table.add_column(col, justify="right")
@@ -231,6 +234,55 @@ def smartround(num: Union[int, float, np.int64], ndigits=1) -> Union[int, float]
 
 # ------------------------------------------------------------------------------
 # Helpers
+
+
+class OverflowTable(Table):
+    def __init__(self, *args, title=None, caption=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.overflow_title = title
+        self.overflow_caption = caption
+
+    def __rich_console__(self, console, options):
+        # TODO think about the ramifications of what I'm doing here (tests?)
+        table = super().__rich_console__(console, options)
+
+        max_width = options.max_width
+        if self.width is not None:
+            max_width = self.width
+        if self.box:
+            max_width -= len(self.columns) - 1
+            if self.show_edge:
+                max_width -= 2
+        widths = self._calculate_column_widths(console, max_width)
+        table_width = sum(widths) + self._extra_width
+
+        render_options = options.update(width=table_width)
+
+        def overflow_render_annotation(text: Union[str, Text], style, justify="center"):
+            if isinstance(text, str):
+                render_text = console.render_str(text, style=style)
+            else:
+                text.stylize(style)
+                render_text = text
+
+            if len(render_text) > table_width:
+                return console.render(render_text, options=options)
+            else:
+                return console.render(
+                    render_text, options=render_options.update(justify=justify)
+                )
+
+        if self.overflow_title:
+            yield from overflow_render_annotation(
+                self.overflow_title, "table.title", justify=self.title_justify
+            )
+
+        yield from table
+
+        if self.overflow_caption:
+            yield from overflow_render_annotation(
+                self.overflow_caption, "table.caption", justify=self.caption_justify
+            )
 
 
 def align_nums(nums):

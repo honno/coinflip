@@ -105,8 +105,8 @@ class BinaryMatrixRankTestResult(TestResult):
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        yield self._pretty_inputs(
-            ("no. of rows", self.nrows), ("no. of cols", self.ncols),
+        yield TestResult._pretty_inputs(
+            ("nrows", self.nrows), ("ncols", self.ncols),
         )
 
         runnerup = self.fullrank - 1
@@ -118,6 +118,7 @@ class BinaryMatrixRankTestResult(TestResult):
         ]
 
         table = make_chisquare_table(
+            "rank of matrix",
             "ranks",
             f_ranks,
             astuple(self.expected_rankcounts),

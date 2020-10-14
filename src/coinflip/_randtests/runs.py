@@ -8,6 +8,7 @@ from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
+from rich.text import Text
 from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
@@ -136,12 +137,24 @@ class LongestRunsTestResult(TestResult):
     def _render(self):
         yield self._pretty_result("chi-square")
 
+        yield TestResult._pretty_inputs(
+            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
+        )
+
+        title = Text.assemble(
+            "longest run of ", (str(self.heads), "bold"), " per block"
+        )
+
         f_ranges = [str(x) for x in self.maxlen_bins.keys()]
         f_ranges[0] = f"0-{f_ranges[0]}"
         f_ranges[-1] = f"{f_ranges[-1]}+"
 
         table = make_chisquare_table(
-            "maxlen", f_ranges, self.expected_bincounts, self.maxlen_bins.values(),
+            title,
+            "maxlen",
+            f_ranges,
+            self.expected_bincounts,
+            self.maxlen_bins.values(),
         )
 
         yield table

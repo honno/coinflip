@@ -10,7 +10,6 @@ from typing import NamedTuple
 import altair as alt
 import numpy as np
 import pandas as pd
-from rich.console import RenderGroup
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
@@ -194,30 +193,23 @@ class FrequencyWithinBlockTestResult(TestResult):
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        yield self._pretty_inputs(
+        yield TestResult._pretty_inputs(
             ("blocksize", self.blocksize), ("nblocks", self.nblocks)
         )
 
-        title = "count frequencies"
+        title = Text.assemble("count of ", (str(self.heads), "bold"), " per block")
 
         count_expect = self.blocksize / 2
         f_count_expect = smartround(count_expect)
-        caption = Text.assemble(
-            "expected ",
-            (str(self.heads), "bold"),
-            f" to occur {f_count_expect} times per block",
-        )
-        caption.stylize("table.caption")
+        caption = f"expected count {f_count_expect}"
 
         count_nblocks = Counter(self.counts)
-        table = make_testvars_table("count", "nblocks", title=title)
+        table = make_testvars_table("count", "nblocks", title=title, caption=caption)
         for count in range(self.blocksize + 1):
             nblocks = count_nblocks[count]
             table.add_row(str(count), str(nblocks))
 
-        yield RenderGroup(
-            table, caption  # manually add caption so that it isn't wrapped
-        )
+        yield table
 
     # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):

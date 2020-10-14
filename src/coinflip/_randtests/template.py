@@ -33,6 +33,7 @@ class BaseTemplateMatchingTestResult(TestResult):
     template: Tuple[Any, ...]
     template_size: int
     nblocks: int
+    blocksize: int
 
     def pretty_template(self) -> Text:
         return pretty_subseq(self.template, self.heads, self.tails)
@@ -97,6 +98,7 @@ def non_overlapping_template_matching(
             p,
             template,
             template_size,
+            blocksize,
             nblocks,
             matches_expect,
             variance,
@@ -117,14 +119,22 @@ class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        yield Text("template: ") + self.pretty_template()
+        yield TestResult._pretty_inputs(
+            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
+        )
+
+        title = Text("matches of ")
+        title.append(self.pretty_template())
+        title.append(" per block")
 
         f_matches_expect = round(self.matches_expect, 1)
-        yield f"expected matches per block: {f_matches_expect}"
+        caption = f"expected {f_matches_expect} matches"
 
         matches_count = Counter(self.block_matches)
         table = sorted(matches_count.items())
-        f_table = make_testvars_table("matches", "nblocks")
+        f_table = make_testvars_table(
+            "matches", "nblocks", title=title, caption=caption
+        )
         for matches, nblocks in table:
             f_table.add_row(str(matches), str(nblocks))
         yield f_table
@@ -211,6 +221,7 @@ def overlapping_template_matching(
         p,
         template,
         template_size,
+        blocksize,
         nblocks,
         expected_tallies,
         tallies,
@@ -225,13 +236,21 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        yield Text("template: ") + self.pretty_template()
+        yield TestResult._pretty_inputs(
+            ("template size", self.template_size),
+            ("blocksize", self.blocksize),
+            ("nblocks", self.nblocks),
+        )
+
+        title = Text("matches of ")
+        title.append(self.pretty_template())
+        title.append(" per block")
 
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
         table = make_chisquare_table(
-            "matches", f_nmatches, self.expected_tallies, self.tallies,
+            title, "matches", f_nmatches, self.expected_tallies, self.tallies,
         )
 
         yield table

@@ -163,7 +163,7 @@ class UniversalTestResult(TestResult):
     def _render(self):
         yield self._pretty_result("log2 distances")
 
-        yield self._pretty_inputs(
+        yield TestResult._pretty_inputs(
             ("init nblocks", self.init_nblocks), ("test nblocks", self.segment_nblocks)
         )
 
