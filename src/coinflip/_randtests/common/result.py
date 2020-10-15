@@ -15,6 +15,8 @@ from rich.console import ConsoleRenderable
 from rich.console import RenderableType
 from rich.console import RenderGroup
 from rich.console import render_group
+from rich.measure import Measurement
+from rich.measure import measure_renderables
 from rich.padding import Padding
 from rich.segment import Segment
 from rich.table import Table
@@ -47,7 +49,8 @@ class BaseTestResult(ConsoleRenderable):
             yield newline
         yield last_renderable
 
-    # TODO __rich_measure__(self, console, max_width)
+    def __rich_measure__(self, console, max_width):
+        return measure_renderables(console, self._render(), max_width)
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
@@ -210,7 +213,7 @@ def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
     return table
 
 
-@render_group()
+@render_group(fit=True)
 def make_testvars_list(
     title: str, *varname_value_pairs: Tuple[str, Union[int, float]]
 ) -> RenderGroup:
@@ -291,6 +294,17 @@ class OverflowTable(Table):
             yield from overflow_render_annotation(
                 self.overflow_caption, "table.caption", justify=self.caption_justify
             )
+
+    def __rich_measure__(self, console, max_width):
+        min_width, max_width = super().__rich_measure__(console, max_width)
+
+        widths = [min_width]
+        if self.overflow_title:
+            widths.append(len(self.overflow_title))
+        if self.overflow_caption:
+            widths.append(len(self.overflow_caption))
+
+        return Measurement(min_width, max_width)
 
 
 def align_nums(nums):

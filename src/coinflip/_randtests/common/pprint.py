@@ -72,7 +72,7 @@ def pretty_subseq(subseq: Iterable, heads, tails) -> Text:
     return Text(subseq_rep, style=bright)
 
 
-@render_group()
+@render_group(fit=True)
 def pretty_sequence(series, ncols) -> RenderGroup:
     """Produce a multi-line representation of a sequence
 
