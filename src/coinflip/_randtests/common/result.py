@@ -140,9 +140,12 @@ class MultiTestResult(dict, BaseTestResult):
         pass
 
     def _results_table(self, feature_varname: str, stat_varname: str) -> Table:
+
         min_feature, min_result = self.min
 
-        table = make_testvars_table(feature_varname, stat_varname, "p")
+        table = make_testvars_table(
+            feature_varname, stat_varname, "p", title="sub-test results"
+        )
         for feature, result in self.items():
             f_feature = self._pretty_feature(result)
             if feature == min_feature:
@@ -161,7 +164,7 @@ class MultiTestResult(dict, BaseTestResult):
         example.add_row(Text.assemble(("*", "bold blue"), " "), titled_result)
 
         meta_table = Table.grid()
-        padded_example = Padding(example, (3, 0, 0, 3))
+        padded_example = Padding(example, (4, 0, 0, 3))
         meta_table.add_row(table, padded_example)
 
         return meta_table
