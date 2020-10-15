@@ -76,7 +76,7 @@ def random_excursions(series, heads, tails):
 class RandomExcursionsTestResult(TestResult):
     state: int
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._pretty_result("chi-square")
 
 
@@ -84,7 +84,7 @@ class MultiRandomExcursionsTestResult(MultiTestResult):
     def _pretty_feature(self, result: RandomExcursionsTestResult):
         return Text(str(result.state), style="bold")
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._results_table("state", "χ²")
 
 
@@ -152,5 +152,5 @@ class MultiRandomExcursionsVariantTestResult(MultiTestResult):
     def _pretty_feature(self, result: RandomExcursionsVariantTestResult):
         return Text(str(result.state), style="bold")
 
-    def __rich_console__(self, console, options):
+    def _render(self):
         yield self._results_table("state", "ξ")
