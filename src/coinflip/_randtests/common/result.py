@@ -11,6 +11,7 @@ from typing import Union
 import numpy as np
 from rich import box
 from rich.console import Console
+from rich.console import ConsoleRenderable
 from rich.console import RenderableType
 from rich.console import RenderGroup
 from rich.console import render_group
@@ -31,7 +32,7 @@ __all__ = [
 ]
 
 
-class BaseTestResult:
+class BaseTestResult(ConsoleRenderable):
     """Representation methods for test results"""
 
     def _render(self) -> Iterator[RenderableType]:
@@ -39,10 +40,14 @@ class BaseTestResult:
 
     def __rich_console__(self, console, options):
         newline = Segment.line()
-        renderables = self._render()
+        *renderables, last_renderable = self._render()
+
         for renderable in renderables:
             yield renderable
             yield newline
+        yield last_renderable
+
+    # TODO __rich_measure__(self, console, max_width)
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
