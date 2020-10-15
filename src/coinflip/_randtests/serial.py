@@ -4,6 +4,7 @@ from math import floor
 from math import log2
 
 import pandas as pd
+from rich.panel import Panel
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.result import MultiTestResult
@@ -48,9 +49,10 @@ def serial(series, heads, tails, blocksize=None):
     p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
+    nblocks = n // blocksize
     results = {
-        1: SerialTestResult(heads, tails, blocksize, normsum_delta1, p1),
-        2: SerialTestResult(heads, tails, blocksize, normsum_delta2, p2),
+        1: SerialTestResult(heads, tails, blocksize, nblocks, normsum_delta1, p1),
+        2: SerialTestResult(heads, tails, blocksize, nblocks, normsum_delta2, p2),
     }
 
     return MultiSerialTestResult(results)
@@ -59,14 +61,18 @@ def serial(series, heads, tails, blocksize=None):
 @dataclass
 class SerialTestResult(TestResult):
     blocksize: int
+    nblocks: int
 
     def _render(self):
         yield self._pretty_result("chi-square")
 
+        yield TestResult._pretty_inputs(
+            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
+        )
+
 
 class MultiSerialTestResult(MultiTestResult):
     def _render(self):
-        yield "First"
-        yield self[1]
-        yield "Second"
-        yield self[2]
+        yield Panel(self[1], padding=(1, 2), title="∇ψ²ₘ", expand=False)
+
+        yield Panel(self[2], padding=(1, 2), title="∇²ψ²ₘ", expand=False)
