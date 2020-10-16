@@ -88,7 +88,7 @@ class TestResult(BaseTestResult):
 
     def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
         return make_testvars_list(
-            "result", (stat_varname, self.statistic), ("p-value", self.p)
+            "result", (stat_varname, smartround(self.statistic)), ("p-value", self.p)
         )
 
     @classmethod

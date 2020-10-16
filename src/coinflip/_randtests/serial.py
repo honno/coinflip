@@ -2,11 +2,16 @@ from collections import defaultdict
 from dataclasses import dataclass
 from math import floor
 from math import log2
+from typing import DefaultDict
+from typing import Dict
+from typing import Tuple
 
 import pandas as pd
-from rich.panel import Panel
+from rich import box
+from rich.table import Table
 from scipy.special import gammaincc
 
+from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import check_recommendations
@@ -21,58 +26,92 @@ def serial(series, heads, tails, blocksize=None):
     n = len(series)
 
     if not blocksize:
-        blocksize = floor(log2(n)) - 2 - 1
+        blocksize = max(floor(log2(n)) - 2 - 1, 2)
 
     check_recommendations({"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2})
 
-    normalised_sums = {}
+    permutation_counts = {}
     for window_size in [blocksize, blocksize - 1, blocksize - 2]:
         head = series[: window_size - 1]
         ouroboros = pd.concat([series, head])
 
-        permutation_counts = defaultdict(int)
+        counts = defaultdict(int)
         for block_tup in slider(ouroboros, window_size, overlap=True):
-            permutation_counts[block_tup] += 1
+            counts[block_tup] += 1
 
-        sum_squares = sum(count ** 2 for count in permutation_counts.values())
+        permutation_counts[window_size] = counts
+
+    normalised_sums = {}
+    for window_size, counts in permutation_counts.items():
+        sum_squares = sum(count ** 2 for count in counts.values())
         normsum = (2 ** window_size / n) * sum_squares - n
 
         normalised_sums[window_size] = normsum
 
     normsum_delta1 = normalised_sums[blocksize] - normalised_sums[blocksize - 1]
+    p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
+
     normsum_delta2 = (
         normalised_sums[blocksize]
         - 2 * normalised_sums[blocksize - 1]
         + normalised_sums[blocksize - 2]
     )
-
-    p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
 
-    nblocks = n // blocksize
     results = {
-        1: SerialTestResult(heads, tails, blocksize, nblocks, normsum_delta1, p1),
-        2: SerialTestResult(heads, tails, blocksize, nblocks, normsum_delta2, p2),
+        "∇ψ²ₘ": FirstSerialTestResult(
+            heads,
+            tails,
+            normsum_delta1,
+            p1,
+            blocksize,
+            permutation_counts,
+            normalised_sums,
+        ),
+        "∇²ψ²ₘ": SecondSerialTestResult(
+            heads,
+            tails,
+            normsum_delta2,
+            p2,
+            blocksize,
+            permutation_counts,
+            normalised_sums,
+        ),
     }
 
     return MultiSerialTestResult(results)
 
 
 @dataclass
-class SerialTestResult(TestResult):
+class BaseSerialTestResult(TestResult):
     blocksize: int
-    nblocks: int
+    permutation_counts: Dict[int, DefaultDict[Tuple, int]]
+    normalised_sums: Dict[int, float]
 
+    def _pretty_permutation(self, permutation: Tuple):
+        return pretty_subseq(permutation, self.heads, self.tails)
+
+
+@dataclass
+class FirstSerialTestResult(BaseSerialTestResult):
     def _render(self):
-        yield self._pretty_result("chi-square")
+        yield self._pretty_result("delta psi²")
 
-        yield TestResult._pretty_inputs(
-            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
-        )
+        yield TestResult._pretty_inputs(("blocksize", self.blocksize))
+
+
+@dataclass
+class SecondSerialTestResult(BaseSerialTestResult):
+    def _render(self):
+        yield self._pretty_result("delta² psi²")
+
+        yield TestResult._pretty_inputs(("blocksize", self.blocksize))
 
 
 class MultiSerialTestResult(MultiTestResult):
     def _render(self):
-        yield Panel(self[1], padding=(1, 2), title="∇ψ²ₘ", expand=False)
+        grid = Table("∇ψ²ₘ test", "∇²ψ²ₘ test", box=box.MINIMAL)
 
-        yield Panel(self[2], padding=(1, 2), title="∇²ψ²ₘ", expand=False)
+        grid.add_row(*self.values())
+
+        yield grid
