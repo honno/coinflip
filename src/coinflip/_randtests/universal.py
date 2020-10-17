@@ -103,7 +103,7 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
             "n ≥ 387840": n >= 387840,
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
             # TODO fix large isclose
-            "init_nblocks ≈ 10 * 2 ** segment_nblocks": isclose(
+            "init_nblocks ≈ 10 * 2 ** segment_nblocks": intclose(
                 init_nblocks, 10 * 2 ** segment_nblocks
             ),
             "segment_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": isclose(
@@ -164,7 +164,8 @@ class UniversalTestResult(TestResult):
         yield self._pretty_result("log2 distances")
 
         yield TestResult._pretty_inputs(
-            ("init nblocks", self.init_nblocks), ("test nblocks", self.segment_nblocks)
+            ("init nblocks", self.init_nblocks),
+            ("segment nblocks", self.segment_nblocks),
         )
 
         # TODO maybe use this table for a verbose option or something (it's huge)
@@ -178,3 +179,7 @@ class UniversalTestResult(TestResult):
         #     f_positions = ", ".join(str(pos) for pos in positions)
 
         #     table.add_row(f_permutation, f_init_pos, f_positions)
+
+
+def intclose(int1, int2, abs_tol=5):
+    return abs(int1 - int2) <= abs_tol
