@@ -236,7 +236,7 @@ examples = [
         ],
         kwargs={
             "template_size": 2,
-            "nblocks": 5,
+            "blocksize": 10,  # nblocks=5
             "df": 2,
         },
 
@@ -250,7 +250,7 @@ examples = [
         bits=list(e_expansion()),
         kwargs={
             "template_size": 9,
-            "nblocks": 968,
+            "blocksize": 1033,  # nblocks=968
         },
 
         statistic=8.965859,
@@ -492,7 +492,7 @@ sub_examples = [
         ],
         kwargs={
             "template_size": 3,
-            "nblocks": 2,
+            "blocksize": 10,  # nblocks=2
         },
 
         statistic=2.133333,

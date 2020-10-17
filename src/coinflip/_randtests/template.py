@@ -1,6 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
 from itertools import product
+from math import ceil
 from math import exp
 from math import floor
 from math import isclose
@@ -32,8 +33,8 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 class BaseTemplateMatchingTestResult(TestResult):
     template: Tuple[Any, ...]
     template_size: int
-    nblocks: int
     blocksize: int
+    nblocks: int
 
     def pretty_template(self) -> Text:
         return pretty_subseq(self.template, self.heads, self.tails)
@@ -45,24 +46,26 @@ class BaseTemplateMatchingTestResult(TestResult):
 
 @randtest()
 def non_overlapping_template_matching(
-    series, heads, tails, template_size=None, nblocks=None
+    series, heads, tails, template_size=None, blocksize=None,
 ):
     n = len(series)
 
-    if not nblocks:
-        nblocks = min(floor(sqrt(n)), 100)
-    blocksize = n // nblocks
+    if not blocksize:
+        blocksize = max(ceil(0.01 * n), 2)
+        if blocksize % 2 != 0:
+            blocksize -= 1
+    nblocks = n // blocksize
 
     if not template_size:
-        template_size = min(max(floor(sqrt(blocksize)), 2), 12)
+        template_size = min(blocksize // 3, 9)
 
     check_recommendations(
         {
-            "n ≥ 288": n
-            >= 288,  # template_size=9, nblocks=8, blocksize=4*template_size
-            "nblocks ≤ 100": nblocks <= 100,
+            "n ≥ 100": n >= 100,
+            "template_size = 9 or 10": template_size == 9 or template_size == 10,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
-            "nblocks ≡ ⌊n / blocksize⌋": nblocks == n // blocksize,
+            "nblocks ≤ 100": nblocks <= 100,  # TODO same thing as above?
+            "nblocks = ⌊n / blocksize⌋": nblocks == n // blocksize,
         }
     )
 
@@ -98,8 +101,8 @@ def non_overlapping_template_matching(
             p,
             template,
             template_size,
-            blocksize,
             nblocks,
+            blocksize,
             matches_expect,
             variance,
             block_matches,
@@ -161,13 +164,13 @@ matches_ceil = 5
 #                    NIST Randomness Test Suite"
 @randtest()  # TODO appropiate min input
 def overlapping_template_matching(
-    series, heads, tails, template_size=None, nblocks=None, df=5
+    series, heads, tails, template_size=None, blocksize=None, df=5
 ):
     n = len(series)
 
-    if not nblocks:
-        nblocks = floor(sqrt(n))
-    blocksize = n // nblocks
+    if not blocksize:
+        blocksize = floor(sqrt(n))
+    nblocks = n // blocksize
 
     if not template_size:
         template_size = min(max(floor(sqrt(blocksize)), 2), 12)
@@ -191,7 +194,7 @@ def overlapping_template_matching(
             "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
             "λ ≈ 2": isclose(lambda_, 2),
             "len(template) ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
-            "df ≈ λ": isclose(template_size, log2(nblocks)),
+            "df ≈ 2 * λ": isclose(template_size, 2 * lambda_),
         }
     )
 

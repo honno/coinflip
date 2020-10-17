@@ -187,7 +187,7 @@ def spectral(sequence):
     return _randtests.spectral(sequence)
 
 
-def non_overlapping_template_matching(sequence, template_size=None, nblocks=None):
+def non_overlapping_template_matching(sequence, template_size=None, blocksize=None):
     """Matches of template per block is compared to expected result
 
     The sequence is split into blocks, where the number of non-overlapping
@@ -200,8 +200,8 @@ def non_overlapping_template_matching(sequence, template_size=None, nblocks=None
         Output of the RNG being tested
     template_size : ``int``
         Size of all the templates to be generated
-    nblocks : ``int``
-        Number of blocks to split sequence into
+    blocksize : ``int``
+        Size of the blocks that partition the given series
 
     Returns
     -------
@@ -209,11 +209,11 @@ def non_overlapping_template_matching(sequence, template_size=None, nblocks=None
         Dictionary that contains the multiple test results
     """
     return _randtests.non_overlapping_template_matching(
-        sequence, template_size=template_size, nblocks=nblocks
+        sequence, template_size=template_size, blocksize=blocksize
     )
 
 
-def overlapping_template_matching(sequence, template_size=None, nblocks=None, df=5):
+def overlapping_template_matching(sequence, template_size=None, blocksize=None, df=5):
     """Overlapping matches of template per block is compared to expected result
 
     The sequence is split into ``nblocks`` blocks, where the number of
@@ -227,8 +227,8 @@ def overlapping_template_matching(sequence, template_size=None, nblocks=None, df
         Output of the RNG being tested
     template_size : ``int``
         Size of the template to be generated
-    nblocks : ``int``
-        Number of blocks to split sequence into
+    blocksize : ``int``
+        Size of the blocks that partition the given series
 
     Returns
     -------
@@ -236,7 +236,7 @@ def overlapping_template_matching(sequence, template_size=None, nblocks=None, df
         Dataclass that contains the test's statistic and p-value.
     """
     return _randtests.overlapping_template_matching(
-        sequence, template_size=template_size, nblocks=nblocks, df=df
+        sequence, template_size=template_size, blocksize=blocksize, df=df
     )
 
 
