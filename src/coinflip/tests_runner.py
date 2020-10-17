@@ -54,8 +54,11 @@ def binary_check(func):
 rule_char = "─"
 
 
-def print_randtest_name(randtest_name: str, ncols):
+def print_randtest_name(randtest_name: str):
     """Pretty print the randtest's name"""
+    size = get_terminal_size()
+    ncols = min(size.columns, 80)
+
     randtest_fname = f_randtest_names[randtest_name]
     fname_w = len(randtest_fname)
 
@@ -114,12 +117,9 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     TestError
         Errors raised when running ``randtest_name``
     """
-    size = get_terminal_size()
-    ncols = min(size.columns, 80)
-
     for name, func in list_tests():
         if randtest_name == name:
-            print_randtest_name(name, ncols)
+            print_randtest_name(name)
 
             result = func(series, **kwargs)
             console.print(result)
@@ -153,12 +153,9 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     NonBinarySequenceError
         If series contains a sequence made of non-binary values
     """
-    size = get_terminal_size()
-    ncols = min(size.columns, 80)
-
     results = {}
     for name, func in list_tests():
-        print_randtest_name(name, ncols)
+        print_randtest_name(name)
 
         try:
             result = func(series)
