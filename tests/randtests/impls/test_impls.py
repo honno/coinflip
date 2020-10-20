@@ -17,7 +17,7 @@ from ..test_examples import MultiExample
 from ..test_examples import examples
 from ..test_examples import multi_examples
 from . import testmaps
-from ._implementation import ImplementationError
+from .core import ImplementationError
 
 
 def author_examples() -> Iterator:
@@ -69,9 +69,9 @@ def test_multi_examples(author, randtest, bits, statistics, pvalues, kwargs):
         skip()
 
     try:
-        result = implementation.randtest(bits, **kwargs)
+        results = implementation.randtest(bits, **kwargs)
     except ImplementationError:
         skip()
 
-    for p_expect, p in zip(pvalues, result):
+    for p_expect, p in zip(pvalues, results):
         assert isclose(p, p_expect, rel_tol=0.05)

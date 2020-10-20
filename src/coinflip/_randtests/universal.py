@@ -97,13 +97,14 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
     init_series, segment_series = series[:init_n], series[init_n:]
     segment_nblocks = (n - init_n) // blocksize
 
+    mean_expect, variance = blocksize_dists[blocksize]
+
     set_task_total(ctx, init_nblocks + segment_nblocks + 2)
 
     check_recommendations(
         {
             "n ≥ 387840": n >= 387840,
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
-            # TODO fix large isclose
             "init_nblocks ≈ 10 * 2 ** segment_nblocks": intclose(
                 init_nblocks, 10 * 2 ** segment_nblocks
             ),
@@ -113,11 +114,11 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
         }
     )
 
-    permutations_last_init_pos = defaultdict(int)
+    permutation_last_init_pos = defaultdict(int)
 
     init_blocks = rawblocks(init_series, blocksize)
     for pos, permutation in enumerate(init_blocks, 1):
-        permutations_last_init_pos[permutation] = pos
+        permutation_last_init_pos[permutation] = pos
 
         advance_task(ctx)
 
@@ -131,7 +132,7 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
     distances_total = 0
     for permutation, positions in permutation_positions.items():
-        last_occurence = permutations_last_init_pos[permutation]
+        last_occurence = permutation_last_init_pos[permutation]
         for pos in positions:
             distance = pos - last_occurence
             distances_total += log2(distance)
@@ -142,8 +143,7 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
     statistic = distances_total / segment_nblocks
 
-    expected_mean, variance = blocksize_dists[blocksize]
-    normdiff = abs((statistic - expected_mean) / (sqrt(2 * variance)))
+    normdiff = abs((statistic - mean_expect) / (sqrt(2 * variance)))
     p = erfc(normdiff)
 
     advance_task(ctx)
@@ -156,7 +156,7 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
         blocksize,
         init_nblocks,
         segment_nblocks,
-        permutations_last_init_pos,
+        permutation_last_init_pos,
         permutation_positions,
     )
 
@@ -166,7 +166,7 @@ class UniversalTestResult(TestResult):
     blocksize: int
     init_nblocks: int
     segment_nblocks: int
-    permutations_last_init_pos: DefaultDict[Tuple[Any, ...], int]
+    permutation_last_init_pos: DefaultDict[Tuple[Any, ...], int]
     permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
 
     def _render(self):
@@ -182,7 +182,7 @@ class UniversalTestResult(TestResult):
         # for permutation, positions in self.permutation_positions.items():
         #     f_permutation = pretty_subseq(permutation, self.heads, self.tails)
 
-        #     init_pos = self.permutations_last_init_pos[permutation]
+        #     init_pos = self.permutation_last_init_pos[permutation]
         #     f_init_pos = str(init_pos)
 
         #     f_positions = ", ".join(str(pos) for pos in positions)

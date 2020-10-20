@@ -25,7 +25,7 @@ same way as our `API
 The adaptor methods raise an ``ImplementationError`` when a known error is
 raised from the original method. They are also specified of any missing and
 fixed keyword arguments through the ``Implementation`` named tuple, as defined
-in ``implementations/_implementation.py``.
+in ``impls/core.py``.
 
 A map of the randomn test names to the adaptor's corresponding
 ``Implementation`` provides a ``testmap``, which is then used in
@@ -38,5 +38,5 @@ to randomness tests, pass them to the implementations and our own, and see if
 the results are in the same ballpark.
 
 We can also test the same NIST examples on the implementations through
-``implementations/test_implementations.py``, which also helps contextualise our
+``impls/test_impls.py``, which also helps contextualise our
 own randomness tests.

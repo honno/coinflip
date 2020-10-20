@@ -106,19 +106,16 @@ examples = [
         randtest="frequency_within_block",
 
         bits=[
-            1, 1, 0, 0, 1, 0, 0, 1,
-            0, 0, 0, 0, 1, 1, 1, 1,
-            1, 1, 0, 1, 1, 0, 1, 0,
-            1, 0, 1, 0, 0, 0, 1, 0,
-            0, 0, 1, 0, 0, 0, 0, 1,
-            0, 1, 1, 0, 1, 0, 0, 0,
-            1, 1, 0, 0, 0, 0, 1, 0,
-            0, 0, 1, 1, 0, 1, 0, 0,
-            1, 1, 0, 0, 0, 1, 0, 0,
-            1, 1, 0, 0, 0, 1, 1, 0,
-            0, 1, 1, 0, 0, 0, 1, 0,
-            1, 0, 0, 0, 1, 0, 1, 1,
-            1, 0, 0, 0,
+            1, 1, 0, 0, 1, 0, 0, 1, 0, 0,
+            0, 0, 1, 1, 1, 1, 1, 1, 0, 1,
+            1, 0, 1, 0, 1, 0, 1, 0, 0, 0,
+            1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            0, 1, 1, 0, 1, 0, 0, 0, 1, 1,
+            0, 0, 0, 0, 1, 0, 0, 0, 1, 1,
+            0, 1, 0, 0, 1, 1, 0, 0, 0, 1,
+            0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
+            0, 1, 1, 0, 0, 0, 1, 0, 1, 0,
+            0, 0, 1, 0, 1, 1, 1, 0, 0, 0,
         ],
         kwargs={
             "blocksize": 10
@@ -528,10 +525,10 @@ def test_examples(randtest, bits, statistic, p, kwargs):
 
     result = randtest_method(bits, **kwargs)
 
-    if isinstance(statistic, float):
-        assert isclose(result.statistic, statistic, rel_tol=0.05)
-    elif isinstance(statistic, int):
+    if isinstance(statistic, int):
         assert result.statistic == statistic
+    else:
+        assert isclose(result.statistic, statistic, rel_tol=0.05)
 
     assert isclose(result.p, p, abs_tol=0.005)
 
@@ -543,10 +540,10 @@ def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
     results = randtest_method(bits, **kwargs)
 
     for statistic_expect, statistic in zip(statistics, results.statistics):
-        if isinstance(statistic_expect, float):
-            assert isclose(statistic, statistic_expect, rel_tol=0.05)
-        elif isinstance(statistic, int):
+        if isinstance(statistic, int):
             assert statistic == statistic_expect
+        else:
+            assert isclose(statistic, statistic_expect, rel_tol=0.05)
 
     for p_expect, p in zip(pvalues, results.pvalues):
         assert isclose(p, p_expect, rel_tol=0.05)
@@ -559,9 +556,9 @@ def test_sub_examples(randtest, key, bits, statistic, p, kwargs):
     results = randtest_method(bits, **kwargs)
     result = results[key]
 
-    if isinstance(statistic, float):
-        assert isclose(result.statistic, statistic, rel_tol=0.05)
-    elif isinstance(statistic, int):
+    if isinstance(statistic, int):
         assert result.statistic == statistic
+    else:
+        assert isclose(result.statistic, statistic, rel_tol=0.05)
 
     assert isclose(result.p, p, abs_tol=0.005)

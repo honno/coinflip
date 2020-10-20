@@ -4,7 +4,7 @@ from math import log
 from math import sqrt
 
 import pandas as pd
-from numpy.fft import fft
+from scipy.fft import fft
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
@@ -38,7 +38,7 @@ def spectral(series, heads, tails, ctx):
             raise NonBinaryTruncatedSequenceError()
 
     threshold = sqrt(log(1 / 0.05) * n)
-    nbelow_expected = 0.95 * n / 2
+    nbelow_expect = 0.95 * n / 2
 
     advance_task(ctx)
 
@@ -54,19 +54,19 @@ def spectral(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    diff = nbelow - nbelow_expected
+    diff = nbelow - nbelow_expect
     normdiff = diff / sqrt((n * 0.95 * 0.05) / 4)
 
     p = erfc(abs(normdiff) / sqrt(2))
 
     advance_task(ctx)
 
-    return SpectralTestResult(heads, tails, normdiff, p, nbelow_expected, nbelow, diff,)
+    return SpectralTestResult(heads, tails, normdiff, p, nbelow_expect, nbelow, diff,)
 
 
 @dataclass
 class SpectralTestResult(TestResult):
-    nbelow_expected: float
+    nbelow_expect: float
     nbelow: int
     diff: float
 
@@ -79,6 +79,6 @@ class SpectralTestResult(TestResult):
         yield make_testvars_list(
             "npeaks above threshold",
             ("actual", self.nbelow),
-            ("expected", self.nbelow_expected),
+            ("expected", self.nbelow_expect),
             ("diff", self.diff),
         )

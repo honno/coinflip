@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from math import floor
 from math import sqrt
 from typing import List
+from typing import Sequence
 
 from scipy.stats import chisquare
+from typing_extensions import Literal
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
@@ -114,7 +116,7 @@ class LinearComplexityTestResult(TestResult):
         yield table
 
 
-def berlekamp_massey(sequence: List[int]) -> int:
+def berlekamp_massey(sequence: Sequence[Literal[0, 1]]) -> int:
     n = len(sequence)
 
     error_locator = [0 for _ in range(n)]

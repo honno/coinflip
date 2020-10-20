@@ -6,6 +6,7 @@ from typing import Iterable
 from typing import Tuple
 
 from scipy.stats import chisquare
+from typing_extensions import Literal
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
@@ -63,7 +64,7 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] 
 
     ranks = []
     for block in blocks(rankable_series, blocksize):
-        matrix = [row for row in rawblocks(block, nblocks=nrows)]
+        matrix = [row for row in rawblocks(block, ncols)]
 
         rank = matrix_rank(matrix)
 
@@ -81,11 +82,6 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] 
             rankcounts.remaining += 1
 
     advance_task(ctx)
-
-    reality_check = []
-    for count_expect, count in zip(astuple(expected_rankcounts), astuple(rankcounts)):
-        diff = (count - count_expect) ** 2 / count_expect
-        reality_check.append(diff)
 
     statistic, p = chisquare(astuple(rankcounts), astuple(expected_rankcounts))
 
@@ -138,7 +134,7 @@ class BinaryMatrixRankTestResult(TestResult):
         yield table
 
 
-def matrix_rank(matrix: Iterable[Iterable[int]]) -> int:
+def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> int:
     """Finds the rank of a binary matrix
 
     Parameters
@@ -171,7 +167,7 @@ def matrix_rank(matrix: Iterable[Iterable[int]]) -> int:
     return rank
 
 
-def bits2int(bits: Iterable[int]) -> int:
+def bits2int(bits: Iterable[Literal[0, 1]]) -> int:
     """Converts a list of bits into a numerical representation"""
     num = 0
     for bit in bits:

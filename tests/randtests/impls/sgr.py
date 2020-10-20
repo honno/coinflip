@@ -5,8 +5,8 @@ See Stuart Gordon Reid's `GitHub repository
 """
 from functools import wraps
 
-from ._implementation import Implementation
-from ._implementation import ImplementationError
+from .core import Implementation
+from .core import ImplementationError
 from .r4nd0m.SourceCode.RandomnessTests import RandomnessTester
 
 __all__ = ["testmap"]

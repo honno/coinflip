@@ -1,5 +1,4 @@
 """Utility methods for randomness tests."""
-from math import ceil
 from typing import Any
 from typing import Iterator
 from typing import Tuple
@@ -13,17 +12,15 @@ __all__ = [
 ]
 
 
-def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterator[pd.Series]:
+def blocks(series, blocksize, truncate=True) -> Iterator[pd.Series]:
     """Chunking method for ``Series`` objects
 
     Parameters
     ----------
     series : ``Series``
         The pandas ``Series`` to chunk
-    blocksize : ``int``, required if no ``nblocks`` passed
+    blocksize : ``int``
         Size of the chunks
-    nblocks : ``int``, required if no ``blocksize`` passed
-        Number of chunks
     truncate : ``bool``, default ``True``
         Whether to discard remaning series
 
@@ -38,14 +35,7 @@ def blocks(series, blocksize=None, nblocks=None, truncate=True) -> Iterator[pd.S
         When neither ``blocksize`` or ``nblocks`` is passed
     """
     n = len(series)
-
-    if not blocksize and not nblocks:
-        raise ValueError("Either blocksize or nblocks must be specified")
-    elif nblocks is None:
-        nblocks = n // blocksize
-    elif blocksize is None:
-        blocksize = ceil(n / nblocks)
-
+    nblocks = n // blocksize
     boundary = blocksize * nblocks
 
     for i in range(0, boundary, blocksize):

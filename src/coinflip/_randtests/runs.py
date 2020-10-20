@@ -38,8 +38,8 @@ def runs(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    ncandidates = counts[heads]
-    prop_heads = ncandidates / n
+    nheads = counts[heads]
+    prop_heads = nheads / n
     prop_tails = 1 - prop_heads
 
     advance_task(ctx)
@@ -49,7 +49,7 @@ def runs(series, heads, tails, ctx):
     advance_task(ctx)
 
     p = erfc(
-        abs(nruns - (2 * ncandidates * prop_tails))
+        abs(nruns - (2 * nheads * prop_tails))
         / (2 * sqrt(2 * n) * prop_heads * prop_tails)
     )
 
@@ -71,7 +71,7 @@ class RunsTestResult(TestResult):
 class DefaultParams(NamedTuple):
     blocksize: int
     nblocks: int
-    maxlen_bin_intervals: List[int]
+    intervals: List[int]
 
 
 # TODO use in recommendations
@@ -100,30 +100,31 @@ def longest_runs(series, heads, tails, ctx):
     n = len(series)
 
     try:
-        blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]
+        blocksize, nblocks, intervals = n_defaults[n]
     except KeyError as e:
         # TODO handle below 128 or add to min_n
         raise TestNotImplementedError(
             "Test implementation cannot handle sequences below length 128"
         ) from e
-    maxlen_bins = Bins(maxlen_bin_intervals)
+    maxlen_bins = Bins(intervals)
 
     set_task_total(ctx, nblocks + 2)
 
     check_recommendations({"n ≥ 128": n >= 128})
 
     try:
-        maxlen_probs = blocksize_probabilities[blocksize]
+        probabilities = blocksize_probabilities[blocksize]
     except KeyError as e:
         raise TestNotImplementedError(
             "Test implementation currently cannot calculate probabilities\n"
             f"Values are pre-calculated, which do not include blocksizes of {blocksize}"
         ) from e
-    expected_bincounts = [prob * nblocks for prob in maxlen_probs]
+    expected_bincounts = [prob * nblocks for prob in probabilities]
 
     advance_task(ctx)
 
-    for block in blocks(series, blocksize, nblocks=nblocks):
+    boundary = nblocks * blocksize
+    for block in blocks(series[:boundary], blocksize):
         runlengths = (length for value, length in asruns(block) if value == heads)
 
         maxlen = 0
@@ -214,5 +215,5 @@ def asruns(series) -> Iterator[Tuple[Any, int]]:
         else:
             yield astuple(current_run)
             current_run = Run(value)
-    else:
-        yield astuple(current_run)
+
+    yield astuple(current_run)

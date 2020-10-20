@@ -92,6 +92,8 @@ setup(
         "rich>=6.1.0",
         "jinja2",
         "altair",
+        "typing-extensions",
+        "more-itertools",
     ],
     test_requires=["pytest", "hypothesis"],
     entry_points={"console_scripts": ["coinflip = coinflip.cli:main"]},

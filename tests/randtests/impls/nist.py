@@ -1,6 +1,6 @@
 import sts
 
-from ._implementation import Implementation
+from .core import Implementation
 
 
 def monobit(bits):

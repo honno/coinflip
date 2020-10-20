@@ -15,8 +15,8 @@ from pytest import skip
 
 from coinflip import randtests
 
-from .implementations import testmaps
-from .implementations._implementation import ImplementationError
+from .impls import testmaps
+from .impls.core import ImplementationError
 from .strategies import mixedbits
 
 ArgsStrategy = SearchStrategy[Tuple[List, Dict]]

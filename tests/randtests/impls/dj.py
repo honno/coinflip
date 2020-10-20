@@ -9,8 +9,8 @@ from functools import wraps
 from typing import List
 from typing import NamedTuple
 
-from ._implementation import Implementation
-from ._implementation import ImplementationError
+from .core import Implementation
+from .core import ImplementationError
 from .sp800_22_tests.sp800_22_binary_matrix_rank_test import binary_matrix_rank_test as _binary_matrix_rank
 from .sp800_22_tests.sp800_22_cumulative_sums_test import cumulative_sums_test as _cusum
 from .sp800_22_tests.sp800_22_dft_test import dft_test as _spectral
