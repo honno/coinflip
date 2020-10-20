@@ -7,11 +7,10 @@ from typing import List
 from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["linear_complexity"]
@@ -32,7 +31,7 @@ probabilities = [
 
 
 @randtest()
-def linear_complexity(series, heads, tails, blocksize=None):
+def linear_complexity(series, heads, tails, ctx, blocksize=None):
     n = len(series)
 
     if not blocksize:
@@ -44,6 +43,9 @@ def linear_complexity(series, heads, tails, blocksize=None):
             blocksize = max(floor(sqrt(n)), 2)
 
     nblocks = n // blocksize
+
+    set_task_total(ctx, nblocks + 3)
+
     check_recommendations(
         {
             "n ≥ 1000000": n >= 1000000,
@@ -54,6 +56,8 @@ def linear_complexity(series, heads, tails, blocksize=None):
 
     binary = series.map({heads: 1, tails: 0})
 
+    advance_task(ctx)
+
     expected_mean = (
         blocksize / 2
         + (9 + (-(1 ** (blocksize + 1)))) / 36
@@ -61,13 +65,19 @@ def linear_complexity(series, heads, tails, blocksize=None):
     )
     expected_bincounts = [nblocks * prob for prob in probabilities]
 
+    advance_task(ctx)
+
     variance_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
     for block_tup in rawblocks(binary, blocksize):
         linear_complexity = berlekamp_massey(block_tup)
         variance = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
         variance_bins[variance] += 1
 
+        advance_task(ctx)
+
     statistic, p = chisquare(list(variance_bins.values()), expected_bincounts)
+
+    advance_task(ctx)
 
     return LinearComplexityTestResult(
         heads,

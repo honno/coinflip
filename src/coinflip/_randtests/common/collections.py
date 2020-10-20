@@ -1,8 +1,10 @@
 # TODO test non-ordered inputs, subclass OrderedDict
 from bisect import bisect_left
+from collections import defaultdict
+from collections.abc import MutableSequence
 from typing import Iterable
 
-__all__ = ["FloorDict", "Bins"]
+__all__ = ["FloorDict", "Bins", "defaultlist"]
 
 
 class FloorDict(dict):
@@ -75,3 +77,52 @@ class Bins(dict):
 
         self.realkeys_cache[key] = realkey
         return realkey
+
+
+class defaultlist(MutableSequence):
+    def __init__(self, default_factory):
+        self._defaultdict = defaultdict(default_factory)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._defaultdict[key]
+
+        elif isinstance(key, slice):
+            indices = range(key.start or 1, key.stop, key.step or 1)
+            return [self[i] for i in indices]
+
+    def __setitem__(self, key, value):
+        if isinstance(key, int):
+            self._defaultdict[key] = value
+
+        elif isinstance(key, slice):
+            raise NotImplementedError()  # TODO
+
+    def __delitem__(self, i):
+        del self._defaultdict[i]
+
+    def __len__(self):
+        indices = self._defaultdict.keys()
+        return max(indices) + 1
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    def __repr__(self):
+        f_dict = repr(self._defaultdict)
+        return f"defaultlist({f_dict})"
+
+    def insert(self, key, value):
+        if key < len(self):
+            indices = self._defaultdict.keys()
+            larger_indexes = [i for i in indices if i >= key]
+            reindexed_subdict = {i + 1: self._defaultdict[i] for i in larger_indexes}
+            for i in larger_indexes:
+                del self._defaultdict[i]
+            self._defaultdict.update(reindexed_subdict)
+
+        self._defaultdict[key] = value
+
+    def append(self, value):
+        self.insert(len(self), value)

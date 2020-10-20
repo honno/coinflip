@@ -11,22 +11,23 @@ from rich import box
 from rich.table import Table
 from scipy.special import gammaincc
 
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import slider
 
 __all__ = ["serial"]
 
 
 @randtest()
-def serial(series, heads, tails, blocksize=None):
+def serial(series, heads, tails, ctx, blocksize=None):
     n = len(series)
 
     if not blocksize:
         blocksize = max(floor(log2(n)) - 2 - 1, 2)
+
+    set_task_total(ctx, (1 + n) * 3 + 2)
 
     check_recommendations({"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2})
 
@@ -35,9 +36,13 @@ def serial(series, heads, tails, blocksize=None):
         head = series[: window_size - 1]
         ouroboros = pd.concat([series, head])
 
+        advance_task(ctx)
+
         counts = defaultdict(int)
         for block_tup in slider(ouroboros, window_size, overlap=True):
             counts[block_tup] += 1
+
+            advance_task(ctx)
 
         permutation_counts[window_size] = counts
 
@@ -48,6 +53,8 @@ def serial(series, heads, tails, blocksize=None):
 
         normalised_sums[window_size] = normsum
 
+    advance_task(ctx)
+
     normsum_delta1 = normalised_sums[blocksize] - normalised_sums[blocksize - 1]
     p1 = gammaincc(2 ** (blocksize - 2), normsum_delta1 / 2)
 
@@ -57,6 +64,8 @@ def serial(series, heads, tails, blocksize=None):
         + normalised_sums[blocksize - 2]
     )
     p2 = gammaincc(2 ** (blocksize - 3), normsum_delta2 / 2)
+
+    advance_task(ctx)
 
     results = {
         "∇ψ²ₘ": FirstSerialTestResult(

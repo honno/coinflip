@@ -13,12 +13,11 @@ from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.collections import FloorDict
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["runs", "longest_runs"]
 
@@ -28,23 +27,33 @@ __all__ = ["runs", "longest_runs"]
 
 
 @randtest()
-def runs(series, heads, tails):
+def runs(series, heads, tails, ctx):
     n = len(series)
+
+    set_task_total(ctx, 4)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
     counts = series.value_counts()
 
+    advance_task(ctx)
+
     ncandidates = counts[heads]
     prop_heads = ncandidates / n
     prop_tails = 1 - prop_heads
 
+    advance_task(ctx)
+
     nruns = sum(1 for _ in asruns(series))
+
+    advance_task(ctx)
 
     p = erfc(
         abs(nruns - (2 * ncandidates * prop_tails))
         / (2 * sqrt(2 * n) * prop_heads * prop_tails)
     )
+
+    advance_task(ctx)
 
     return RunsTestResult(heads, tails, nruns, p)
 
@@ -87,10 +96,8 @@ blocksize_probabilities = {
 
 # TODO allow and handle blocksize/nblocks/maxlen_bins kwargs
 @randtest()
-def longest_runs(series, heads, tails):
+def longest_runs(series, heads, tails, ctx):
     n = len(series)
-
-    check_recommendations({"n ≥ 128": n >= 128})
 
     try:
         blocksize, nblocks, maxlen_bin_intervals = n_defaults[n]
@@ -101,6 +108,10 @@ def longest_runs(series, heads, tails):
         ) from e
     maxlen_bins = Bins(maxlen_bin_intervals)
 
+    set_task_total(ctx, nblocks + 2)
+
+    check_recommendations({"n ≥ 128": n >= 128})
+
     try:
         maxlen_probs = blocksize_probabilities[blocksize]
     except KeyError as e:
@@ -109,6 +120,8 @@ def longest_runs(series, heads, tails):
             f"Values are pre-calculated, which do not include blocksizes of {blocksize}"
         ) from e
     expected_bincounts = [prob * nblocks for prob in maxlen_probs]
+
+    advance_task(ctx)
 
     for block in blocks(series, blocksize, nblocks=nblocks):
         runlengths = (length for value, length in asruns(block) if value == heads)
@@ -120,7 +133,11 @@ def longest_runs(series, heads, tails):
 
         maxlen_bins[maxlen] += 1
 
+        advance_task(ctx)
+
     statistic, p = chisquare(list(maxlen_bins.values()), expected_bincounts)
+
+    advance_task(ctx)
 
     return LongestRunsTestResult(
         heads, tails, statistic, p, blocksize, nblocks, expected_bincounts, maxlen_bins,

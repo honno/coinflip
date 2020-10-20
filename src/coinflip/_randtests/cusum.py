@@ -5,28 +5,32 @@ from math import sqrt
 import numpy as np
 from scipy.stats import norm
 
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["cusum"]
 
 
 @randtest()
-def cusum(series, heads, tails, reverse=False):
+def cusum(series, heads, tails, ctx, reverse=False):
     n = len(series)
+
+    set_task_total(ctx, 3)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
     oscillations = series.map({heads: 1, tails: -1})
+
+    advance_task(ctx)
 
     if reverse:
         oscillations = oscillations[::1]
 
     cumulative_sums = oscillations.cumsum()
     abs_cumulative_sums = cumulative_sums.abs()
-
     max_cusum = abs_cumulative_sums.nlargest(1).iloc[0]
+
+    advance_task(ctx)
 
     # TODO this all can be done more elegantly
     start1 = floor((-n / max_cusum + 1) / 4)
@@ -45,6 +49,8 @@ def cusum(series, heads, tails, reverse=False):
             for k in np.arange(start2, stop, 1)
         )
     )
+
+    advance_task(ctx)
 
     return CusumTestResult(heads, tails, max_cusum, p, reverse)
 

@@ -7,7 +7,7 @@ from rich.console import render_group
 from rich.style import Style
 from rich.text import Text
 
-from coinflip._randtests.common.testutils import infer_faces
+from coinflip._randtests.common.core import infer_faces
 from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["determine_rep", "pretty_subseq", "pretty_sequence"]

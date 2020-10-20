@@ -14,12 +14,11 @@ from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["monobit", "frequency_within_block"]
 
@@ -55,16 +54,22 @@ class FaceCounts(NamedTuple):
 
 
 @randtest()
-def monobit(series, heads, tails):
+def monobit(series, heads, tails, ctx):
     n = len(series)
+
+    set_task_total(ctx, 2)
 
     check_recommendations({"n ≥ 100": n >= 100})
 
     counts = FaceCounts.from_series(series.value_counts(), heads, tails)
 
+    advance_task(ctx)
+
     diff = counts.max.count - counts.min.count
     normdiff = diff / sqrt(n)
     p = erfc(normdiff / sqrt(2))
+
+    advance_task(ctx)
 
     return MonobitTestResult(heads, tails, normdiff, p, n, counts, diff)
 
@@ -147,7 +152,7 @@ class MonobitTestResult(TestResult):
 
 
 @randtest(min_n=8)
-def frequency_within_block(series, heads, tails, blocksize=None):
+def frequency_within_block(series, heads, tails, ctx, blocksize=None):
     n = len(series)
 
     # TODO - smarter defaults
@@ -156,6 +161,8 @@ def frequency_within_block(series, heads, tails, blocksize=None):
         blocksize = 8
 
     nblocks = n // blocksize
+
+    set_task_total(ctx, nblocks + 3)
 
     check_recommendations(
         {
@@ -166,18 +173,26 @@ def frequency_within_block(series, heads, tails, blocksize=None):
         }
     )
 
+    advance_task(ctx)
+
     counts = []
     for block in blocks(series, blocksize):
         matches = block == heads
         count = matches.sum()
         counts.append(count)
 
+        advance_task(ctx)
+
     proportions = (count / blocksize for count in counts)
     deviations = [prop - 1 / 2 for prop in proportions]
+
+    advance_task(ctx)
 
     # TODO figure out the chi-square test being used
     statistic = 4 * blocksize * sum(x ** 2 for x in deviations)
     p = gammaincc(nblocks / 2, statistic / 2)
+
+    advance_task(ctx)
 
     return FrequencyWithinBlockTestResult(
         heads, tails, statistic, p, blocksize, nblocks, counts,

@@ -8,10 +8,9 @@ from rich.text import Text
 from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -35,18 +34,23 @@ state_probabilities = {
 
 
 @randtest()
-def random_excursions(series, heads, tails):
+def random_excursions(series, heads, tails, ctx):
     n = len(series)
+
+    set_task_total(ctx, 4)
 
     check_recommendations({"n ≥ 1000000": n >= 1000000})
 
     oscillations = series.map({heads: 1, tails: -1})
-
     cumulative_sums = oscillations.cumsum()
+
+    advance_task(ctx)
 
     head = pd.Series({-1: 0})
     tail = pd.Series({n + 1: 0})
     walk = pd.concat([head, cumulative_sums, tail])
+
+    advance_task(ctx)
 
     # TODO standardise or differentiate language of "bins"/"occurences"/"bincounts"
     ncycles = 0
@@ -58,6 +62,8 @@ def random_excursions(series, heads, tails):
             count = state_counts[state]
             state_bins[state][count] += 1
 
+    advance_task(ctx)
+
     results = {}
     for state in states:
         bincounts = state_bins[state].values()
@@ -68,6 +74,8 @@ def random_excursions(series, heads, tails):
         statistic, p = chisquare(list(bincounts), expected_bincounts)
 
         results[state] = RandomExcursionsTestResult(heads, tails, statistic, p, state)
+
+    advance_task(ctx)
 
     return MultiRandomExcursionsTestResult(results)
 
@@ -108,21 +116,28 @@ variant_states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 @randtest()
-def random_excursions_variant(series, heads, tails):
+def random_excursions_variant(series, heads, tails, ctx):
     n = len(series)
+
+    set_task_total(ctx, 4)
 
     check_recommendations({"n ≥ 1000000": n >= 1000000})
 
     oscillations = series.map({heads: 1, tails: -1})
-
     cumulative_sums = oscillations.cumsum()
+
+    advance_task(ctx)
 
     head = pd.Series({-1: 0})
     tail = pd.Series({n + 1: 0})
     walk = pd.concat([head, cumulative_sums, tail])
 
+    advance_task(ctx)
+
     state_counts = walk.value_counts()
     ncycles = state_counts.at[0] - 1
+
+    advance_task(ctx)
 
     results = {}
     for state in variant_states:
@@ -133,9 +148,13 @@ def random_excursions_variant(series, heads, tails):
 
         p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
 
+        advance_task(ctx)
+
         results[state] = RandomExcursionsVariantTestResult(
             heads, tails, count, p, state
         )
+
+    advance_task(ctx)
 
     return MultiRandomExcursionsVariantTestResult(results)
 

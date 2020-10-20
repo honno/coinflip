@@ -1,4 +1,4 @@
-"""Methods used to interact with the randtests subpackage."""
+"""Methods used to interact with the _randtests subpackage."""
 from functools import wraps
 from shutil import get_terminal_size
 from typing import Callable
@@ -6,10 +6,14 @@ from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
+from rich.progress import BarColumn
+from rich.progress import Progress
+from rich.progress import TextColumn
+from rich.progress import TimeRemainingColumn
 from rich.text import Text
 
+from coinflip import _randtests
 from coinflip import console
-from coinflip import randtests
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.exceptions import TestError
 from coinflip._randtests.common.result import TestResult
@@ -35,6 +39,25 @@ f_randtest_names = {
     "cusum": "Cumulative Sums (Cusum) Test",
     "random_excursions": "Random Excursions Test",
     "random_excursions_variant": "Random Excursions Variant Test",
+}
+
+
+f_randtest_abbreviations = {
+    "monobit": "Monobit",
+    "frequency_within_block": "Block Freq.",
+    "runs": "Runs",
+    "longest_runs": "Longest Runs",
+    "binary_matrix_rank": "Matrix",
+    "spectral": "Spectral",
+    "non_overlapping_template_matching": "Non-Overlap.",
+    "overlapping_template_matching": "Overlapping",
+    "maurers_universal": "Universal",
+    "linear_complexity": "Complexity",
+    "serial": "Serial",
+    "approximate_entropy": "Entropy",
+    "cusum": "Cusum",
+    "random_excursions": "Excursions",
+    "random_excursions_variant": "Excur. Var.",
 }
 
 
@@ -82,14 +105,22 @@ def list_tests() -> Iterator[Tuple[str, Callable]]:
     randtest_func : ``Callable``
         Function object of the statistical test
     """
-    for randtest_name in randtests.__all__:
-        randtest_func = getattr(randtests, randtest_name)
+    for randtest_name in _randtests.__all__:
+        randtest_func = getattr(_randtests, randtest_name)
 
         yield randtest_name, randtest_func
 
 
 class TestNotFoundError(ValueError):
     """Error for when a statistical test is not found"""
+
+
+columns = (
+    TextColumn("[progress.description]{task.description}"),
+    BarColumn(bar_width=54),  # i.e. progress is roughly 80 cols wide overall
+    TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+    TimeRemainingColumn(),
+)
 
 
 @binary_check
@@ -119,9 +150,14 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     """
     for name, func in list_tests():
         if randtest_name == name:
-            print_randtest_name(name)
 
-            result = func(series, **kwargs)
+            with Progress(*columns, console=console, transient=True) as progress:
+                abbrv = f_randtest_abbreviations[name]
+                task = progress.add_task(abbrv)
+
+                result = func(series, ctx=(progress, task), **kwargs)
+
+            print_randtest_name(name)
             console.print(result)
 
             return result
@@ -134,10 +170,6 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
 def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exception]]:
     """Run all available statistical test on RNG output
 
-    Parameters
-    ----------
-    series : ``Series``
-        Output of the RNG being tested
 
     Yields
     ------
@@ -153,20 +185,37 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     NonBinarySequenceError
         If series contains a sequence made of non-binary values
     """
-    results = {}
-    for name, func in list_tests():
-        print_randtest_name(name)
+    with Progress(*columns, console=console, transient=True) as progress:
+        names, funcs = zip(*list_tests())
+        tasks = []
+        for name in names:
+            abbrv = f_randtest_abbreviations[name]
+            task = progress.add_task(abbrv, start=False)
 
-        try:
-            result = func(series)
-            console.print(result)
+            tasks.append(task)
 
-            yield name, result, None
-            results[name] = result
+        results = {}
+        for (name, func), task in zip(list_tests(), tasks):
+            progress.start_task(task)
 
-        except TestError as e:
-            yield name, None, e
-            results[name] = None
+            try:
+                result = func(series, ctx=(progress, task))
+
+                print_randtest_name(name)
+                console.print(result)
+                console.print("")
+
+                yield name, result, None
+                results[name] = result
+
+            except TestError as e:
+                progress.remove_task(task)
+
+                print_randtest_name(name)
+                yield name, None, e
+                console.print("")
+
+                results[name] = None
 
     # TODO print a table
     # table = Table(box=box.DOUBLE)

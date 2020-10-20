@@ -7,11 +7,10 @@ from typing import Tuple
 
 from scipy.stats import chisquare
 
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
@@ -25,7 +24,7 @@ class RankCounts:
 
 
 @randtest(min_n=4)
-def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = None):
+def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] = None):
     n = len(series)
 
     if matrix_dimen is None:
@@ -41,6 +40,8 @@ def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = Non
 
     blocksize = nrows * ncols
     nblocks = n // blocksize
+
+    set_task_total(ctx, nblocks + 3)
 
     check_recommendations(
         {
@@ -58,12 +59,17 @@ def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = Non
 
     rankable_series = series.map({heads: 1, tails: 0})
 
-    matrices = []
+    advance_task(ctx)
+
+    ranks = []
     for block in blocks(rankable_series, blocksize):
         matrix = [row for row in rawblocks(block, nblocks=nrows)]
-        matrices.append(matrix)
 
-    ranks = [matrix_rank(matrix) for matrix in matrices]
+        rank = matrix_rank(matrix)
+
+        advance_task(ctx)
+
+        ranks.append(rank)
 
     rankcounts = RankCounts()
     for rank in ranks:
@@ -74,12 +80,16 @@ def binary_matrix_rank(series, heads, tails, matrix_dimen: Tuple[int, int] = Non
         else:
             rankcounts.remaining += 1
 
+    advance_task(ctx)
+
     reality_check = []
     for count_expect, count in zip(astuple(expected_rankcounts), astuple(rankcounts)):
         diff = (count - count_expect) ** 2 / count_expect
         reality_check.append(diff)
 
     statistic, p = chisquare(astuple(rankcounts), astuple(expected_rankcounts))
+
+    advance_task(ctx)
 
     return BinaryMatrixRankTestResult(
         heads,

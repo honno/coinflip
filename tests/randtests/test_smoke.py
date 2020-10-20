@@ -11,7 +11,7 @@ randtests = [func for _, func in list_tests()]
 
 
 @pytest.mark.parametrize(["randtest"], [(randtest,) for randtest in randtests])
-@pytest.mark.timeout(300)  # i.e. 5 minutes
+@pytest.mark.timeout(120)  # i.e. 2 minutes
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_million_bits(randtest):
     randtest(bits)

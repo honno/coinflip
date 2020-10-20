@@ -6,11 +6,10 @@ from math import sqrt
 import pandas as pd
 from numpy.fft import fft
 
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_list
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 
 __all__ = ["spectral"]
 
@@ -26,8 +25,10 @@ class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
 
 
 @randtest()
-def spectral(series, heads, tails):
+def spectral(series, heads, tails, ctx):
     n = len(series)
+
+    set_task_total(ctx, 4)
 
     check_recommendations({"n ≥ 1000": n >= 1000})
 
@@ -39,18 +40,26 @@ def spectral(series, heads, tails):
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expected = 0.95 * n / 2
 
+    advance_task(ctx)
+
     oscillations = series.map({heads: 1, tails: -1})
     fourier = pd.Series(fft(oscillations))  # fft returns a ndarray
+
+    advance_task(ctx)
 
     half_fourier = fourier[: n // 2]
     peaks = half_fourier.abs()
 
     nbelow = sum(peaks < threshold)
 
+    advance_task(ctx)
+
     diff = nbelow - nbelow_expected
     normdiff = diff / sqrt((n * 0.95 * 0.05) / 4)
 
     p = erfc(abs(normdiff) / sqrt(2))
+
+    advance_task(ctx)
 
     return SpectralTestResult(heads, tails, normdiff, p, nbelow_expected, nbelow, diff,)
 

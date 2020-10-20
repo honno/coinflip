@@ -14,10 +14,9 @@ from typing import NamedTuple
 from typing import Tuple
 
 from coinflip._randtests.common.collections import FloorDict
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import rawblocks
 
 __all__ = ["maurers_universal"]
@@ -77,7 +76,7 @@ n_defaults = FloorDict(
 
 
 @randtest(min_n=4)
-def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
+def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=None):
     if blocksize and blocksize > 16:
         # TODO review this policy
         raise TestNotImplementedError(
@@ -97,6 +96,8 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
     init_n = init_nblocks * blocksize
     init_series, segment_series = series[:init_n], series[init_n:]
     segment_nblocks = (n - init_n) // blocksize
+
+    set_task_total(ctx, init_nblocks + segment_nblocks + 2)
 
     check_recommendations(
         {
@@ -118,11 +119,15 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
     for pos, permutation in enumerate(init_blocks, 1):
         permutations_last_init_pos[permutation] = pos
 
+        advance_task(ctx)
+
     segment_blocks = rawblocks(segment_series, blocksize)
     permutation_positions = defaultdict(list)
     segment_firstpos = init_nblocks + 1
     for pos, permutation in enumerate(segment_blocks, segment_firstpos):
         permutation_positions[permutation].append(pos)
+
+        advance_task(ctx)
 
     distances_total = 0
     for permutation, positions in permutation_positions.items():
@@ -133,11 +138,15 @@ def maurers_universal(series, heads, tails, blocksize=None, init_nblocks=None):
 
             last_occurence = pos
 
+    advance_task(ctx)
+
     statistic = distances_total / segment_nblocks
 
     expected_mean, variance = blocksize_dists[blocksize]
     normdiff = abs((statistic - expected_mean) / (sqrt(2 * variance)))
     p = erfc(normdiff)
+
+    advance_task(ctx)
 
     return UniversalTestResult(
         heads,

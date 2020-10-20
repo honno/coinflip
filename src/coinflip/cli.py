@@ -1,4 +1,3 @@
-import sys
 import warnings
 from shutil import get_terminal_size
 
@@ -11,7 +10,6 @@ from click import confirm
 from click import get_current_context
 from click import group
 from click import option
-from rich.console import Console
 from rich.text import Text
 
 from coinflip import console
@@ -55,8 +53,6 @@ def showwarning(msg, *args, **kwargs) -> str:
 # Monkey patch python's warning module to use our formatting
 warnings.showwarning = showwarning
 
-err_console = Console(file=sys.stderr)
-
 
 def print_err(e: Exception):
     """Pretty print exceptions"""
@@ -64,7 +60,7 @@ def print_err(e: Exception):
     text.append(err_text)
     text.append(f" {e}")
 
-    err_console.print(text)
+    console.print(text)
 
 
 # TODO descriptions of the series e.g. length

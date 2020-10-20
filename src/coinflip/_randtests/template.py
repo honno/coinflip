@@ -1,4 +1,5 @@
 from collections import Counter
+from collections import defaultdict
 from dataclasses import dataclass
 from itertools import product
 from math import ceil
@@ -16,14 +17,14 @@ from scipy.special import gammaincc
 from scipy.special import hyp1f1
 from scipy.stats import chisquare
 
+from coinflip._randtests.common.collections import defaultlist
+from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.testutils import check_recommendations
-from coinflip._randtests.common.testutils import randtest
 from coinflip._randtests.common.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
@@ -46,18 +47,21 @@ class BaseTemplateMatchingTestResult(TestResult):
 
 @randtest()
 def non_overlapping_template_matching(
-    series, heads, tails, template_size=None, blocksize=None,
+    series, heads, tails, ctx, template_size=None, blocksize=None,
 ):
     n = len(series)
 
     if not blocksize:
-        blocksize = max(ceil(0.01 * n), 2)
+        blocksize = max(ceil(0.01 * n), 6)
         if blocksize % 2 != 0:
             blocksize -= 1
     nblocks = n // blocksize
 
     if not template_size:
-        template_size = min(blocksize // 3, 9)
+        template_size = max(min(blocksize // 3, 9), 2)
+
+    nblocks_sub = blocksize // template_size
+    set_task_total(ctx, 1 + nblocks * (nblocks_sub + 1) + 1)
 
     check_recommendations(
         {
@@ -69,29 +73,33 @@ def non_overlapping_template_matching(
         }
     )
 
-    tails = next(value for value in series.unique() if value != heads)
+    matches_expect = (blocksize - template_size + 1) / 2 ** template_size
+    variance = blocksize * (
+        (1 / 2 ** template_size) - ((2 * template_size - 1)) / 2 ** (2 * template_size)
+    )
+
+    advance_task(ctx)
+
+    template_block_matches = defaultdict(lambda: defaultlist(int))
+    for i, block in enumerate(blocks(series, blocksize)):
+        matches = defaultdict(int)
+
+        for window_tup in slider(block, template_size):
+            matches[window_tup] += 1
+
+            advance_task(ctx)
+
+        for template, matches in matches.items():
+            template_block_matches[template][i] = matches
+
+        advance_task(ctx)
 
     results = {}
     for template in product([heads, tails], repeat=template_size):
-        matches_expect = (blocksize - template_size + 1) / 2 ** template_size
-        variance = blocksize * (
-            (1 / 2 ** template_size)
-            - ((2 * template_size - 1)) / 2 ** (2 * template_size)
-        )
-
-        block_matches = []
-        for block in blocks(series, blocksize):
-            matches = 0
-
-            for window_tup in slider(block, template_size):
-                if all(x == y for x, y in zip(window_tup, template)):
-                    matches += 1
-
-            block_matches.append(matches)
-
+        block_matches = template_block_matches[template][:nblocks]
         match_diffs = [matches - matches_expect for matches in block_matches]
 
-        statistic = sum(diff ** 2 / variance for diff in match_diffs)
+        statistic = sum(diff ** 2 / variance for diff in block_matches)
         p = gammaincc(nblocks / 2, statistic / 2)
 
         results[template] = NonOverlappingTemplateMatchingTestResult(
@@ -108,6 +116,8 @@ def non_overlapping_template_matching(
             block_matches,
             match_diffs,
         )
+
+    advance_task(ctx)
 
     return MultiNonOverlappingTemplateMatchingTestResult(results)
 
@@ -164,7 +174,7 @@ matches_ceil = 5
 #                    NIST Randomness Test Suite"
 @randtest()  # TODO appropiate min input
 def overlapping_template_matching(
-    series, heads, tails, template_size=None, blocksize=None, df=5
+    series, heads, tails, ctx, template_size=None, blocksize=None, df=5
 ):
     n = len(series)
 
@@ -187,6 +197,8 @@ def overlapping_template_matching(
     last_prob = 1 - sum(probabilities)
     probabilities.append(last_prob)
 
+    set_task_total(ctx, 1 + nblocks + 2)
+
     check_recommendations(
         {
             "n ≥ 288": n >= 288,
@@ -200,6 +212,8 @@ def overlapping_template_matching(
 
     expected_tallies = [prob * nblocks for prob in probabilities]
 
+    advance_task(ctx)
+
     block_matches = []
     for block in blocks(series, blocksize):
         matches = 0
@@ -208,6 +222,8 @@ def overlapping_template_matching(
             if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 
+        advance_task(ctx)
+
         block_matches.append(matches)
 
     tallies = [0 for _ in range(matches_ceil + 1)]
@@ -215,7 +231,11 @@ def overlapping_template_matching(
         i = min(matches, 5)
         tallies[i] += 1
 
+    advance_task(ctx)
+
     statistic, p = chisquare(tallies, expected_tallies)
+
+    advance_task(ctx)
 
     return OverlappingTemplateMatchingTestResult(
         heads,
