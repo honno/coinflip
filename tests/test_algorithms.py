@@ -1,13 +1,17 @@
-from coinflip.algorithms import berlekamp_massey
-import pytest
-from typing import NamedTuple
 from typing import List
+from typing import NamedTuple
+
+from pytest import mark
+
+from coinflip.algorithms import berlekamp_massey
 
 __all__ = ["bm_examples"]
+
 
 class BMExample(NamedTuple):
     sequence: List[int]
     min_size: int
+
 
 bm_examples = [
     BMExample(
@@ -21,17 +25,43 @@ bm_examples = [
         # 7-10 | 1 1 1 0  | 0
         # 8-11 | 1 1 0 0  | 0
         # 9-12 | 1 0 0 0  | 1
-        sequence = [1,1,0,1,0,1,1,1,1,0,0,0,1],
-        min_size = 4
+        sequence=[1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+        min_size=4,
     ),
     BMExample(
         # https://bell0bytes.eu/linear-feedback-shift-registers/
-        sequence = [1,0,0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,1,0,0,1,0,0,1,1],
-        min_size = 13
-    )
+        sequence=[
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+        ],
+        min_size=13,
+    ),
 ]
 
-@pytest.mark.parametrize(BMExample._fields, bm_examples)
+
+@mark.parametrize(BMExample._fields, bm_examples)
 def test_berlekamp_massey(sequence, min_size):
     assert berlekamp_massey(sequence) == min_size
-

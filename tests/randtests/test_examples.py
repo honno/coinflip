@@ -8,7 +8,7 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
-import pytest
+from pytest import mark
 
 from coinflip import randtests
 
@@ -522,8 +522,7 @@ sub_examples = [
 # fmt: on
 
 
-@pytest.mark.parametrize(Example._fields, examples)
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@mark.parametrize(Example._fields, examples)
 def test_examples(randtest, bits, statistic, p, kwargs):
     randtest_method = getattr(randtests, randtest)
 
@@ -537,26 +536,23 @@ def test_examples(randtest, bits, statistic, p, kwargs):
     assert isclose(result.p, p, abs_tol=0.005)
 
 
-@pytest.mark.parametrize(MultiExample._fields, multi_examples)
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@mark.parametrize(MultiExample._fields, multi_examples)
 def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
     randtest_method = getattr(randtests, randtest)
 
     results = randtest_method(bits, **kwargs)
 
-    if isinstance(statistics[0], float):
-        for statistic_expect, statistic in zip(statistics, results.statistics):
+    for statistic_expect, statistic in zip(statistics, results.statistics):
+        if isinstance(statistic_expect, float):
             assert isclose(statistic, statistic_expect, rel_tol=0.05)
-    elif isinstance(statistics[0], int):
-        for statistic_expect, statistic in zip(statistics, results.statistics):
+        elif isinstance(statistic, int):
             assert statistic == statistic_expect
 
     for p_expect, p in zip(pvalues, results.pvalues):
         assert isclose(p, p_expect, rel_tol=0.05)
 
 
-@pytest.mark.parametrize(SubExample._fields, sub_examples)
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@mark.parametrize(SubExample._fields, sub_examples)
 def test_sub_examples(randtest, key, bits, statistic, p, kwargs):
     randtest_method = getattr(randtests, randtest)
 

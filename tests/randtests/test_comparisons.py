@@ -5,12 +5,12 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
-import pytest
 from hypothesis import HealthCheck
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
+from pytest import mark
 from pytest import skip
 
 from coinflip import randtests
@@ -81,8 +81,7 @@ class AdaptorError(TypeError):
         return f"{self.author}'s {message}"
 
 
-@pytest.mark.parametrize(["randtest", "strategy"], stratmap.items())
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@mark.parametrize(["randtest", "strategy"], stratmap.items())
 @given(data=st.data())
 @settings(
     deadline=None,

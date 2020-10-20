@@ -9,7 +9,7 @@ implementation names.
 from math import isclose
 from typing import Iterator
 
-import pytest
+from pytest import mark
 from pytest import skip
 
 from ..test_examples import Example
@@ -30,7 +30,7 @@ fields = list(Example._fields)
 fields.insert(0, "author")
 
 
-@pytest.mark.parametrize(fields, author_examples())
+@mark.parametrize(fields, author_examples())
 def test_examples(author, randtest, bits, statistic, p, kwargs):
     testmap = testmaps[author]
 
@@ -60,7 +60,7 @@ multi_fields = list(MultiExample._fields)
 multi_fields.insert(0, "author")
 
 
-@pytest.mark.parametrize(multi_fields, author_multi_examples())
+@mark.parametrize(multi_fields, author_multi_examples())
 def test_multi_examples(author, randtest, bits, statistics, pvalues, kwargs):
     testmap = testmaps[author]
     implementation = testmap[randtest]

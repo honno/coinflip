@@ -1,4 +1,4 @@
-import pytest
+from pytest import mark
 
 from coinflip import generators
 from coinflip.tests_runner import list_tests
@@ -10,8 +10,7 @@ bits = [next(RNG) for _ in range(1000000)]
 randtests = [func for _, func in list_tests()]
 
 
-@pytest.mark.parametrize(["randtest"], [(randtest,) for randtest in randtests])
-@pytest.mark.timeout(120)  # i.e. 2 minutes
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@mark.parametrize(["randtest"], [(randtest,) for randtest in randtests])
+@mark.timeout(120)  # i.e. 2 minutes
 def test_million_bits(randtest):
     randtest(bits)
