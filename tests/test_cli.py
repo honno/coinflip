@@ -112,8 +112,5 @@ class CliStateMachine(RuleBasedStateMachine):
 
 TestCliStateMachine = CliStateMachine.TestCase  # top-level TestCase picked up by pytest
 TestCliStateMachine.settings = settings(
-    max_examples=10,
-    stateful_step_count=20,
-    deadline=None,
     suppress_health_check=[HealthCheck.data_too_large, HealthCheck.too_slow],
 )

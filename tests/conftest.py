@@ -1,14 +1,3 @@
-"""Settings profiles for hypothesis tests
-
-Defines profiles which can be accessed by the `--hypothesis-profile=<profile>`
-option in the `pytest` CLI.
-
-Notes
------
-See `hypothesis settings profile guide
-https://hypothesis.readthedocs.io/en/latest/settings.html?highlight=profiles#settings-profiles`_
-for more information on profiles.
-"""
 from datetime import timedelta
 
 from hypothesis import settings
@@ -31,6 +20,9 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
+
+    if not config.getoption("--run-slow"):
+        settings.load_profile("fast")
 
 
 def pytest_collection_modifyitems(config, items):
