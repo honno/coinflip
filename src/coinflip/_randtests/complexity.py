@@ -60,7 +60,7 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 
     advance_task(ctx)
 
-    expected_mean = (
+    mean_expect = (
         blocksize / 2
         + (9 + (-(1 ** (blocksize + 1)))) / 36
         - (blocksize / 3 + 2 / 9) / 2 ** blocksize
@@ -72,7 +72,7 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
     variance_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
     for block_tup in rawblocks(binary, blocksize):
         linear_complexity = berlekamp_massey(block_tup)
-        variance = (-1) ** blocksize * (linear_complexity - expected_mean) + 2 / 9
+        variance = (-1) ** blocksize * (linear_complexity - mean_expect) + 2 / 9
         variance_bins[variance] += 1
 
         advance_task(ctx)
@@ -87,7 +87,7 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
         statistic,
         p,
         blocksize,
-        expected_mean,
+        mean_expect,
         expected_bincounts,
         variance_bins,
     )
@@ -96,14 +96,14 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 @dataclass
 class LinearComplexityTestResult(TestResult):
     blocksize: int
-    expected_mean: float
+    mean_expect: float
     expected_bincounts: List[float]
     variance_bins: Bins
 
     def _render(self):
         yield self._pretty_result("chi-square")
 
-        f_expected_mean = smartround(self.expected_mean)
+        f_mean_expect = smartround(self.mean_expect)
 
         table = make_chisquare_table(
             "linear complexity deviations per block",
@@ -111,7 +111,7 @@ class LinearComplexityTestResult(TestResult):
             self.variance_bins.keys(),
             self.expected_bincounts,
             self.variance_bins.values(),
-            caption=f"from expected mean {f_expected_mean}",
+            caption=f"from expected mean {f_mean_expect}",
         )
         yield table
 

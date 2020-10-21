@@ -25,7 +25,7 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
     check_recommendations({"blocksize < ⌊log2(n)⌋ - 5": blocksize < floor(log2(n)) - 5})
 
-    totals = []
+    phis = []
     for template_size in [blocksize, blocksize + 1]:
         head = series[: template_size - 1]
         ouroboros = pd.concat([series, head])
@@ -43,18 +43,18 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
         advance_task(ctx)
 
-        total = sum(normcount * log(normcount) for normcount in normalised_counts)
-        totals.append(total)
+        phi = sum(normcount * log(normcount) for normcount in normalised_counts)
+        phis.append(phi)
 
         advance_task(ctx)
 
-    approx_entropy = totals[0] - totals[1]
-    statistic = 2 * n * (log(2) - approx_entropy)
-    p = gammaincc(2 ** (blocksize - 1), statistic / 2)
+    approx_entropy = phis[0] - phis[1]
+    chi2 = 2 * n * (log(2) - approx_entropy)
+    p = gammaincc(2 ** (blocksize - 1), chi2 / 2)
 
     advance_task(ctx)
 
-    return ApproximateEntropyTestResult(heads, tails, statistic, p, blocksize)
+    return ApproximateEntropyTestResult(heads, tails, chi2, p, blocksize)
 
 
 @dataclass

@@ -26,9 +26,9 @@ def cusum(series, heads, tails, ctx, reverse=False):
     if reverse:
         oscillations = oscillations[::1]
 
-    cumulative_sums = oscillations.cumsum()
-    abs_cumulative_sums = cumulative_sums.abs()
-    max_cusum = abs_cumulative_sums.nlargest(1).iloc[0]
+    cusums = oscillations.cumsum()
+    abs_cusums = cusums.abs()
+    max_cusum = abs_cusums.nlargest(1).iloc[0]
 
     advance_task(ctx)
 

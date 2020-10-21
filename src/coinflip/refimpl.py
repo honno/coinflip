@@ -1,20 +1,24 @@
+from collections import Counter
 from collections import defaultdict
+from itertools import accumulate
 from itertools import product
 from math import erfc
 from math import log
 from math import log2
 from math import sqrt
 from typing import Iterator
-from typing import Sequence
+from typing import List
 from typing import Tuple
 
 from more_itertools import chunked
+from more_itertools import split_at
 from more_itertools import windowed
 from scipy.fft import fft
 from scipy.special import gammaincc
 from scipy.stats import chisquare
 from typing_extensions import Literal
 
+from coinflip.algorithms import berlekamp_massey
 from coinflip.algorithms import matrix_rank
 from coinflip.collections import Bins
 from coinflip.collections import FloorDict
@@ -30,18 +34,18 @@ __all__ = [
     "non_overlapping_template_matching",
     "overlapping_template_matching",
     "maurers_universal",
-    # "linear_complexity",
-    # "serial",
-    # "approximate_entropy",
-    # "cusum",
-    # "random_excursions",
-    # "random_excursions_variant",
+    "linear_complexity",
+    "serial",
+    "approximate_entropy",
+    "cusum",
+    "random_excursions",
+    "random_excursions_variant",
 ]
 
 Bit = Literal[0, 1]
 
 
-def monobit(sequence: Sequence[Bit]):
+def monobit(sequence: List[Bit]):
     n = len(sequence)
 
     ones = sum(1 for bit in sequence if bit == 1)
@@ -54,7 +58,7 @@ def monobit(sequence: Sequence[Bit]):
     return normdiff, p
 
 
-def frequency_within_block(sequence: Sequence[Bit], blocksize: int):
+def frequency_within_block(sequence: List[Bit], blocksize: int):
     n = len(sequence)
     nblocks = n // blocksize
 
@@ -71,7 +75,7 @@ def frequency_within_block(sequence: Sequence[Bit], blocksize: int):
     return chi2, p
 
 
-def runs(sequence: Sequence[Bit]):
+def runs(sequence: List[Bit]):
     n = len(sequence)
 
     ones = sum(1 for bit in sequence if bit == 1)
@@ -88,7 +92,7 @@ def runs(sequence: Sequence[Bit]):
     return nruns, p
 
 
-def longest_runs(sequence: Sequence[Bit]):
+def longest_runs(sequence: List[Bit]):
     n_defaults = FloorDict(
         {
             128: (8, 16, [1, 2, 3, 4]),
@@ -126,7 +130,7 @@ def longest_runs(sequence: Sequence[Bit]):
     return chi2, p
 
 
-def binary_matrix_rank(sequence: Sequence[Bit], matrix_dimen: Tuple[int, int]):
+def binary_matrix_rank(sequence: List[Bit], matrix_dimen: Tuple[int, int]):
     n = len(sequence)
     nrows, ncols = matrix_dimen
     blocksize = nrows * ncols
@@ -151,13 +155,15 @@ def binary_matrix_rank(sequence: Sequence[Bit], matrix_dimen: Tuple[int, int]):
         else:
             rankcounts[2] += 1
 
-    statistic, p = chisquare(rankcounts, expected_rankcounts)
+    chi2, p = chisquare(rankcounts, expected_rankcounts)
 
-    return statistic, p
+    return chi2, p
 
 
-def spectral(sequence: Sequence[Bit]):
+def spectral(sequence: List[Bit]):
     n = len(sequence)
+    if n % 2 != 0:
+        sequence = sequence[:-1]
 
     threshold = sqrt(log(1 / 0.05) * n)
     nbelow_expect = 0.95 * n / 2
@@ -177,7 +183,7 @@ def spectral(sequence: Sequence[Bit]):
 
 
 def non_overlapping_template_matching(
-    sequence: Sequence[Bit], template_size: int, blocksize: int
+    sequence: List[Bit], template_size: int, blocksize: int
 ):
     n = len(sequence)
     nblocks = n // blocksize
@@ -203,17 +209,17 @@ def non_overlapping_template_matching(
         block_matches = template_block_matches[template][:nblocks]
         match_diffs = [matches - matches_expect for matches in block_matches]
 
-        statistic = sum(diff ** 2 / variance for diff in match_diffs)
-        p = gammaincc(nblocks / 2, statistic / 2)
+        chi2 = sum(diff ** 2 / variance for diff in match_diffs)
+        p = gammaincc(nblocks / 2, chi2 / 2)
 
-        statistics.append(statistic)
+        statistics.append(chi2)
         pvalues.append(p)
 
     return statistics, pvalues
 
 
 def overlapping_template_matching(
-    sequence: Sequence[Bit], template_size: int, blocksize: int
+    sequence: List[Bit], template_size: int, blocksize: int
 ):
     n = len(sequence)
     template = [1 for _ in range(template_size)]
@@ -238,19 +244,19 @@ def overlapping_template_matching(
         i = min(matches, 5)
         tallies[i] += 1
 
-    statistic, p = chisquare(tallies, expected_tallies)
+    chi2, p = chisquare(tallies, expected_tallies)
 
-    return statistic, p
+    return chi2, p
 
 
-def maurers_universal(sequence: Sequence[Bit], blocksize: int, init_nblocks: int):
+def maurers_universal(sequence: List[Bit], blocksize: int, init_nblocks: int):
     n = len(sequence)
     nblocks = n // blocksize
     segment_nblocks = nblocks - init_nblocks
 
     boundary = init_nblocks * blocksize
     init_sequence = sequence[:boundary]
-    segment_sequence = sequence[boundary : nblocks * blocksize]
+    test_sequence = sequence[boundary : nblocks * blocksize]
 
     blocksize_dists = {
         1: (0.7326495, 0.690),
@@ -276,50 +282,188 @@ def maurers_universal(sequence: Sequence[Bit], blocksize: int, init_nblocks: int
     for pos, permutation in enumerate(chunked(init_sequence, blocksize), 1):
         last_permutation_pos[tuple(permutation)] = pos
 
-    distances_total = 0
+    log2_distances = 0
     for pos, permutation in enumerate(
-        chunked(segment_sequence, blocksize), init_nblocks + 1
+        chunked(test_sequence, blocksize), init_nblocks + 1
     ):
         distance = pos - last_permutation_pos[tuple(permutation)]
-        distances_total += log2(distance)
+        log2_distances += log2(distance)
 
         last_permutation_pos[tuple(permutation)] = pos
 
-    statistic = distances_total / segment_nblocks
-    p = erfc(abs((statistic - mean_expect) / (sqrt(2 * variance))))
+    norm_distances = log2_distances / segment_nblocks
+    p = erfc(abs((norm_distances - mean_expect) / (sqrt(2 * variance))))
 
-    return statistic, p
-
-
-# def serial(sequence: Sequence[Bit], blocksize: int):
-#     n = len(sequence)
+    return norm_distances, p
 
 
-# def linear_complexity(sequence: Sequence[Bit], blocksize: int):
-#     n = len(sequence)
+def serial(sequence: List[Bit], blocksize: int):
+    n = len(sequence)
+    # TODO trunc the sequence?
+
+    normalised_sums = {}
+    for window_size in [blocksize, blocksize - 1, blocksize - 2]:
+        head = sequence[: window_size - 1]
+        ouroboros = sequence + head
+
+        counts = defaultdict(int)
+        for window in windowed(ouroboros, window_size):
+            counts[tuple(window)] += 1
+
+        sum_squares = sum(count ** 2 for count in counts.values())
+        normsum = (2 ** window_size / n) * sum_squares - n
+
+        normalised_sums[window_size] = normsum
+
+    normsum_deltas = [
+        normalised_sums[blocksize] - normalised_sums[blocksize - 1],
+        normalised_sums[blocksize]
+        - 2 * normalised_sums[blocksize - 1]
+        + normalised_sums[blocksize - 2],
+    ]
+
+    pvalues = [
+        gammaincc(2 ** (blocksize - 2), normsum_deltas[0] / 2),
+        gammaincc(2 ** (blocksize - 3), normsum_deltas[1] / 2),
+    ]
+
+    return normsum_deltas, pvalues
 
 
-# def approximate_entropy(sequence: Sequence[Bit], blocksize: int):
-#     n = len(sequence)
+def linear_complexity(sequence: List[Bit], blocksize: int):
+    n = len(sequence)
+    nblocks = n // blocksize
+    trunc_sequence = sequence[: nblocks * blocksize]
+
+    probabilities = [0.010417, 0.03125, 0.125, 0.5, 0.25, 0.0625, 0.020833]
+    mean_expect = (
+        blocksize / 2
+        + (9 + (-(1 ** (blocksize + 1)))) / 36
+        - (blocksize / 3 + 2 / 9) / 2 ** blocksize
+    )
+    expected_bincounts = [nblocks * prob for prob in probabilities]
+
+    variance_bins = Bins([-3, -2, -1, 0, 1, 2, 3])
+    for block in chunked(trunc_sequence, blocksize):
+        linear_complexity = berlekamp_massey(block)
+        variance = (-1) ** blocksize * (linear_complexity - mean_expect) + 2 / 9
+        variance_bins[variance] += 1
+
+    chi2, p = chisquare(list(variance_bins.values()), expected_bincounts)
+
+    return chi2, p
 
 
-# def cusum(sequence: Sequence[Bit], reverse: bool = False):
-#     n = len(sequence)
+def approximate_entropy(sequence: List[Bit], blocksize: int):
+    n = len(sequence)
+    # TODO trunc the sequence?
+
+    phis = []
+    for template_size in [blocksize, blocksize + 1]:
+        head = sequence[: template_size - 1]
+        ouroboros = sequence + head
+
+        permutation_counts = defaultdict(int)
+        for window in windowed(ouroboros, template_size):
+            permutation_counts[tuple(window)] += 1
+
+        normalised_counts = []
+        for count in permutation_counts.values():
+            normcount = count / n
+            normalised_counts.append(normcount)
+
+        phi = sum(normcount * log(normcount) for normcount in normalised_counts)
+        phis.append(phi)
+
+    approx_entropy = phis[0] - phis[1]
+    chi2 = 2 * n * (log(2) - approx_entropy)
+    p = gammaincc(2 ** (blocksize - 1), chi2 / 2)
+
+    return chi2, p
 
 
-# def random_excursions(sequence: Sequence[Bit]):
-#     n = len(sequence)
+def cusum(sequence: List[Bit], reverse: bool = False):
+    n = len(sequence)
+
+    oscillations = [bit if bit == 1 else -1 for bit in sequence]
+    if reverse:
+        oscillations = oscillations[::1]
+    cusums = accumulate(oscillations)
+
+    abs_cusums = [abs(cusum) for cusum in cusums]
+    max_cusum = max(abs_cusums)
+
+    raise NotImplementedError()  # TODO figure out cusum equation nicely
 
 
-# def random_excursions_variant(sequence: Sequence[Bit]):
-#     n = len(sequence)
+def random_excursions(sequence: List[Bit]):
+    states = [-4, -3, -2, -1, 1, 2, 3, 4]
+    state_count_bins = {state: Bins(range(6)) for state in states}
+
+    state_probabilities = {
+        1: [0.5000, 0.2500, 0.1250, 0.0625, 0.0312, 0.0312],
+        2: [0.7500, 0.0625, 0.0469, 0.0352, 0.0264, 0.0791],
+        3: [0.8333, 0.0278, 0.0231, 0.0193, 0.0161, 0.0804],
+        4: [0.8750, 0.0156, 0.0137, 0.0120, 0.0105, 0.0733],
+        5: [0.9000, 0.0100, 0.0090, 0.0081, 0.0073, 0.0656],
+        6: [0.9167, 0.0069, 0.0064, 0.0058, 0.0053, 0.0588],
+        7: [0.9286, 0.0051, 0.0047, 0.0044, 0.0041, 0.0531],
+    }
+
+    oscillations = [bit if bit == 1 else -1 for bit in sequence]
+    cusums = accumulate(oscillations)
+
+    ncycles = 0
+    for cycle in split_at(cusums, lambda x: x == 0):
+        ncycles += 1
+
+        counts = Counter(cycle)
+        for state in states:
+            count = counts[state]
+            state_count_bins[state][count] += 1
+
+    statistics = []
+    pvalues = []
+    for state in states:
+        probabilities = state_probabilities[abs(state)]
+        expected_bincounts = [ncycles * prob for prob in probabilities]
+
+        bincounts = state_count_bins[state].values()
+
+        chi2, p = chisquare(list(bincounts), expected_bincounts)
+
+        statistics.append(chi2)
+        pvalues.append(p)
+
+    return statistics, pvalues
+
+
+def random_excursions_variant(sequence: List[Bit]):
+    states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    oscillations = [bit if bit == 1 else -1 for bit in sequence]
+    cusums = accumulate(oscillations)
+
+    state_counts = Counter(cusums)
+    ncycles = state_counts[0] + 1
+
+    counts = []
+    pvalues = []
+    for state in states:
+        count = state_counts[state]
+        p = erfc(abs(count - ncycles) / sqrt(2 * ncycles * (4 * abs(state) - 2)))
+
+        counts.append(count)
+        pvalues.append(p)
+
+    return counts, pvalues
 
 
 # ------------------------------------------------------------------------------
 # Helpers
 
 
-def asruns(sequence: Sequence[Bit]) -> Iterator[Tuple[Bit, int]]:
+def asruns(sequence: List[Bit]) -> Iterator[Tuple[Bit, int]]:
     run_val = sequence[0]
     run_len = 1
 

@@ -54,26 +54,26 @@ def random_excursions(series, heads, tails, ctx):
 
     # TODO standardise or differentiate language of "bins"/"occurences"/"bincounts"
     ncycles = 0
-    state_bins = {state: Bins(range(df + 1)) for state in states}
+    state_count_bins = {state: Bins(range(df + 1)) for state in states}
     for cycle in ascycles(walk):
         ncycles += 1
         state_counts = Counter(cycle)
         for state in states:
             count = state_counts[state]
-            state_bins[state][count] += 1
+            state_count_bins[state][count] += 1
 
     advance_task(ctx)
 
     results = {}
     for state in states:
-        bincounts = state_bins[state].values()
-
         probabilities = state_probabilities[abs(state)]
         expected_bincounts = [ncycles * prob for prob in probabilities]
 
-        statistic, p = chisquare(list(bincounts), expected_bincounts)
+        bincounts = state_count_bins[state].values()
 
-        results[state] = RandomExcursionsTestResult(heads, tails, statistic, p, state)
+        chi2, p = chisquare(list(bincounts), expected_bincounts)
+
+        results[state] = RandomExcursionsTestResult(heads, tails, chi2, p, state)
 
     advance_task(ctx)
 
