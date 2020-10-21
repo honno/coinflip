@@ -8,6 +8,10 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
+from pytest import mark
+from pytest import param
+from typing_extensions import Literal
+
 __all__ = [
     "Example",
     "MultiExample",
@@ -50,7 +54,7 @@ class Example(NamedTuple):
     """Container for a SP800-22 example"""
 
     randtest: str
-    bits: List[int]
+    bits: List[Literal[0, 1]]
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}
@@ -60,7 +64,7 @@ class MultiExample(NamedTuple):
     """Container for a SP800-22 example with multiple results"""
 
     randtest: str
-    bits: List[int]
+    bits: List[Literal[0, 1]]
     expected_statistics: List[Union[int, float]]
     expected_pvalues: List[float]
     kwargs: Dict[str, Any] = {}
@@ -71,14 +75,14 @@ class SubExample(NamedTuple):
 
     randtest: str
     key: Any
-    bits: List[int]
+    bits: List[Literal[0, 1]]
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}
 
 
 # fmt: off
-examples = [
+_examples = [
     Example(
         randtest="monobit",
 
@@ -379,7 +383,7 @@ examples = [
     ),
 ]
 
-multi_examples = [
+_multi_examples = [
     MultiExample(
         # FAILING - SP800-22's result is not replicated by sts
         #         - sts result matches our own
@@ -482,7 +486,7 @@ multi_examples = [
     )
 ]
 
-sub_examples = [
+_sub_examples = [
     SubExample(
         randtest="non_overlapping_template_matching",
 
@@ -525,6 +529,19 @@ sub_examples = [
 # fmt: on
 
 
+def iter_examples(examples_list: List):  # TODO make a type i.e. BaseExample
+    for example in examples_list:
+        if len(example.bits) > 1000:
+            yield param(*example, marks=mark.slow)
+        else:
+            yield example
+
+
+examples = iter_examples(_examples)
+multi_examples = iter_examples(_multi_examples)
+sub_examples = iter_examples(_sub_examples)
+
+
 def assert_statistic(statistic, statistic_expect):
     if isinstance(statistic, int):
         assert (
@@ -539,7 +556,7 @@ def assert_statistic(statistic, statistic_expect):
 def assert_p(p, p_expect):
     assert isclose(
         p, p_expect, abs_tol=0.005
-    ), f"p-value {round(p, 1)} !≈ {round(p_expect, 1)}"
+    ), f"p-value {round(p, 3)} !≈ {round(p_expect, 3)}"
 
 
 def assert_statistics(statistics, expected_statistics):
