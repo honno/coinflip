@@ -31,7 +31,7 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
         ouroboros = pd.concat([series, head])
 
         permutation_counts = defaultdict(int)
-        for window_tup in slider(ouroboros, template_size, overlap=True):
+        for window_tup in slider(ouroboros, template_size):
             permutation_counts[window_tup] += 1
 
             advance_task(ctx)

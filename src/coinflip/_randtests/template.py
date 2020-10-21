@@ -25,6 +25,7 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
+from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
@@ -84,7 +85,7 @@ def non_overlapping_template_matching(
     for i, block in enumerate(blocks(series, blocksize)):
         matches = defaultdict(int)
 
-        for window_tup in slider(block, template_size):
+        for window_tup in rawblocks(block, template_size):
             matches[window_tup] += 1
 
             advance_task(ctx)
@@ -218,7 +219,7 @@ def overlapping_template_matching(
     for block in blocks(series, blocksize):
         matches = 0
 
-        for window_tup in slider(block, template_size, overlap=True):
+        for window_tup in slider(block, template_size):
             if all(x == y for x, y in zip(window_tup, template)):
                 matches += 1
 

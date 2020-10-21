@@ -76,11 +76,9 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
         yield block_tup
 
 
-# TODO desc
-def slider(series, window_size, overlap=False) -> Iterator[Tuple[Any]]:
+def slider(series, window_size) -> Iterator[Tuple[Any]]:
     boundary = len(series) - window_size + 1
-    step = 1 if overlap else window_size
-    for pointer in range(0, boundary, step):
+    for pointer in range(0, boundary, 1):
         window = series[pointer : pointer + window_size]
         window_tup = tuple(window)
 

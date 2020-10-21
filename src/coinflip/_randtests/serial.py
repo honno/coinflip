@@ -39,8 +39,8 @@ def serial(series, heads, tails, ctx, blocksize=None):
         advance_task(ctx)
 
         counts = defaultdict(int)
-        for block_tup in slider(ouroboros, window_size, overlap=True):
-            counts[block_tup] += 1
+        for window_tup in slider(ouroboros, window_size):
+            counts[window_tup] += 1
 
             advance_task(ctx)
 
