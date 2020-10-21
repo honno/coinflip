@@ -14,8 +14,8 @@ from coinflip import randtests
 
 __all__ = ["Example", "MultiExample", "examples", "multi_examples"]
 
-tests_path = Path(__file__).parent
-data_path = tests_path / "data"
+
+e_path = Path(__file__).parent / "e_expansion.txt"
 
 
 def e_expansion(n=1000000) -> Iterator[int]:
@@ -27,7 +27,7 @@ def e_expansion(n=1000000) -> Iterator[int]:
     """
 
     def genbits():
-        with open(data_path / "e_expansion.txt") as f:
+        with open(e_path) as f:
             for line in f:
                 for x in line:
                     if x == "0" or x == "1":
