@@ -6,16 +6,12 @@ Notes
 generated parameter names (i.e. from --collect-only) won't hold the respective
 implementation names.
 """
-from math import isclose
 from typing import Iterator
 
 from pytest import mark
 from pytest import skip
 
-from ..test_examples import Example
-from ..test_examples import MultiExample
-from ..test_examples import examples
-from ..test_examples import multi_examples
+from ..examples import *
 from . import testmaps
 from .core import ImplementationError
 
@@ -31,7 +27,7 @@ fields.insert(0, "author")
 
 
 @mark.parametrize(fields, author_examples())
-def test_examples(author, randtest, bits, statistic, p, kwargs):
+def test_examples(author, randtest, bits, statistic_expect, p_expect, kwargs):
     testmap = testmaps[author]
 
     try:
@@ -43,11 +39,11 @@ def test_examples(author, randtest, bits, statistic, p, kwargs):
         skip()
 
     try:
-        result = implementation.randtest(bits, **kwargs)
+        p = implementation.randtest(bits, **kwargs)
     except ImplementationError:
         skip()
 
-    assert isclose(result, p, abs_tol=0.005)
+    assert_p(p, p_expect)
 
 
 def author_multi_examples() -> Iterator:
@@ -61,7 +57,9 @@ multi_fields.insert(0, "author")
 
 
 @mark.parametrize(multi_fields, author_multi_examples())
-def test_multi_examples(author, randtest, bits, statistics, pvalues, kwargs):
+def test_multi_examples(
+    author, randtest, bits, expected_statistics, expected_pvalues, kwargs
+):
     testmap = testmaps[author]
     implementation = testmap[randtest]
 
@@ -69,9 +67,8 @@ def test_multi_examples(author, randtest, bits, statistics, pvalues, kwargs):
         skip()
 
     try:
-        results = implementation.randtest(bits, **kwargs)
+        pvalues = implementation.randtest(bits, **kwargs)
     except ImplementationError:
         skip()
 
-    for p_expect, p in zip(pvalues, results):
-        assert isclose(p, p_expect, rel_tol=0.05)
+    assert_pvalues(pvalues, expected_pvalues)

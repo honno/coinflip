@@ -8,12 +8,18 @@ from typing import List
 from typing import NamedTuple
 from typing import Union
 
-from pytest import mark
-
-from coinflip import randtests
-
-__all__ = ["Example", "MultiExample", "examples", "multi_examples"]
-
+__all__ = [
+    "Example",
+    "MultiExample",
+    "SubExample",
+    "examples",
+    "multi_examples",
+    "sub_examples",
+    "assert_statistic",
+    "assert_p",
+    "assert_statistics",
+    "assert_pvalues",
+]
 
 e_path = Path(__file__).parent / "e_expansion.txt"
 
@@ -45,8 +51,8 @@ class Example(NamedTuple):
 
     randtest: str
     bits: List[int]
-    statistic: Union[int, float]
-    p: float
+    statistic_expect: Union[int, float]
+    p_expect: float
     kwargs: Dict[str, Any] = {}
 
 
@@ -55,8 +61,8 @@ class MultiExample(NamedTuple):
 
     randtest: str
     bits: List[int]
-    statistics: List[Union[int, float]]
-    pvalues: List[float]
+    expected_statistics: List[Union[int, float]]
+    expected_pvalues: List[float]
     kwargs: Dict[str, Any] = {}
 
 
@@ -66,8 +72,8 @@ class SubExample(NamedTuple):
     randtest: str
     key: Any
     bits: List[int]
-    statistic: Union[int, float]
-    p: float
+    statistic_expect: Union[int, float]
+    p_expect: float
     kwargs: Dict[str, Any] = {}
 
 
@@ -78,8 +84,8 @@ examples = [
 
         bits=[1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
 
-        statistic=.632455532,
-        p=0.527089,
+        statistic_expect=.632455532,
+        p_expect=0.527089,
     ),
     Example(
         randtest="monobit",
@@ -99,8 +105,8 @@ examples = [
             1, 0, 0, 0, 1, 0, 1, 1,
             1, 0, 0, 0,
         ],
-        statistic=1.6,
-        p=0.109599,
+        statistic_expect=1.6,
+        p_expect=0.109599,
     ),
     Example(
         randtest="frequency_within_block",
@@ -121,8 +127,8 @@ examples = [
             "blocksize": 10
         },
 
-        statistic=7.2,
-        p=0.706438,
+        statistic_expect=7.2,
+        p_expect=0.706438,
     ),
     Example(
         randtest="runs",
@@ -132,8 +138,8 @@ examples = [
             1, 1
         ],
 
-        statistic=7,
-        p=0.147232,
+        statistic_expect=7,
+        p_expect=0.147232,
     ),
     Example(
         randtest="longest_runs",
@@ -158,8 +164,8 @@ examples = [
         ],
 
 
-        statistic=4.882605,
-        p=0.180609,
+        statistic_expect=4.882605,
+        p_expect=0.180609,
     ),
     Example(
         randtest="binary_matrix_rank",
@@ -173,8 +179,8 @@ examples = [
             "matrix_dimen": (3, 3),
         },
 
-        statistic=0.596953,
-        p=0.741948,
+        statistic_expect=0.596953,
+        p_expect=0.741948,
     ),
     Example(
         randtest="binary_matrix_rank",
@@ -184,8 +190,8 @@ examples = [
             "matrix_dimen": (32, 32),
         },
 
-        statistic=1.2619656,
-        p=0.532069,
+        statistic_expect=1.2619656,
+        p_expect=0.532069,
     ),
     Example(
         # FAILING scipys fft produces slightly diff transformations to SP800-22's sts
@@ -195,8 +201,8 @@ examples = [
 
         bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
 
-        statistic=-2.176429,
-        p=0.029523,
+        statistic_expect=-2.176429,
+        p_expect=0.029523,
     ),
     Example(
         randtest="spectral",
@@ -217,8 +223,8 @@ examples = [
             1, 0, 0, 0,
         ],
 
-        statistic=-1.376494,
-        p=0.168669,
+        statistic_expect=-1.376494,
+        p_expect=0.168669,
     ),
     Example(
         # FAILING p off by ~0.07 if gammaincc(df/2, statistic/2) and df=2
@@ -237,8 +243,8 @@ examples = [
             "df": 2,
         },
 
-        statistic=3.167729,
-        p=0.274932,
+        statistic_expect=3.167729,
+        p_expect=0.274932,
     ),
     Example(
         # FAILING Getting different tallies
@@ -250,8 +256,8 @@ examples = [
             "blocksize": 1033,  # nblocks=968
         },
 
-        statistic=8.965859,
-        p=0.110434
+        statistic_expect=8.965859,
+        p_expect=0.110434
     ),
     Example(
         randtest="maurers_universal",
@@ -266,8 +272,8 @@ examples = [
             "init_nblocks": 4,
         },
 
-        statistic=1.1949875,
-        p=0.767189,
+        statistic_expect=1.1949875,
+        p_expect=0.767189,
     ),
     Example(
         randtest="linear_complexity",
@@ -277,8 +283,8 @@ examples = [
             "blocksize": 1000
         },
 
-        statistic=2.700348,
-        p=0.845406,
+        statistic_expect=2.700348,
+        p_expect=0.845406,
     ),
     Example(
         randtest="approximate_entropy",
@@ -288,8 +294,8 @@ examples = [
             "blocksize": 3
         },
 
-        statistic=10.043859999999999,  # SP800-22 erroneously had 0.502193
-        p=0.261961,
+        statistic_expect=10.043859999999999,  # SP800-22 erroneously had 0.502193
+        p_expect=0.261961,
     ),
     Example(
         randtest="approximate_entropy",
@@ -313,16 +319,16 @@ examples = [
             "blocksize": 2
         },
 
-        statistic=5.550792,
-        p=0.235301,
+        statistic_expect=5.550792,
+        p_expect=0.235301,
     ),
     Example(
         randtest="cusum",
 
         bits=[1, 0, 1, 1, 0, 1, 0, 1, 1, 1],
 
-        statistic=4,
-        p=0.4116588,
+        statistic_expect=4,
+        p_expect=0.4116588,
     ),
     Example(
         randtest="cusum",
@@ -343,8 +349,8 @@ examples = [
             1, 0, 0, 0,
         ],
 
-        statistic=16,
-        p=0.219194,
+        statistic_expect=16,
+        p_expect=0.219194,
     ),
     Example(
         randtest="cusum",
@@ -368,8 +374,8 @@ examples = [
             "reverse": True
         },
 
-        statistic=19,
-        p=0.114866,
+        statistic_expect=19,
+        p_expect=0.114866,
     ),
 ]
 
@@ -384,8 +390,8 @@ multi_examples = [
             "blocksize": 3
         },
 
-        statistics=[1.6, 0.8],
-        pvalues=[0.9057, 0.8805],
+        expected_statistics=[1.6, 0.8],
+        expected_pvalues=[0.9057, 0.8805],
     ),
     MultiExample(
         randtest="serial",
@@ -395,8 +401,8 @@ multi_examples = [
             "blocksize": 2
         },
 
-        statistics=[0.339764, 0.336400],
-        pvalues=[0.843764, 0.561915],
+        expected_statistics=[0.339764, 0.336400],
+        expected_pvalues=[0.843764, 0.561915],
     ),
     MultiExample(
         # FAILING - SP800-22's result is not replicated by sts
@@ -405,7 +411,7 @@ multi_examples = [
 
         bits=list(e_expansion()),
 
-        statistics=[
+        expected_statistics=[
             3.835698,
             7.318707,
             7.861927,
@@ -415,7 +421,7 @@ multi_examples = [
             2.404171,
             2.393928,
         ],
-        pvalues=[
+        expected_pvalues=[
             0.573306,
             0.197996,
             0.164011,
@@ -433,7 +439,7 @@ multi_examples = [
 
         bits=list(e_expansion()),
 
-        statistics=[
+        expected_statistics=[
             1450,
             1435,
             1380,
@@ -453,7 +459,7 @@ multi_examples = [
             1620,
             1610,
         ],
-        pvalues=[
+        expected_pvalues=[
             0.858946,
             0.794755,
             0.576249,
@@ -492,8 +498,8 @@ sub_examples = [
             "blocksize": 10,  # nblocks=2
         },
 
-        statistic=2.133333,
-        p=0.344154,
+        statistic_expect=2.133333,
+        p_expect=0.344154,
     ),
     SubExample(
         randtest="random_excursions",
@@ -502,8 +508,8 @@ sub_examples = [
 
         bits=[0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
 
-        statistic=4.333033,
-        p=0.502529,
+        statistic_expect=4.333033,
+        p_expect=0.502529,
     ),
     SubExample(
         randtest="random_excursions_variant",
@@ -512,53 +518,35 @@ sub_examples = [
 
         bits=[0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
 
-        statistic=4,
-        p=0.683091,
+        statistic_expect=4,
+        p_expect=0.683091,
     ),
 ]
 # fmt: on
 
 
-@mark.parametrize(Example._fields, examples)
-def test_examples(randtest, bits, statistic, p, kwargs):
-    randtest_method = getattr(randtests, randtest)
-
-    result = randtest_method(bits, **kwargs)
-
+def assert_statistic(statistic, statistic_expect):
     if isinstance(statistic, int):
-        assert result.statistic == statistic
+        assert (
+            statistic == statistic_expect
+        ), f"statistic {statistic} != {statistic_expect}"
     else:
-        assert isclose(result.statistic, statistic, rel_tol=0.05)
-
-    assert isclose(result.p, p, abs_tol=0.005)
-
-
-@mark.parametrize(MultiExample._fields, multi_examples)
-def test_multi_examples(randtest, bits, statistics, pvalues, kwargs):
-    randtest_method = getattr(randtests, randtest)
-
-    results = randtest_method(bits, **kwargs)
-
-    for statistic_expect, statistic in zip(statistics, results.statistics):
-        if isinstance(statistic, int):
-            assert statistic == statistic_expect
-        else:
-            assert isclose(statistic, statistic_expect, rel_tol=0.05)
-
-    for p_expect, p in zip(pvalues, results.pvalues):
-        assert isclose(p, p_expect, rel_tol=0.05)
+        assert isclose(
+            statistic, statistic_expect, rel_tol=0.05
+        ), f"statistic {round(statistic, 1)} != {round(statistic_expect, 1)}"
 
 
-@mark.parametrize(SubExample._fields, sub_examples)
-def test_sub_examples(randtest, key, bits, statistic, p, kwargs):
-    randtest_method = getattr(randtests, randtest)
+def assert_p(p, p_expect):
+    assert isclose(
+        p, p_expect, abs_tol=0.005
+    ), f"p-value {round(p, 1)} !≈ {round(p_expect, 1)}"
 
-    results = randtest_method(bits, **kwargs)
-    result = results[key]
 
-    if isinstance(statistic, int):
-        assert result.statistic == statistic
-    else:
-        assert isclose(result.statistic, statistic, rel_tol=0.05)
+def assert_statistics(statistics, expected_statistics):
+    for statistic, statistic_expect in zip(statistics, expected_statistics):
+        assert_statistic(statistic, statistic_expect)
 
-    assert isclose(result.p, p, abs_tol=0.005)
+
+def assert_pvalues(pvalues, expected_pvalues):
+    for p, p_expect in zip(pvalues, expected_pvalues):
+        assert_p(p, p_expect)
