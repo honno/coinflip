@@ -14,10 +14,10 @@ from scipy.stats import chisquare
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
+from coinflip.exceptions import TestNotImplementedError
 
 __all__ = ["runs", "longest_runs"]
 

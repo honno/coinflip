@@ -15,9 +15,9 @@ from typing import Tuple
 
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip.exceptions import TestNotImplementedError
 
 __all__ = ["maurers_universal"]
 

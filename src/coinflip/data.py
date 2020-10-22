@@ -2,16 +2,12 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip.exceptions import DataParsingError
+from coinflip.exceptions import NonBinarySequenceError
 
 __all__ = [
-    "DataParsingError",
     "parse_data",
 ]
-
-
-class DataParsingError(ValueError):
-    """Base class for parsing-related errors"""
 
 
 @dataclass

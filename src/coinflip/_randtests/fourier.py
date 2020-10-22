@@ -7,9 +7,9 @@ import pandas as pd
 from scipy.fft import fft
 
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_list
+from coinflip.exceptions import NonBinarySequenceError
 
 __all__ = ["spectral"]
 

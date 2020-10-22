@@ -11,10 +11,10 @@ from rich.text import Text
 
 from coinflip import console
 from coinflip import generators
-from coinflip._randtests.common.exceptions import NonBinarySequenceError
-from coinflip._randtests.common.exceptions import TestError
 from coinflip._randtests.common.pprint import pretty_sequence
 from coinflip.data import *
+from coinflip.exceptions import NonBinarySequenceError
+from coinflip.exceptions import TestError
 from coinflip.randtests import __all__ as randtest_names
 from coinflip.tests_runner import *
 
