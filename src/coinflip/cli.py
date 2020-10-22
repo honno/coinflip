@@ -19,20 +19,10 @@ from coinflip.randtests import __all__ as randtest_names
 from coinflip.tests_runner import *
 
 __all__ = [
-    "load",
-    "rm",
-    "rm_all",
-    "ls",
-    "cat",
     "run",
     "example_run",
-    "local_run",
     "report",
 ]
-
-# ------------------------------------------------------------------------------
-# Pretty printing
-
 
 warn_text = Text("WARN", style="yellow")
 err_text = Text("ERR!", style="red")
@@ -68,16 +58,9 @@ def print_series(series):
     console.print(pretty_sequence(series, ncols))
 
 
-# ------------------------------------------------------------------------------
-# Autocompletion
-
-
 # TODO extend Choice to use print_err and newline-delimit lists
-dtype_choice = Choice(TYPES.keys())
 test_choice = Choice(randtest_names)
 
-# ------------------------------------------------------------------------------
-# Help option
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
@@ -86,9 +69,6 @@ help_msg = {
     "dtype": "Specify data type of the data.",
     "test": "Specify single test to run on data.",
 }
-
-# ------------------------------------------------------------------------------
-# Commands
 
 
 @group(context_settings=CONTEXT_SETTINGS)
@@ -103,9 +83,8 @@ def main():
 
 @main.command()
 @argument("data", type=Path(exists=True))
-@option("-d", "--dtype", type=dtype_choice, help=help_msg["dtype"], metavar="<dtype>")
 @option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
-def run(data, dtype, test):
+def run(data, test):
     """Run randomness tests on DATA."""
     try:
         series = parse_data(data)
