@@ -14,12 +14,13 @@ from pytest import mark
 from pytest import skip
 
 from coinflip import randtests
+from coinflip.typing import Bit
 
 from .impls import testmaps
 from .impls.core import ImplementationError
 from .strategies import mixedbits
 
-ArgsStrategy = SearchStrategy[Tuple[List, Dict]]
+ArgsStrategy = SearchStrategy[Tuple[List[Bit], Dict]]
 
 
 @st.composite
@@ -42,7 +43,7 @@ def blocksize_strategy(draw, min_n=2) -> ArgsStrategy:
 
 @st.composite
 def matrix_strategy(draw) -> ArgsStrategy:
-    max_blocksize = draw(st.integers(min_value=4, max_value=1000000))
+    max_blocksize = draw(st.integers(min_value=4, max_value=1000))
 
     naxis1 = draw(st.integers(min_value=2, max_value=max_blocksize // 2))
     naxis2 = max_blocksize // naxis1
