@@ -6,13 +6,13 @@ from typing import Iterable
 from typing import Tuple
 
 from scipy.stats import chisquare
-from typing_extensions import Literal
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip.typing import Bit
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
 
@@ -134,7 +134,7 @@ class BinaryMatrixRankTestResult(TestResult):
         yield table
 
 
-def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> int:
+def matrix_rank(matrix: Iterable[Iterable[Bit]]) -> int:
     """Finds the rank of a binary matrix
 
     Parameters
@@ -167,7 +167,7 @@ def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> int:
     return rank
 
 
-def bits2int(bits: Iterable[Literal[0, 1]]) -> int:
+def bits2int(bits: Iterable[Bit]) -> int:
     """Converts a list of bits into a numerical representation"""
     num = 0
     for bit in bits:

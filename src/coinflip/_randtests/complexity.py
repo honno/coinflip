@@ -6,7 +6,6 @@ from typing import List
 from typing import Sequence
 
 from scipy.stats import chisquare
-from typing_extensions import Literal
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
@@ -14,6 +13,7 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip.typing import Bit
 
 __all__ = ["linear_complexity"]
 
@@ -116,7 +116,7 @@ class LinearComplexityTestResult(TestResult):
         yield table
 
 
-def berlekamp_massey(sequence: Sequence[Literal[0, 1]]) -> int:
+def berlekamp_massey(sequence: Sequence[Bit]) -> int:
     n = len(sequence)
 
     error_locator = [0 for _ in range(n)]

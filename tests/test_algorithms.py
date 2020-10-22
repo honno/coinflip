@@ -4,12 +4,13 @@ from typing import NamedTuple
 from pytest import mark
 
 from coinflip.algorithms import berlekamp_massey
+from coinflip.typing import Bit
 
 __all__ = ["bm_examples"]
 
 
 class BMExample(NamedTuple):
-    sequence: List[int]
+    sequence: List[Bit]
     min_size: int
 
 

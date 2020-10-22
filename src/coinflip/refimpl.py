@@ -16,13 +16,13 @@ from more_itertools import windowed
 from scipy.fft import fft
 from scipy.special import gammaincc
 from scipy.stats import chisquare
-from typing_extensions import Literal
 
 from coinflip.algorithms import berlekamp_massey
 from coinflip.algorithms import matrix_rank
 from coinflip.collections import Bins
 from coinflip.collections import FloorDict
 from coinflip.collections import defaultlist
+from coinflip.typing import Bit
 
 __all__ = [
     "monobit",
@@ -41,8 +41,6 @@ __all__ = [
     "random_excursions",
     "random_excursions_variant",
 ]
-
-Bit = Literal[0, 1]
 
 
 def monobit(sequence: List[Bit]):
