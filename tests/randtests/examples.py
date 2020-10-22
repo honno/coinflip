@@ -530,17 +530,22 @@ _sub_examples = [
 # fmt: on
 
 
-def iter_examples(examples_list: List):  # TODO make a type i.e. BaseExample
+# TODO make a type hint for all examples e.g. BaseExample
+def wrap_examples(examples_list: List) -> List:
+    argvalues = []
     for example in examples_list:
         if len(example.bits) > 1000:
-            yield param(*example, marks=mark.slow)
+            argvalue = param(*example, marks=mark.slow)
         else:
-            yield example
+            argvalue = example
+        argvalues.append(argvalue)
+
+    return argvalues
 
 
-examples = iter_examples(_examples)
-multi_examples = iter_examples(_multi_examples)
-sub_examples = iter_examples(_sub_examples)
+examples = wrap_examples(_examples)
+multi_examples = wrap_examples(_multi_examples)
+sub_examples = wrap_examples(_sub_examples)
 
 
 def assert_statistic(statistic, statistic_expect):
