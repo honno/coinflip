@@ -1,24 +1,28 @@
 from collections import Counter
 from dataclasses import dataclass
+from dataclasses import field
 from functools import lru_cache
 from math import erfc
 from math import sqrt
-from typing import Any
 from typing import List
 from typing import NamedTuple
 
 import altair as alt
 import numpy as np
 import pandas as pd
+from dataclasses_json import config
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
+from coinflip.typing import Face
 
 __all__ = ["monobit", "frequency_within_block"]
 
@@ -27,24 +31,27 @@ __all__ = ["monobit", "frequency_within_block"]
 # Frequency (Monobit) Test
 
 
-class ValueCount(NamedTuple):
-    value: Any
-    count: int
+# TODO DataClassJsonMixin?
+@dataclass(unsafe_hash=True)
+class ValueCount:
+    value: Face = encode(enc.faces)
+    count: int = encode(enc.int_)
 
 
-class FaceCounts(NamedTuple):
+@dataclass(unsafe_hash=True)
+class FaceCounts:
     heads: ValueCount
     tails: ValueCount
 
     @property
     @lru_cache()
     def max(self):
-        return max(*self, key=lambda value_count: value_count.count)
+        return max(self.heads, self.tails, key=lambda value_count: value_count.count)
 
     @property
     @lru_cache()
     def min(self):
-        return min(*self, key=lambda value_count: value_count.count)
+        return min(self.heads, self.tails, key=lambda value_count: value_count.count)
 
     @classmethod
     def from_series(cls, series, heads, tails):
@@ -76,9 +83,9 @@ def monobit(series, heads, tails, ctx):
 
 @dataclass
 class MonobitTestResult(TestResult):
-    n: int
+    n: int = encode(enc.int_)
     counts: FaceCounts
-    diff: int
+    diff: int = encode(enc.int_)
 
     def _render(self):
         yield self._pretty_result("normalised diff")
@@ -201,9 +208,9 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class FrequencyWithinBlockTestResult(TestResult):
-    blocksize: int
-    nblocks: int
-    counts: List[int]
+    blocksize: int = encode(enc.int_)
+    nblocks: int = encode(enc.int_)
+    counts: List[int] = encode(enc.list_(enc.int_))
 
     def _render(self):
         yield self._pretty_result("chi-square")

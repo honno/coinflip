@@ -40,7 +40,7 @@ def showwarning(msg, *args, **kwargs) -> str:
 warnings.showwarning = showwarning
 
 
-def print_err(e: Exception):
+def print_error(e: Exception):
     """Pretty print exceptions"""
     text = Text(style="bright")
     text.append(err_text)
@@ -58,7 +58,7 @@ def print_series(series):
     console.print(pretty_sequence(series, ncols))
 
 
-# TODO extend Choice to use print_err and newline-delimit lists
+# TODO extend Choice to use print_error and newline-delimit lists
 test_choice = Choice(randtest_names)
 
 
@@ -83,27 +83,26 @@ def main():
 
 @main.command()
 @argument("data", type=Path(exists=True))
-@option("-t", "--test", type=test_choice, help=help_msg["test"], metavar="<test>")
-def run(data, test):
+@argument("out", type=Path())
+def run(data, out):
     """Run randomness tests on DATA."""
     try:
         series = parse_data(data)
         print_series(series)
     except (DataParsingError, NonBinarySequenceError) as e:
-        print_err(e)
+        print_error(e)
         exit(1)
 
-    if not test:
-        for name, result, e in run_all_tests(series):
-            if e:
-                print_err(e)
+    results = {}
+    for name, result, e in run_all_tests(series):
+        if e:
+            print_error(e)
+        else:
+            results[name] = result
 
-    else:
-        try:
-            run_test(series, test)
-        except TestError as e:
-            print_err(e)
-            exit(1)
+    report = make_report(series, results)
+    with open(out, "w") as f:
+        f.write(report.to_json())
 
 
 @main.command()
@@ -130,11 +129,11 @@ def example_run(example, length, test):
     if not test:
         for name, result, e in run_all_tests(series):
             if e:
-                print_err(e)
+                print_error(e)
 
     else:
         try:
             run_test(series, test)
         except TestError as e:
-            print_err(e)
+            print_error(e)
             exit(1)

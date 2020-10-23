@@ -1,14 +1,18 @@
 from dataclasses import astuple
 from dataclasses import dataclass
+from dataclasses import field
 from math import floor
 from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
+from dataclasses_json import config
 from scipy.stats import chisquare
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
@@ -19,9 +23,9 @@ __all__ = ["binary_matrix_rank", "matrix_rank"]
 
 @dataclass
 class RankCounts:
-    full: int = 0
-    runnerup: int = 0
-    remaining: int = 0
+    full: int = field(default=0, metadata=config(encoder=enc.int_))
+    runnerup: int = field(default=0, metadata=config(encoder=enc.int_))
+    remaining: int = field(default=0, metadata=config(encoder=enc.int_))
 
 
 @randtest(min_n=4)
@@ -102,9 +106,9 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] 
 
 @dataclass
 class BinaryMatrixRankTestResult(TestResult):
-    nrows: int
-    ncols: int
-    fullrank: int
+    nrows: int = encode(enc.int_)
+    ncols: int = encode(enc.int_)
+    fullrank: int = encode(enc.int_)
     expected_rankcounts: RankCounts
     rankcounts: RankCounts
 

@@ -6,8 +6,10 @@ from math import sqrt
 import pandas as pd
 from scipy.fft import fft
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_testvars_list
 from coinflip.exceptions import NonBinarySequenceError
 
@@ -66,9 +68,9 @@ def spectral(series, heads, tails, ctx):
 
 @dataclass
 class SpectralTestResult(TestResult):
-    nbelow_expect: float
-    nbelow: int
-    diff: float
+    nbelow_expect: float = encode(enc.float_)
+    nbelow: int = encode(enc.int_)
+    diff: float = encode(enc.float_)
 
     def __post_init__(self):
         pass

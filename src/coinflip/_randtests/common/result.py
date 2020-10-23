@@ -1,7 +1,10 @@
+import json
 from dataclasses import dataclass
+from dataclasses import field
 from functools import lru_cache
 from io import StringIO
-from typing import Any
+from typing import Callable
+from typing import Dict
 from typing import Iterable
 from typing import Iterator
 from typing import List
@@ -9,6 +12,8 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
+from dataclasses_json import DataClassJsonMixin
+from dataclasses_json import config
 from rich import box
 from rich.console import Console
 from rich.console import ConsoleRenderable
@@ -23,9 +28,12 @@ from rich.table import Table
 from rich.text import Text
 
 from coinflip import console
+from coinflip import encoders as enc
+from coinflip.typing import Face
 
 __all__ = [
     "BaseTestResult",
+    "encode",
     "TestResult",
     "MultiTestResult",
     "make_testvars_table",
@@ -65,15 +73,19 @@ class BaseTestResult(ConsoleRenderable):
         return buf.getvalue()
 
 
+def encode(encoder: Callable):
+    return field(metadata=config(encoder=encoder))
+
+
 @dataclass(unsafe_hash=True)
-class TestResult(BaseTestResult):
+class TestResult(BaseTestResult, DataClassJsonMixin):
     """Base container for test results
 
     Attributes
     ----------
-    heads: ``Any``
+    heads: ``Face``
         The ``1`` abstraction
-    tails: ``Any``
+    tails: ``Face``
         The ``0`` abstraction
     statistic : ``int`` or ``float``
         Statistic of the test
@@ -81,10 +93,10 @@ class TestResult(BaseTestResult):
         p-value of the test
     """
 
-    heads: Any
-    tails: Any
-    statistic: Union[int, float]
-    p: float
+    heads: Face = encode(enc.faces)
+    tails: Face = encode(enc.faces)
+    statistic: Union[int, float] = encode(enc.numerical)
+    p: float = encode(enc.float_)
 
     def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
         return make_testvars_list(
@@ -113,7 +125,7 @@ class MultiTestResult(dict, BaseTestResult):
         Statistics of the test
     pvalues : ``List[Union[int, float]]``
         p-values of the test
-    min : ``Tuple[Any, TestResult]``
+    min : ``Tuple[Face, TestResult]``
         Feature of a sub-test and it's respective result with the smallest
         p-value
     """
@@ -181,7 +193,7 @@ class MultiTestResult(dict, BaseTestResult):
 def make_chisquare_table(
     title: Union[str, Text],
     feature: Union[Text, str],
-    classes: Iterable[Any],
+    classes: Iterable[Face],
     expected_occurences: Iterable[Union[int, float]],
     actual_occurences: Iterable[Union[int, float]],
     **kwargs,

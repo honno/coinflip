@@ -2,7 +2,7 @@ from dataclasses import astuple
 from dataclasses import dataclass
 from math import erfc
 from math import sqrt
-from typing import Any
+from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import NamedTuple
@@ -11,13 +11,16 @@ from typing import Tuple
 from rich.text import Text
 from scipy.stats import chisquare
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip.exceptions import TestNotImplementedError
+from coinflip.typing import Face
 
 __all__ = ["runs", "longest_runs"]
 
@@ -69,9 +72,9 @@ class RunsTestResult(TestResult):
 
 
 class DefaultParams(NamedTuple):
-    blocksize: int
-    nblocks: int
-    intervals: List[int]
+    blocksize: int = encode(enc.int_)
+    nblocks: int = encode(enc.int_)
+    intervals: List[int] = encode(enc.list_(enc.int_))
 
 
 # TODO use in recommendations
@@ -147,10 +150,10 @@ def longest_runs(series, heads, tails, ctx):
 
 @dataclass
 class LongestRunsTestResult(TestResult):
-    blocksize: int
-    nblocks: int
-    expected_bincounts: List[float]
-    maxlen_bins: Bins
+    blocksize: int = encode(enc.int_)
+    nblocks: int = encode(enc.int_)
+    expected_bincounts: List[float] = encode(enc.list_(enc.float_))
+    maxlen_bins: Dict[int, int] = encode(enc.dict_(enc.int_, enc.int_))
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -184,11 +187,11 @@ class LongestRunsTestResult(TestResult):
 
 @dataclass
 class Run:
-    value: Any
+    value: Face
     length: int = 1
 
 
-def asruns(series) -> Iterator[Tuple[Any, int]]:
+def asruns(series) -> Iterator[Tuple[Face, int]]:
     """Iterator of runs in a ``Series``
 
     Parameters
@@ -198,7 +201,7 @@ def asruns(series) -> Iterator[Tuple[Any, int]]:
 
     Yields
     ------
-    value : ``Any``
+    value : ``Face``
         Value of the run
     length : ``int``
         Length of the run

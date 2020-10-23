@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from functools import lru_cache
 from functools import wraps
-from typing import Any
 from typing import Dict
 from typing import NamedTuple
 from typing import Optional
@@ -14,6 +13,7 @@ from rich.progress import Progress
 from coinflip._randtests.common.result import BaseTestResult
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestInputError
+from coinflip.typing import Face
 
 __all__ = [
     "randtest",
@@ -107,7 +107,7 @@ def randtest(min_n=2):
 
 
 @lru_cache()
-def infer_faces(unique_values: Tuple[Any, Any]):
+def infer_faces(unique_values: Tuple[Face, Face]):
     """Infers the `heads` and `tails` faces from a list of unique values
 
     An equality check between the values is attempted where the "largest"
@@ -116,7 +116,7 @@ def infer_faces(unique_values: Tuple[Any, Any]):
 
     Parameters
     ----------
-    unique_values : ``Tuple[Any, Any]``
+    unique_values : ``Tuple[Face, Face]``
         Tuple of two unique values
 
     Returns

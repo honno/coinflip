@@ -1,13 +1,15 @@
 from dataclasses import dataclass
+from typing import Dict
 
 import pandas as pd
+from dataclasses_json import DataClassJsonMixin
 
+from coinflip._randtests.common.result import BaseTestResult
+from coinflip._randtests.common.result import encode
 from coinflip.exceptions import DataParsingError
 from coinflip.exceptions import NonBinarySequenceError
 
-__all__ = [
-    "parse_data",
-]
+__all__ = ["parse_data", "make_report"]
 
 
 @dataclass
@@ -63,3 +65,15 @@ def parse_data(data_file) -> pd.Series:
     series = series.infer_objects()
 
     return series
+
+
+@dataclass
+class Report(DataClassJsonMixin):
+    series: pd.Series = encode(pd.Series.to_json)
+    results: Dict[str, BaseTestResult]
+
+
+def make_report(series, results) -> Report:
+    report = Report(series, results)
+
+    return report

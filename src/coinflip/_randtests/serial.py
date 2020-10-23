@@ -11,11 +11,14 @@ from rich import box
 from rich.table import Table
 from scipy.special import gammaincc
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.testutils import slider
+from coinflip.typing import Face
 
 __all__ = ["serial"]
 
@@ -93,9 +96,11 @@ def serial(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class BaseSerialTestResult(TestResult):
-    blocksize: int
-    permutation_counts: Dict[int, DefaultDict[Tuple, int]]
-    normalised_sums: Dict[int, float]
+    blocksize: int = encode(enc.int_)
+    permutation_counts: Dict[int, DefaultDict[Tuple[Face, ...], int]] = encode(
+        enc.dict_(enc.int_, enc.dict_(enc.tuple_(enc.faces), enc.int_))
+    )
+    normalised_sums: Dict[int, float] = encode(enc.dict_(enc.int_, enc.float_))
 
     def _pretty_permutation(self, permutation: Tuple):
         return pretty_subseq(permutation, self.heads, self.tails)

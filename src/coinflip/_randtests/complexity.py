@@ -2,14 +2,17 @@ from copy import copy
 from dataclasses import dataclass
 from math import floor
 from math import sqrt
+from typing import Dict
 from typing import List
 from typing import Sequence
 
 from scipy.stats import chisquare
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import rawblocks
@@ -95,10 +98,10 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class LinearComplexityTestResult(TestResult):
-    blocksize: int
-    mean_expect: float
-    expected_bincounts: List[float]
-    variance_bins: Bins
+    blocksize: int = encode(enc.int_)
+    mean_expect: float = encode(enc.float_)
+    expected_bincounts: List[float] = encode(enc.float_)
+    variance_bins: Dict[float, int] = encode(enc.dict_(enc.float_, enc.int_))
 
     def _render(self):
         yield self._pretty_result("chi-square")

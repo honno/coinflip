@@ -8,7 +8,6 @@ from math import floor
 from math import isclose
 from math import log2
 from math import sqrt
-from typing import Any
 from typing import List
 from typing import Tuple
 
@@ -17,26 +16,29 @@ from scipy.special import gammaincc
 from scipy.special import hyp1f1
 from scipy.stats import chisquare
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.collections import defaultlist
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
+from coinflip.typing import Face
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 
 @dataclass
 class BaseTemplateMatchingTestResult(TestResult):
-    template: Tuple[Any, ...]
-    template_size: int
-    blocksize: int
-    nblocks: int
+    template: Tuple[Face, ...] = encode(enc.tuple_(enc.faces))
+    template_size: int = encode(enc.int_)
+    blocksize: int = encode(enc.int_)
+    nblocks: int = encode(enc.int_)
 
     def pretty_template(self) -> Text:
         return pretty_subseq(self.template, self.heads, self.tails)
@@ -125,10 +127,10 @@ def non_overlapping_template_matching(
 
 @dataclass(unsafe_hash=True)
 class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
-    matches_expect: float
-    variance: float
-    block_matches: List[int]
-    match_diffs: List[float]
+    matches_expect: float = encode(enc.float_)
+    variance: float = encode(enc.float_)
+    block_matches: List[int] = encode(enc.list_(enc.int_))
+    match_diffs: List[float] = encode(enc.list_(enc.float_))
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -254,8 +256,8 @@ def overlapping_template_matching(
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
-    expected_tallies: List[int]
-    tallies: List[int]
+    expected_tallies: List[int] = encode(enc.list_(enc.int_))
+    tallies: List[int] = encode(enc.list_(enc.int_))
 
     def _render(self):
         yield self._pretty_result("chi-square")

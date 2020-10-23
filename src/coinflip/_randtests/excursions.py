@@ -7,10 +7,12 @@ import pandas as pd
 from rich.text import Text
 from scipy.stats import chisquare
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -82,7 +84,7 @@ def random_excursions(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsTestResult(TestResult):
-    state: int
+    state: int = encode(enc.int_)
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -161,7 +163,7 @@ def random_excursions_variant(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsVariantTestResult(TestResult):
-    state: int
+    state: int = encode(enc.int_)
 
     def _render(self):
         yield self._pretty_result("count")

@@ -7,17 +7,19 @@ from math import isclose
 from math import log
 from math import log2
 from math import sqrt
-from typing import Any
 from typing import DefaultDict
 from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
+from coinflip import encoders as enc
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import encode
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip.exceptions import TestNotImplementedError
+from coinflip.typing import Face
 
 __all__ = ["maurers_universal"]
 
@@ -163,11 +165,15 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
 @dataclass
 class UniversalTestResult(TestResult):
-    blocksize: int
-    init_nblocks: int
-    segment_nblocks: int
-    permutation_last_init_pos: DefaultDict[Tuple[Any, ...], int]
-    permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
+    blocksize: int = encode(enc.int_)
+    init_nblocks: int = encode(enc.int_)
+    segment_nblocks: int = encode(enc.int_)
+    permutation_last_init_pos: DefaultDict[Tuple[Face, ...], int] = encode(
+        enc.dict_(enc.tuple_(enc.faces), enc.int_)
+    )
+    permutation_positions: DefaultDict[Tuple[Face, ...], List[Face]] = encode(
+        enc.dict_(enc.tuple_(enc.faces), enc.list_(enc.int_))
+    )
 
     def _render(self):
         yield self._pretty_result("log2 distances")

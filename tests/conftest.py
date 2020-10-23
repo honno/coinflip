@@ -4,7 +4,7 @@ from hypothesis import settings
 from pytest import mark
 
 settings.register_profile(
-    "fast", max_examples=2, stateful_step_count=4, deadline=timedelta(minutes=2)
+    "fast", max_examples=4, stateful_step_count=8, deadline=timedelta(minutes=2)
 )
 
 settings.register_profile(
