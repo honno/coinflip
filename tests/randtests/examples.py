@@ -6,6 +6,7 @@ from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 from typing import Union
 
 from pytest import mark
@@ -13,9 +14,9 @@ from pytest import param
 from typing_extensions import Literal
 
 __all__ = [
-    "Example",
-    "MultiExample",
-    "SubExample",
+    "example_fields",
+    "multi_example_fields",
+    "sub_example_fields",
     "examples",
     "multi_examples",
     "sub_examples",
@@ -58,6 +59,7 @@ class Example(NamedTuple):
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}
+    xfail: bool = False
 
 
 class MultiExample(NamedTuple):
@@ -68,6 +70,7 @@ class MultiExample(NamedTuple):
     expected_statistics: List[Union[int, float]]
     expected_pvalues: List[float]
     kwargs: Dict[str, Any] = {}
+    xfail: bool = False
 
 
 class SubExample(NamedTuple):
@@ -79,6 +82,25 @@ class SubExample(NamedTuple):
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}
+    xfail: bool = False
+
+
+example_fields = ["randtest", "bits", "statistic_expect", "p_expect", "kwargs"]
+multi_example_fields = [
+    "randtest",
+    "bits",
+    "expected_statistics",
+    "expected_pvalues",
+    "kwargs",
+]
+sub_example_fields = [
+    "randtest",
+    "key",
+    "bits",
+    "statistic_expect",
+    "p_expect",
+    "kwargs",
+]
 
 
 # fmt: off
@@ -207,6 +229,8 @@ _examples = [
 
         statistic_expect=-2.176429,
         p_expect=0.029523,
+
+        xfail=True,
     ),
     Example(
         randtest="spectral",
@@ -229,6 +253,8 @@ _examples = [
 
         statistic_expect=-1.376494,
         p_expect=0.168669,
+
+        xfail=True,
     ),
     Example(
         # FAILING p off by ~0.07 if gammaincc(df/2, statistic/2) and df=2
@@ -530,13 +556,21 @@ _sub_examples = [
 
 
 # TODO make a type hint for all examples e.g. BaseExample
-def wrap_examples(examples_list: List) -> List:
+def wrap_examples(examples_list: List) -> List[Union[Tuple, "ParameterSet"]]:  # noqa
     argvalues = []
     for example in examples_list:
+        *_argvalue, xfail = example
+        marks = []
         if len(example.bits) > 1000:
-            argvalue = param(*example, marks=mark.slow)
+            marks.append(mark.slow)
+        if xfail:
+            marks.append(mark.xfail)
+
+        if marks:
+            argvalue = param(*_argvalue, marks=marks)
         else:
-            argvalue = example
+            argvalue = _argvalue
+
         argvalues.append(argvalue)
 
     return argvalues

@@ -22,7 +22,7 @@ def author_examples() -> Iterator:
             yield (author, *example)
 
 
-fields = list(Example._fields)
+fields = list(example_fields)
 fields.insert(0, "author")
 
 
@@ -52,7 +52,7 @@ def author_multi_examples() -> Iterator:
             yield (author, *multi_example)
 
 
-multi_fields = list(MultiExample._fields)
+multi_fields = list(multi_example_fields)
 multi_fields.insert(0, "author")
 
 

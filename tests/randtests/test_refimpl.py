@@ -5,7 +5,7 @@ from coinflip import refimpl
 from .examples import *
 
 
-@mark.parametrize(Example._fields, examples)
+@mark.parametrize(example_fields, examples)
 def test_examples(randtest, bits, statistic_expect, p_expect, kwargs):
     randtest_method = getattr(refimpl, randtest)
 
@@ -15,7 +15,7 @@ def test_examples(randtest, bits, statistic_expect, p_expect, kwargs):
     assert_p(p, p_expect)
 
 
-@mark.parametrize(MultiExample._fields, multi_examples)
+@mark.parametrize(multi_example_fields, multi_examples)
 def test_multi_examples(randtest, bits, expected_statistics, expected_pvalues, kwargs):
     randtest_method = getattr(refimpl, randtest)
 
