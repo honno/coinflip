@@ -3,6 +3,7 @@ from collections import defaultdict
 from itertools import accumulate
 from itertools import product
 from math import erfc
+from math import floor
 from math import log
 from math import log2
 from math import sqrt
@@ -10,12 +11,14 @@ from typing import Iterator
 from typing import List
 from typing import Tuple
 
+import numpy as np
 from more_itertools import chunked
 from more_itertools import split_at
 from more_itertools import windowed
 from scipy.fft import fft
 from scipy.special import gammaincc
 from scipy.stats import chisquare
+from scipy.stats import norm
 from typing_extensions import Literal
 
 from coinflip.algorithms import berlekamp_massey
@@ -391,7 +394,25 @@ def cusum(sequence: List[Literal[0, 1]], reverse: bool = False):
     abs_cusums = [abs(cusum) for cusum in cusums]
     max_cusum = max(abs_cusums)
 
-    raise NotImplementedError()  # TODO figure out cusum equation nicely
+    p = (
+        1
+        - sum(
+            norm.cdf((4 * k + 1) * max_cusum / sqrt(n))
+            - norm.cdf((4 * k - 1) * max_cusum / sqrt(n))
+            for k in np.arange(
+                floor((-n / max_cusum + 1) / 4), floor((n / max_cusum - 1) / 4) + 1, 1
+            )
+        )
+        + sum(
+            norm.cdf((4 * k + 3) * max_cusum / sqrt(n))
+            - norm.cdf((4 * k + 1) * max_cusum / sqrt(n))
+            for k in np.arange(
+                floor((-n / max_cusum - 3) / 4), floor((n / max_cusum - 1) / 4) + 1, 1
+            )
+        )
+    )
+
+    return max_cusum, p
 
 
 def random_excursions(sequence: List[Literal[0, 1]]):
