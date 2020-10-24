@@ -3,14 +3,13 @@ from typing import List
 
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
-
-from coinflip.typing import Bit
+from typing_extensions import Literal
 
 __all__ = ["mixedbits"]
 
 
 @st.composite
-def mixedbits(draw, min_size=2) -> SearchStrategy[List[Bit]]:
+def mixedbits(draw, min_size=2) -> SearchStrategy[List[Literal[0, 1]]]:
     """Strategy to generate binary sequences"""
     n = draw(st.integers(min_value=min_size, max_value=1000))
 

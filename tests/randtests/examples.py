@@ -10,8 +10,7 @@ from typing import Union
 
 from pytest import mark
 from pytest import param
-
-from coinflip.typing import Bit
+from typing_extensions import Literal
 
 __all__ = [
     "Example",
@@ -55,7 +54,7 @@ class Example(NamedTuple):
     """Container for a SP800-22 example"""
 
     randtest: str
-    bits: List[Bit]
+    bits: List[Literal[0, 1]]
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}
@@ -65,7 +64,7 @@ class MultiExample(NamedTuple):
     """Container for a SP800-22 example with multiple results"""
 
     randtest: str
-    bits: List[Bit]
+    bits: List[Literal[0, 1]]
     expected_statistics: List[Union[int, float]]
     expected_pvalues: List[float]
     kwargs: Dict[str, Any] = {}
@@ -76,7 +75,7 @@ class SubExample(NamedTuple):
 
     randtest: str
     key: Any
-    bits: List[Bit]
+    bits: List[Literal[0, 1]]
     statistic_expect: Union[int, float]
     p_expect: float
     kwargs: Dict[str, Any] = {}

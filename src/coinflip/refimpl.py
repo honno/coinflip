@@ -16,13 +16,13 @@ from more_itertools import windowed
 from scipy.fft import fft
 from scipy.special import gammaincc
 from scipy.stats import chisquare
+from typing_extensions import Literal
 
 from coinflip.algorithms import berlekamp_massey
 from coinflip.algorithms import matrix_rank
 from coinflip.collections import Bins
 from coinflip.collections import FloorDict
 from coinflip.collections import defaultlist
-from coinflip.typing import Bit
 
 __all__ = [
     "monobit",
@@ -43,7 +43,7 @@ __all__ = [
 ]
 
 
-def monobit(sequence: List[Bit]):
+def monobit(sequence: List[Literal[0, 1]]):
     n = len(sequence)
 
     ones = sum(1 for bit in sequence if bit == 1)
@@ -56,7 +56,7 @@ def monobit(sequence: List[Bit]):
     return normdiff, p
 
 
-def frequency_within_block(sequence: List[Bit], blocksize: int):
+def frequency_within_block(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
     nblocks = n // blocksize
 
@@ -73,7 +73,7 @@ def frequency_within_block(sequence: List[Bit], blocksize: int):
     return chi2, p
 
 
-def runs(sequence: List[Bit]):
+def runs(sequence: List[Literal[0, 1]]):
     n = len(sequence)
 
     ones = sum(1 for bit in sequence if bit == 1)
@@ -90,7 +90,7 @@ def runs(sequence: List[Bit]):
     return nruns, p
 
 
-def longest_runs(sequence: List[Bit]):
+def longest_runs(sequence: List[Literal[0, 1]]):
     n_defaults = FloorDict(
         {
             128: (8, 16, [1, 2, 3, 4]),
@@ -128,7 +128,7 @@ def longest_runs(sequence: List[Bit]):
     return chi2, p
 
 
-def binary_matrix_rank(sequence: List[Bit], matrix_dimen: Tuple[int, int]):
+def binary_matrix_rank(sequence: List[Literal[0, 1]], matrix_dimen: Tuple[int, int]):
     n = len(sequence)
     nrows, ncols = matrix_dimen
     blocksize = nrows * ncols
@@ -158,7 +158,7 @@ def binary_matrix_rank(sequence: List[Bit], matrix_dimen: Tuple[int, int]):
     return chi2, p
 
 
-def spectral(sequence: List[Bit]):
+def spectral(sequence: List[Literal[0, 1]]):
     n = len(sequence)
     if n % 2 != 0:
         sequence = sequence[:-1]
@@ -181,7 +181,7 @@ def spectral(sequence: List[Bit]):
 
 
 def non_overlapping_template_matching(
-    sequence: List[Bit], template_size: int, blocksize: int
+    sequence: List[Literal[0, 1]], template_size: int, blocksize: int
 ):
     n = len(sequence)
     nblocks = n // blocksize
@@ -217,7 +217,7 @@ def non_overlapping_template_matching(
 
 
 def overlapping_template_matching(
-    sequence: List[Bit], template_size: int, blocksize: int
+    sequence: List[Literal[0, 1]], template_size: int, blocksize: int
 ):
     n = len(sequence)
     template = [1 for _ in range(template_size)]
@@ -247,7 +247,7 @@ def overlapping_template_matching(
     return chi2, p
 
 
-def maurers_universal(sequence: List[Bit], blocksize: int, init_nblocks: int):
+def maurers_universal(sequence: List[Literal[0, 1]], blocksize: int, init_nblocks: int):
     n = len(sequence)
     nblocks = n // blocksize
     segment_nblocks = nblocks - init_nblocks
@@ -295,7 +295,7 @@ def maurers_universal(sequence: List[Bit], blocksize: int, init_nblocks: int):
     return norm_distances, p
 
 
-def serial(sequence: List[Bit], blocksize: int):
+def serial(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
     # TODO trunc the sequence?
 
@@ -328,7 +328,7 @@ def serial(sequence: List[Bit], blocksize: int):
     return normsum_deltas, pvalues
 
 
-def linear_complexity(sequence: List[Bit], blocksize: int):
+def linear_complexity(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
     nblocks = n // blocksize
     trunc_sequence = sequence[: nblocks * blocksize]
@@ -352,7 +352,7 @@ def linear_complexity(sequence: List[Bit], blocksize: int):
     return chi2, p
 
 
-def approximate_entropy(sequence: List[Bit], blocksize: int):
+def approximate_entropy(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
     # TODO trunc the sequence?
 
@@ -380,7 +380,7 @@ def approximate_entropy(sequence: List[Bit], blocksize: int):
     return chi2, p
 
 
-def cusum(sequence: List[Bit], reverse: bool = False):
+def cusum(sequence: List[Literal[0, 1]], reverse: bool = False):
     n = len(sequence)
 
     oscillations = [bit if bit == 1 else -1 for bit in sequence]
@@ -394,7 +394,7 @@ def cusum(sequence: List[Bit], reverse: bool = False):
     raise NotImplementedError()  # TODO figure out cusum equation nicely
 
 
-def random_excursions(sequence: List[Bit]):
+def random_excursions(sequence: List[Literal[0, 1]]):
     states = [-4, -3, -2, -1, 1, 2, 3, 4]
     state_count_bins = {state: Bins(range(6)) for state in states}
 
@@ -436,7 +436,7 @@ def random_excursions(sequence: List[Bit]):
     return statistics, pvalues
 
 
-def random_excursions_variant(sequence: List[Bit]):
+def random_excursions_variant(sequence: List[Literal[0, 1]]):
     states = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     oscillations = [bit if bit == 1 else -1 for bit in sequence]
@@ -461,7 +461,7 @@ def random_excursions_variant(sequence: List[Bit]):
 # Helpers
 
 
-def asruns(sequence: List[Bit]) -> Iterator[Tuple[Bit, int]]:
+def asruns(sequence: List[Literal[0, 1]]) -> Iterator[Tuple[Literal[0, 1], int]]:
     run_val = sequence[0]
     run_len = 1
 

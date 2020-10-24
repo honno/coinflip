@@ -12,15 +12,15 @@ from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
 from pytest import mark
 from pytest import skip
+from typing_extensions import Literal
 
 from coinflip import randtests
-from coinflip.typing import Bit
 
 from .impls import testmaps
 from .impls.core import ImplementationError
 from .strategies import mixedbits
 
-ArgsStrategy = SearchStrategy[Tuple[List[Bit], Dict]]
+ArgsStrategy = SearchStrategy[Tuple[List[Literal[0, 1]], Dict]]
 
 
 @st.composite

@@ -4,6 +4,7 @@ from math import erfc
 from math import sqrt
 
 import pandas as pd
+from nptyping import Int
 from rich.text import Text
 from scipy.stats import chisquare
 
@@ -82,7 +83,7 @@ def random_excursions(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsTestResult(TestResult):
-    state: int
+    state: Int
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -161,7 +162,7 @@ def random_excursions_variant(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsVariantTestResult(TestResult):
-    state: int
+    state: Int
 
     def _render(self):
         yield self._pretty_result("count")

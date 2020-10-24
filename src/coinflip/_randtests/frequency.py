@@ -3,18 +3,19 @@ from dataclasses import dataclass
 from functools import lru_cache
 from math import erfc
 from math import sqrt
-from typing import Any
 from typing import List
 from typing import NamedTuple
 
 import altair as alt
 import numpy as np
 import pandas as pd
+from nptyping import Int
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
 from coinflip._randtests.common.core import *
+from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import smartround
@@ -27,14 +28,14 @@ __all__ = ["monobit", "frequency_within_block"]
 # Frequency (Monobit) Test
 
 
-class ValueCount(NamedTuple):
-    value: Any
-    count: int
+class FaceCount(NamedTuple):
+    value: Face
+    count: Int
 
 
 class FaceCounts(NamedTuple):
-    heads: ValueCount
-    tails: ValueCount
+    heads: FaceCount
+    tails: FaceCount
 
     @property
     @lru_cache()
@@ -48,8 +49,8 @@ class FaceCounts(NamedTuple):
 
     @classmethod
     def from_series(cls, series, heads, tails):
-        heads = ValueCount(heads, series[heads])
-        tails = ValueCount(tails, series[tails])
+        heads = FaceCount(heads, series[heads])
+        tails = FaceCount(tails, series[tails])
         return cls(heads, tails)
 
 
@@ -76,9 +77,9 @@ def monobit(series, heads, tails, ctx):
 
 @dataclass
 class MonobitTestResult(TestResult):
-    n: int
+    n: Int
     counts: FaceCounts
-    diff: int
+    diff: Int
 
     def _render(self):
         yield self._pretty_result("normalised diff")
@@ -201,9 +202,9 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class FrequencyWithinBlockTestResult(TestResult):
-    blocksize: int
-    nblocks: int
-    counts: List[int]
+    blocksize: Int
+    nblocks: Int
+    counts: List[Int]
 
     def _render(self):
         yield self._pretty_result("chi-square")

@@ -9,6 +9,8 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
+from nptyping import Float
+from nptyping import Int
 from rich import box
 from rich.console import Console
 from rich.console import ConsoleRenderable
@@ -23,6 +25,7 @@ from rich.table import Table
 from rich.text import Text
 
 from coinflip import console
+from coinflip._randtests.common.core import Face
 
 __all__ = [
     "BaseTestResult",
@@ -75,16 +78,16 @@ class TestResult(BaseTestResult):
         The ``1`` abstraction
     tails: ``Any``
         The ``0`` abstraction
-    statistic : ``int`` or ``float``
+    statistic : ``Int`` or ``float``
         Statistic of the test
     p : ``float``
         p-value of the test
     """
 
-    heads: Any
-    tails: Any
-    statistic: Union[int, float]
-    p: float
+    heads: Face
+    tails: Face
+    statistic: Union[Int, Float]
+    p: Float
 
     def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
         return make_testvars_list(
@@ -93,7 +96,7 @@ class TestResult(BaseTestResult):
 
     @classmethod
     def _pretty_inputs(
-        self, *name_value_pairs: Iterable[Union[int, float]]
+        self, *name_value_pairs: Iterable[Union[Int, float]]
     ) -> RenderGroup:
         title = "test input"
         if len(name_value_pairs) > 1:
@@ -109,9 +112,9 @@ class MultiTestResult(dict, BaseTestResult):
 
     Attributes
     ----------
-    statistics : ``List[Union[int, float]]``
+    statistics : ``List[Union[Int, float]]``
         Statistics of the test
-    pvalues : ``List[Union[int, float]]``
+    pvalues : ``List[Union[Int, float]]``
         p-values of the test
     min : ``Tuple[Any, TestResult]``
         Feature of a sub-test and it's respective result with the smallest
@@ -124,7 +127,7 @@ class MultiTestResult(dict, BaseTestResult):
 
     @property
     @lru_cache()
-    def statistics(self) -> List[Union[int, float]]:
+    def statistics(self) -> List[Union[Int, float]]:
         return [result.statistic for result in self.values()]
 
     @property
@@ -182,8 +185,8 @@ def make_chisquare_table(
     title: Union[str, Text],
     feature: Union[Text, str],
     classes: Iterable[Any],
-    expected_occurences: Iterable[Union[int, float]],
-    actual_occurences: Iterable[Union[int, float]],
+    expected_occurences: Iterable[Union[Int, float]],
+    actual_occurences: Iterable[Union[Int, float]],
     **kwargs,
 ) -> Table:
     f_table = make_testvars_table(
@@ -215,7 +218,7 @@ def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
 
 @render_group(fit=True)
 def make_testvars_list(
-    title: str, *varname_value_pairs: Tuple[str, Union[int, float]]
+    title: str, *varname_value_pairs: Tuple[str, Union[Int, float]]
 ) -> RenderGroup:
     yield Text(title, style="bold")
 
@@ -230,7 +233,7 @@ def make_testvars_list(
         yield f"  {f_varname}  {f_value}"
 
 
-def smartround(num: Union[int, float, np.int64], ndigits=1) -> Union[int, float]:
+def smartround(num: Union[int, float, Int], ndigits=1) -> Union[int, float]:
     """Round number only if it's a float"""
     if isinstance(num, int):
         return num
@@ -239,7 +242,7 @@ def smartround(num: Union[int, float, np.int64], ndigits=1) -> Union[int, float]
             return int(num)
         else:
             return round(num, ndigits)
-    elif isinstance(num, np.int64):
+    elif isinstance(num, Int):
         return int(num)
 
 

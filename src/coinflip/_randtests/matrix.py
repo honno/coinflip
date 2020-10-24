@@ -5,27 +5,28 @@ from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
+from nptyping import Int
 from scipy.stats import chisquare
+from typing_extensions import Literal
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
-from coinflip.typing import Bit
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
 
 
 @dataclass
 class RankCounts:
-    full: int = 0
-    runnerup: int = 0
-    remaining: int = 0
+    full: Int = 0
+    runnerup: Int = 0
+    remaining: Int = 0
 
 
 @randtest(min_n=4)
-def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] = None):
+def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] = None):
     n = len(series)
 
     if matrix_dimen is None:
@@ -102,9 +103,9 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[int, int] 
 
 @dataclass
 class BinaryMatrixRankTestResult(TestResult):
-    nrows: int
-    ncols: int
-    fullrank: int
+    nrows: Int
+    ncols: Int
+    fullrank: Int
     expected_rankcounts: RankCounts
     rankcounts: RankCounts
 
@@ -134,17 +135,17 @@ class BinaryMatrixRankTestResult(TestResult):
         yield table
 
 
-def matrix_rank(matrix: Iterable[Iterable[Bit]]) -> int:
+def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> Int:
     """Finds the rank of a binary matrix
 
     Parameters
     ----------
-    matrix : ``Iterable[Iterable[int]]``
+    matrix : ``Iterable[Iterable[Int]]``
         Binary matrix to rank
 
     Returns
     -------
-    rank : int
+    rank : Int
         Rank of ``matrix``
 
     Notes
@@ -167,7 +168,7 @@ def matrix_rank(matrix: Iterable[Iterable[Bit]]) -> int:
     return rank
 
 
-def bits2int(bits: Iterable[Bit]) -> int:
+def bits2int(bits: Iterable[Literal[0, 1]]) -> Int:
     """Converts a list of bits into a numerical representation"""
     num = 0
     for bit in bits:

@@ -8,10 +8,11 @@ from math import floor
 from math import isclose
 from math import log2
 from math import sqrt
-from typing import Any
 from typing import List
 from typing import Tuple
 
+from nptyping import Float
+from nptyping import Int
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
@@ -20,6 +21,7 @@ from scipy.stats import chisquare
 from coinflip._randtests.common.collections import defaultlist
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
+from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
@@ -33,10 +35,10 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 @dataclass
 class BaseTemplateMatchingTestResult(TestResult):
-    template: Tuple[Any, ...]
-    template_size: int
-    blocksize: int
-    nblocks: int
+    template: Tuple[Face, ...]
+    template_size: Int
+    blocksize: Int
+    nblocks: Int
 
     def pretty_template(self) -> Text:
         return pretty_subseq(self.template, self.heads, self.tails)
@@ -125,10 +127,10 @@ def non_overlapping_template_matching(
 
 @dataclass(unsafe_hash=True)
 class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
-    matches_expect: float
-    variance: float
-    block_matches: List[int]
-    match_diffs: List[float]
+    matches_expect: Float
+    variance: Float
+    block_matches: List[Int]
+    match_diffs: List[Float]
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -254,8 +256,8 @@ def overlapping_template_matching(
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
-    expected_tallies: List[int]
-    tallies: List[int]
+    expected_tallies: List[Int]
+    tallies: List[Int]
 
     def _render(self):
         yield self._pretty_result("chi-square")

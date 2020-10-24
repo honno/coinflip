@@ -11,16 +11,19 @@ from warnings import warn
 import pandas as pd
 from rich.progress import Progress
 
-from coinflip._randtests.common.result import BaseTestResult
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestInputError
 
 __all__ = [
+    "Face",
     "randtest",
     "set_task_total",
     "advance_task",
     "check_recommendations",
 ]
+
+
+Face = Any
 
 
 @dataclass
@@ -81,7 +84,7 @@ def randtest(min_n=2):
 
     def decorator(func):
         @wraps(func)
-        def wrapper(sequence, ctx: Progress = None, **kwargs) -> BaseTestResult:
+        def wrapper(sequence, ctx: Progress = None, **kwargs):
             if isinstance(sequence, pd.Series):
                 series = sequence
             else:
@@ -107,7 +110,7 @@ def randtest(min_n=2):
 
 
 @lru_cache()
-def infer_faces(unique_values: Tuple[Any, Any]):
+def infer_faces(unique_values: Tuple[Face, Face]) -> Tuple[Face, Face]:
     """Infers the `heads` and `tails` faces from a list of unique values
 
     An equality check between the values is attempted where the "largest"

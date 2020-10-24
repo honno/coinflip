@@ -7,12 +7,15 @@ from typing import Dict
 from typing import Tuple
 
 import pandas as pd
+from nptyping import Float
+from nptyping import Int
 from rich import box
 from rich.table import Table
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
+from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import slider
@@ -93,9 +96,9 @@ def serial(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class BaseSerialTestResult(TestResult):
-    blocksize: int
-    permutation_counts: Dict[int, DefaultDict[Tuple, int]]
-    normalised_sums: Dict[int, float]
+    blocksize: Int
+    permutation_counts: Dict[Int, DefaultDict[Tuple[Face, ...], Int]]
+    normalised_sums: Dict[Int, Float]
 
     def _pretty_permutation(self, permutation: Tuple):
         return pretty_subseq(permutation, self.heads, self.tails)

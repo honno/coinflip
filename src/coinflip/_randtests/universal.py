@@ -7,14 +7,16 @@ from math import isclose
 from math import log
 from math import log2
 from math import sqrt
-from typing import Any
 from typing import DefaultDict
 from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
+from nptyping import Int
+
 from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
+from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip.exceptions import TestNotImplementedError
@@ -51,8 +53,8 @@ blocksize_dists = {
 
 
 class DefaultParams(NamedTuple):
-    blocksize: int
-    init_nblocks: int
+    blocksize: Int
+    init_nblocks: Int
 
 
 # Values taken from "A Statistical Test Suite for Random and Pseudorandom Number
@@ -163,11 +165,11 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
 @dataclass
 class UniversalTestResult(TestResult):
-    blocksize: int
-    init_nblocks: int
-    segment_nblocks: int
-    permutation_last_init_pos: DefaultDict[Tuple[Any, ...], int]
-    permutation_positions: DefaultDict[Tuple[Any, ...], List[Any]]
+    blocksize: Int
+    init_nblocks: Int
+    segment_nblocks: Int
+    permutation_last_init_pos: DefaultDict[Tuple[Face, ...], Int]
+    permutation_positions: DefaultDict[Tuple[Face, ...], List[Int]]
 
     def _render(self):
         yield self._pretty_result("log2 distances")

@@ -2,10 +2,14 @@ from copy import copy
 from dataclasses import dataclass
 from math import floor
 from math import sqrt
+from typing import Dict
 from typing import List
 from typing import Sequence
 
+from nptyping import Float
+from nptyping import Int
 from scipy.stats import chisquare
+from typing_extensions import Literal
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
@@ -13,7 +17,6 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import rawblocks
-from coinflip.typing import Bit
 
 __all__ = ["linear_complexity"]
 
@@ -95,10 +98,10 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class LinearComplexityTestResult(TestResult):
-    blocksize: int
-    mean_expect: float
-    expected_bincounts: List[float]
-    variance_bins: Bins
+    blocksize: Int
+    mean_expect: Float
+    expected_bincounts: List[Float]
+    variance_bins: Dict[Float, Int]
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -116,7 +119,7 @@ class LinearComplexityTestResult(TestResult):
         yield table
 
 
-def berlekamp_massey(sequence: Sequence[Bit]) -> int:
+def berlekamp_massey(sequence: Sequence[Literal[0, 1]]) -> int:
     n = len(sequence)
 
     error_locator = [0 for _ in range(n)]

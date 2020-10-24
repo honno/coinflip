@@ -4,6 +4,8 @@ from math import log
 from math import sqrt
 
 import pandas as pd
+from nptyping import Float
+from nptyping import Int
 from scipy.fft import fft
 
 from coinflip._randtests.common.core import *
@@ -66,9 +68,9 @@ def spectral(series, heads, tails, ctx):
 
 @dataclass
 class SpectralTestResult(TestResult):
-    nbelow_expect: float
-    nbelow: int
-    diff: float
+    nbelow_expect: Float
+    nbelow: Int
+    diff: Float
 
     def __post_init__(self):
         pass

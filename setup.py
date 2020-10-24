@@ -92,6 +92,7 @@ setup(
         "altair",
         "typing-extensions",
         "more-itertools",
+        "nptyping",
     ],
     test_requires=["pytest", "hypothesis"],
     entry_points={"console_scripts": ["coinflip = coinflip.cli:main"]},

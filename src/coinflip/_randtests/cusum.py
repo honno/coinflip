@@ -3,6 +3,7 @@ from math import floor
 from math import sqrt
 
 import numpy as np
+from nptyping import Bool
 from scipy.stats import norm
 
 from coinflip._randtests.common.core import *
@@ -57,7 +58,7 @@ def cusum(series, heads, tails, ctx, reverse=False):
 
 @dataclass
 class CusumTestResult(TestResult):
-    reverse: bool
+    reverse: Bool
 
     def _render(self):
         yield self._pretty_result("max cusum")

@@ -3,11 +3,14 @@ from dataclasses import dataclass
 from math import erfc
 from math import sqrt
 from typing import Any
+from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
+from nptyping import Float
+from nptyping import Int
 from rich.text import Text
 from scipy.stats import chisquare
 
@@ -69,9 +72,9 @@ class RunsTestResult(TestResult):
 
 
 class DefaultParams(NamedTuple):
-    blocksize: int
-    nblocks: int
-    intervals: List[int]
+    blocksize: Int
+    nblocks: Int
+    intervals: List[Int]
 
 
 # TODO use in recommendations
@@ -147,10 +150,10 @@ def longest_runs(series, heads, tails, ctx):
 
 @dataclass
 class LongestRunsTestResult(TestResult):
-    blocksize: int
-    nblocks: int
-    expected_bincounts: List[float]
-    maxlen_bins: Bins
+    blocksize: Int
+    nblocks: Int
+    expected_bincounts: List[Float]
+    maxlen_bins: Dict[Int, Int]
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -185,10 +188,10 @@ class LongestRunsTestResult(TestResult):
 @dataclass
 class Run:
     value: Any
-    length: int = 1
+    length: Int = 1
 
 
-def asruns(series) -> Iterator[Tuple[Any, int]]:
+def asruns(series) -> Iterator[Tuple[Any, Int]]:
     """Iterator of runs in a ``Series``
 
     Parameters
@@ -200,7 +203,7 @@ def asruns(series) -> Iterator[Tuple[Any, int]]:
     ------
     value : ``Any``
         Value of the run
-    length : ``int``
+    length : ``Int``
         Length of the run
 
     Notes

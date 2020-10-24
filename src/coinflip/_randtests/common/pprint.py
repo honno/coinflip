@@ -22,9 +22,9 @@ def determine_rep(heads, tails) -> Tuple[str, str]:
 
     Parameters
     ----------
-    heads: ``Any``
+    heads: ``Face``
         The ``1`` abstraction
-    tails: ``Any``
+    tails: ``Face``
         The ``0`` abstraction
 
     Returns
@@ -50,9 +50,9 @@ def pretty_subseq(subseq: Iterable, heads, tails) -> Text:
     ----------
     subseq : ``List``
         Subsequence to represent
-    heads : ``Any``
+    heads : ``Face``
         One of the two values in ``subseq``
-    tails : ``Any``
+    tails : ``Face``
         Value in ``subseq`` which is not ``heads``
 
     Returns
@@ -80,7 +80,7 @@ def pretty_sequence(series, ncols) -> RenderGroup:
     ----------
     series : ``Series``
         Sequence to represent
-    ncols : ``int``
+    ncols : ``Int``
         Maximum number of characters to use per line
 
     Returns

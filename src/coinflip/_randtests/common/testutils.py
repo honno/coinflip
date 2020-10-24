@@ -19,7 +19,7 @@ def blocks(series, blocksize, truncate=True) -> Iterator[pd.Series]:
     ----------
     series : ``Series``
         The pandas ``Series`` to chunk
-    blocksize : ``int``
+    blocksize : ``Int``
         Size of the chunks
     truncate : ``bool``, default ``True``
         Whether to discard remaning series

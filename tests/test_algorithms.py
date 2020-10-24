@@ -2,15 +2,15 @@ from typing import List
 from typing import NamedTuple
 
 from pytest import mark
+from typing_extensions import Literal
 
 from coinflip.algorithms import berlekamp_massey
-from coinflip.typing import Bit
 
 __all__ = ["bm_examples"]
 
 
 class BMExample(NamedTuple):
-    sequence: List[Bit]
+    sequence: List[Literal[0, 1]]
     min_size: int
 
 
