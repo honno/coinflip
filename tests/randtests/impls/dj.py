@@ -157,13 +157,12 @@ testmap = {
     "binary_matrix_rank": Implementation(binary_matrix_rank),
     "spectral": Implementation(spectral),
     "non_overlapping_template_matching": Implementation(
-        non_overlapping_template_matching,
-        missingkwargs=["template"],
-        fixedkwargs={"nblocks": 8},
+        non_overlapping_template_matching, missingkwargs=["template", "blocksize"],
     ),
     "overlapping_template_matching": Implementation(
         overlapping_template_matching,
-        fixedkwargs={"template": [1 for x in range(10)], "nblocks": 968},
+        missingkwargs=["blocksize"],
+        fixedkwargs={"template_size": 10},
     ),
     "maurers_universal": Implementation(maurers_universal),
     "linear_complexity": Implementation(linear_complexity),

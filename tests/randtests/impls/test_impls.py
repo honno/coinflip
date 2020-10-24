@@ -12,15 +12,20 @@ def test_examples(author, randtest, bits, statistic_expect, p_expect, kwargs):
     testmap = testmaps[author]
 
     try:
-        implementation = testmap[randtest]
+        impl = testmap[randtest]
     except KeyError:
         skip()
 
-    if implementation.missingkwargs or implementation.fixedkwargs:
-        skip()
+    for key in impl.missingkwargs:
+        if key in kwargs.keys():
+            skip()
+
+    for key, value in impl.fixedkwargs.items():
+        if kwargs[key] != value:
+            skip()
 
     try:
-        p = implementation.randtest(bits, **kwargs)
+        p = impl.randtest(bits, **kwargs)
     except ImplementationError:
         skip()
 
@@ -33,13 +38,18 @@ def test_multi_examples(
     author, randtest, bits, expected_statistics, expected_pvalues, kwargs
 ):
     testmap = testmaps[author]
-    implementation = testmap[randtest]
+    impl = testmap[randtest]
 
-    if implementation.missingkwargs or implementation.fixedkwargs:
-        skip()
+    for key in impl.missingkwargs:
+        if key in kwargs.keys():
+            skip()
+
+    for key, value in impl.fixedkwargs.items():
+        if kwargs[key] != value:
+            skip()
 
     try:
-        pvalues = implementation.randtest(bits, **kwargs)
+        pvalues = impl.randtest(bits, **kwargs)
     except ImplementationError:
         skip()
 

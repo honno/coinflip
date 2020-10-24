@@ -97,7 +97,7 @@ testmap = {
         non_overlapping_template_matching
     ),
     "overlapping_template_matching": Implementation(
-        overlapping_template_matching, fixedkwargs={"template": [1 for _ in range(9)]}
+        overlapping_template_matching, fixedkwargs={"template_size": 9}
     ),
     "maurers_universal": Implementation(
         maurers_universal, missingkwargs=["blocksize", "init_nblocks"]
