@@ -227,7 +227,7 @@ def overlapping_template_matching(
     nblocks = n // blocksize
     trunc_sequence = sequence[: nblocks * blocksize]
 
-    probabilities = [0.364091, 0.185659, 0.139381, 0.100571, 0.0704323, 0.139865]
+    probabilities = [0.367879, 0.183939, 0.137954, 0.099634, 0.069935, 0.140656]
     expected_tallies = [prob * nblocks for prob in probabilities]
 
     block_matches = []

@@ -213,7 +213,7 @@ def non_overlapping_template_matching(sequence, template_size=None, blocksize=No
     )
 
 
-def overlapping_template_matching(sequence, template_size=None, blocksize=None, df=5):
+def overlapping_template_matching(sequence, template_size=None, blocksize=None):
     """Overlapping matches of template per block is compared to expected result
 
     The sequence is split into ``nblocks`` blocks, where the number of
@@ -236,7 +236,7 @@ def overlapping_template_matching(sequence, template_size=None, blocksize=None, 
         Dataclass that contains the test's statistic and p-value.
     """
     return _randtests.overlapping_template_matching(
-        sequence, template_size=template_size, blocksize=blocksize, df=df
+        sequence, template_size=template_size, blocksize=blocksize,
     )
 
 

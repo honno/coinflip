@@ -231,7 +231,7 @@ def overlapping_template_matching(
 
     tallies = [0 for _ in range(matches_ceil + 1)]
     for matches in block_matches:
-        i = min(matches, 5)
+        i = min(matches, matches_ceil)
         tallies[i] += 1
 
     advance_task(ctx)
