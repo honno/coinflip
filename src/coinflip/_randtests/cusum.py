@@ -25,7 +25,7 @@ def cusum(series, heads, tails, ctx, reverse=False):
     advance_task(ctx)
 
     if reverse:
-        oscillations = oscillations[::1]
+        oscillations = oscillations[::-1]
 
     cusums = oscillations.cumsum()
     abs_cusums = cusums.abs()

@@ -388,7 +388,7 @@ def cusum(sequence: List[Literal[0, 1]], reverse: bool = False):
 
     oscillations = [bit if bit == 1 else -1 for bit in sequence]
     if reverse:
-        oscillations = oscillations[::1]
+        oscillations = oscillations[::-1]
     cusums = accumulate(oscillations)
 
     abs_cusums = [abs(cusum) for cusum in cusums]
