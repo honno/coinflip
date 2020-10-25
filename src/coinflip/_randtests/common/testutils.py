@@ -77,9 +77,10 @@ def rawblocks(*args, **kwargs) -> Iterator[Tuple[Any]]:
 
 
 def slider(series, window_size) -> Iterator[Tuple[Any]]:
-    boundary = len(series) - window_size + 1
-    for pointer in range(0, boundary, 1):
-        window = series[pointer : pointer + window_size]
-        window_tup = tuple(window)
+    if window_size != 0:
+        boundary = len(series) - window_size + 1
+        for pointer in range(0, boundary, 1):
+            window = series[pointer : pointer + window_size]
+            window_tup = tuple(window)
 
-        yield window_tup
+            yield window_tup

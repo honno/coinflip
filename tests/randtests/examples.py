@@ -413,7 +413,7 @@ _examples = [
 _multi_examples = [
     MultiExample(
         # FAILING - SP800-22's result is not replicated by sts
-        #         - sts result matches our own
+        #         - sts and dj result matches our own
         randtest="serial",
 
         bits=[0, 0, 1, 1, 0, 1, 1, 1, 0, 1],
@@ -423,6 +423,8 @@ _multi_examples = [
 
         expected_statistics=[1.6, 0.8],
         expected_pvalues=[0.9057, 0.8805],
+
+        xfail=True
     ),
     MultiExample(
         randtest="serial",

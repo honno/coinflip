@@ -269,7 +269,7 @@ def maurers_universal(sequence, blocksize=None, init_nblocks=None):
 
 
 def serial(sequence, blocksize=None):
-    return _randtests.serial(sequence, blocksize=None)
+    return _randtests.serial(sequence, blocksize=blocksize)
 
 
 def linear_complexity(sequence, blocksize=None):

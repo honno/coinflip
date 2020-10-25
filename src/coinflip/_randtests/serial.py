@@ -35,26 +35,30 @@ def serial(series, heads, tails, ctx, blocksize=None):
     check_recommendations({"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2})
 
     permutation_counts = {}
+    normalised_sums = {}
     for window_size in [blocksize, blocksize - 1, blocksize - 2]:
-        head = series[: window_size - 1]
-        ouroboros = pd.concat([series, head])
-
-        advance_task(ctx)
-
-        counts = defaultdict(int)
-        for window_tup in slider(ouroboros, window_size):
-            counts[window_tup] += 1
+        if window_size > 0:
+            head = series[: window_size - 1]
+            ouroboros = pd.concat([series, head])
 
             advance_task(ctx)
 
-        permutation_counts[window_size] = counts
+            counts = defaultdict(int)
+            for window_tup in slider(ouroboros, window_size):
+                counts[window_tup] += 1
 
-    normalised_sums = {}
-    for window_size, counts in permutation_counts.items():
-        sum_squares = sum(count ** 2 for count in counts.values())
-        normsum = (2 ** window_size / n) * sum_squares - n
+                advance_task(ctx)
 
-        normalised_sums[window_size] = normsum
+            permutation_counts[window_size] = counts
+
+            sum_squares = sum(count ** 2 for count in counts.values())
+            normsum = (2 ** window_size / n) * sum_squares - n
+
+            normalised_sums[window_size] = normsum
+
+        else:
+            permutation_counts[window_size] = defaultdict(int)
+            normalised_sums[window_size] = 0
 
     advance_task(ctx)
 

@@ -304,15 +304,19 @@ def serial(sequence: List[Literal[0, 1]], blocksize: int):
 
     normalised_sums = {}
     for window_size in [blocksize, blocksize - 1, blocksize - 2]:
-        head = sequence[: window_size - 1]
-        ouroboros = sequence + head
+        if window_size > 0:
+            head = sequence[: window_size - 1]
+            ouroboros = sequence + head
 
-        counts = defaultdict(int)
-        for window in windowed(ouroboros, window_size):
-            counts[tuple(window)] += 1
+            counts = defaultdict(int)
+            for window in windowed(ouroboros, window_size):
+                counts[tuple(window)] += 1
 
-        sum_squares = sum(count ** 2 for count in counts.values())
-        normsum = (2 ** window_size / n) * sum_squares - n
+            sum_squares = sum(count ** 2 for count in counts.values())
+            normsum = (2 ** window_size / n) * sum_squares - n
+
+        else:
+            normsum = 0
 
         normalised_sums[window_size] = normsum
 
