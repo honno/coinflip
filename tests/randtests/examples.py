@@ -440,6 +440,7 @@ _multi_examples = [
     MultiExample(
         # FAILING - SP800-22's result is not replicated by sts
         #         - sts result matches our own
+        #         - dj near to our own
         randtest="random_excursions",
 
         bits=list(e_expansion()),
@@ -463,11 +464,11 @@ _multi_examples = [
             0.365752,
             0.790853,
             0.792378,
-        ]
+        ],
+
+        xfail=True
     ),
     MultiExample(
-        # FAILING - SP800-22's result is not replicated by sts
-        #         - sts result matches our own
         randtest="random_excursions_variant",
 
         bits=list(e_expansion()),
