@@ -35,7 +35,7 @@ def runs(series, heads, tails, ctx):
 
     set_task_total(ctx, 4)
 
-    check_recommendations({"n ≥ 100": n >= 100})
+    failures = check_recommendations(ctx, {"n ≥ 100": n >= 100})
 
     counts = series.value_counts()
 
@@ -58,7 +58,7 @@ def runs(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return RunsTestResult(heads, tails, nruns, p)
+    return RunsTestResult(heads, tails, failures, nruns, p)
 
 
 @dataclass
@@ -113,7 +113,7 @@ def longest_runs(series, heads, tails, ctx):
 
     set_task_total(ctx, nblocks + 2)
 
-    check_recommendations({"n ≥ 128": n >= 128})
+    failures = check_recommendations(ctx, {"n ≥ 128": n >= 128})
 
     try:
         probabilities = blocksize_probabilities[blocksize]
@@ -144,7 +144,15 @@ def longest_runs(series, heads, tails, ctx):
     advance_task(ctx)
 
     return LongestRunsTestResult(
-        heads, tails, statistic, p, blocksize, nblocks, expected_bincounts, maxlen_bins,
+        heads,
+        tails,
+        failures,
+        statistic,
+        p,
+        blocksize,
+        nblocks,
+        expected_bincounts,
+        maxlen_bins,
     )
 
 

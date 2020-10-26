@@ -66,14 +66,15 @@ def non_overlapping_template_matching(
     nblocks_sub = blocksize // template_size
     set_task_total(ctx, 1 + nblocks * (nblocks_sub + 1) + 1)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 100": n >= 100,
             "template_size = 9 or 10": template_size == 9 or template_size == 10,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
             "nblocks ≤ 100": nblocks <= 100,  # TODO same thing as above?
             "nblocks = ⌊n / blocksize⌋": nblocks == n // blocksize,
-        }
+        },
     )
 
     matches_expect = (blocksize - template_size + 1) / 2 ** template_size
@@ -108,6 +109,7 @@ def non_overlapping_template_matching(
         results[template] = NonOverlappingTemplateMatchingTestResult(
             heads,
             tails,
+            failures,
             statistic,
             p,
             template,
@@ -122,7 +124,7 @@ def non_overlapping_template_matching(
 
     advance_task(ctx)
 
-    return MultiNonOverlappingTemplateMatchingTestResult(results)
+    return MultiNonOverlappingTemplateMatchingTestResult(failures, results)
 
 
 @dataclass(unsafe_hash=True)
@@ -202,7 +204,8 @@ def overlapping_template_matching(
 
     set_task_total(ctx, 1 + nblocks + 2)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 288": n >= 288,
             "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
@@ -210,7 +213,7 @@ def overlapping_template_matching(
             "λ ≈ 2": isclose(lambda_, 2),
             "len(template) ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
             "df ≈ 2 * λ": isclose(template_size, 2 * lambda_),
-        }
+        },
     )
 
     expected_tallies = [prob * nblocks for prob in probabilities]
@@ -243,6 +246,7 @@ def overlapping_template_matching(
     return OverlappingTemplateMatchingTestResult(
         heads,
         tails,
+        failures,
         statistic,
         p,
         template,

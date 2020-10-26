@@ -40,12 +40,12 @@ class FaceCounts(NamedTuple):
     @property
     @lru_cache()
     def max(self):
-        return max(*self, key=lambda value_count: value_count.count)
+        return max(*self, key=lambda fc: fc.count)
 
     @property
     @lru_cache()
     def min(self):
-        return min(*self, key=lambda value_count: value_count.count)
+        return min(*self, key=lambda fc: fc.count)
 
     @classmethod
     def from_series(cls, series, heads, tails):
@@ -60,7 +60,7 @@ def monobit(series, heads, tails, ctx):
 
     set_task_total(ctx, 2)
 
-    check_recommendations({"n ≥ 100": n >= 100})
+    failures = check_recommendations(ctx, {"n ≥ 100": n >= 100})
 
     counts = FaceCounts.from_series(series.value_counts(), heads, tails)
 
@@ -72,7 +72,7 @@ def monobit(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return MonobitTestResult(heads, tails, normdiff, p, n, counts, diff)
+    return MonobitTestResult(heads, tails, failures, normdiff, p, n, counts, diff)
 
 
 @dataclass
@@ -165,13 +165,14 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
 
     set_task_total(ctx, nblocks + 3)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 100": n >= 100,
             "blocksize ≥ 20": blocksize >= 20,
             "blocksize > 0.01 * n": blocksize > 0.01 * n,
             "nblocks < 100": nblocks < 100,
-        }
+        },
     )
 
     advance_task(ctx)
@@ -196,7 +197,7 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
     advance_task(ctx)
 
     return FrequencyWithinBlockTestResult(
-        heads, tails, statistic, p, blocksize, nblocks, counts,
+        heads, tails, failures, statistic, p, blocksize, nblocks, counts,
     )
 
 

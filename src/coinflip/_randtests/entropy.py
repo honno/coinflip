@@ -24,7 +24,9 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
     set_task_total(ctx, (n + 2) * 2 + 1)
 
-    check_recommendations({"blocksize < ⌊log2(n)⌋ - 5": blocksize < floor(log2(n)) - 5})
+    failures = check_recommendations(
+        ctx, {"blocksize < ⌊log2(n)⌋ - 5": blocksize < floor(log2(n)) - 5}
+    )
 
     phis = []
     for template_size in [blocksize, blocksize + 1]:
@@ -55,7 +57,7 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
     advance_task(ctx)
 
-    return ApproximateEntropyTestResult(heads, tails, chi2, p, blocksize)
+    return ApproximateEntropyTestResult(heads, tails, failures, chi2, p, blocksize)
 
 
 @dataclass

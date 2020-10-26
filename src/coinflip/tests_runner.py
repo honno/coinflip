@@ -17,6 +17,7 @@ from coinflip import console
 from coinflip._randtests.common.result import TestResult
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestError
+from coinflip.pprint import print_error
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 
@@ -77,7 +78,7 @@ def binary_check(func):
 rule_char = "─"
 
 
-def print_randtest_name(randtest_name: str):
+def print_randtest_name(randtest_name: str, color: str):
     """Pretty print the randtest's name"""
     size = get_terminal_size()
     ncols = min(size.columns, 80)
@@ -91,7 +92,8 @@ def print_randtest_name(randtest_name: str):
     left_w = ncols - right_w - fname_w
     left = rule_char * (left_w - 1)
 
-    text = Text.assemble((right, "green"), " ", randtest_fname, " ", (left, "green"))
+    text = Text.assemble((right, color), " ", randtest_fname, " ", (left, color))
+
     console.print(text)
 
 
@@ -148,22 +150,29 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
     TestError
         Errors raised when running ``randtest_name``
     """
-    for name, func in list_tests():
-        if randtest_name == name:
+    try:
+        func = getattr("randtest_name", _randtests)
+    except AttributeError as e:
+        raise TestNotFoundError() from e
 
-            with Progress(*columns, console=console, transient=True) as progress:
-                abbrv = f_randtest_abbreviations[name]
-                task = progress.add_task(abbrv)
+    with Progress(*columns, console=console, transient=True) as progress:
+        abbrv = f_randtest_abbreviations[randtest_name]
+        task = progress.add_task(abbrv)
 
-                result = func(series, ctx=(progress, task), **kwargs)
+        try:
+            result = func(series, ctx=(progress, task), **kwargs)
 
-            print_randtest_name(name)
+            color = "yellow" if result.failures else "green"
+            print_randtest_name(randtest_name, color)
             console.print(result)
 
             return result
 
-    else:
-        raise TestNotFoundError()
+        except TestError as e:
+            print_randtest_name(randtest_name, "red")
+            print_error(e)
+
+            raise e
 
 
 @binary_check
@@ -195,27 +204,32 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             tasks.append(task)
 
         results = {}
-        for (name, func), task in zip(list_tests(), tasks):
+        for name, func, task in zip(names, funcs, tasks):
             progress.start_task(task)
 
             try:
                 result = func(series, ctx=(progress, task))
 
-                print_randtest_name(name)
+                color = "yellow" if result.failures else "green"
+
+                print_randtest_name(name, color)
                 console.print(result)
-                console.print("")
 
                 yield name, result, None
+
                 results[name] = result
 
             except TestError as e:
                 progress.remove_task(task)
 
-                print_randtest_name(name)
+                print_randtest_name(name, "red")
+                print_error(e)
+
                 yield name, None, e
-                console.print("")
 
                 results[name] = None
+
+            console.print("")
 
     # TODO print a table
     # table = Table(box=box.DOUBLE)

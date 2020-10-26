@@ -3,6 +3,7 @@ from functools import lru_cache
 from functools import wraps
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import NamedTuple
 from typing import Optional
 from typing import Tuple
@@ -35,7 +36,7 @@ class MinimumInputError(TestInputError):
         return f"Sequence length {self.n} is below required minimum of {self.min_n}"
 
 
-class ProgressContext(NamedTuple):
+class CliContext(NamedTuple):
     progress: Progress
     task: int
 
@@ -137,7 +138,7 @@ def infer_faces(unique_values: Tuple[Face, Face]) -> Tuple[Face, Face]:
 
 def progress_context(func):
     @wraps(func)
-    def wrapper(ctx: Optional[ProgressContext], *args):
+    def wrapper(ctx: Optional[CliContext], *args):
         if ctx:
             progress, task = ctx
             func(progress, task, *args)
@@ -155,7 +156,7 @@ def advance_task(progress, task):
     progress.update(task, advance=1)
 
 
-def check_recommendations(recommendations: Dict[str, bool]):
+def check_recommendations(ctx: Optional[CliContext], recommendations: Dict[str, bool]):
     """Warns on recommendation failures
 
     Parameters
@@ -171,12 +172,21 @@ def check_recommendations(recommendations: Dict[str, bool]):
     """
     failures = [expr for expr, success in recommendations.items() if not success]
 
+    if failures and not ctx:
+        warn(make_warn_msg(failures), UserWarning)
+
+    return failures
+
+
+def make_warn_msg(failures: List[str]) -> str:
     nfail = len(failures)
+
     if nfail == 1:
         expr = failures[0]
-        warn(f"NIST recommendation not met: {expr}", UserWarning)
+        return f"NIST recommendation not met: {expr}"
 
     elif nfail > 1:
         msg = "Multiple NIST recommendations not met:\n"
-        msg += "\n".join([f"\t• {expr}" for expr in failures])
-        warn(msg, UserWarning)
+        msg += "\n".join([f"  • {expr}" for expr in failures])
+
+        return msg

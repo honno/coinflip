@@ -1,4 +1,3 @@
-import warnings
 from shutil import get_terminal_size
 
 import pandas as pd
@@ -7,14 +6,13 @@ from click import Path
 from click import argument
 from click import group
 from click import option
-from rich.text import Text
 
 from coinflip import console
 from coinflip import generators
-from coinflip._randtests.common.pprint import pretty_sequence
 from coinflip.data import *
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestError
+from coinflip.pprint import *
 from coinflip.randtests import __all__ as randtest_names
 from coinflip.tests_runner import *
 
@@ -23,30 +21,6 @@ __all__ = [
     "example_run",
     "report",
 ]
-
-warn_text = Text("WARN", style="yellow")
-err_text = Text("ERR!", style="red")
-
-
-def showwarning(msg, *args, **kwargs) -> str:
-    text = Text(style="dim")
-    text.append(warn_text)
-    text.append(f" {msg}")
-
-    console.print(text)
-
-
-# Monkey patch python's warning module to use our formatting
-warnings.showwarning = showwarning
-
-
-def print_err(e: Exception):
-    """Pretty print exceptions"""
-    text = Text(style="bright")
-    text.append(err_text)
-    text.append(f" {e}")
-
-    console.print(text)
 
 
 # TODO descriptions of the series e.g. length
@@ -58,7 +32,7 @@ def print_series(series):
     console.print(pretty_sequence(series, ncols))
 
 
-# TODO extend Choice to use print_err and newline-delimit lists
+# TODO extend Choice to use print_error and newline-delimit lists
 test_choice = Choice(randtest_names)
 
 
@@ -90,19 +64,17 @@ def run(data, test):
         series = parse_data(data)
         print_series(series)
     except (DataParsingError, NonBinarySequenceError) as e:
-        print_err(e)
+        print_error(e)
         exit(1)
 
     if not test:
         for name, result, e in run_all_tests(series):
-            if e:
-                print_err(e)
+            pass
 
     else:
         try:
             run_test(series, test)
-        except TestError as e:
-            print_err(e)
+        except TestError:
             exit(1)
 
 
@@ -129,12 +101,10 @@ def example_run(example, length, test):
 
     if not test:
         for name, result, e in run_all_tests(series):
-            if e:
-                print_err(e)
+            pass
 
     else:
         try:
             run_test(series, test)
-        except TestError as e:
-            print_err(e)
+        except TestError:
             exit(1)

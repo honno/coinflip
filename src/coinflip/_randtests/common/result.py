@@ -8,7 +8,6 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-import numpy as np
 from nptyping import Float
 from nptyping import Int
 from rich import box
@@ -26,6 +25,7 @@ from rich.text import Text
 
 from coinflip import console
 from coinflip._randtests.common.core import Face
+from coinflip._randtests.common.core import make_warn_msg
 
 __all__ = [
     "BaseTestResult",
@@ -45,7 +45,7 @@ class BaseTestResult(ConsoleRenderable):
 
     def __rich_console__(self, console, options):
         newline = Segment.line()
-        *renderables, last_renderable = self._render()
+        *renderables, last_renderable = self.renderables
 
         for renderable in renderables:
             yield renderable
@@ -53,7 +53,22 @@ class BaseTestResult(ConsoleRenderable):
         yield last_renderable
 
     def __rich_measure__(self, console, max_width):
-        return measure_renderables(console, self._render(), max_width)
+        return measure_renderables(console, self.renderables, max_width)
+
+    @property
+    def renderables(self) -> List[RenderableType]:
+        renderables = list(self._render())
+
+        if self.failures:
+            msg = make_warn_msg(self.failures)
+            f_msg = Text(msg, style="dim")
+
+            grid = Table.grid(padding=(1))
+            grid.add_row(Text("WARN", style="yellow dim"), f_msg)
+
+            renderables.insert(0, grid)
+
+        return renderables
 
     def print(self):
         """Prints results contents to notebook or terminal environment"""
@@ -86,6 +101,7 @@ class TestResult(BaseTestResult):
 
     heads: Face
     tails: Face
+    failures: List[str]
     statistic: Union[Int, Float]
     p: Float
 
@@ -120,6 +136,10 @@ class MultiTestResult(dict, BaseTestResult):
         Feature of a sub-test and it's respective result with the smallest
         p-value
     """
+
+    def __init__(self, failures, results):
+        super().__init__(results)
+        self.failures = failures
 
     # TODO once testresults are figured out, don't keep this in please
     def __hash__(self):

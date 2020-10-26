@@ -32,7 +32,7 @@ def spectral(series, heads, tails, ctx):
 
     set_task_total(ctx, 4)
 
-    check_recommendations({"n ≥ 1000": n >= 1000})
+    failures = check_recommendations(ctx, {"n ≥ 1000": n >= 1000})
 
     if n % 2 != 0:
         series = series[:-1]
@@ -63,7 +63,9 @@ def spectral(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return SpectralTestResult(heads, tails, normdiff, p, nbelow_expect, nbelow, diff,)
+    return SpectralTestResult(
+        heads, tails, failures, normdiff, p, nbelow_expect, nbelow, diff,
+    )
 
 
 @dataclass

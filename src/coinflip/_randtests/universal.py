@@ -103,7 +103,8 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
     set_task_total(ctx, init_nblocks + segment_nblocks + 2)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 387840": n >= 387840,
             "6 ≤ blocksize ≤ 16": 6 <= blocksize <= 16,
@@ -113,7 +114,7 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
             "segment_nblocks ≈ ⌈n / blocksize⌉ - init_nblocks": isclose(
                 segment_nblocks, floor(n / blocksize) - init_nblocks
             ),
-        }
+        },
     )
 
     permutation_last_init_pos = defaultdict(int)
@@ -153,6 +154,7 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
     return UniversalTestResult(
         heads,
         tails,
+        failures,
         statistic,
         p,
         blocksize,

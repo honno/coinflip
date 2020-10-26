@@ -18,7 +18,7 @@ def cusum(series, heads, tails, ctx, reverse=False):
 
     set_task_total(ctx, 3)
 
-    check_recommendations({"n ≥ 100": n >= 100})
+    failures = check_recommendations(ctx, {"n ≥ 100": n >= 100})
 
     oscillations = series.map({heads: 1, tails: -1})
 
@@ -53,7 +53,7 @@ def cusum(series, heads, tails, ctx, reverse=False):
 
     advance_task(ctx)
 
-    return CusumTestResult(heads, tails, max_cusum, p, reverse)
+    return CusumTestResult(heads, tails, failures, max_cusum, p, reverse)
 
 
 @dataclass

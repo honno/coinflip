@@ -45,11 +45,12 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] 
 
     set_task_total(ctx, nblocks + 3)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 128": n >= 152,  # nblocks=38, blocksize=4
             "n ≥ 38 * blocksize": n >= 38 * blocksize,
-        }
+        },
     )
 
     fullrank = min(nrows, ncols)
@@ -91,6 +92,7 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] 
     return BinaryMatrixRankTestResult(
         heads,
         tails,
+        failures,
         statistic,
         p,
         nrows,

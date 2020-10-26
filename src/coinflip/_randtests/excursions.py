@@ -40,7 +40,7 @@ def random_excursions(series, heads, tails, ctx):
 
     set_task_total(ctx, 4)
 
-    check_recommendations({"n ≥ 1000000": n >= 1000000})
+    failures = check_recommendations(ctx, {"n ≥ 1000000": n >= 1000000})
 
     oscillations = series.map({heads: 1, tails: -1})
     cumulative_sums = oscillations.cumsum()
@@ -74,11 +74,13 @@ def random_excursions(series, heads, tails, ctx):
 
         chi2, p = chisquare(list(bincounts), expected_bincounts)
 
-        results[state] = RandomExcursionsTestResult(heads, tails, chi2, p, state)
+        results[state] = RandomExcursionsTestResult(
+            heads, tails, failures, chi2, p, state
+        )
 
     advance_task(ctx)
 
-    return MultiRandomExcursionsTestResult(results)
+    return MultiRandomExcursionsTestResult(failures, results)
 
 
 @dataclass
@@ -122,7 +124,7 @@ def random_excursions_variant(series, heads, tails, ctx):
 
     set_task_total(ctx, 4)
 
-    check_recommendations({"n ≥ 1000000": n >= 1000000})
+    failures = check_recommendations(ctx, {"n ≥ 1000000": n >= 1000000})
 
     oscillations = series.map({heads: 1, tails: -1})
     cumulative_sums = oscillations.cumsum()
@@ -152,12 +154,12 @@ def random_excursions_variant(series, heads, tails, ctx):
         advance_task(ctx)
 
         results[state] = RandomExcursionsVariantTestResult(
-            heads, tails, count, p, state
+            heads, tails, failures, count, p, state
         )
 
     advance_task(ctx)
 
-    return MultiRandomExcursionsVariantTestResult(results)
+    return MultiRandomExcursionsVariantTestResult(failures, results)
 
 
 @dataclass

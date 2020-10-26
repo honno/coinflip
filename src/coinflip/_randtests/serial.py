@@ -32,7 +32,9 @@ def serial(series, heads, tails, ctx, blocksize=None):
 
     set_task_total(ctx, (1 + n) * 3 + 2)
 
-    check_recommendations({"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2})
+    failures = check_recommendations(
+        ctx, {"blocksize < ⌊log2(n) - 2⌋": blocksize < floor(log2(n)) - 2}
+    )
 
     permutation_counts = {}
     normalised_sums = {}
@@ -78,6 +80,7 @@ def serial(series, heads, tails, ctx, blocksize=None):
         "∇ψ²ₘ": FirstSerialTestResult(
             heads,
             tails,
+            failures,
             normsum_delta1,
             p1,
             blocksize,
@@ -87,6 +90,7 @@ def serial(series, heads, tails, ctx, blocksize=None):
         "∇²ψ²ₘ": SecondSerialTestResult(
             heads,
             tails,
+            failures,
             normsum_delta2,
             p2,
             blocksize,
@@ -95,7 +99,7 @@ def serial(series, heads, tails, ctx, blocksize=None):
         ),
     }
 
-    return MultiSerialTestResult(results)
+    return MultiSerialTestResult(failures, results)
 
 
 @dataclass

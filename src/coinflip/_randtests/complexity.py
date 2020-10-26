@@ -51,12 +51,13 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 
     set_task_total(ctx, nblocks + 3)
 
-    check_recommendations(
+    failures = check_recommendations(
+        ctx,
         {
             "n ≥ 1000000": n >= 1000000,
             "500 ≤ blocksize ≤ 5000": 500 <= blocksize <= 5000,
             "nblocks ≥ 200": nblocks >= 200,
-        }
+        },
     )
 
     binary = series.map({heads: 1, tails: 0})
@@ -87,6 +88,7 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
     return LinearComplexityTestResult(
         heads,
         tails,
+        failures,
         statistic,
         p,
         blocksize,
