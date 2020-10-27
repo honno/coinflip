@@ -23,6 +23,7 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
+from coinflip._randtests.common.result import SubTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
@@ -31,17 +32,6 @@ from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
-
-
-@dataclass
-class BaseTemplateMatchingTestResult(TestResult):
-    template: Tuple[Face, ...]
-    template_size: Int
-    blocksize: Int
-    nblocks: Int
-
-    def pretty_template(self) -> Text:
-        return pretty_subseq(self.template, self.heads, self.tails)
 
 
 # ------------------------------------------------------------------------------
@@ -106,66 +96,72 @@ def non_overlapping_template_matching(
         statistic = sum(diff ** 2 / variance for diff in block_matches)
         p = gammaincc(nblocks / 2, statistic / 2)
 
-        results[template] = NonOverlappingTemplateMatchingTestResult(
-            heads,
-            tails,
-            failures,
-            statistic,
-            p,
-            template,
-            template_size,
-            nblocks,
-            blocksize,
-            matches_expect,
-            variance,
-            block_matches,
-            match_diffs,
+        results[template] = NonOverlappingTemplateMatchingSubTestResult(
+            statistic, p, template, block_matches, match_diffs,
         )
 
     advance_task(ctx)
 
-    return MultiNonOverlappingTemplateMatchingTestResult(failures, results)
+    return NonOverlappingTemplateMatchingMultiTestResult(
+        heads,
+        tails,
+        failures,
+        results,
+        template_size,
+        blocksize,
+        nblocks,
+        matches_expect,
+        variance,
+    )
 
 
 @dataclass(unsafe_hash=True)
-class NonOverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
-    matches_expect: Float
-    variance: Float
+class NonOverlappingTemplateMatchingSubTestResult(SubTestResult):
+    template: Tuple[Face, ...]
     block_matches: List[Int]
     match_diffs: List[Float]
 
-    def _render(self):
-        yield self._pretty_result("chi-square")
 
-        yield TestResult._pretty_inputs(
+@dataclass(unsafe_hash=True)
+class NonOverlappingTemplateMatchingMultiTestResult(MultiTestResult):
+    template_size: Int
+    blocksize: Int
+    nblocks: Int
+    matches_expect: Float
+    variance: Float
+
+    def _pretty_feature(self, result: NonOverlappingTemplateMatchingSubTestResult):
+        f_template = pretty_subseq(result.template, self.heads, self.tails)
+
+        return f_template
+
+    # TODO q value
+    def _render(self):
+        yield self._pretty_inputs(
             ("blocksize", self.blocksize), ("nblocks", self.nblocks),
         )
 
+        yield self._results_table("template", "χ²")
+
+    def _render_sub(self, result: NonOverlappingTemplateMatchingSubTestResult):
+        yield result._pretty_result("chi-square")
+
         title = Text("matches of ")
-        title.append(self.pretty_template())
+        title.append(pretty_subseq(result.template, self.heads, self.tails))
         title.append(" per block")
 
         f_matches_expect = round(self.matches_expect, 1)
         caption = f"expected {f_matches_expect} matches"
 
-        matches_count = Counter(self.block_matches)
+        matches_count = Counter(result.block_matches)
         table = sorted(matches_count.items())
         f_table = make_testvars_table(
             "matches", "nblocks", title=title, caption=caption
         )
         for matches, nblocks in table:
             f_table.add_row(str(matches), str(nblocks))
+
         yield f_table
-
-
-class MultiNonOverlappingTemplateMatchingTestResult(MultiTestResult):
-    def _pretty_feature(self, result: NonOverlappingTemplateMatchingTestResult):
-        f_template = result.pretty_template()
-        return f_template
-
-    # TODO q value
-    def _render(self):
-        yield self._results_table("template", "χ²")
 
 
 # ------------------------------------------------------------------------------
@@ -249,17 +245,21 @@ def overlapping_template_matching(
         failures,
         statistic,
         p,
-        template,
         template_size,
         blocksize,
         nblocks,
+        template,
         expected_tallies,
         tallies,
     )
 
 
 @dataclass
-class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
+class OverlappingTemplateMatchingTestResult(TestResult):
+    template_size: Int
+    blocksize: Int
+    nblocks: Int
+    template: Tuple[Face, ...]
     expected_tallies: List[Int]
     tallies: List[Int]
 
@@ -273,7 +273,7 @@ class OverlappingTemplateMatchingTestResult(BaseTemplateMatchingTestResult):
         )
 
         title = Text("matches of ")
-        title.append(self.pretty_template())
+        title.append(pretty_subseq(self.template, self.heads, self.tails))
         title.append(" per block")
 
         f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]

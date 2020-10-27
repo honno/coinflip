@@ -53,7 +53,7 @@ def cusum(series, heads, tails, ctx, reverse=False):
 
     advance_task(ctx)
 
-    return CusumTestResult(heads, tails, failures, max_cusum, p, reverse)
+    return CusumTestResult(failures, heads, tails, max_cusum, p, reverse)
 
 
 @dataclass

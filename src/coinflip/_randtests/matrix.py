@@ -90,9 +90,9 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] 
     advance_task(ctx)
 
     return BinaryMatrixRankTestResult(
+        failures,
         heads,
         tails,
-        failures,
         statistic,
         p,
         nrows,

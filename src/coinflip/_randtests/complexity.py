@@ -86,9 +86,9 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
     advance_task(ctx)
 
     return LinearComplexityTestResult(
+        failures,
         heads,
         tails,
-        failures,
         statistic,
         p,
         blocksize,

@@ -151,7 +151,7 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
         Errors raised when running ``randtest_name``
     """
     try:
-        func = getattr("randtest_name", _randtests)
+        func = getattr(_randtests, randtest_name)
     except AttributeError as e:
         raise TestNotFoundError() from e
 

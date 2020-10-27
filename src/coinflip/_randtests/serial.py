@@ -14,10 +14,9 @@ from rich.table import Table
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
-from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import SubTestResult
 from coinflip._randtests.common.testutils import slider
 
 __all__ = ["serial"]
@@ -77,61 +76,32 @@ def serial(series, heads, tails, ctx, blocksize=None):
     advance_task(ctx)
 
     results = {
-        "∇ψ²ₘ": FirstSerialTestResult(
-            heads,
-            tails,
-            failures,
-            normsum_delta1,
-            p1,
-            blocksize,
-            permutation_counts,
-            normalised_sums,
-        ),
-        "∇²ψ²ₘ": SecondSerialTestResult(
-            heads,
-            tails,
-            failures,
-            normsum_delta2,
-            p2,
-            blocksize,
-            permutation_counts,
-            normalised_sums,
-        ),
+        "∇ψ²ₘ": SubTestResult(normsum_delta1, p1,),
+        "∇²ψ²ₘ": SubTestResult(normsum_delta2, p2,),
     }
 
-    return MultiSerialTestResult(failures, results)
+    return SerialMultiTestResult(
+        heads, tails, failures, results, blocksize, permutation_counts, normalised_sums,
+    )
 
 
 @dataclass
-class BaseSerialTestResult(TestResult):
+class SerialMultiTestResult(MultiTestResult):
     blocksize: Int
     permutation_counts: Dict[Int, DefaultDict[Tuple[Face, ...], Int]]
     normalised_sums: Dict[Int, Float]
 
-    def _pretty_permutation(self, permutation: Tuple):
-        return pretty_subseq(permutation, self.heads, self.tails)
-
-
-@dataclass
-class FirstSerialTestResult(BaseSerialTestResult):
     def _render(self):
-        yield self._pretty_result("delta psi²")
+        yield self._pretty_inputs(("blocksize", self.blocksize),)
 
-        yield TestResult._pretty_inputs(("blocksize", self.blocksize))
+        grid = Table(*self.results.keys(), box=box.MINIMAL)
 
-
-@dataclass
-class SecondSerialTestResult(BaseSerialTestResult):
-    def _render(self):
-        yield self._pretty_result("delta² psi²")
-
-        yield TestResult._pretty_inputs(("blocksize", self.blocksize))
-
-
-class MultiSerialTestResult(MultiTestResult):
-    def _render(self):
-        grid = Table("∇ψ²ₘ test", "∇²ψ²ₘ test", box=box.MINIMAL)
-
-        grid.add_row(*self.values())
+        result1, result2 = self.results.values()
+        f_result1 = result1._pretty_result("delta psi²")
+        f_result2 = result2._pretty_result("delta² psi²")
+        grid.add_row(f_result1, f_result2)
 
         yield grid
+
+    def _render_sub(self, result: SubTestResult):
+        yield result

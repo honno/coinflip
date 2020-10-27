@@ -11,7 +11,7 @@ from scipy.stats import chisquare
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
-from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import SubTestResult
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -74,29 +74,27 @@ def random_excursions(series, heads, tails, ctx):
 
         chi2, p = chisquare(list(bincounts), expected_bincounts)
 
-        results[state] = RandomExcursionsTestResult(
-            heads, tails, failures, chi2, p, state
-        )
+        results[state] = RandomExcursionsSubTestResult(chi2, p, state)
 
     advance_task(ctx)
 
-    return MultiRandomExcursionsTestResult(failures, results)
+    return RandomExcursionsMultiTestResult(heads, tails, failures, results)
 
 
 @dataclass
-class RandomExcursionsTestResult(TestResult):
+class RandomExcursionsSubTestResult(SubTestResult):
     state: Int
 
-    def _render(self):
-        yield self._pretty_result("chi-square")
 
-
-class MultiRandomExcursionsTestResult(MultiTestResult):
-    def _pretty_feature(self, result: RandomExcursionsTestResult):
+class RandomExcursionsMultiTestResult(MultiTestResult):
+    def _pretty_feature(self, result: RandomExcursionsSubTestResult):
         return Text(str(result.state), style="bold")
 
     def _render(self):
         yield self._results_table("state", "χ²")
+
+    def _render_sub(self, result: RandomExcursionsSubTestResult):
+        yield result._pretty_result("chi-square")
 
 
 def ascycles(walk):
@@ -153,26 +151,24 @@ def random_excursions_variant(series, heads, tails, ctx):
 
         advance_task(ctx)
 
-        results[state] = RandomExcursionsVariantTestResult(
-            heads, tails, failures, count, p, state
-        )
+        results[state] = RandomExcursionsVariantSubTestResult(count, p, state)
 
     advance_task(ctx)
 
-    return MultiRandomExcursionsVariantTestResult(failures, results)
+    return RandomExcursionsVariantMultiTestResult(heads, tails, failures, results)
 
 
 @dataclass
-class RandomExcursionsVariantTestResult(TestResult):
+class RandomExcursionsVariantSubTestResult(SubTestResult):
     state: Int
 
-    def _render(self):
-        yield self._pretty_result("count")
 
-
-class MultiRandomExcursionsVariantTestResult(MultiTestResult):
-    def _pretty_feature(self, result: RandomExcursionsVariantTestResult):
+class RandomExcursionsVariantMultiTestResult(MultiTestResult):
+    def _pretty_feature(self, result: RandomExcursionsVariantSubTestResult):
         return Text(str(result.state), style="bold")
 
     def _render(self):
         yield self._results_table("state", "ξ")
+
+    def _render_sub(self, result: RandomExcursionsVariantSubTestResult):
+        yield result._pretty_result("count")

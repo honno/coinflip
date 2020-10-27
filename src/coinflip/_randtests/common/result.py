@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from functools import lru_cache
 from io import StringIO
 from typing import Any
+from typing import Dict
 from typing import Iterable
 from typing import Iterator
 from typing import List
@@ -37,8 +37,11 @@ __all__ = [
 ]
 
 
+@dataclass
 class BaseTestResult(ConsoleRenderable):
-    """Representation methods for test results"""
+    heads: Face
+    tails: Face
+    failures: List[str]
 
     def _render(self) -> Iterator[RenderableType]:
         pass
@@ -82,37 +85,8 @@ class BaseTestResult(ConsoleRenderable):
 
         return buf.getvalue()
 
-
-@dataclass(unsafe_hash=True)
-class TestResult(BaseTestResult):
-    """Base container for test results
-
-    Attributes
-    ----------
-    heads: ``Any``
-        The ``1`` abstraction
-    tails: ``Any``
-        The ``0`` abstraction
-    statistic : ``Int`` or ``float``
-        Statistic of the test
-    p : ``float``
-        p-value of the test
-    """
-
-    heads: Face
-    tails: Face
-    failures: List[str]
-    statistic: Union[Int, Float]
-    p: Float
-
-    def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
-        return make_testvars_list(
-            "result", (stat_varname, smartround(self.statistic)), ("p-value", self.p)
-        )
-
-    @classmethod
     def _pretty_inputs(
-        self, *name_value_pairs: Iterable[Union[Int, float]]
+        self, *name_value_pairs: Iterable[Union[Int, Float]]
     ) -> RenderGroup:
         title = "test input"
         if len(name_value_pairs) > 1:
@@ -120,45 +94,44 @@ class TestResult(BaseTestResult):
         return make_testvars_list(title, *name_value_pairs)
 
 
-class MultiTestResult(dict, BaseTestResult):
-    """Base container for test results with multiple p-values
+class PrettyResultMixin:
+    def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
+        return make_testvars_list(
+            "result",
+            (stat_varname, smartround(self.statistic)),
+            ("p-value", round(self.p, 3)),
+        )
 
-    A dictionary which pairs features of a sub-test to their respective test
-    results.
 
-    Attributes
-    ----------
-    statistics : ``List[Union[Int, float]]``
-        Statistics of the test
-    pvalues : ``List[Union[Int, float]]``
-        p-values of the test
-    min : ``Tuple[Any, TestResult]``
-        Feature of a sub-test and it's respective result with the smallest
-        p-value
-    """
+@dataclass(unsafe_hash=True)
+class TestResult(BaseTestResult, PrettyResultMixin):
+    statistic: Union[Int, Float]
+    p: Float
 
-    def __init__(self, failures, results):
-        super().__init__(results)
-        self.failures = failures
 
-    # TODO once testresults are figured out, don't keep this in please
-    def __hash__(self):
-        return 0
+@dataclass(unsafe_hash=True)
+class SubTestResult(PrettyResultMixin):
+    statistic: Union[Int, Float]
+    p: Float
+
+
+@dataclass(unsafe_hash=True)
+class MultiTestResult(BaseTestResult):
+    results: Dict[Any, SubTestResult]
+
+    # TODO lru_cache() the properties once hashing works nicely
 
     @property
-    @lru_cache()
     def statistics(self) -> List[Union[Int, float]]:
-        return [result.statistic for result in self.values()]
+        return [result.statistic for result in self.results.values()]
 
     @property
-    @lru_cache()
     def pvalues(self) -> List[float]:
-        return [result.p for result in self.values()]
+        return [result.p for result in self.results.values()]
 
     @property
-    @lru_cache()
     def min(self):
-        items = iter(self.items())
+        items = iter(self.results.items())
         min_feature, min_result = next(items)
         for feature, result in items:
             if result.p < min_result.p:
@@ -167,20 +140,22 @@ class MultiTestResult(dict, BaseTestResult):
 
         return min_feature, min_result
 
-    def _pretty_feature(self, result: TestResult) -> RenderableType:
+    def _pretty_feature(self, result: SubTestResult) -> Text:
+        pass
+
+    def _render_sub(self, result: SubTestResult) -> Iterator[RenderableType]:
         pass
 
     def _results_table(self, feature_varname: str, stat_varname: str) -> Table:
-
         min_feature, min_result = self.min
 
         table = make_testvars_table(
             feature_varname, stat_varname, "p", title="sub-test results"
         )
-        for feature, result in self.items():
+        for feature, result in self.results.items():
             f_feature = self._pretty_feature(result)
             if feature == min_feature:
-                f_feature.stylize("on blue")
+                f_feature += Text("*", style="blue")
 
             f_statistic = str(round(result.statistic, 3))
             f_p = str(round(result.p, 3))
@@ -189,7 +164,12 @@ class MultiTestResult(dict, BaseTestResult):
 
         min_title = Text(f"sub-test result for {feature_varname} ", style="italic")
         min_title.append(self._pretty_feature(min_result))
-        titled_result = RenderGroup(min_title, "", min_result,)
+
+        f_result = Table.grid(padding=(1))
+        for renderable in self._render_sub(min_result):
+            f_result.add_row(renderable)
+
+        titled_result = RenderGroup(min_title, "", f_result)
 
         example = Table.grid()
         example.add_row(Text.assemble(("*", "bold blue"), " "), titled_result)
@@ -319,13 +299,16 @@ class OverflowTable(Table):
             )
 
     def __rich_measure__(self, console, max_width):
-        min_width, max_width = super().__rich_measure__(console, max_width)
+        _min_width, _max_width = super().__rich_measure__(console, max_width)
 
-        widths = [min_width]
+        widths = [_min_width]
         if self.overflow_title:
             widths.append(len(self.overflow_title))
         if self.overflow_caption:
             widths.append(len(self.overflow_caption))
+
+        min_width = max(widths)
+        max_width = max(_max_width, min_width)
 
         return Measurement(min_width, max_width)
 
