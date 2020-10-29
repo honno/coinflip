@@ -27,9 +27,9 @@ from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
-from coinflip._randtests.common.typing import Face
-from coinflip._randtests.common.typing import Float
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Face
+from coinflip.typing import Float
+from coinflip.typing import Integer
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 

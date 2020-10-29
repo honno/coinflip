@@ -18,9 +18,9 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.typing import Float
-from coinflip._randtests.common.typing import Integer
 from coinflip.exceptions import TestNotImplementedError
+from coinflip.typing import Float
+from coinflip.typing import Integer
 
 __all__ = ["runs", "longest_runs"]
 

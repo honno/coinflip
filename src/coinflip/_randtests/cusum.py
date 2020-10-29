@@ -7,7 +7,7 @@ from scipy.stats import norm
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
-from coinflip._randtests.common.typing import Bool
+from coinflip.typing import Bool
 
 __all__ = ["cusum"]
 

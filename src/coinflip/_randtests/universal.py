@@ -16,9 +16,9 @@ from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import rawblocks
-from coinflip._randtests.common.typing import Face
-from coinflip._randtests.common.typing import Integer
 from coinflip.exceptions import TestNotImplementedError
+from coinflip.typing import Face
+from coinflip.typing import Integer
 
 __all__ = ["maurers_universal"]
 

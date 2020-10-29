@@ -15,8 +15,8 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import rawblocks
-from coinflip._randtests.common.typing import Float
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Float
+from coinflip.typing import Integer
 
 __all__ = ["linear_complexity"]
 

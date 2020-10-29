@@ -10,6 +10,7 @@ from typing import NamedTuple
 import altair as alt
 import numpy as np
 import pandas as pd
+from dataclasses_json import DataClassJsonMixin
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
@@ -19,8 +20,8 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
-from coinflip._randtests.common.typing import Face
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Face
+from coinflip.typing import Integer
 
 __all__ = ["monobit", "frequency_within_block"]
 
@@ -29,12 +30,14 @@ __all__ = ["monobit", "frequency_within_block"]
 # Frequency (Monobit) Test
 
 
-class FaceCount(NamedTuple):
+@dataclass
+class FaceCount(DataClassJsonMixin):
     value: Face
     count: Integer
 
 
-class FaceCounts(NamedTuple):
+@dataclass
+class FaceCounts(DataClassJsonMixin):
     heads: FaceCount
     tails: FaceCount
 

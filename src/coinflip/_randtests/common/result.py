@@ -8,6 +8,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+from dataclasses_json import DataClassJsonMixin
 from rich import box
 from rich.console import Console
 from rich.console import ConsoleRenderable
@@ -23,9 +24,9 @@ from rich.text import Text
 
 from coinflip import console
 from coinflip._randtests.common.core import make_warn_msg
-from coinflip._randtests.common.typing import Face
-from coinflip._randtests.common.typing import Float
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Face
+from coinflip.typing import Float
+from coinflip.typing import Integer
 
 __all__ = [
     "BaseTestResult",
@@ -38,7 +39,7 @@ __all__ = [
 
 
 @dataclass
-class BaseTestResult(ConsoleRenderable):
+class BaseTestResult(DataClassJsonMixin, ConsoleRenderable):
     heads: Face
     tails: Face
     failures: List[str]
@@ -233,7 +234,7 @@ def make_testvars_list(
         yield f"  {f_varname}  {f_value}"
 
 
-def smartround(num: Union[int, float, Integer], ndigits=1) -> Union[int, float]:
+def smartround(num: Union[int, float], ndigits=1) -> Union[int, float]:
     """Round number only if it's a float"""
     if isinstance(num, int):
         return num
@@ -242,8 +243,6 @@ def smartround(num: Union[int, float, Integer], ndigits=1) -> Union[int, float]:
             return int(num)
         else:
             return round(num, ndigits)
-    elif isinstance(num, Integer):
-        return int(num)
 
 
 # ------------------------------------------------------------------------------

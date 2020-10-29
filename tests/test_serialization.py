@@ -1,8 +1,10 @@
+from dataclasses_json.cfg import global_config
+from hypothesis import assume
 from hypothesis import given
 from hypothesis import strategies as st
 from pytest import mark
 
-from coinflip._randtests.common.typing import *
+import coinflip.serialize
 from coinflip._randtests.cusum import CusumTestResult
 from coinflip._randtests.entropy import ApproximateEntropyTestResult
 from coinflip._randtests.excursions import RandomExcursionsMultiTestResult
@@ -17,6 +19,9 @@ from coinflip._randtests.serial import SerialMultiTestResult
 from coinflip._randtests.template import NonOverlappingTemplateMatchingMultiTestResult
 from coinflip._randtests.template import OverlappingTemplateMatchingTestResult
 from coinflip._randtests.universal import UniversalTestResult
+from coinflip.typing import *
+
+print(global_config.encoders)
 
 # TODO expand this
 st.register_type_strategy(
@@ -45,5 +50,10 @@ st.register_type_strategy(
     ],
 )
 @given(st.data())
-def test_smoke(cls, data):
-    data.draw(st.builds(cls))
+def test_serialization(cls, data):
+    try:
+        result = data.draw(st.builds(cls))
+    except IndexError:  # building array-likes with no elements TODO filter strategy
+        assume(False)
+
+    result.to_json()

@@ -13,7 +13,7 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Integer
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
 

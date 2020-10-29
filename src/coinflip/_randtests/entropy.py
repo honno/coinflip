@@ -10,7 +10,7 @@ from scipy.special import gammaincc
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import slider
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Integer
 
 __all__ = ["approximate_entropy"]
 

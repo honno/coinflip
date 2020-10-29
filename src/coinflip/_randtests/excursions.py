@@ -11,7 +11,7 @@ from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import SubTestResult
-from coinflip._randtests.common.typing import Integer
+from coinflip.typing import Integer
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
