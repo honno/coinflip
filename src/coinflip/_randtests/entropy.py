@@ -5,12 +5,12 @@ from math import log
 from math import log2
 
 import pandas as pd
-from nptyping import Int
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.testutils import slider
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["approximate_entropy"]
 
@@ -62,7 +62,7 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class ApproximateEntropyTestResult(TestResult):
-    blocksize: Int
+    blocksize: Integer
 
     def _render(self):
         yield self._pretty_result("chi-square")

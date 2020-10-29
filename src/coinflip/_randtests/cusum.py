@@ -3,11 +3,11 @@ from math import floor
 from math import sqrt
 
 import numpy as np
-from nptyping import Bool
 from scipy.stats import norm
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.typing import Bool
 
 __all__ = ["cusum"]
 

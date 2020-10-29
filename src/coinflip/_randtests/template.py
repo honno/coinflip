@@ -11,8 +11,6 @@ from math import sqrt
 from typing import List
 from typing import Tuple
 
-from nptyping import Float
-from nptyping import Int
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
@@ -21,7 +19,6 @@ from scipy.stats import chisquare
 from coinflip._randtests.common.collections import defaultlist
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.pprint import pretty_subseq
-from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import SubTestResult
 from coinflip._randtests.common.result import TestResult
@@ -30,6 +27,9 @@ from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
+from coinflip._randtests.common.typing import Face
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
@@ -118,15 +118,15 @@ def non_overlapping_template_matching(
 @dataclass(unsafe_hash=True)
 class NonOverlappingTemplateMatchingSubTestResult(SubTestResult):
     template: Tuple[Face, ...]
-    block_matches: List[Int]
+    block_matches: List[Integer]
     match_diffs: List[Float]
 
 
 @dataclass(unsafe_hash=True)
 class NonOverlappingTemplateMatchingMultiTestResult(MultiTestResult):
-    template_size: Int
-    blocksize: Int
-    nblocks: Int
+    template_size: Integer
+    blocksize: Integer
+    nblocks: Integer
     matches_expect: Float
     variance: Float
 
@@ -256,12 +256,12 @@ def overlapping_template_matching(
 
 @dataclass
 class OverlappingTemplateMatchingTestResult(TestResult):
-    template_size: Int
-    blocksize: Int
-    nblocks: Int
+    template_size: Integer
+    blocksize: Integer
+    nblocks: Integer
     template: Tuple[Face, ...]
-    expected_tallies: List[Int]
-    tallies: List[Int]
+    expected_tallies: List[Integer]
+    tallies: List[Integer]
 
     def _render(self):
         yield self._pretty_result("chi-square")

@@ -6,8 +6,6 @@ from typing import Dict
 from typing import List
 from typing import Sequence
 
-from nptyping import Float
-from nptyping import Int
 from scipy.stats import chisquare
 from typing_extensions import Literal
 
@@ -17,6 +15,8 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["linear_complexity"]
 
@@ -100,10 +100,10 @@ def linear_complexity(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class LinearComplexityTestResult(TestResult):
-    blocksize: Int
+    blocksize: Integer
     mean_expect: Float
     expected_bincounts: List[Float]
-    variance_bins: Dict[Float, Int]
+    variance_bins: Dict[Float, Integer]
 
     def _render(self):
         yield self._pretty_result("chi-square")

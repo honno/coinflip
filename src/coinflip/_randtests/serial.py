@@ -7,17 +7,17 @@ from typing import Dict
 from typing import Tuple
 
 import pandas as pd
-from nptyping import Float
-from nptyping import Int
 from rich import box
 from rich.table import Table
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import SubTestResult
 from coinflip._randtests.common.testutils import slider
+from coinflip._randtests.common.typing import Face
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["serial"]
 
@@ -87,9 +87,9 @@ def serial(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class SerialMultiTestResult(MultiTestResult):
-    blocksize: Int
-    permutation_counts: Dict[Int, DefaultDict[Tuple[Face, ...], Int]]
-    normalised_sums: Dict[Int, Float]
+    blocksize: Integer
+    permutation_counts: Dict[Integer, DefaultDict[Tuple[Face, ...], Integer]]
+    normalised_sums: Dict[Integer, Float]
 
     def _render(self):
         yield self._pretty_inputs(("blocksize", self.blocksize),)

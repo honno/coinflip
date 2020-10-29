@@ -5,7 +5,6 @@ from math import sqrt
 from typing import Iterable
 from typing import Tuple
 
-from nptyping import Int
 from scipy.stats import chisquare
 from typing_extensions import Literal
 
@@ -14,19 +13,22 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["binary_matrix_rank", "matrix_rank"]
 
 
 @dataclass
 class RankCounts:
-    full: Int = 0
-    runnerup: Int = 0
-    remaining: Int = 0
+    full: Integer = 0
+    runnerup: Integer = 0
+    remaining: Integer = 0
 
 
 @randtest(min_n=4)
-def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] = None):
+def binary_matrix_rank(
+    series, heads, tails, ctx, matrix_dimen: Tuple[Integer, Integer] = None
+):
     n = len(series)
 
     if matrix_dimen is None:
@@ -105,9 +107,9 @@ def binary_matrix_rank(series, heads, tails, ctx, matrix_dimen: Tuple[Int, Int] 
 
 @dataclass
 class BinaryMatrixRankTestResult(TestResult):
-    nrows: Int
-    ncols: Int
-    fullrank: Int
+    nrows: Integer
+    ncols: Integer
+    fullrank: Integer
     expected_rankcounts: RankCounts
     rankcounts: RankCounts
 
@@ -137,17 +139,17 @@ class BinaryMatrixRankTestResult(TestResult):
         yield table
 
 
-def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> Int:
+def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> Integer:
     """Finds the rank of a binary matrix
 
     Parameters
     ----------
-    matrix : ``Iterable[Iterable[Int]]``
+    matrix : ``Iterable[Iterable[Integer]]``
         Binary matrix to rank
 
     Returns
     -------
-    rank : Int
+    rank : Integer
         Rank of ``matrix``
 
     Notes
@@ -170,7 +172,7 @@ def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> Int:
     return rank
 
 
-def bits2int(bits: Iterable[Literal[0, 1]]) -> Int:
+def bits2int(bits: Iterable[Literal[0, 1]]) -> Integer:
     """Converts a list of bits into a numerical representation"""
     num = 0
     for bit in bits:

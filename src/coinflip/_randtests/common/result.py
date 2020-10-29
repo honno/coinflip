@@ -8,8 +8,6 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-from nptyping import Float
-from nptyping import Int
 from rich import box
 from rich.console import Console
 from rich.console import ConsoleRenderable
@@ -24,8 +22,10 @@ from rich.table import Table
 from rich.text import Text
 
 from coinflip import console
-from coinflip._randtests.common.core import Face
 from coinflip._randtests.common.core import make_warn_msg
+from coinflip._randtests.common.typing import Face
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 
 __all__ = [
     "BaseTestResult",
@@ -86,7 +86,7 @@ class BaseTestResult(ConsoleRenderable):
         return buf.getvalue()
 
     def _pretty_inputs(
-        self, *name_value_pairs: Iterable[Union[Int, Float]]
+        self, *name_value_pairs: Iterable[Union[Integer, Float]]
     ) -> RenderGroup:
         title = "test input"
         if len(name_value_pairs) > 1:
@@ -105,13 +105,13 @@ class PrettyResultMixin:
 
 @dataclass(unsafe_hash=True)
 class TestResult(BaseTestResult, PrettyResultMixin):
-    statistic: Union[Int, Float]
+    statistic: Union[Integer, Float]
     p: Float
 
 
 @dataclass(unsafe_hash=True)
 class SubTestResult(PrettyResultMixin):
-    statistic: Union[Int, Float]
+    statistic: Union[Integer, Float]
     p: Float
 
 
@@ -122,7 +122,7 @@ class MultiTestResult(BaseTestResult):
     # TODO lru_cache() the properties once hashing works nicely
 
     @property
-    def statistics(self) -> List[Union[Int, float]]:
+    def statistics(self) -> List[Union[Integer, float]]:
         return [result.statistic for result in self.results.values()]
 
     @property
@@ -185,8 +185,8 @@ def make_chisquare_table(
     title: Union[str, Text],
     feature: Union[Text, str],
     classes: Iterable[Any],
-    expected_occurences: Iterable[Union[Int, float]],
-    actual_occurences: Iterable[Union[Int, float]],
+    expected_occurences: Iterable[Union[Integer, float]],
+    actual_occurences: Iterable[Union[Integer, float]],
     **kwargs,
 ) -> Table:
     f_table = make_testvars_table(
@@ -218,7 +218,7 @@ def make_testvars_table(*columns, box=box.SQUARE, **kwargs) -> Table:
 
 @render_group(fit=True)
 def make_testvars_list(
-    title: str, *varname_value_pairs: Tuple[str, Union[Int, float]]
+    title: str, *varname_value_pairs: Tuple[str, Union[Integer, float]]
 ) -> RenderGroup:
     yield Text(title, style="bold")
 
@@ -233,7 +233,7 @@ def make_testvars_list(
         yield f"  {f_varname}  {f_value}"
 
 
-def smartround(num: Union[int, float, Int], ndigits=1) -> Union[int, float]:
+def smartround(num: Union[int, float, Integer], ndigits=1) -> Union[int, float]:
     """Round number only if it's a float"""
     if isinstance(num, int):
         return num
@@ -242,7 +242,7 @@ def smartround(num: Union[int, float, Int], ndigits=1) -> Union[int, float]:
             return int(num)
         else:
             return round(num, ndigits)
-    elif isinstance(num, Int):
+    elif isinstance(num, Integer):
         return int(num)
 
 

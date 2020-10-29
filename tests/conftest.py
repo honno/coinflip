@@ -8,7 +8,7 @@ settings.register_profile(
 )
 
 settings.register_profile(
-    "debug", max_examples=1, stateful_step_count=1, deadline=timedelta(minutes=5)
+    "debug", max_examples=1, stateful_step_count=1, deadline=timedelta(minutes=5),
 )
 
 

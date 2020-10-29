@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from functools import lru_cache
 from functools import wraps
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import NamedTuple
@@ -12,19 +11,16 @@ from warnings import warn
 import pandas as pd
 from rich.progress import Progress
 
+from coinflip._randtests.common.typing import Face
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestInputError
 
 __all__ = [
-    "Face",
     "randtest",
     "set_task_total",
     "advance_task",
     "check_recommendations",
 ]
-
-
-Face = Any
 
 
 @dataclass

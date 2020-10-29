@@ -4,7 +4,6 @@ from math import erfc
 from math import sqrt
 
 import pandas as pd
-from nptyping import Int
 from rich.text import Text
 from scipy.stats import chisquare
 
@@ -12,6 +11,7 @@ from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import SubTestResult
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["random_excursions", "random_excursions_variant"]
 
@@ -83,7 +83,7 @@ def random_excursions(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsSubTestResult(SubTestResult):
-    state: Int
+    state: Integer
 
 
 class RandomExcursionsMultiTestResult(MultiTestResult):
@@ -160,7 +160,7 @@ def random_excursions_variant(series, heads, tails, ctx):
 
 @dataclass
 class RandomExcursionsVariantSubTestResult(SubTestResult):
-    state: Int
+    state: Integer
 
 
 class RandomExcursionsVariantMultiTestResult(MultiTestResult):

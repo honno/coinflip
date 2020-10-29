@@ -3,23 +3,24 @@ from dataclasses import dataclass
 from functools import lru_cache
 from math import erfc
 from math import sqrt
+from operator import attrgetter
 from typing import List
 from typing import NamedTuple
 
 import altair as alt
 import numpy as np
 import pandas as pd
-from nptyping import Int
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.stats import halfnorm
 
 from coinflip._randtests.common.core import *
-from coinflip._randtests.common.result import Face
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
+from coinflip._randtests.common.typing import Face
+from coinflip._randtests.common.typing import Integer
 
 __all__ = ["monobit", "frequency_within_block"]
 
@@ -30,7 +31,7 @@ __all__ = ["monobit", "frequency_within_block"]
 
 class FaceCount(NamedTuple):
     value: Face
-    count: Int
+    count: Integer
 
 
 class FaceCounts(NamedTuple):
@@ -40,12 +41,12 @@ class FaceCounts(NamedTuple):
     @property
     @lru_cache()
     def max(self):
-        return max(*self, key=lambda fc: fc.count)
+        return max(*self, key=attrgetter("count"))
 
     @property
     @lru_cache()
     def min(self):
-        return min(*self, key=lambda fc: fc.count)
+        return min(*self, key=attrgetter("count"))
 
     @classmethod
     def from_series(cls, series, heads, tails):
@@ -77,9 +78,9 @@ def monobit(series, heads, tails, ctx):
 
 @dataclass
 class MonobitTestResult(TestResult):
-    n: Int
+    n: Integer
     counts: FaceCounts
-    diff: Int
+    diff: Integer
 
     def _render(self):
         yield self._pretty_result("normalised diff")
@@ -203,9 +204,9 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
 
 @dataclass
 class FrequencyWithinBlockTestResult(TestResult):
-    blocksize: Int
-    nblocks: Int
-    counts: List[Int]
+    blocksize: Integer
+    nblocks: Integer
+    counts: List[Integer]
 
     def _render(self):
         yield self._pretty_result("chi-square")

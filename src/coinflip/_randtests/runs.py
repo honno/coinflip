@@ -9,8 +9,6 @@ from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
-from nptyping import Float
-from nptyping import Int
 from rich.text import Text
 from scipy.stats import chisquare
 
@@ -20,6 +18,8 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.testutils import blocks
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 from coinflip.exceptions import TestNotImplementedError
 
 __all__ = ["runs", "longest_runs"]
@@ -72,9 +72,9 @@ class RunsTestResult(TestResult):
 
 
 class DefaultParams(NamedTuple):
-    blocksize: Int
-    nblocks: Int
-    intervals: List[Int]
+    blocksize: Integer
+    nblocks: Integer
+    intervals: List[Integer]
 
 
 # TODO use in recommendations
@@ -158,10 +158,10 @@ def longest_runs(series, heads, tails, ctx):
 
 @dataclass
 class LongestRunsTestResult(TestResult):
-    blocksize: Int
-    nblocks: Int
+    blocksize: Integer
+    nblocks: Integer
     expected_bincounts: List[Float]
-    maxlen_bins: Dict[Int, Int]
+    maxlen_bins: Dict[Integer, Integer]
 
     def _render(self):
         yield self._pretty_result("chi-square")
@@ -196,10 +196,10 @@ class LongestRunsTestResult(TestResult):
 @dataclass
 class Run:
     value: Any
-    length: Int = 1
+    length: Integer = 1
 
 
-def asruns(series) -> Iterator[Tuple[Any, Int]]:
+def asruns(series) -> Iterator[Tuple[Any, Integer]]:
     """Iterator of runs in a ``Series``
 
     Parameters
@@ -211,7 +211,7 @@ def asruns(series) -> Iterator[Tuple[Any, Int]]:
     ------
     value : ``Any``
         Value of the run
-    length : ``Int``
+    length : ``Integer``
         Length of the run
 
     Notes

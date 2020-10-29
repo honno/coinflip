@@ -4,13 +4,13 @@ from math import log
 from math import sqrt
 
 import pandas as pd
-from nptyping import Float
-from nptyping import Int
 from scipy.fft import fft
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_list
+from coinflip._randtests.common.typing import Float
+from coinflip._randtests.common.typing import Integer
 from coinflip.exceptions import NonBinarySequenceError
 
 __all__ = ["spectral"]
@@ -71,7 +71,7 @@ def spectral(series, heads, tails, ctx):
 @dataclass
 class SpectralTestResult(TestResult):
     nbelow_expect: Float
-    nbelow: Int
+    nbelow: Integer
     diff: Float
 
     def __post_init__(self):
