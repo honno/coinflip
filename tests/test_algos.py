@@ -4,7 +4,7 @@ from typing import NamedTuple
 from pytest import mark
 from typing_extensions import Literal
 
-from coinflip.algorithms import berlekamp_massey
+from coinflip.algos import berlekamp_massey
 
 __all__ = ["bm_examples"]
 

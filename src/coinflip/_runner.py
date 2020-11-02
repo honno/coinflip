@@ -14,10 +14,10 @@ from rich.text import Text
 
 from coinflip import _randtests
 from coinflip import console
+from coinflip._pprint import print_error
 from coinflip._randtests.common.result import TestResult
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestError
-from coinflip.pprint import print_error
 
 __all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
 

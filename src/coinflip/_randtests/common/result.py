@@ -20,6 +20,7 @@ from rich.padding import Padding
 from rich.segment import Segment
 from rich.table import Table
 from rich.text import Text
+from typing_extensions import get_args
 
 from coinflip import console
 from coinflip._randtests.common.core import make_warn_msg
@@ -233,17 +234,16 @@ def make_testvars_list(
         yield f"  {f_varname}  {f_value}"
 
 
-def smartround(num: Union[int, float, Integer], ndigits=1) -> Union[int, float]:
+def smartround(num: Union[Integer, Float], ndigits=1) -> Union[int, float]:
     """Round number only if it's a float"""
-    if isinstance(num, int):
-        return num
-    elif isinstance(num, float):
+    if isinstance(num, get_args(Integer)):
+        return int(num)
+    else:
+        num = float(num)
         if num.is_integer():
             return int(num)
         else:
             return round(num, ndigits)
-    elif isinstance(num, Integer):
-        return int(num)
 
 
 # ------------------------------------------------------------------------------

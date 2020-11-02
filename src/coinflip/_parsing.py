@@ -5,9 +5,7 @@ import pandas as pd
 from coinflip.exceptions import DataParsingError
 from coinflip.exceptions import NonBinarySequenceError
 
-__all__ = [
-    "parse_data",
-]
+__all__ = ["parse_data"]
 
 
 @dataclass

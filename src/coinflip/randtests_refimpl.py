@@ -21,8 +21,8 @@ from scipy.stats import chisquare
 from scipy.stats import norm
 from typing_extensions import Literal
 
-from coinflip.algorithms import berlekamp_massey
-from coinflip.algorithms import matrix_rank
+from coinflip.algos import berlekamp_massey
+from coinflip.algos import matrix_rank
 from coinflip.collections import Bins
 from coinflip.collections import FloorDict
 from coinflip.collections import defaultlist
@@ -300,7 +300,6 @@ def maurers_universal(sequence: List[Literal[0, 1]], blocksize: int, init_nblock
 
 def serial(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
-    # TODO trunc the sequence?
 
     normalised_sums = {}
     for window_size in [blocksize, blocksize - 1, blocksize - 2]:
@@ -361,7 +360,6 @@ def linear_complexity(sequence: List[Literal[0, 1]], blocksize: int):
 
 def approximate_entropy(sequence: List[Literal[0, 1]], blocksize: int):
     n = len(sequence)
-    # TODO trunc the sequence?
 
     phis = []
     for template_size in [blocksize, blocksize + 1]:

@@ -1,6 +1,6 @@
 from pytest import mark
 
-from coinflip import refimpl
+from coinflip import randtests_refimpl as refimpl
 
 from .examples import *
 
