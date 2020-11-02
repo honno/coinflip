@@ -3,9 +3,22 @@ from typing import Iterable
 from typing import Tuple
 
 from rich.style import Style
+from rich.table import Table
 from rich.text import Text
 
-__all__ = ["determine_rep", "pretty_subseq"]
+__all__ = ["make_warning", "determine_rep", "pretty_subseq"]
+
+
+warn_text = Text("WARN", style="yellow dim")
+
+
+def make_warning(msg: str) -> Table:
+    f_msg = Text(msg, style="dim")
+
+    grid = Table.grid(padding=(1))
+    grid.add_row(warn_text, f_msg)
+
+    return grid
 
 
 @lru_cache()

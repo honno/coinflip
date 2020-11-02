@@ -23,7 +23,8 @@ from rich.text import Text
 from typing_extensions import get_args
 
 from coinflip import console
-from coinflip._randtests.common.core import make_warn_msg
+from coinflip._randtests.common.core import make_failures_msg
+from coinflip._randtests.common.pprint import make_warning
 from coinflip._randtests.common.typing import Face
 from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
@@ -64,13 +65,9 @@ class BaseTestResult(ConsoleRenderable):
         renderables = list(self._render())
 
         if self.failures:
-            msg = make_warn_msg(self.failures)
-            f_msg = Text(msg, style="dim")
-
-            grid = Table.grid(padding=(1))
-            grid.add_row(Text("WARN", style="yellow dim"), f_msg)
-
-            renderables.insert(0, grid)
+            msg = make_failures_msg(self.failures)
+            f_failures = make_warning(msg)
+            renderables.insert(0, f_failures)
 
         return renderables
 

@@ -169,12 +169,12 @@ def check_recommendations(ctx: Optional[CliContext], recommendations: Dict[str, 
     failures = [expr for expr, success in recommendations.items() if not success]
 
     if failures and not ctx:
-        warn(make_warn_msg(failures), UserWarning)
+        warn(make_failures_msg(failures), UserWarning)
 
     return failures
 
 
-def make_warn_msg(failures: List[str]) -> str:
+def make_failures_msg(failures: List[str]) -> str:
     nfail = len(failures)
 
     if nfail == 1:

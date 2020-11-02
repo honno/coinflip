@@ -1,3 +1,5 @@
+import pickle
+
 from hypothesis import given
 from hypothesis import strategies as st
 from pytest import mark
@@ -17,6 +19,19 @@ from coinflip._randtests.serial import SerialMultiTestResult
 from coinflip._randtests.template import NonOverlappingTemplateMatchingMultiTestResult
 from coinflip._randtests.template import OverlappingTemplateMatchingTestResult
 from coinflip._randtests.universal import UniversalTestResult
+from coinflip.collections import Bins
+
+
+def test_bins_pickle():
+    bins = Bins([0, 1, 2, 3, 4])
+    bins[100] += 1
+
+    pickled_bins = pickle.dumps(bins)
+
+    bins2 = pickle.loads(pickled_bins)
+
+    assert bins2 == bins
+
 
 # TODO expand this
 st.register_type_strategy(
@@ -45,5 +60,5 @@ st.register_type_strategy(
     ],
 )
 @given(st.data())
-def test_smoke(cls, data):
+def test_results(cls, data):
     data.draw(st.builds(cls))

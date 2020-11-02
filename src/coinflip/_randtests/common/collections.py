@@ -2,7 +2,9 @@
 from bisect import bisect_left
 from collections import defaultdict
 from collections.abc import MutableSequence
+from functools import lru_cache
 from typing import Iterable
+from typing import Tuple
 
 __all__ = ["FloorDict", "Bins", "defaultlist"]
 
@@ -36,8 +38,11 @@ class Bins(dict):
     def __init__(self, intervals: Iterable[int]):
         """Initialise intervals as keys to values of 0"""
         empty_bins = {interval: 0 for interval in intervals}
-        self.realkeys_cache = {}
         super().__init__(empty_bins)
+
+    @property
+    def intervals(self) -> Tuple[int]:
+        return tuple(self.keys())
 
     def __setitem__(self, key, value):
         realkey = self._roundkey(key)
@@ -48,35 +53,39 @@ class Bins(dict):
         return super().__getitem__(realkey)
 
     def _roundkey(self, key):
-        try:
-            realkey = self.realkeys_cache[key]
-            return realkey
-        except KeyError:
-            pass
+        return Bins._find_closest_interval(self.intervals, key)
 
-        realkeys = list(self.keys())
-        minkey = realkeys[0]
-        midkeys = realkeys[1:-1]
-        maxkey = realkeys[-1]
+    @classmethod
+    @lru_cache()
+    def _find_closest_interval(cls, intervals, key):
+        minkey = intervals[0]
+        midkeys = intervals[1:-1]
+        maxkey = intervals[-1]
 
         if key <= minkey:
-            realkey = minkey
+            return minkey
         elif key >= maxkey:
-            realkey = maxkey
+            return maxkey
         elif key in midkeys:
-            realkey = key
+            return key
         else:
-            i = bisect_left(realkeys, key)
-            leftkey = realkeys[i - 1]
-            rightkey = realkeys[i]
+            i = bisect_left(intervals, key)
+            leftkey = intervals[i - 1]
+            rightkey = intervals[i]
 
             if leftkey - key > rightkey - key:
-                realkey = leftkey
+                return leftkey
             else:
-                realkey = rightkey
+                return rightkey
 
-        self.realkeys_cache[key] = realkey
-        return realkey
+    def __getstate__(self):
+        return dict(self)
+
+    def __setstate__(self, state):
+        self.update(state)
+
+    def __reduce__(self):
+        return (Bins, (self.intervals,), self.__getstate__())
 
 
 class defaultlist(MutableSequence):

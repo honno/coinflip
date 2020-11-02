@@ -1,3 +1,5 @@
+from shutil import get_terminal_size
+
 from rich.console import RenderGroup
 from rich.console import render_group
 from rich.style import Style
@@ -5,10 +7,11 @@ from rich.text import Text
 
 from coinflip import console
 from coinflip._randtests.common.core import infer_faces
+from coinflip._randtests.common.pprint import make_warning
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.testutils import rawblocks
 
-__all__ = ["print_error", "pretty_sequence"]
+__all__ = ["print_warning", "print_error", "print_series"]
 
 
 err_text = Text("ERR!", style="red")
@@ -23,7 +26,24 @@ def print_error(e: Exception):
     console.print(text)
 
 
+def print_warning(msg: str):
+    f_warning = make_warning(msg)
+
+    console.print(f_warning)
+
+
 dim = Style(dim=True)
+
+
+# TODO descriptions of the series e.g. length
+def print_series(series):
+    """Pretty print series that contain binary data"""
+    size = get_terminal_size()
+    ncols = min(size.columns, 80)
+
+    f_series = pretty_sequence(series, ncols)
+
+    console.print(f_series)
 
 
 @render_group(fit=True)
