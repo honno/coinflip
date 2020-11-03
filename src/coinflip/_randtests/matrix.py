@@ -92,9 +92,9 @@ def binary_matrix_rank(
     advance_task(ctx)
 
     return BinaryMatrixRankTestResult(
-        failures,
         heads,
         tails,
+        failures,
         statistic,
         p,
         nrows,

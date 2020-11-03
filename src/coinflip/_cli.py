@@ -99,6 +99,15 @@ def example_run(example, length, test):
 
 @main.command()
 @argument("results", type=Path(exists=True))
+def read(results):
+    report = load_results(results)
+    print_series(report.series)
+    console.print("")
+    print_results(report.results)
+
+
+@main.command()
+@argument("results", type=Path(exists=True))
 @argument("out", type=Path())
 def report(results, out):
     report = load_results(results)

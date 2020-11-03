@@ -64,7 +64,7 @@ def spectral(series, heads, tails, ctx):
     advance_task(ctx)
 
     return SpectralTestResult(
-        failures, heads, tails, normdiff, p, nbelow_expect, nbelow, diff,
+        heads, tails, failures, normdiff, p, nbelow_expect, nbelow, diff,
     )
 
 

@@ -57,7 +57,7 @@ def approximate_entropy(series, heads, tails, ctx, blocksize=None):
 
     advance_task(ctx)
 
-    return ApproximateEntropyTestResult(failures, heads, tails, chi2, p, blocksize)
+    return ApproximateEntropyTestResult(heads, tails, failures, chi2, p, blocksize)
 
 
 @dataclass

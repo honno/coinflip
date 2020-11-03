@@ -2,6 +2,7 @@
 from functools import wraps
 from shutil import get_terminal_size
 from typing import Callable
+from typing import Dict
 from typing import Iterator
 from typing import Tuple
 
@@ -15,11 +16,18 @@ from rich.text import Text
 from coinflip import _randtests
 from coinflip import console
 from coinflip._pprint import print_error
+from coinflip._randtests.common.result import BaseTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip.exceptions import NonBinarySequenceError
 from coinflip.exceptions import TestError
 
-__all__ = ["list_tests", "TestNotFoundError", "run_test", "run_all_tests"]
+__all__ = [
+    "list_tests",
+    "TestNotFoundError",
+    "run_test",
+    "run_all_tests",
+    "print_results",
+]
 
 
 SIGLEVEL = 0.01
@@ -254,3 +262,12 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
     #     table.add_row(f_name, f_pvalue, f_verdict)
 
     # console.print(table)
+
+
+def print_results(results: Dict[str, BaseTestResult]):
+    for name, result in results.items():
+        color = "yellow" if result.failures else "green"
+
+        print_randtest_name(name, color)
+        console.print(result)
+        console.print("")
