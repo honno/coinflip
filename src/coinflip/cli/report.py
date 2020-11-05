@@ -8,8 +8,8 @@ from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 
-from coinflip._pprint import print_warning
 from coinflip._randtests.common.result import BaseTestResult
+from coinflip.cli.pprint import print_warning
 
 __all__ = ["store_results", "load_results", "write_report_doc"]
 
@@ -32,7 +32,7 @@ def load_results(results_path: str) -> Report:
     return report
 
 
-templates_dir = Path(__file__).parents[2] / "templates"
+templates_dir = Path(__file__).parents[3] / "templates"
 templates_loader = FileSystemLoader(templates_dir)
 templates_env = Environment(loader=templates_loader)
 

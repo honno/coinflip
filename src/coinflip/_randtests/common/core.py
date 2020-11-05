@@ -11,9 +11,9 @@ from warnings import warn
 import pandas as pd
 from rich.progress import Progress
 
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.exceptions import TestInputError
 from coinflip._randtests.common.typing import Face
-from coinflip.exceptions import NonBinarySequenceError
-from coinflip.exceptions import TestInputError
 
 __all__ = [
     "randtest",

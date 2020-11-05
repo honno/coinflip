@@ -71,9 +71,9 @@ class BaseTestResult(ConsoleRenderable):
 
         return renderables
 
-    def print(self):
+    def print(self, **kwargs):
         """Prints results contents to notebook or terminal environment"""
-        console.print(self)
+        console.print(self, **kwargs)
 
     def __str__(self):
         # Mocks file as the stdout of a Rich Console

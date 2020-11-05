@@ -7,19 +7,16 @@ from click import option
 
 from coinflip import console
 from coinflip import generators
-from coinflip._parsing import *
-from coinflip._pprint import *
-from coinflip._report import *
-from coinflip._runner import *
-from coinflip.exceptions import DataParsingError
-from coinflip.exceptions import NonBinarySequenceError
-from coinflip.exceptions import TestError
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.exceptions import TestError
+from coinflip.cli.parsing import DataParsingError
+from coinflip.cli.parsing import *
+from coinflip.cli.pprint import *
+from coinflip.cli.report import *
+from coinflip.cli.runner import *
 from coinflip.randtests import __all__ as randtest_names
 
-__all__ = [
-    "run",
-    "example_run",
-]
+__all__ = ["run", "example_run", "read", "report"]
 
 
 # TODO extend Choice to use print_error and newline-delimit lists

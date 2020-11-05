@@ -94,5 +94,5 @@ setup(
         "more-itertools",
     ],
     test_requires=["pytest", "hypothesis"],
-    entry_points={"console_scripts": ["coinflip = coinflip._cli:main"]},
+    entry_points={"console_scripts": ["coinflip = coinflip.cli.commands:main"]},
 )

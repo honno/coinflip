@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from click.testing import CliRunner
 from pytest import fixture
 
-from coinflip import _cli as cli
+from coinflip.cli import commands
 
 
 @fixture
@@ -13,21 +13,20 @@ def runner():
 
 
 def test_main(runner):
-    result = runner.invoke(cli.main, [])
+    result = runner.invoke(commands.main, [])
 
     assert result.exit_code == 0
 
 
 def test_example_run(runner):
-    runner = CliRunner()
-    result = runner.invoke(cli.example_run, [])
+    result = runner.invoke(commands.example_run, [])
 
     assert result.exit_code == 0
 
 
 def test_run(runner):
     data = NamedTemporaryFile()
-    out = NamedTemporaryFile()
+    results_out = NamedTemporaryFile()
     sequence = [getrandbits(1) for _ in range(1000)]
 
     with data as f:
@@ -37,6 +36,13 @@ def test_run(runner):
             f.write(line)
 
         f.seek(0)
-        result = runner.invoke(cli.run, [f.name, out.name])
+        run_result = runner.invoke(commands.run, [f.name, results_out.name])
 
-    assert result.exit_code == 0
+    assert run_result.exit_code == 0
+
+    read_result = runner.invoke(commands.read, [results_out.name])
+    assert read_result.exit_code == 0
+
+    report_out = NamedTemporaryFile()
+    report_result = runner.invoke(commands.report, [results_out.name, report_out.name])
+    assert report_result.exit_code == 0

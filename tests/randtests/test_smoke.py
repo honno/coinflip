@@ -1,7 +1,7 @@
 from pytest import mark
 
 from coinflip import generators
-from coinflip._runner import list_tests
+from coinflip.cli.runner import list_tests
 
 # TODO make this deterministic
 RNG = generators.python()

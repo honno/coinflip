@@ -15,11 +15,11 @@ from rich.text import Text
 
 from coinflip import _randtests
 from coinflip import console
-from coinflip._pprint import print_error
+from coinflip._randtests.common.exceptions import NonBinarySequenceError
+from coinflip._randtests.common.exceptions import TestError
 from coinflip._randtests.common.result import BaseTestResult
 from coinflip._randtests.common.result import TestResult
-from coinflip.exceptions import NonBinarySequenceError
-from coinflip.exceptions import TestError
+from coinflip.cli.pprint import print_error
 
 __all__ = [
     "list_tests",
@@ -187,7 +187,6 @@ def run_test(series: pd.Series, randtest_name, **kwargs) -> TestResult:
 def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exception]]:
     """Run all available statistical test on RNG output
 
-
     Yields
     ------
     randtest_name : ``str``
@@ -217,6 +216,8 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
             try:
                 result = func(series, ctx=(progress, task))
+
+                progress.remove_task(task)
 
                 color = "yellow" if result.failures else "green"
 

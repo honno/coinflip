@@ -34,6 +34,7 @@ non-idiomatic programming conventions used in ``sts``.
 from typing import Tuple
 
 from coinflip import _randtests
+from coinflip._randtests.common import exceptions
 
 __all__ = [
     "monobit",
@@ -51,6 +52,7 @@ __all__ = [
     "cusum",
     "random_excursions",
     "random_excursions_variant",
+    "exceptions",
 ]
 
 

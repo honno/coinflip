@@ -3,7 +3,6 @@ __all__ = [
     "TestNotImplementedError",
     "TestInputError",
     "NonBinarySequenceError",
-    "DataParsingError",
 ]
 
 
@@ -24,7 +23,3 @@ class NonBinarySequenceError(TestInputError):
 
     def __str__(self):
         return "Sequence does not contain only 2 distinct values (i.e. binary)"
-
-
-class DataParsingError(ValueError):
-    """Base class for parsing-related errors"""
