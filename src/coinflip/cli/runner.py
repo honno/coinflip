@@ -11,7 +11,7 @@ from rich.progress import BarColumn
 from rich.progress import Progress
 from rich.progress import TextColumn
 from rich.progress import TimeRemainingColumn
-from rich.text import Text
+from rich.rule import Rule
 
 from coinflip import _randtests
 from coinflip import console
@@ -83,26 +83,17 @@ def binary_check(func):
     return wrapper
 
 
-rule_char = "─"
-
-
 def print_randtest_name(randtest_name: str, color: str):
     """Pretty print the randtest's name"""
     size = get_terminal_size()
     ncols = min(size.columns, 80)
 
     randtest_fname = f_randtest_names[randtest_name]
-    fname_w = len(randtest_fname)
 
-    right_w = (ncols - fname_w) // 2
-    right = rule_char * (right_w - 1)
+    color = f"bright_{color}"
 
-    left_w = ncols - right_w - fname_w
-    left = rule_char * (left_w - 1)
-
-    text = Text.assemble((right, color), " ", randtest_fname, " ", (left, color))
-
-    console.print(text)
+    rule = Rule(randtest_fname, style=color)
+    console.print(rule, width=ncols)
 
 
 def list_tests() -> Iterator[Tuple[str, Callable]]:
