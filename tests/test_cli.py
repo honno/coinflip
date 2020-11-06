@@ -1,3 +1,4 @@
+from copy import copy
 from tempfile import NamedTemporaryFile
 
 from click.testing import CliRunner
@@ -8,6 +9,7 @@ from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import rule
 
 from coinflip.cli import commands
+from coinflip.cli import console
 
 from .randtests.test_randtests import _mixedbits
 
@@ -16,6 +18,10 @@ class CliStateMachine(RuleBasedStateMachine):
     def __init__(self):
         super(CliStateMachine, self).__init__()
         self.runner = CliRunner()
+
+        # Make console dumb to tidy up captured stdout
+        self.prev_console = copy(console)
+        console.print = lambda *args, **kwargs: None
 
     randtest_results = Bundle("randtest_results")
     reports = Bundle("reports")
@@ -61,6 +67,9 @@ class CliStateMachine(RuleBasedStateMachine):
         assert result.exit_code == 0
 
         return out.name
+
+    def teardown(self):
+        console.print = self.prev_console.print
 
 
 TestCliStateMachine = CliStateMachine.TestCase  # top-level TestCase picked up by pytest
