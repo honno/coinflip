@@ -4,7 +4,7 @@ import pandas as pd
 
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 
-__all__ = ["DataParsingError", "parse_data"]
+__all__ = ["DataParsingError", "parse_text", "parse_binary"]
 
 
 class DataParsingError(ValueError):
@@ -23,8 +23,7 @@ class MultipleColumnsError(DataParsingError):
         )
 
 
-# TODO check for bin files
-def parse_data(data_file) -> pd.Series:
+def parse_text(data_file) -> pd.Series:
     """Reads file containing data into a pandas Series
 
     Reads from file containing RNG output and produces a representitive pandas
@@ -62,5 +61,20 @@ def parse_data(data_file) -> pd.Series:
         raise NonBinarySequenceError()
 
     series = series.infer_objects()
+
+    return series
+
+
+def parse_binary(data_file) -> pd.Series:
+    sequence = []
+    with open(data_file, "rb") as f:
+        bytes_ = f.read()
+        for byte in bytes_:
+            bitstring = format(byte, "08b")
+            bits = [int(bit) for bit in bitstring]
+
+            sequence += bits
+
+    series = pd.Series(sequence)
 
     return series

@@ -39,7 +39,14 @@ def main():
 @main.command()
 @argument("data", type=Path(exists=True))
 @argument("out", type=Path())
-def run(data, out):
+@option(
+    "-b",
+    "--binary",
+    is_flag=True,
+    flag_value=True,
+    help="Read DATA as a raw binary file.",
+)
+def run(data, out, binary):
     """Run randomness tests on DATA and write results to OUT.
 
     DATA is a newline-delimited text file which contains output of a random
@@ -52,12 +59,17 @@ def run(data, out):
     also be used to generate an informational web document via the report
     command.
     """
-    try:
-        series = parse_data(data)
-        print_series(series)
-    except (DataParsingError, NonBinarySequenceError) as e:
-        print_error(e)
-        exit(1)
+    if not binary:
+        try:
+            series = parse_text(data)
+        except (DataParsingError, NonBinarySequenceError) as e:
+            print_error(e)
+            exit(1)
+
+    else:
+        series = parse_binary(data)
+
+    print_series(series)
 
     results = {}
     for name, result, e in run_all_tests(series):
