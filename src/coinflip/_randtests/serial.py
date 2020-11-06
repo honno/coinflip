@@ -7,8 +7,8 @@ from typing import Dict
 from typing import Tuple
 
 import pandas as pd
-from rich import box
 from rich.table import Table
+from rich.text import Text
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
@@ -92,16 +92,27 @@ class SerialMultiTestResult(MultiTestResult):
     normalised_sums: Dict[Integer, Float]
 
     def _render(self):
+        first, second = list(self.results.items())
+
+        f_first = first[1]._pretty_result(prefix=first[0], stat_varname="delta psi²")
+        f_second = second[1]._pretty_result(
+            prefix=second[0], stat_varname="delta² psi²"
+        )
+
+        yield f_first
+        yield f_second
+
         yield self._pretty_inputs(("blocksize", self.blocksize),)
 
-        grid = Table(*self.results.keys(), box=box.MINIMAL)
+    @classmethod
+    def _render_single(
+        cls, feature: str, feature_notation: str, result: SubTestResult
+    ) -> Table:
+        grid = Table.grid(padding=(1))
 
-        result1, result2 = self.results.values()
-        f_result1 = result1._pretty_result("delta psi²")
-        f_result2 = result2._pretty_result("delta² psi²")
-        grid.add_row(f_result1, f_result2)
+        title = Text(feature, style="bold")
+        grid.add_row(title)
 
-        yield grid
+        grid.add_row(f_result)
 
-    def _render_sub(self, result: SubTestResult):
-        yield result
+        return grid

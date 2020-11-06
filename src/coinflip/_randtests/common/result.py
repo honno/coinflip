@@ -93,9 +93,9 @@ class BaseTestResult(ConsoleRenderable):
 
 
 class PrettyResultMixin:
-    def _pretty_result(self, stat_varname="statistic") -> RenderGroup:
+    def _pretty_result(self, stat_varname="statistic", prefix=None) -> RenderGroup:
         return make_testvars_list(
-            "result",
+            f"{prefix} result" if prefix else "result",
             (stat_varname, smartround(self.statistic)),
             ("p-value", round(self.p, 3)),
         )
