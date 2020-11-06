@@ -236,6 +236,21 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
             console.print("")
 
+    print_results_summary(results)
+
+
+def print_results(results: Dict[str, BaseTestResult]):
+    for name, result in results.items():
+        color = "yellow" if result.failures else "green"
+
+        print_randtest_name(name, color)
+        console.print(result)
+        console.print("")
+
+    print_results_summary(results)
+
+
+def print_results_summary(results: Dict[str, BaseTestResult]):
     size = get_terminal_size()
     ncols = min(size.columns, 80)
 
@@ -277,12 +292,3 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
         console.print("")
 
     console.print(table)
-
-
-def print_results(results: Dict[str, BaseTestResult]):
-    for name, result in results.items():
-        color = "yellow" if result.failures else "green"
-
-        print_randtest_name(name, color)
-        console.print(result)
-        console.print("")
