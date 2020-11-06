@@ -244,7 +244,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
     unsummarisable_fnames = []
 
-    table = Table(box=box.DOUBLE)
+    table = Table(box=box.DOUBLE, caption=f"using a significance level of {SIGLEVEL}")
     table.add_column("Statistical Test", justify="eft")
     table.add_column("p-value", justify="left")
     table.add_column("Verdict", justify="left")
