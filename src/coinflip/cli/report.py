@@ -26,7 +26,7 @@ def store_results(series: pd.Series, results: Dict[str, BaseTestResult], out: st
     pickle.dump(report, open(out, "wb"))
 
 
-def load_results(results_path: str) -> Report:
+def load_results(results_path: Path) -> Report:
     report = pickle.load(open(results_path, "rb"))
 
     return report
@@ -37,7 +37,7 @@ templates_loader = FileSystemLoader(templates_dir)
 templates_env = Environment(loader=templates_loader)
 
 
-def write_report_doc(report: Report, out: str):
+def write_report_doc(report: Report, out: Path):
     doc = templates_env.get_template("index.html")
 
     result_markups = []

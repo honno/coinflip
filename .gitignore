@@ -1,3 +1,4 @@
+# Caching
 *.py[cod]
 __pycache__
 
@@ -75,3 +76,7 @@ src/*/_version.py
 
 # Hypothesis
 .hypothesis/
+
+# coinflip
+/*.pickle
+/*.html

@@ -1,6 +1,9 @@
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 from click import Choice
-from click import Path
+from click import Path as Path_
 from click import argument
 from click import group
 from click import option
@@ -37,8 +40,8 @@ def main():
 
 
 @main.command()
-@argument("data", type=Path(exists=True))
-@argument("out", type=Path())
+@argument("data", type=Path_(exists=True))
+@argument("out", type=Path_(), required=False, metavar="OUT")
 @option(
     "-b",
     "--binary",
@@ -76,7 +79,19 @@ def run(data, out, binary):
         if not e:
             results[name] = result
 
-    store_results(series, results, out)
+    if out:
+        path = Path(out)
+        # TODO check if not pickle at end
+    else:
+        timestamp = datetime.now()
+        f_timestamp = timestamp.strftime("%b%d_%H%M%S")
+        path = Path(f"results_{f_timestamp}.pickle")
+
+    store_results(series, results, path)
+
+    if not out:
+        console.print("")
+        console.print(f"Results saved to {path}")
 
 
 @main.command()
@@ -118,7 +133,7 @@ def example_run(example, length, test):
 
 
 @main.command()
-@argument("results", type=Path(exists=True))
+@argument("results", type=Path_(exists=True))
 def read(results):
     """Print test results."""
     report = load_results(results)
@@ -128,9 +143,22 @@ def read(results):
 
 
 @main.command()
-@argument("results", type=Path(exists=True))
-@argument("out", type=Path())
+@argument("results", type=Path_(exists=True))
+@argument("out", type=Path_(), required=False, metavar="OUT")
 def report(results, out):
     """Generate an informational web document from results."""
     report = load_results(results)
-    write_report_doc(report, out)
+
+    if out:
+        path = Path(out)
+        # TODO check if not html at end
+    else:
+        timestamp = datetime.now()
+        f_timestamp = timestamp.strftime("%b%d_%H%M%S")
+        path = Path(f"report_{f_timestamp}.html")
+
+    write_report_doc(report, path)
+
+    if not out:
+        console.print("")
+        console.print(f"Report saved to {path}")
