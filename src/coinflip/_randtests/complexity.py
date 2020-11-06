@@ -122,6 +122,7 @@ class LinearComplexityTestResult(TestResult):
 
 
 def berlekamp_massey(sequence: Sequence[Literal[0, 1]]) -> int:
+    """Finds the shortest LSFR in a sequence"""
     n = len(sequence)
 
     error_locator = [0 for _ in range(n)]

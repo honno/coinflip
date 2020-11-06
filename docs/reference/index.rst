@@ -5,8 +5,6 @@ Reference
 .. toctree::
 
    randtests
-   algorithms
+   algos
    collections
    generators
-   tests_runner
-   store
