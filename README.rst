@@ -9,14 +9,15 @@ Randomness testing for humans
 *coinflip* aims to implement the tests recommended by `NIST SP800-22
 <https://csrc.nist.gov/publications/detail/sp/800-22/rev-1a/final>`_
 to check random number generators for randomness.  A user-friendly command-line
-interface provided allows you to ``load``, ``run`` and ``report`` on your data
-in a step-by-step fashion.
+interface provided allows you to ``run`` the tests on your data, and
+subsequently ``report`` on the results by generating informational HTML
+documents.
 
 ``coinflip.randtests`` acts as the `public API
 <https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_
 for `notebook users <https://jupyter.org/index.html>`_ and developers to use
 the randomness tests directly. The tests are implemented as general solutions,
-meaning they accept basically any binary sequence you throw at them!
+meaning they accept basically any sequence with two distinct elements!
 
 .. image:: https://raw.githubusercontent.com/Honno/coinflip/report/.video_files/thumb/thumb_thumb.png
    :target: http://www.youtube.com/watch?v=0xrWG3Ki9Z8
@@ -24,8 +25,14 @@ meaning they accept basically any binary sequence you throw at them!
 Setup
 =====
 
-*coinflip* is currently in rapid development, so we recommend building from
-source.
+You can get the latest release of coinflip from PyPI.
+
+.. code-block:: console
+
+    $ pip install coinflip
+
+Alternatively you can get the (unstable) development version straight from
+GitHub.
 
 .. code-block:: console
 
@@ -80,7 +87,7 @@ Python, which should of installed automatically when installing Python 3.7+.
 Trial run
 ---------
 
-Try running the randomness tests on a generated binary sequence:
+Try running the randomness tests on an automatically generated binary sequence:
 
 .. code-block:: console
 
@@ -105,35 +112,27 @@ In the worst case, you can execute commands via ``python -m``:
 Quick start
 ===========
 
-Output of random number generators can be parsed and serialised into a
-test-ready format via the ``load`` command:
+Randomness tests can be ran over your RNG output via the ``run`` command.
 
 .. code-block:: console
 
-    $ coinflip load DATA
-    Store name to be encoded as store_<timestamp>
-    Data stored successfully!
+    $ coinflip run DATA OUT
     ...
 
 ``DATA`` is the path to newline-delimited text file that contains a binary
 sequence. An example file to use is available on `my gist
 <https://gist.github.com/Honno/dd6f3527e588428fa17a999042e3c6e8>`_.
+Alternatively, raw binary files can be read as bitstreams via the ``--binary``
+flag
 
-Randomness tests can then be ran over the store’s data via the ``run`` command.
-You should be prompted by a "No STORE argument provided" message, where
-``coinflip`` will assume you want to run the tests over the data you just
-loaded—type ``y`` and hit enter.
+``OUT`` is the path where you want the results to be saved. The results will be
+saved as a `pickle <https://docs.python.org/3/library/pickle.html>`_-serialised
+file, which can be viewed again via the ``read`` command. Additionally you can
+generate informational HTML reports from the results via the ``report`` command,
+but note that the reports are currently very lacking.
 
-.. code-block:: console
-
-    $ coinflip run
-    No STORE argument provided
-      The most recent STORE to be initialised is 'store_<timestamp>'
-      Pass it as the STORE argument? [y/N]: y
-    ...
-
-Output should comprise of the example sequence, test-specific summaries, and a
-final overall summary table.
+Output should comprise of the sequence parsed from ``DATA``, test-specific result
+summaries, and a final overall summary table.
 
 .. |docs| image:: https://readthedocs.org/projects/coinflip/badge/?style=flat
     :target: https://readthedocs.org/projects/coinflip
