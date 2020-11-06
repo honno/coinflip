@@ -5,10 +5,10 @@ from click import argument
 from click import group
 from click import option
 
-from coinflip import console
 from coinflip import generators
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.exceptions import TestError
+from coinflip.cli import console
 from coinflip.cli.parsing import DataParsingError
 from coinflip.cli.parsing import *
 from coinflip.cli.pprint import *

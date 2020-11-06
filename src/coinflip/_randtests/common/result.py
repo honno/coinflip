@@ -22,7 +22,6 @@ from rich.table import Table
 from rich.text import Text
 from typing_extensions import get_args
 
-from coinflip import console
 from coinflip._randtests.common.core import make_failures_msg
 from coinflip._randtests.common.pprint import make_warning
 from coinflip._randtests.common.typing import Face
@@ -73,6 +72,7 @@ class BaseTestResult(ConsoleRenderable):
 
     def print(self, **kwargs):
         """Prints results contents to notebook or terminal environment"""
+        console = Console()
         console.print(self, **kwargs)
 
     def __str__(self):

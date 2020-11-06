@@ -14,11 +14,11 @@ from rich.progress import TimeRemainingColumn
 from rich.rule import Rule
 
 from coinflip import _randtests
-from coinflip import console
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.exceptions import TestError
 from coinflip._randtests.common.result import BaseTestResult
 from coinflip._randtests.common.result import TestResult
+from coinflip.cli import console
 from coinflip.cli.pprint import print_error
 
 __all__ = [

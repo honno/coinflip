@@ -5,11 +5,11 @@ from rich.console import render_group
 from rich.style import Style
 from rich.text import Text
 
-from coinflip import console
 from coinflip._randtests.common.core import infer_faces
 from coinflip._randtests.common.pprint import make_warning
 from coinflip._randtests.common.pprint import pretty_subseq
 from coinflip._randtests.common.testutils import rawblocks
+from coinflip.cli import console
 
 __all__ = ["print_warning", "print_error", "print_series"]
 
