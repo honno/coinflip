@@ -31,8 +31,8 @@ def main():
     """Randomness tests for RNG output.
 
     Randomness tests can be ran on the your binary data via the run command.
-    Rich documents explaining the test results can be produced via the report
-    command.
+    Informational web documents explaining the test results can be produced via
+    the report command.
     """
 
 
@@ -40,7 +40,18 @@ def main():
 @argument("data", type=Path(exists=True))
 @argument("out", type=Path())
 def run(data, out):
-    """Run randomness tests on DATA."""
+    """Run randomness tests on DATA and write results to OUT.
+
+    DATA is a newline-delimited text file which contains output of a random
+    number generator.
+
+    Individual results of each test are printed as they come. Once they are
+    all finished, the results are written to OUT.
+
+    The results saved in OUT can be printed again via the read command. OUT can
+    also be used to generate an informational web document via the report
+    command.
+    """
     try:
         series = parse_data(data)
         print_series(series)
@@ -74,7 +85,7 @@ def run(data, out):
     metavar="<test>",
 )
 def example_run(example, length, test):
-    """Run randomness tests on example data."""
+    """Run randomness tests on automatically generated data."""
     generator_func = getattr(generators, example)
     generator = generator_func()
 
@@ -97,6 +108,7 @@ def example_run(example, length, test):
 @main.command()
 @argument("results", type=Path(exists=True))
 def read(results):
+    """Print test results."""
     report = load_results(results)
     print_series(report.series)
     console.print("")
@@ -107,5 +119,6 @@ def read(results):
 @argument("results", type=Path(exists=True))
 @argument("out", type=Path())
 def report(results, out):
+    """Generate an informational web document from results."""
     report = load_results(results)
     write_report_doc(report, out)
