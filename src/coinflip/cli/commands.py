@@ -1,3 +1,4 @@
+import webbrowser
 from datetime import datetime
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from click import Path as Path_
 from click import argument
 from click import group
 from click import option
+from rich.text import Text
 
 from coinflip import generators
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
@@ -160,5 +162,11 @@ def report(results, out):
     write_report_doc(report, path)
 
     if not out:
-        console.print("")
         console.print(f"Report saved to {path}")
+
+    abs_path = path.absolute()
+    url = abs_path.as_uri()
+    url_msg = Text.assemble("View report at ", (str(abs_path), f"link {url}"))
+
+    console.print(url_msg)
+    webbrowser.open(url)
