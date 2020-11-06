@@ -2,6 +2,7 @@ from shutil import get_terminal_size
 
 from rich.console import RenderGroup
 from rich.console import render_group
+from rich.rule import Rule
 from rich.style import Style
 from rich.text import Text
 
@@ -41,8 +42,10 @@ def print_series(series):
     size = get_terminal_size()
     ncols = min(size.columns, 80)
 
-    f_series = pretty_sequence(series, ncols)
+    rule = Rule("Sequence To Test", style="bright_blue")
+    console.print(rule, width=ncols)
 
+    f_series = pretty_sequence(series, ncols)
     console.print(f_series)
 
 

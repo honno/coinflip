@@ -7,19 +7,24 @@ from typing import Iterator
 from typing import Tuple
 
 import pandas as pd
+from rich import box
 from rich.progress import BarColumn
 from rich.progress import Progress
 from rich.progress import TextColumn
 from rich.progress import TimeRemainingColumn
 from rich.rule import Rule
+from rich.table import Table
+from rich.text import Text
 
 from coinflip import _randtests
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.exceptions import TestError
 from coinflip._randtests.common.result import BaseTestResult
+from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip.cli import console
 from coinflip.cli.pprint import print_error
+from coinflip.cli.pprint import print_warning
 
 __all__ = [
     "list_tests",
@@ -231,29 +236,47 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
 
             console.print("")
 
-    # TODO print a table
-    # table = Table(box=box.DOUBLE)
-    # table.add_column("Statistical Test", justify="eft")
-    # table.add_column("p-value", justify="left")
-    # table.add_column("Verdict", justify="left")
-    # for name, result in results.items():
-    #     f_name = f_randtest_names[name]
+    size = get_terminal_size()
+    ncols = min(size.columns, 80)
 
-    #     if result:
-    #         f_pvalue = str(round(result.p, 3))
-    #         f_pvalue += "0" * (5 - len(f_pvalue))  # zero pad
+    rule = Rule("Test Results Summary", style="bright_blue")
+    console.print(rule, width=ncols)
 
-    #         success = result.p >= SIGLEVEL
-    #         verdict = "PASS" if success else "FAIL"
-    #         colour = "green" if success else "red"
-    #         f_verdict = Text(verdict, style=colour)
-    #     else:
-    #         f_pvalue = "-"
-    #         f_verdict = Text("N/A", style="yellow")
+    unsummarisable_fnames = []
 
-    #     table.add_row(f_name, f_pvalue, f_verdict)
+    table = Table(box=box.DOUBLE)
+    table.add_column("Statistical Test", justify="eft")
+    table.add_column("p-value", justify="left")
+    table.add_column("Verdict", justify="left")
+    for name, result in results.items():
+        f_name = f_randtest_names[name]
 
-    # console.print(table)
+        if isinstance(result, MultiTestResult):
+            unsummarisable_fnames.append(f_name)
+            continue
+
+        if result:
+            f_pvalue = str(round(result.p, 3))
+            f_pvalue += "0" * (5 - len(f_pvalue))  # zero pad
+
+            success = result.p >= SIGLEVEL
+            verdict = "PASS" if success else "FAIL"
+            colour = "green" if success else "red"
+            f_verdict = Text(verdict, style=colour)
+        else:
+            f_pvalue = "-"
+            f_verdict = Text("N/A", style="yellow")
+
+        table.add_row(f_name, f_pvalue, f_verdict)
+
+    if unsummarisable_fnames:
+        warn_msg = "Multiple test results are currently not summarisable:\n"
+        warn_msg += "\n".join(f"  • {f_name}" for f_name in unsummarisable_fnames)
+        print_warning(warn_msg)
+
+        console.print("")
+
+    console.print(table)
 
 
 def print_results(results: Dict[str, BaseTestResult]):
