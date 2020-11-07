@@ -213,8 +213,6 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
             try:
                 result = func(series, ctx=(progress, task))
 
-                progress.remove_task(task)
-
                 color = "yellow" if result.failures else "green"
 
                 print_randtest_name(name, color)
@@ -225,7 +223,7 @@ def run_all_tests(series: pd.Series) -> Iterator[Tuple[str, TestResult, Exceptio
                 results[name] = result
 
             except TestError as e:
-                progress.remove_task(task)
+                progress.update(task, completed=True)
 
                 print_randtest_name(name, "red")
                 print_error(e)
