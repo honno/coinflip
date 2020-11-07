@@ -94,10 +94,8 @@ class SerialMultiTestResult(MultiTestResult):
     def _render(self):
         first, second = list(self.results.items())
 
-        f_first = first[1]._pretty_result(prefix=first[0], stat_varname="delta psi²")
-        f_second = second[1]._pretty_result(
-            prefix=second[0], stat_varname="delta² psi²"
-        )
+        f_first = first[1]._pretty_result(prefix="first", stat_varname="delta psi²")
+        f_second = second[1]._pretty_result(prefix="second", stat_varname="delta² psi²")
 
         yield f_first
         yield f_second
