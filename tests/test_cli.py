@@ -11,7 +11,7 @@ from hypothesis.stateful import rule
 from coinflip.cli import commands
 from coinflip.cli import console
 
-from .randtests.test_randtests import _mixedbits
+from .strategies import mixedbits
 
 
 class CliStateMachine(RuleBasedStateMachine):
@@ -36,7 +36,7 @@ class CliStateMachine(RuleBasedStateMachine):
         result = self.runner.invoke(commands.example_run, [])
         assert result.exit_code == 0
 
-    @rule(target=randtest_results, sequence=_mixedbits())
+    @rule(target=randtest_results, sequence=mixedbits())
     def run(self, sequence):
         data = NamedTemporaryFile()
         out = NamedTemporaryFile()

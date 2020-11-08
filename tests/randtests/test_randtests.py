@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from math import log
-from random import getrandbits
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -16,6 +15,7 @@ from typing_extensions import Literal
 
 from coinflip import randtests
 
+from ..strategies import mixedbits
 from .examples import *
 from .impls import testmaps
 from .impls.core import ImplementationError
@@ -56,26 +56,15 @@ ArgsStrategy = SearchStrategy[Tuple[List[Literal[0, 1]], Dict]]
 
 
 @st.composite
-def _mixedbits(draw, min_size=2) -> SearchStrategy[List[Literal[0, 1]]]:
-    """Strategy to generate binary sequences"""
-    n = draw(st.integers(min_value=min_size, max_value=1000))
-
-    mixedbits = [getrandbits(1) for _ in range(n)]  # TODO make this reproducible
-    mixedbits[0:2] = [0, 1]  # force bits being mixed TODO use a filter
-
-    return mixedbits
-
-
-@st.composite
 def bits(draw, min_n=2) -> ArgsStrategy:
-    bits = draw(_mixedbits(min_size=min_n))
+    bits = draw(mixedbits(min_size=min_n))
 
     return bits, {}
 
 
 @st.composite
 def blocksize(draw, min_n=2) -> ArgsStrategy:
-    bits = draw(_mixedbits(min_size=min_n))
+    bits = draw(mixedbits(min_size=min_n))
 
     n = len(bits)
 
@@ -99,7 +88,7 @@ def matrix(draw) -> ArgsStrategy:
         nrows = naxis2
 
     blocksize = nrows * ncols
-    bits = draw(_mixedbits(min_size=blocksize))
+    bits = draw(mixedbits(min_size=blocksize))
 
     matrix_dimen = (nrows, ncols)
 
