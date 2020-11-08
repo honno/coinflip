@@ -1,4 +1,4 @@
-from copy import copy
+import webbrowser
 from tempfile import NamedTemporaryFile
 
 from click.testing import CliRunner
@@ -19,9 +19,8 @@ class CliStateMachine(RuleBasedStateMachine):
         super(CliStateMachine, self).__init__()
         self.runner = CliRunner()
 
-        # Make console dumb to tidy up captured stdout
-        self.prev_console = copy(console)
-        console.print = lambda *args, **kwargs: None
+        console.print = noop
+        webbrowser.open = noop
 
     randtest_results = Bundle("randtest_results")
     reports = Bundle("reports")
@@ -29,12 +28,12 @@ class CliStateMachine(RuleBasedStateMachine):
     @rule()
     def main(self):
         result = self.runner.invoke(commands.main, [])
-        assert result.exit_code == 0
+        assert_success(result)
 
     @rule()
     def example_run(self):
         result = self.runner.invoke(commands.example_run, [])
-        assert result.exit_code == 0
+        assert_success(result)
 
     @rule(target=randtest_results, sequence=mixedbits())
     def run(self, sequence):
@@ -50,26 +49,23 @@ class CliStateMachine(RuleBasedStateMachine):
             f.seek(0)
             result = self.runner.invoke(commands.run, [f.name, out.name])
 
-        assert result.exit_code == 0
+        assert_success(result)
 
         return out.name
 
     @rule(path=randtest_results)
     def read(self, path):
         result = self.runner.invoke(commands.read, [path])
-        assert result.exit_code == 0
+        assert_success(result)
 
     @rule(target=reports, path=randtest_results)
     def report(self, path):
         out = NamedTemporaryFile()
 
         result = self.runner.invoke(commands.report, [path, out.name])
-        assert result.exit_code == 0
+        assert_success(result)
 
         return out.name
-
-    def teardown(self):
-        console.print = self.prev_console.print
 
 
 TestCliStateMachine = CliStateMachine.TestCase  # top-level TestCase picked up by pytest
@@ -77,3 +73,11 @@ TestCliStateMachine.settings = settings(
     suppress_health_check=[HealthCheck.data_too_large, HealthCheck.too_slow],
     deadline=None,
 )
+
+
+def noop(*args, **kwargs):
+    return None
+
+
+def assert_success(result):
+    assert result.exit_code == 0, result.stderr if result.stderr_bytes else str(result)
