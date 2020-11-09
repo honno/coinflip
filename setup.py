@@ -21,7 +21,7 @@ def read(*names, **kwargs):
 
 setup(
     name="coinflip",
-    version="0.0.5",
+    version="0.1.0",
     description="Randomness testing for humans",
     long_description="%s\n%s"
     % (
