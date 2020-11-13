@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "coinflip"
+version = "0.1.0"
+description = "Randomness testing for humans"
+license = "BSD-3-Clause"
+authors = ["Matthew Barber <quitesimplymatt@gmail.com>"]
+repository = "https://github.com/Honno/coinflip"
+documentation = "https://coinflip.readthedocs.io/"
+keywords = ["rng", "nist", "rngtest", "randomness", "randomness-testing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Utilities",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries",
+    "Environment :: Console",
+]
+include = ["templates/*.html"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+numpy = "^1.19.4"
+pandas = "^1.1.4"
+scipy = "^1.5.4"
+rich = "^9.2.0"
+Jinja2 = "^2.11.2"
+altair = "^4.1.0"
+typing-extensions = "^3.7.4"
+more-itertools = "^8.6.0"
+click = "^7.1.2"
+
+[tool.poetry.scripts]
+coinflip = 'coinflip.cli.commands:main'
+
+[tool.poetry.dev-dependencies]
+tox = "^3.20.1"
+pre-commit = "^2.8.2"
+pytest = "^6.1.2"
+hypothesis = "^5.41.2"
+pytest-timeout = "^1.4.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

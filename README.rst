@@ -4,7 +4,7 @@ coinflip
 
 Randomness testing for humans
 
-|travis| |codecov| |docs| |license| |version| |supported-versions| |hypothesis| |black|
+|docs| |license| |version| |supported-versions| |hypothesis| |black|
 
 *coinflip* aims to implement the tests recommended by `NIST SP800-22
 <https://csrc.nist.gov/publications/detail/sp/800-22/rev-1a/final>`_
@@ -138,32 +138,12 @@ summaries, and a final overall summary table.
     :target: https://readthedocs.org/projects/coinflip
     :alt: Documentation Status
 
-.. |travis| image:: https://api.travis-ci.com/Honno/coinflip.svg?branch=master
-    :alt: Travis-CI build status
-    :target: https://travis-ci.com/Honno/coinflip
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/Honno/coinflip?branch=master&svg=true
-    :alt: AppVeyor build status
-    :target: https://ci.appveyor.com/project/Honno/coinflip
-
-.. |requires| image:: https://requires.io/github/Honno/coinflip/requirements.svg?branch=master
-    :alt: Requirements status
-    :target: https://requires.io/github/Honno/coinflip/requirements/?branch=master
-
-.. |codecov| image:: https://img.shields.io/codecov/c/gh/Honno/coinflip
-    :alt: Coverage status
-    :target: https://codecov.io/github/Honno/coinflip
-
 .. |hypothesis| image:: https://img.shields.io/badge/hypothesis-tested-brightgreen.svg
    :alt: Tested with Hypothesis
    :target: https://hypothesis.readthedocs.io
 
 .. |version| image:: https://img.shields.io/pypi/v/coinflip.svg
     :alt: PyPI package latest release
-    :target: https://pypi.org/project/coinflip
-
-.. |wheel| image:: https://img.shields.io/pypi/wheel/coinflip.svg
-    :alt: PyPI wheel
     :target: https://pypi.org/project/coinflip
 
 .. |supported-versions| image:: https://img.shields.io/badge/python-3.7%2B-informational

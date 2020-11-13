@@ -30,11 +30,9 @@ non-idiomatic programming conventions used in ``sts``.
    Number Generators for Cryptographic Applications", *Special Publication
    800-22 Revision 1a*, April 2010.
 """
-
 from typing import Tuple
 
 from coinflip import _randtests
-from coinflip import _refimpl as refimpl
 from coinflip._randtests.common import exceptions
 
 __all__ = [
@@ -54,7 +52,6 @@ __all__ = [
     "random_excursions",
     "random_excursions_variant",
     "exceptions",
-    "refimpl",
 ]
 
 
@@ -240,7 +237,9 @@ def overlapping_template_matching(sequence, template_size=None, blocksize=None):
         Dataclass that contains the test's statistic and p-value.
     """
     return _randtests.overlapping_template_matching(
-        sequence, template_size=template_size, blocksize=blocksize,
+        sequence,
+        template_size=template_size,
+        blocksize=blocksize,
     )
 
 
