@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Environment :: Console",
 ]
-include = ["templates/*.html"]
+include = ["LICENSE.md", "*.rst", "templates/", "docs/", "tests/"]
 
 [tool.poetry.scripts]
 coinflip = 'coinflip.cli.commands:main'
