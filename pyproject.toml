@@ -29,6 +29,10 @@ classifiers = [
 ]
 include = ["templates/*.html"]
 
+[tool.poetry.scripts]
+coinflip = 'coinflip.cli.commands:main'
+
+
 [tool.poetry.dependencies]
 python = "^3.7"
 numpy = "^1.19.4"
@@ -41,15 +45,25 @@ typing-extensions = "^3.7.4"
 more-itertools = "^8.6.0"
 click = "^7.1.2"
 
-[tool.poetry.scripts]
-coinflip = 'coinflip.cli.commands:main'
+# optional deps for use in extras
+
+# testing
+tox = {version = "^3.20.1", optional = true}
+pytest = {version = "^6.1.2", optional = true}
+hypothesis = {version = "^5.41.2", optional = true}
+pytest-timeout = {version = "^1.4.2", optional = true}
+
+# docs
+sphinx = {version = "^3", optional = true}
+sphinx-rtd-theme = {version = "^0.5.0", optional = true}
+sphinx-click = {version = "^2.5.0", optional = true}
+
+[tool.poetry.extras]
+test = ["tox", "pytest", "hypothesis", "pytest-timeout"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinx-click"]
 
 [tool.poetry.dev-dependencies]
-tox = "^3.20.1"
 pre-commit = "^2.8.2"
-pytest = "^6.1.2"
-hypothesis = "^5.41.2"
-pytest-timeout = "^1.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
