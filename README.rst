@@ -4,7 +4,7 @@ coinflip
 
 Randomness testing for humans
 
-|docs| |license| |version| |supported-versions| |hypothesis| |black|
+|build| |docs| |license| |version| |supported-versions| |hypothesis| |black|
 
 *coinflip* aims to implement the tests recommended by `NIST SP800-22
 <https://csrc.nist.gov/publications/detail/sp/800-22/rev-1a/final>`_
@@ -133,6 +133,10 @@ but note that the reports are currently very lacking.
 
 Output should comprise of the sequence parsed from ``DATA``, test-specific result
 summaries, and a final overall summary table.
+
+.. |build| image:: https://img.shields.io/github/workflow/status/Honno/coinflip/Test
+    :target: https://github.com/Honno/coinflip/actions?query=workflow%3ATest
+    :alt: GitHub Workflow Status
 
 .. |docs| image:: https://readthedocs.org/projects/coinflip/badge/?style=flat
     :target: https://readthedocs.org/projects/coinflip
