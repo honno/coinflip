@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "coinflip"
-version = "0.1.0"
+version = "0.1.1"
 description = "Randomness testing for humans"
 readme = "README.rst"
 license = "BSD-3-Clause"
