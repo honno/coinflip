@@ -67,6 +67,7 @@ docs = ["sphinx", "sphinx-rtd-theme", "sphinx-click"]
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.8.2"
+bump2version = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
