@@ -270,7 +270,7 @@ name = "more-itertools"
 version = "8.6.0"
 description = "More routines for operating on iterables, beyond itertools"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.5"
 
 [[package]]
@@ -745,7 +745,7 @@ test = ["tox", "pytest", "hypothesis", "pytest-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "919f603f381082e8fc008ad4141827557fca6215c111e0c53005ca7b02690a51"
+content-hash = "69888a8f7b06385d0a87c749f5576b7a177b6fed391207f14a472933029bb34e"
 
 [metadata.files]
 alabaster = [
