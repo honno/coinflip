@@ -1,6 +1,6 @@
 """Statistical tests for randomness
 
-This subpackage comprises of implementations of statistical tests laid out in a
+This sub-package comprises of implementations of statistical tests laid out in a
 comprehensive paper from NIST [1]_ in regards to assessing (pseudo-)random number
 generators.
 
@@ -19,7 +19,7 @@ downloaded from the `NIST website
 
 Note that the paper assumes a great amount of familiarity with certain
 concepts in statistics. It also uses some constants and algorithms without any
-explaination. Part of the purpose for ``coinflip`` is to "describe" the NIST tests
+explanations. Part of the purpose for ``coinflip`` is to "describe" the NIST tests
 more wholly than in the paper itself, whilst also reducing the noise of some
 non-idiomatic programming conventions used in ``sts``.
 
@@ -58,17 +58,17 @@ __all__ = [
 def monobit(sequence):
     """Proportion of values is compared to expected 1:1 ratio
 
-    The difference between the frequency of the two values is found, and
-    referenced to a hypothetically truly random RNG.
+    The difference between the occurrences of the two values in the sequence is
+    found, and referenced to a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
 
     Returns
     -------
-    result: ``MonobitTestResult``
+    result : ``MonobitTestResult``
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
     """
@@ -78,19 +78,20 @@ def monobit(sequence):
 def frequency_within_block(sequence, blocksize=None):
     """Proportion of values per block is compared to expected 1:1 ratio
 
-    The difference between the frequency of the two values in each block is
-    found, and referenced to a hypothetically truly random RNG.
+    The sequence is split into blocks, and the difference between the occurrences
+    of the two values in the sequence is found. This is referenced to a
+    hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
     blocksize : ``int``
-        Size of the blocks that partition the given series
+        Size of the blocks that partition the given sequence
 
     Returns
     -------
-    result: ``FrequencyWithinBlockTestResult``
+    result : ``FrequencyWithinBlockTestResult``
         Dataclass that contains the test's statistic and p-value as well as
         other relevant information gathered.
     """
@@ -98,20 +99,21 @@ def frequency_within_block(sequence, blocksize=None):
 
 
 def runs(sequence):
-    """Actual number of runs is compared to expected result
+    """Number of runs is compared to expected result
 
     The number of runs (uninterrupted sequence of the same value) is found, and
-    referenced to a hypothetically truly random RNG.
+    referenced to a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
 
     Returns
     -------
-    result: ``RunsTestResult``
-        Dataclass that contains the test's statistic and p-value
+    result : ``RunsTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
     """
     return _randtests.runs(sequence)
 
@@ -119,18 +121,20 @@ def runs(sequence):
 def longest_runs(sequence):
     """Longest runs per block is compared to expected result
 
-    The longest number of runs (uninterrupted sequence of the same value) per
-    block is found, and referenced to a hypothetically truly random RNG.
+    The sequence is split into blocks, where the longest number of runs
+    (uninterrupted sequence of the same value) in each block is found. This is
+    referenced to a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
 
     Returns
     -------
-    result: ``LongestRunsTestResult``
-        Dataclass that contains the test's statistic and p-value
+    result : ``LongestRunsTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
     """
     return _randtests.longest_runs(sequence)
 
@@ -138,23 +142,22 @@ def longest_runs(sequence):
 def binary_matrix_rank(sequence, matrix_dimen: Tuple[int, int] = None):
     """Independence of neighbouring sequences is compared to expected result
 
-    Independence is determined by the matrix rank of a subsequence, where it is
-    split into multiple rows to form a matrix. The counts of different rank bins
-    is referenced to a hypothetically truly random RNG.
+    The sequence is split into matrices, where the rank of each matrix is found
+    to determine independence. The counts of different rank bins is referenced
+    to a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
-    candidate : Value present in given sequence
-        The value which is counted in each block
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
     matrix_dimen : ``Tuple[int, int]``
         Number of rows and columns in each matrix
 
     Returns
     -------
-    result: ``BinaryMatrixRankTestResult``
-        Dataclass that contains the test's statistic and p-value
+    result : ``BinaryMatrixRankTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
     """
     return _randtests.binary_matrix_rank(sequence, matrix_dimen=matrix_dimen)
 
@@ -162,21 +165,21 @@ def binary_matrix_rank(sequence, matrix_dimen: Tuple[int, int] = None):
 def spectral(sequence):
     """Potency of periodic features in sequence is compared to expected result
 
-    The binary values are treated as the peaks and troughs respectively of a
-    signal, which is applied a Fourier transform so as to find constituent
-    periodic features. The strength of these features is referenced to the
-    expected potent periodic features present in a hypothetically truly random
-    RNG.
+    The sequence is treated as a signal, which is applied a Fourier transform so
+    as to find constituent periodic features. The strength of these features is
+    referenced to the expected periodic features present in a hypothetically
+    truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
 
     Returns
     -------
-    result: ``SpectralTestResult``
-        Dataclass that contains the test's statistic and p-value
+    result : ``SpectralTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
 
     Raises
     ------
@@ -189,52 +192,56 @@ def spectral(sequence):
 
 
 def non_overlapping_template_matching(sequence, template_size=None, blocksize=None):
-    """Matches of template per block is compared to expected result
+    """Matches to template per block is compared to expected result
 
     The sequence is split into blocks, where the number of non-overlapping
-    matches to the template in each block is found. This is referenced to the
-    expected mean and variance in matches of a hypothetically truly random RNG.
+    pattern matches to the template in each block is found. This is referenced
+    to the expected mean and variance in matches of a hypothetically truly
+    random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
     template_size : ``int``
         Size of all the templates to be generated
     blocksize : ``int``
-        Size of the blocks that partition the given series
+        Size of the blocks that partition the given sequence
 
     Returns
     -------
-    results: ``MultiNonOverlappingTemplateMatchingTestResult``
-        Dictionary that contains the multiple test results
+    results : ``NonOverlappingTemplateMatchingMultiTestResult``
+        Dataclass that contains the statistics and p-values of all sub-tests, as
+        well as other relevant information gathered.
     """
     return _randtests.non_overlapping_template_matching(
-        sequence, template_size=template_size, blocksize=blocksize
+        sequence,
+        template_size=template_size,
+        blocksize=blocksize,
     )
 
 
 def overlapping_template_matching(sequence, template_size=None, blocksize=None):
-    """Overlapping matches of template per block is compared to expected result
+    """Overlapping matches to template per block is compared to expected result
 
-    The sequence is split into ``nblocks`` blocks, where the number of
-    overlapping matches to the template in each block is found. This is
-    referenced to the expected mean and variance in matches of a hypothetically
-    truly random RNG.
+    The sequence is split into blocks, where the number of overlapping patterns
+    matches to the template in each block is found. This is referenced to the
+    expected mean and variance in matches of a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
     template_size : ``int``
         Size of the template to be generated
     blocksize : ``int``
-        Size of the blocks that partition the given series
+        Size of the blocks that partition the given sequence
 
     Returns
     -------
-    result: ``OverlappingTemplateMatchingTestResult``
-        Dataclass that contains the test's statistic and p-value.
+    result : ``OverlappingTemplateMatchingTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
     """
     return _randtests.overlapping_template_matching(
         sequence,
@@ -246,50 +253,159 @@ def overlapping_template_matching(sequence, template_size=None, blocksize=None):
 def maurers_universal(sequence, blocksize=None, init_nblocks=None):
     """Distance between patterns is compared to expected result
 
-    Unique permutations in an initial sequence are identified, and the
-    distances of aforementioned permutations in a remaining sequence are
-    accumulated. The normalised value for the accumulated distances is then
-    compared to a hypothetically truly random RNG.
-
+    The distinct patterns in an initial sequence are identified, and the
+    distances between subsequent occurences of these patterns in a remaining
+    sequence are accumulated. The normalised value for the accumulated distances
+    is referenced to a hypothetically truly random sequence.
 
     Parameters
     ----------
-    sequence : array-like
-        Output of the RNG being tested
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
     blocksize : ``int``
-        Size of the blocks that form a permutation
+        Size of the patterns
     init_nblocks : ``int``
-        Number of initial blocks to identify permutations
+        Number of initial blocks to identify patterns
 
     Returns
     -------
-    result: ``UniversalTestResult``
-        Dataclass that contains the test's statistic and p-value
+    result : ``UniversalTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
     """
     return _randtests.maurers_universal(
-        sequence, blocksize=blocksize, init_nblocks=init_nblocks
+        sequence,
+        blocksize=blocksize,
+        init_nblocks=init_nblocks,
     )
 
 
-def serial(sequence, blocksize=None):
-    return _randtests.serial(sequence, blocksize=blocksize)
-
-
 def linear_complexity(sequence, blocksize=None):
+    """LSFRs of blocks is compared to expected length
+
+    The seqience is split into blocks, where the shortest linear feedback shift
+    register is found for each block. The difference of each LSFR's length to the
+    expected mean length is binned, and is referenced to a hypothetically truly
+    random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+    blocksize : ``int``
+        Size of the blocks
+
+    Returns
+    -------
+    results : ``LinearComplexityTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
+    """
     return _randtests.linear_complexity(sequence, blocksize=blocksize)
 
 
+def serial(sequence, blocksize=None):
+    """Proportion of all overlapping patterns is compared to expected uniformity
+
+    The number of overlapping pattern matches for each distinct pattern is
+    found. This is referenced to a hypothetically truly random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+    blocksize : ``int``
+        Size of the patterns
+
+    Returns
+    -------
+    results : ``SerialMultiTestResult``
+        Dataclass that contains the statistics and p-values of all sub-tests, as
+        well as other relevant information gathered.
+    """
+    return _randtests.serial(sequence, blocksize=blocksize)
+
+
 def approximate_entropy(sequence, blocksize=None):
+    """Approximate entropy of sequence is compared to expected result
+
+    The approximate entropy of the sequence is found and referenced to a truly
+    random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+    blocksize : ``int``
+        Size of the patterns
+
+    Returns
+    -------
+    results : ``ApproximateEntropyTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
+    """
     return _randtests.approximate_entropy(sequence, blocksize=blocksize)
 
 
 def cusum(sequence, reverse=False):
+    """Furthest detour in a randomn walk is compared to expected result
+
+    The sequence is treated as a random walk, where the furthest detour from the
+    axis is identified and referenced to a hypothetically truly random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+    reverse : ``bool``
+        Cumulate sums from the end of the sequence first.
+
+    Returns
+    -------
+    results : ``CusumTestResult``
+        Dataclass that contains the test's statistic and p-value as well as
+        other relevant information gathered.
+    """
     return _randtests.cusum(sequence, reverse=reverse)
 
 
 def random_excursions(sequence):
+    """Frequency of states per cycle in a random walk is compared to expected results
+
+    The sequence is treated as a random walk, where the frequency of states -4
+    to 4 in each cycle is found. This is referenced to a hypothetically truly
+    random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+
+    Returns
+    -------
+    results : ``RandomExcursionsMultiTestResult``
+        Dataclass that contains the statistics and p-values of all sub-tests, as
+        well as other relevant information gathered.
+    """
     return _randtests.random_excursions(sequence)
 
 
 def random_excursions_variant(sequence):
+    """Proportion of states in a random walk is compared to expected results
+
+    The sequence is treated as a random walk, where the occurrences of states -9
+    to 9 is founded and referenced to a hypothetically truly random sequence.
+
+    Parameters
+    ----------
+    sequence : array-like with two distinct values
+        Sequence containing 2 distinct elements
+
+    Returns
+    -------
+    results : ``RandomExcursionsVariantMultiTestResult``
+        Dataclass that contains the statistics and p-values of all sub-tests, as
+        well as other relevant information gathered.
+    """
     return _randtests.random_excursions_variant(sequence)
