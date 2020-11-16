@@ -2,6 +2,7 @@
 name = "coinflip"
 version = "0.1.0"
 description = "Randomness testing for humans"
+readme = "README.rst"
 license = "BSD-3-Clause"
 authors = ["Matthew Barber <quitesimplymatt@gmail.com>"]
 repository = "https://github.com/Honno/coinflip"
