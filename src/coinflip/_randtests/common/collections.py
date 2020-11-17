@@ -1,4 +1,3 @@
-# TODO test non-ordered inputs, subclass OrderedDict
 from bisect import bisect_left
 from collections import defaultdict
 from collections.abc import MutableSequence
@@ -15,17 +14,30 @@ __all__ = ["Bins", "defaultlist", "FloorDict"]
 class Bins(dict):
     """Subclassed ``dict`` to initialise intervals as empty bins
 
-    If a key is accessed that does not exist, the nearest real key to the passed
-    key is used.
+    If a key is accessed that does not exist, the nearest interval is used.
+
+    Parameters
+    ----------
+    intervals: ``Iterable[Real]``
+        Indexes to be used to group subsequent
+
+    Examples
+    --------
+    >>> bins = Bins([0, 1, 2, 3, 4])
+    >>> bins
+    {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
+    >>> bins[5] += 10
+    >>> bins[4]
+    10
     """
 
     def __init__(self, intervals: Iterable[Real]):
-        """Initialise intervals as keys to values of 0"""
         empty_bins = {interval: 0 for interval in sorted(intervals)}
         super().__init__(empty_bins)
 
     @property
     def intervals(self) -> Tuple[Real]:
+        """The (sorted) intervals of the dict"""
         return tuple(self.keys())
 
     def __setitem__(self, key: Real, value: Real):
@@ -75,7 +87,7 @@ class Bins(dict):
 class defaultlist(MutableSequence):
     """A list with default values
 
-    .. warning:: ``defaultlist`` has not been extensively tested for production use
+    .. warning:: ``defaultlist`` has not been tested for production use yet
     """
 
     def __init__(self, default_factory):
@@ -132,7 +144,7 @@ class FloorDict(dict):
     If a key is accessed that does not exist, the nearest real key that is the
     less-than of the passed key is used.
 
-    .. warning:: ``FloorDict`` has not been extensively tested for production use
+    .. warning:: ``FloorDict`` has not been tested for production use yet
     """
 
     def __missing__(self, key):
