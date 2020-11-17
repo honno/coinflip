@@ -14,7 +14,7 @@ subsequently ``report`` on the results by generating informational HTML
 documents.
 
 ``coinflip.randtests`` acts as the `public API
-<https://coinflip.readthedocs.io/en/latest/reference/randtests/index.html>`_
+<https://coinflip.readthedocs.io/en/latest/reference/randtests.html>`_
 for `notebook users <https://jupyter.org/index.html>`_ and developers to use
 the randomness tests directly. The tests are implemented as general solutions,
 meaning they accept basically any sequence with two distinct elements!
