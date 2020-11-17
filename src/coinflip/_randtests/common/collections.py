@@ -3,29 +3,13 @@ from bisect import bisect_left
 from collections import defaultdict
 from collections.abc import MutableSequence
 from functools import lru_cache
+from numbers import Real
+from typing import Any
 from typing import Iterable
 from typing import Tuple
+from typing import Union
 
-__all__ = ["FloorDict", "Bins", "defaultlist"]
-
-
-class FloorDict(dict):
-    """Subclassed ``dict`` where invalid keys floor to the smallest real key
-
-    If a key is accessed that does not exist, the nearest real key that is the
-    less-than of the passed key is used.
-    """
-
-    def __missing__(self, key):
-        prevkey = None
-        for realkey, value in self.items():
-            if key < realkey:
-                if prevkey is None:
-                    raise KeyError("Passed key smaller than all real keys")
-                return super().__getitem__(prevkey)
-            prevkey = realkey
-        else:
-            return super().__getitem__(prevkey)
+__all__ = ["Bins", "defaultlist", "FloorDict"]
 
 
 class Bins(dict):
@@ -35,29 +19,29 @@ class Bins(dict):
     key is used.
     """
 
-    def __init__(self, intervals: Iterable[int]):
+    def __init__(self, intervals: Iterable[Real]):
         """Initialise intervals as keys to values of 0"""
         empty_bins = {interval: 0 for interval in intervals}
         super().__init__(empty_bins)
 
     @property
-    def intervals(self) -> Tuple[int]:
+    def intervals(self) -> Tuple[Real]:
         return tuple(self.keys())
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Real, value):
         realkey = self._roundkey(key)
         super().__setitem__(realkey, value)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Real):
         realkey = self._roundkey(key)
         return super().__getitem__(realkey)
 
-    def _roundkey(self, key):
+    def _roundkey(self, key: Real):
         return Bins._find_closest_interval(self.intervals, key)
 
     @classmethod
     @lru_cache()
-    def _find_closest_interval(cls, intervals, key):
+    def _find_closest_interval(cls, intervals: Tuple[Real], key: Real):
         minkey = intervals[0]
         midkeys = intervals[1:-1]
         maxkey = intervals[-1]
@@ -89,10 +73,15 @@ class Bins(dict):
 
 
 class defaultlist(MutableSequence):
+    """A list with default values
+
+    .. warning:: ``defaultlist`` has not been extensively tested for production use
+    """
+
     def __init__(self, default_factory):
         self._defaultdict = defaultdict(default_factory)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
             return self._defaultdict[key]
 
@@ -100,14 +89,14 @@ class defaultlist(MutableSequence):
             indices = range(key.start or 1, key.stop, key.step or 1)
             return [self[i] for i in indices]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Union[int, slice], value):
         if isinstance(key, int):
             self._defaultdict[key] = value
 
         elif isinstance(key, slice):
             raise NotImplementedError()  # TODO
 
-    def __delitem__(self, i):
+    def __delitem__(self, i: int):
         del self._defaultdict[i]
 
     def __len__(self):
@@ -122,7 +111,7 @@ class defaultlist(MutableSequence):
         f_dict = repr(self._defaultdict)
         return f"defaultlist({f_dict})"
 
-    def insert(self, key, value):
+    def insert(self, key: Union[int, slice], value: Any):
         if key < len(self):
             indices = self._defaultdict.keys()
             larger_indexes = [i for i in indices if i >= key]
@@ -133,5 +122,26 @@ class defaultlist(MutableSequence):
 
         self._defaultdict[key] = value
 
-    def append(self, value):
+    def append(self, value: Any):
         self.insert(len(self), value)
+
+
+class FloorDict(dict):
+    """Subclassed ``dict`` where invalid keys floor to the smallest real key
+
+    If a key is accessed that does not exist, the nearest real key that is the
+    less-than of the passed key is used.
+
+    .. warning:: ``FloorDict`` has not been extensively tested for production use
+    """
+
+    def __missing__(self, key):
+        prevkey = None
+        for realkey, value in self.items():
+            if key < realkey:
+                if prevkey is None:
+                    raise KeyError("Passed key smaller than all real keys")
+                return super().__getitem__(prevkey)
+            prevkey = realkey
+        else:
+            return super().__getitem__(prevkey)
