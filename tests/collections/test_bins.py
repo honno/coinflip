@@ -1,4 +1,4 @@
-from math import ceil
+import pickle
 from numbers import Real
 from typing import List
 
@@ -10,16 +10,7 @@ from hypothesis.strategies import SearchStrategy
 
 from coinflip.collections import Bins
 
-
-def real(min_value: Real = None) -> SearchStrategy[Real]:
-    return st.one_of(
-        st.integers(min_value=ceil(min_value) if min_value else None),
-        st.floats(
-            min_value=float(min_value) if min_value else None,
-            allow_nan=False,
-            allow_infinity=False,
-        ),
-    )
+from ..strategies import real
 
 
 @st.composite
@@ -29,7 +20,7 @@ def intervals(draw) -> SearchStrategy[List[Real]]:
     x = draw(real())
     intervals = [x]
     for _ in range(n - 1):
-        x = draw(real(min_value=x + 1))
+        x = draw(real().filter(lambda x: x not in intervals))
         intervals.append(x)
 
     return intervals
@@ -39,12 +30,19 @@ class BinsStateMachine(RuleBasedStateMachine):
     @initialize(intervals=intervals())
     def init_bin(self, intervals):
         self.bins = Bins(intervals)
+        print(intervals)
+        print(self.bins)
 
-    @rule(i=real(), n=real())
+    @rule(i=real(), n=real(allow_infinity=False))
     def increment(self, i, n):
         value_expect = self.bins[i] + n
         self.bins[i] += n
         assert self.bins[i] == value_expect
+
+    @rule()
+    def pickle(self):
+        pickled_bins = pickle.dumps(self.bins)
+        assert self.bins == pickle.loads(pickled_bins)
 
 
 TestBinsStateMachine = BinsStateMachine.TestCase

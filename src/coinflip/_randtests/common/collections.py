@@ -21,14 +21,14 @@ class Bins(dict):
 
     def __init__(self, intervals: Iterable[Real]):
         """Initialise intervals as keys to values of 0"""
-        empty_bins = {interval: 0 for interval in intervals}
+        empty_bins = {interval: 0 for interval in sorted(intervals)}
         super().__init__(empty_bins)
 
     @property
     def intervals(self) -> Tuple[Real]:
         return tuple(self.keys())
 
-    def __setitem__(self, key: Real, value):
+    def __setitem__(self, key: Real, value: Real):
         realkey = self._roundkey(key)
         super().__setitem__(realkey, value)
 
