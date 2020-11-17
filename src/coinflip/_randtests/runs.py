@@ -9,6 +9,8 @@ from typing import List
 from typing import NamedTuple
 from typing import Tuple
 
+import altair as alt
+import pandas as pd
 from rich.text import Text
 from scipy.stats import chisquare
 
@@ -163,30 +165,55 @@ class LongestRunsTestResult(TestResult):
     expected_bincounts: List[Float]
     maxlen_bins: Dict[Integer, Integer]
 
+    def _fmt_maxlen_ranges(self) -> List[str]:
+        f_ranges = [str(x) for x in self.maxlen_bins.keys()]
+        f_ranges[0] = f"0-{f_ranges[0]}"
+        f_ranges[-1] = f"{f_ranges[-1]}+"
+
+        return f_ranges
+
     def _render(self):
         yield self._pretty_result("chi-square")
 
         yield TestResult._pretty_inputs(
-            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
+            ("blocksize", self.blocksize),
+            ("nblocks", self.nblocks),
         )
 
         title = Text.assemble(
             "longest run of ", (str(self.heads), "bold"), " per block"
         )
 
-        f_ranges = [str(x) for x in self.maxlen_bins.keys()]
-        f_ranges[0] = f"0-{f_ranges[0]}"
-        f_ranges[-1] = f"{f_ranges[-1]}+"
-
         table = make_chisquare_table(
             title,
             "maxlen",
-            f_ranges,
+            self._fmt_maxlen_ranges(),
             self.expected_bincounts,
             self.maxlen_bins.values(),
         )
 
         yield table
+
+    def plot_maxlen_bins(self):
+        df = pd.DataFrame(
+            {
+                "Longest run": self._fmt_maxlen_ranges(),
+                "Number of blocks": self.maxlen_bins.values(),
+            }
+        )
+
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                alt.X("Longest run", axis=alt.Axis(tickMinStep=1)),
+                alt.Y("Number of blocks"),
+                tooltip="Number of blocks",
+            )
+            .properties(title=f"Longest runs of {self.heads} per block")
+        )
+
+        return chart
 
 
 # ------------------------------------------------------------------------------

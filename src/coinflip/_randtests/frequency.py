@@ -105,7 +105,7 @@ class MonobitTestResult(TestResult):
             .encode(
                 alt.X("Value"),
                 alt.Y("Count", axis=alt.Axis(tickMinStep=1)),
-                tooltip=["Value", "Count"],
+                tooltip="Count",
             )
             .properties(
                 title=f"Counts of {self.counts.max.value} and {self.counts.min.value}"
@@ -143,7 +143,14 @@ class MonobitTestResult(TestResult):
             )
             .properties(title="Proability density of count differences")
         )
-        chart_stat = alt.Chart(dist_stat).mark_area().encode(x="x", y="y",)
+        chart_stat = (
+            alt.Chart(dist_stat)
+            .mark_area()
+            .encode(
+                x="x",
+                y="y",
+            )
+        )
         chart = chart_dist + chart_stat
 
         return chart
@@ -198,7 +205,14 @@ def frequency_within_block(series, heads, tails, ctx, blocksize=None):
     advance_task(ctx)
 
     return FrequencyWithinBlockTestResult(
-        heads, tails, failures, statistic, p, blocksize, nblocks, counts,
+        heads,
+        tails,
+        failures,
+        statistic,
+        p,
+        blocksize,
+        nblocks,
+        counts,
     )
 
 
