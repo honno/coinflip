@@ -7,6 +7,7 @@ from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import initialize
 from hypothesis.stateful import rule
 from hypothesis.strategies import SearchStrategy
+from pytest import raises
 
 from coinflip.collections import Bins
 
@@ -46,3 +47,8 @@ class BinsStateMachine(RuleBasedStateMachine):
 
 
 TestBinsStateMachine = BinsStateMachine.TestCase
+
+
+def test_duplicate_intervals():
+    with raises(ValueError):
+        Bins([0, 1, 2, 2, 3])

@@ -1,5 +1,8 @@
 from bisect import bisect_left
+from collections import Counter
+from collections import OrderedDict
 from collections import defaultdict
+from collections.abc import MutableMapping
 from collections.abc import MutableSequence
 from functools import lru_cache
 from numbers import Real
@@ -11,42 +14,59 @@ from typing import Union
 __all__ = ["Bins", "defaultlist", "FloorDict"]
 
 
-class Bins(dict):
-    """Subclassed ``dict`` to initialise intervals as empty bins
+class Bins(MutableMapping):
+    """Mapping that initialises intervals as empty bins
 
     If a key is accessed that does not exist, the nearest interval is used.
 
     Parameters
     ----------
     intervals: ``Iterable[Real]``
-        Indexes to be used to group subsequent
+        Non-existent keys will round to the closest of these intervals
 
     Examples
     --------
     >>> bins = Bins([0, 1, 2, 3, 4])
     >>> bins
     {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
-    >>> bins[5] += 10
-    >>> bins[4]
-    10
+    >>> bins[3] += 1
+    >>> bins
+    {0: 0, 1: 0, 2: 0, 3: 1, 4: 0}
+    >>> bins[7] += 1
+    >>> bins[11] += 1
+    >>> bins[4.5] += 1
+    >>> bins
+    {0: 0, 1: 0, 2: 0, 3: 1, 4: 3}
+    >>> bins[-1000000] += 1
+    >>> bins
+    {0: 1, 1: 0, 2: 0, 3: 1, 4: 3}
+    >>> bins[2.25] += 1
+    {0: 1, 1: 0, 2: 1, 3: 1, 4: 3}
     """
 
     def __init__(self, intervals: Iterable[Real]):
-        empty_bins = {interval: 0 for interval in sorted(intervals)}
-        super().__init__(empty_bins)
+        counts = Counter(intervals)
+        if any(count > 1 for count in counts.values()):
+            raise ValueError("Duplicate intervals for binning were passed")
+
+        empty_bins = {interval: 0 for interval in intervals}
+        self._odict = OrderedDict(empty_bins)
 
     @property
     def intervals(self) -> Tuple[Real]:
-        """The (sorted) intervals of the dict"""
-        return tuple(self.keys())
-
-    def __setitem__(self, key: Real, value: Real):
-        realkey = self._roundkey(key)
-        super().__setitem__(realkey, value)
+        return tuple(self._odict.keys())
 
     def __getitem__(self, key: Real):
         realkey = self._roundkey(key)
-        return super().__getitem__(realkey)
+        return self._odict[realkey]
+
+    def __setitem__(self, key: Real, value: Real):
+        realkey = self._roundkey(key)
+        self._odict[realkey] = value
+
+    def __delitem__(self, key: Real):
+        realkey = self._roundkey(key)
+        del self._odict[realkey]
 
     def _roundkey(self, key: Real):
         return Bins._find_closest_interval(self.intervals, key)
@@ -74,14 +94,17 @@ class Bins(dict):
             else:
                 return rightkey
 
-    def __getstate__(self):
-        return dict(self)
+    def __iter__(self):
+        return iter(self._odict)
 
-    def __setstate__(self, state):
-        self.update(state)
+    def __len__(self):
+        return len(self._odict)
 
-    def __reduce__(self):
-        return (Bins, (self.intervals,), self.__getstate__())
+    def __repr__(self):
+        return str(dict(self))
+
+    def __str__(self):
+        return f"Bins({repr(self)})"
 
 
 class defaultlist(MutableSequence):
