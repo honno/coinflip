@@ -21,8 +21,8 @@ from scipy.stats import chisquare
 from scipy.stats import norm
 from typing_extensions import Literal
 
-from coinflip.algos import berlekamp_massey
-from coinflip.algos import matrix_rank
+from coinflip.algorithms import berlekamp_massey
+from coinflip.algorithms import matrix_rank
 from coinflip.collections import Bins
 from coinflip.collections import FloorDict
 from coinflip.collections import defaultlist

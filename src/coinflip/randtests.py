@@ -30,6 +30,7 @@ non-idiomatic programming conventions used in ``sts``.
    Number Generators for Cryptographic Applications", *Special Publication
    800-22 Revision 1a*, April 2010.
 """
+from typing import Optional
 from typing import Tuple
 
 from coinflip import _randtests
@@ -75,7 +76,7 @@ def monobit(sequence):
     return _randtests.monobit(sequence)
 
 
-def frequency_within_block(sequence, blocksize=None):
+def frequency_within_block(sequence, blocksize: Optional[int] = None):
     """Proportion of values per block is compared to expected 1:1 ratio
 
     The sequence is split into blocks, and the difference between the occurrences
@@ -139,7 +140,7 @@ def longest_runs(sequence):
     return _randtests.longest_runs(sequence)
 
 
-def binary_matrix_rank(sequence, matrix_dimen: Tuple[int, int] = None):
+def binary_matrix_rank(sequence, matrix_dimen: Optional[Tuple[int, int]] = None):
     """Independence of neighbouring sequences is compared to expected result
 
     The sequence is split into matrices, where the rank of each matrix is found
@@ -191,7 +192,9 @@ def spectral(sequence):
     return _randtests.spectral(sequence)
 
 
-def non_overlapping_template_matching(sequence, template_size=None, blocksize=None):
+def non_overlapping_template_matching(
+    sequence, template_size: Optional[int] = None, blocksize: Optional[int] = None
+):
     """Matches to template per block is compared to expected result
 
     The sequence is split into blocks, where the number of non-overlapping
@@ -221,7 +224,9 @@ def non_overlapping_template_matching(sequence, template_size=None, blocksize=No
     )
 
 
-def overlapping_template_matching(sequence, template_size=None, blocksize=None):
+def overlapping_template_matching(
+    sequence, template_size: Optional[int] = None, blocksize: Optional[int] = None
+):
     """Overlapping matches to template per block is compared to expected result
 
     The sequence is split into blocks, where the number of overlapping patterns
@@ -250,7 +255,9 @@ def overlapping_template_matching(sequence, template_size=None, blocksize=None):
     )
 
 
-def maurers_universal(sequence, blocksize=None, init_nblocks=None):
+def maurers_universal(
+    sequence, blocksize: Optional[int] = None, init_nblocks: Optional[int] = None
+):
     """Distance between patterns is compared to expected result
 
     The distinct patterns in an initial sequence are identified, and the
@@ -280,7 +287,7 @@ def maurers_universal(sequence, blocksize=None, init_nblocks=None):
     )
 
 
-def linear_complexity(sequence, blocksize=None):
+def linear_complexity(sequence, blocksize: Optional[int] = None):
     """LSFRs of blocks is compared to expected length
 
     The seqience is split into blocks, where the shortest linear feedback shift
@@ -304,7 +311,7 @@ def linear_complexity(sequence, blocksize=None):
     return _randtests.linear_complexity(sequence, blocksize=blocksize)
 
 
-def serial(sequence, blocksize=None):
+def serial(sequence, blocksize: Optional[int] = None):
     """Proportion of all overlapping patterns is compared to expected uniformity
 
     The number of overlapping pattern matches for each distinct pattern is
@@ -326,7 +333,7 @@ def serial(sequence, blocksize=None):
     return _randtests.serial(sequence, blocksize=blocksize)
 
 
-def approximate_entropy(sequence, blocksize=None):
+def approximate_entropy(sequence, blocksize: Optional[int] = None):
     """Approximate entropy of sequence is compared to expected result
 
     The approximate entropy of the sequence is found and referenced to a truly
@@ -348,7 +355,7 @@ def approximate_entropy(sequence, blocksize=None):
     return _randtests.approximate_entropy(sequence, blocksize=blocksize)
 
 
-def cusum(sequence, reverse=False):
+def cusum(sequence, reverse: bool = False):
     """Furthest detour in a randomn walk is compared to expected result
 
     The sequence is treated as a random walk, where the furthest detour from the

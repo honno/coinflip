@@ -5,6 +5,6 @@ Reference
 .. toctree::
 
    randtests
-   algos
+   algorithms
    collections
    generators
