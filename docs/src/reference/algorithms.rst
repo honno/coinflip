@@ -1,6 +1,6 @@
-===========
-arlgorithms
-===========
+==========
+algorithms
+==========
 
 .. automodule:: coinflip.algorithms
     :members:

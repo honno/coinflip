@@ -57,16 +57,16 @@ class Bins(MutableMapping):
         return tuple(self._odict.keys())
 
     def __getitem__(self, key: Real):
-        realkey = self._roundkey(key)
-        return self._odict[realkey]
+        interval = self._roundkey(key)
+        return self._odict[interval]
 
     def __setitem__(self, key: Real, value: Real):
-        realkey = self._roundkey(key)
-        self._odict[realkey] = value
+        interval = self._roundkey(key)
+        self._odict[interval] = value
 
     def __delitem__(self, key: Real):
-        realkey = self._roundkey(key)
-        del self._odict[realkey]
+        interval = self._roundkey(key)
+        del self._odict[interval]
 
     def _roundkey(self, key: Real):
         return Bins._find_closest_interval(self.intervals, key)
@@ -172,11 +172,11 @@ class FloorDict(dict):
 
     def __missing__(self, key):
         prevkey = None
-        for realkey, value in self.items():
-            if key < realkey:
+        for interval, value in self.items():
+            if key < interval:
                 if prevkey is None:
                     raise KeyError("Passed key smaller than all real keys")
                 return super().__getitem__(prevkey)
-            prevkey = realkey
+            prevkey = interval
         else:
             return super().__getitem__(prevkey)
