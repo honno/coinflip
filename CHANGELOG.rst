@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.1.2 (2020-11-18)
+------------------
+
+* ``coinflip.collections.bins`` now uses ``OrderedDict`` under the hood.
+
+
 0.1.1 (2020-11-16)
 ------------------
 
