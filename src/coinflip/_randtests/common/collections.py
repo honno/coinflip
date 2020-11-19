@@ -101,7 +101,7 @@ def find_closest_interval(intervals: Tuple[Real], key: Real):
         leftkey = intervals[i - 1]
         rightkey = intervals[i]
 
-        if leftkey - key > rightkey - key:
+        if abs(leftkey - key) < abs(rightkey - key):
             return leftkey
         else:
             return rightkey

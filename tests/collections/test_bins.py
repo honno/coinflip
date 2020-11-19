@@ -52,3 +52,10 @@ TestBinsStateMachine = BinsStateMachine.TestCase
 def test_duplicate_intervals():
     with raises(ValueError):
         Bins([0, 1, 2, 2, 3])
+
+
+def test_bisect_step():
+    bins = Bins([-6, -3, 0, 3, 6])
+    bins[0.5] += 1
+    assert bins[3] == 0
+    assert bins[0] == 1
