@@ -2,6 +2,12 @@
 Changelog
 =========
 
+0.1.3 (2020-11-19)
+------------------
+
+* Fixed wrong intervals being rounded to in ``coinflip.collections.bins``.
+
+
 0.1.2 (2020-11-18)
 ------------------
 
