@@ -69,30 +69,7 @@ class Bins(MutableMapping):
         del self._odict[interval]
 
     def _roundkey(self, key: Real):
-        return Bins._find_closest_interval(self.intervals, key)
-
-    @classmethod
-    @lru_cache()
-    def _find_closest_interval(cls, intervals: Tuple[Real], key: Real):
-        minkey = intervals[0]
-        midkeys = intervals[1:-1]
-        maxkey = intervals[-1]
-
-        if key <= minkey:
-            return minkey
-        elif key >= maxkey:
-            return maxkey
-        elif key in midkeys:
-            return key
-        else:
-            i = bisect_left(intervals, key)
-            leftkey = intervals[i - 1]
-            rightkey = intervals[i]
-
-            if leftkey - key > rightkey - key:
-                return leftkey
-            else:
-                return rightkey
+        return find_closest_interval(self.intervals, key)
 
     def __iter__(self):
         return iter(self._odict)
@@ -105,6 +82,29 @@ class Bins(MutableMapping):
 
     def __str__(self):
         return f"Bins({repr(self)})"
+
+
+@lru_cache()
+def find_closest_interval(intervals: Tuple[Real], key: Real):
+    minkey = intervals[0]
+    midkeys = intervals[1:-1]
+    maxkey = intervals[-1]
+
+    if key <= minkey:
+        return minkey
+    elif key >= maxkey:
+        return maxkey
+    elif key in midkeys:
+        return key
+    else:
+        i = bisect_left(intervals, key)
+        leftkey = intervals[i - 1]
+        rightkey = intervals[i]
+
+        if leftkey - key > rightkey - key:
+            return leftkey
+        else:
+            return rightkey
 
 
 class defaultlist(MutableSequence):
