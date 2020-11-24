@@ -7,7 +7,11 @@ from collections.abc import MutableSequence
 from functools import lru_cache
 from numbers import Real
 from typing import Any
+from typing import Callable
 from typing import Iterable
+from typing import KeysView
+from typing import Optional
+from typing import Sequence
 from typing import Tuple
 from typing import Union
 
@@ -21,7 +25,7 @@ class Bins(MutableMapping):
 
     Parameters
     ----------
-    intervals: ``Iterable[Real]``
+    intervals : ``Iterable[Real]``
         Non-existent keys will round to the closest of these intervals
 
     Examples
@@ -111,55 +115,135 @@ def find_closest_interval(intervals: Tuple[Real], key: Real):
 class defaultlist(MutableSequence):
     """A list with default values
 
-    .. warning:: ``defaultlist`` has not been tested for production use yet
+    Parameters
+    ----------
+    default_factory : ``Callable``, optional
     """
 
-    def __init__(self, default_factory):
-        self._defaultdict = defaultdict(default_factory)
+    def __init__(self, default_factory: Optional[Callable] = None):
+        self._ddict = defaultdict(default_factory)
+
+    @property
+    def default_factory(self) -> Optional[Callable]:
+        return self._ddict.default_factory
+
+    def keys(self) -> KeysView[int]:
+        return self._ddict.keys()
 
     def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
-            return self._defaultdict[key]
+            i = key if key >= 0 else len(self) + key
+            return self._ddict[i]
 
         elif isinstance(key, slice):
-            indices = range(key.start or 1, key.stop, key.step or 1)
-            return [self[i] for i in indices]
+            copy_range = range(len(self))[key]
 
-    def __setitem__(self, key: Union[int, slice], value):
+            dlist = defaultlist()
+            dlist += [self._ddict[i] for i in copy_range]
+
+            return dlist
+
+        else:
+            name = type(key).__name__
+            raise TypeError(
+                f"defaultlist indices must be integers or slices, not {name}"
+            )
+
+    def __setitem__(self, key: Union[int, slice], value: Any):
         if isinstance(key, int):
-            self._defaultdict[key] = value
+            i = key if key >= 0 else len(self) + key
+            self._ddict[i] = value
 
         elif isinstance(key, slice):
-            raise NotImplementedError()  # TODO
+            if not (key.step is None or key.step == 1):
+                raise NotImplementedError("extended slices are not supported yet")
 
+            # 0.1 determine the current len, slice range, and value(s) to be inserted
+
+            n = len(self)
+
+            values = list(value) if isinstance(value, Iterable) else [value]
+            nvalues = len(values)
+
+            # 0.2 determine del range
+
+            dstart, dstop, _ = key.indices(n)
+            if dstart > dstop:
+                dstop = dstart
+
+            del_range = range(dstart, dstop)
+
+            # 0.3 determine the insert range
+
+            if key.start is None:
+                istart = 0
+            elif key.start < 0:
+                istart = n + key.start
+            else:
+                istart = key.start
+
+            insert_range = range(istart, istart + nvalues)
+
+            # 1. delete elements in slice range
+
+            indices2del = [
+                i for i in self.keys() if del_range.start <= i < del_range.stop
+            ]
+            for i in indices2del:
+                del self._ddict[i]
+
+            # 2. update elements above slice range
+
+            diff = nvalues - len(del_range)
+            larger_indices = [i for i in self.keys() if i >= del_range.stop]
+            reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
+            for i in larger_indices:
+                del self._ddict[i]
+            self._ddict.update(reindexed_subdict)
+
+            # 3. insert values safely
+
+            for i, v in zip(insert_range, values):
+                self[i] = v
+
+        else:
+            name = type(key).__name__
+            raise TypeError(
+                f"defaultlist indices must be integers or slices, not {name}"
+            )
+
+    # TODO support slices
     def __delitem__(self, i: int):
-        del self._defaultdict[i]
+        del self._ddict[i]
 
     def __len__(self):
-        indices = self._defaultdict.keys()
-        return max(indices) + 1
+        if self.keys():
+            return max(self.keys()) + 1
+        else:
+            return 0
 
     def __iter__(self):
         for i in range(len(self)):
-            yield self[i]
+            yield self._ddict[i]
+
+    def insert(self, i: int, value: Any):
+        self[i:i] = value
+
+    def __eq__(self, other):
+        if isinstance(other, Sequence):
+            if len(self) != len(other):
+                return False
+            else:
+                return all(a == b for a, b in zip(self, other))
+        else:
+            return False
 
     def __repr__(self):
-        f_dict = repr(self._defaultdict)
-        return f"defaultlist({f_dict})"
+        list_ = list(self[: len(self)])
+        return repr(list_)
 
-    def insert(self, key: Union[int, slice], value: Any):
-        if key < len(self):
-            indices = self._defaultdict.keys()
-            larger_indexes = [i for i in indices if i >= key]
-            reindexed_subdict = {i + 1: self._defaultdict[i] for i in larger_indexes}
-            for i in larger_indexes:
-                del self._defaultdict[i]
-            self._defaultdict.update(reindexed_subdict)
-
-        self._defaultdict[key] = value
-
-    def append(self, value: Any):
-        self.insert(len(self), value)
+    def __str__(self):
+        return f"defaultlist({self.default_factory}, {repr(self)})"
 
 
 class FloorDict(dict):

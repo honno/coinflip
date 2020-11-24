@@ -29,10 +29,8 @@ def intervals(draw) -> SearchStrategy[List[Real]]:
 
 class BinsStateMachine(RuleBasedStateMachine):
     @initialize(intervals=intervals())
-    def init_bin(self, intervals):
+    def init_bins(self, intervals):
         self.bins = Bins(intervals)
-        print(intervals)
-        print(self.bins)
 
     @rule(i=real(), n=real(allow_infinity=False))
     def increment(self, i, n):
@@ -43,7 +41,7 @@ class BinsStateMachine(RuleBasedStateMachine):
     @rule()
     def pickle(self):
         pickled_bins = pickle.dumps(self.bins)
-        assert self.bins == pickle.loads(pickled_bins)
+        assert pickle.loads(pickled_bins) == self.bins
 
 
 TestBinsStateMachine = BinsStateMachine.TestCase
@@ -59,3 +57,10 @@ def test_bisect_step():
     bins[0.5] += 1
     assert bins[3] == 0
     assert bins[0] == 1
+
+
+def test_del():
+    bins = Bins([-6, -3, 0, 3, 6])
+    bins[6] += 100
+    del bins[6]
+    assert bins[3] == 100
