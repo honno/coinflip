@@ -40,7 +40,12 @@ __all__ = ["non_overlapping_template_matching", "overlapping_template_matching"]
 
 @randtest()
 def non_overlapping_template_matching(
-    series, heads, tails, ctx, template_size=None, blocksize=None,
+    series,
+    heads,
+    tails,
+    ctx,
+    template_size=None,
+    blocksize=None,
 ):
     n = len(series)
 
@@ -93,11 +98,15 @@ def non_overlapping_template_matching(
         block_matches = template_block_matches[template][:nblocks]
         match_diffs = [matches - matches_expect for matches in block_matches]
 
-        statistic = sum(diff ** 2 / variance for diff in block_matches)
+        statistic = sum(diff ** 2 / variance for diff in match_diffs)
         p = gammaincc(nblocks / 2, statistic / 2)
 
         results[template] = NonOverlappingTemplateMatchingSubTestResult(
-            statistic, p, template, block_matches, match_diffs,
+            statistic,
+            p,
+            template,
+            block_matches,
+            match_diffs,
         )
 
     advance_task(ctx)
@@ -138,7 +147,8 @@ class NonOverlappingTemplateMatchingMultiTestResult(MultiTestResult):
     # TODO q value
     def _render(self):
         yield self._pretty_inputs(
-            ("blocksize", self.blocksize), ("nblocks", self.nblocks),
+            ("blocksize", self.blocksize),
+            ("nblocks", self.nblocks),
         )
 
         yield self._results_table("template", "χ²")
@@ -280,7 +290,11 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         f_nmatches[-1] = f"{f_nmatches[-1]}+"
 
         table = make_chisquare_table(
-            title, "matches", f_nmatches, self.expected_tallies, self.tallies,
+            title,
+            "matches",
+            f_nmatches,
+            self.expected_tallies,
+            self.tallies,
         )
 
         yield table
