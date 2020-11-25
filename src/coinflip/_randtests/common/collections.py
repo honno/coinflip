@@ -47,6 +47,8 @@ class Bins(MutableMapping):
     >>> bins[0.5] += 1                  # n = 0
     >>> bins
     {-6: 1, -3: 0, 0: 1, 3: 1, 6: 3}
+    >>> del bins[6]
+    {-6: 1, -3: 0, 0: 1, 3: 4}
     """
 
     def __init__(self, intervals: Iterable[Real]):
@@ -70,8 +72,9 @@ class Bins(MutableMapping):
         self._odict[interval] = value
 
     def __delitem__(self, key: Real):
-        interval = self._roundkey(key)
-        del self._odict[interval]
+        value = self._odict[key]
+        del self._odict[key]
+        self[key] += value
 
     def _roundkey(self, key: Real):
         return find_closest_interval(self.intervals, key)
