@@ -23,19 +23,21 @@ class DefaultListStateMachine(RuleBasedStateMachine):
         self.dlist = defaultlist()
         self.dlist[:] = ints
 
+    @property
+    def n(self):
+        return len(self.list_)
+
     @rule(data=st.data())
     def get(self, data):
-        n = len(self.list_)
-        assume(n > 0)
-        i = data.draw(st.integers(min_value=0, max_value=n - 1))
+        assume(self.n > 0)
+        i = data.draw(st.integers(min_value=0, max_value=self.n - 1))
 
         assert self.dlist[i] == self.list_[i]
 
     @rule(data=st.data(), chars=chars)
     def set(self, data, chars):
-        n = len(self.list_)
-        assume(n > 0)
-        i = data.draw(st.integers(min_value=0, max_value=n - 1))
+        assume(self.n > 0)
+        i = data.draw(st.integers(min_value=0, max_value=self.n - 1))
 
         self.list_[i] = chars
         self.dlist[i] = chars
@@ -58,12 +60,12 @@ class DefaultListStateMachine(RuleBasedStateMachine):
 
     @rule(data=st.data())
     def slice_get(self, data):
-        slice_ = data.draw(slices(len(self.list_)))
+        slice_ = data.draw(slices(self.n))
         self.dlist[slice_] == self.list_[slice_]
 
     @rule(data=st.data(), chars_or_ints=st.one_of(chars, ints))
     def slice_set(self, data, chars_or_ints):
-        slice_ = data.draw(slices(len(self.list_)))
+        slice_ = data.draw(slices(self.n))
 
         self.list_[slice_] = chars_or_ints
         self.dlist[slice_] = chars_or_ints
