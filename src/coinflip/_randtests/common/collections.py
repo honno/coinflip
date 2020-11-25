@@ -137,7 +137,7 @@ class defaultlist(MutableSequence):
             return self._ddict[i]
 
         elif isinstance(key, slice):
-            if not (key.step is None or key.step == 1):
+            if not (key.step is None or abs(key.step) == 1):
                 raise NotImplementedError("extended slices are not supported yet")
 
             n = len(self)
@@ -146,6 +146,8 @@ class defaultlist(MutableSequence):
                 start = 0
             elif key.start < 0:
                 start = n + key.start
+            elif key.start >= n:
+                start = max(n - 1, 0)
             else:
                 start = key.start
 
@@ -153,10 +155,17 @@ class defaultlist(MutableSequence):
                 stop = n
             elif key.stop < 0:
                 stop = n + key.stop
+            elif key.stop >= n:
+                stop = max(n - 1, 0)
             else:
                 stop = key.stop
 
-            copy_range = range(start, stop)
+            if key.step is None:
+                step = 1
+            else:
+                step = key.step
+
+            copy_range = range(start, stop, step)
 
             dlist = defaultlist()
             dlist += [self._ddict[i] for i in copy_range]

@@ -11,10 +11,6 @@ chars = st.from_regex(r"[a-z]*", fullmatch=True)
 
 
 # TODO test extended slices (ugh)
-def slices(n):
-    return st.slices(n).filter(lambda k: k.step is None or k.step == 1)
-
-
 class DefaultListStateMachine(RuleBasedStateMachine):
     @initialize(ints=ints)
     def init_lists(self, ints):
@@ -60,12 +56,16 @@ class DefaultListStateMachine(RuleBasedStateMachine):
 
     @rule(data=st.data())
     def slice_get(self, data):
-        slice_ = data.draw(slices(self.n))
+        slice_ = data.draw(
+            st.slices(self.n).filter(lambda k: k.step is None or abs(k.step) == 1)
+        )
         self.dlist[slice_] == self.list_[slice_]
 
     @rule(data=st.data(), chars_or_ints=st.one_of(chars, ints))
     def slice_set(self, data, chars_or_ints):
-        slice_ = data.draw(slices(self.n))
+        slice_ = data.draw(
+            st.slices(self.n).filter(lambda k: k.step is None or k.step == 1)
+        )
 
         self.list_[slice_] = chars_or_ints
         self.dlist[slice_] = chars_or_ints
