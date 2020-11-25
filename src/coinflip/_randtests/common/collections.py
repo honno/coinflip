@@ -11,7 +11,6 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Iterable
-from typing import KeysView
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
@@ -132,9 +131,6 @@ class defaultlist(MutableSequence):
     def default_factory(self) -> Optional[Callable]:
         return self._ddict.default_factory
 
-    def keys(self) -> KeysView[int]:
-        return self._ddict.keys()
-
     def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
             i = key if key >= 0 else len(self) + key
@@ -182,7 +178,7 @@ class defaultlist(MutableSequence):
             if not (key.step is None or key.step == 1):
                 raise NotImplementedError("extended slices are not supported yet")
 
-            # 0.1 determine the current len, slice range, and value(s) to be inserted
+            # 0.1 determine the current len and value(s) to be inserted
 
             n = len(self)
 
@@ -208,18 +204,18 @@ class defaultlist(MutableSequence):
 
             insert_range = range(istart, istart + nvalues)
 
-            # 1. delete elements in slice range
+            # 1. delete elements in del range
 
             indices2del = [
-                i for i in self.keys() if del_range.start <= i < del_range.stop
+                i for i in self._ddict.keys() if del_range.start <= i < del_range.stop
             ]
             for i in indices2del:
                 del self._ddict[i]
 
-            # 2. update elements above slice range
+            # 2. update elements above del range
 
             diff = nvalues - len(del_range)
-            larger_indices = [i for i in self.keys() if i >= del_range.stop]
+            larger_indices = [i for i in self._ddict.keys() if i >= del_range.stop]
             reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
             for i in larger_indices:
                 del self._ddict[i]
@@ -241,8 +237,8 @@ class defaultlist(MutableSequence):
         del self._ddict[i]
 
     def __len__(self):
-        if self.keys():
-            return max(self.keys()) + 1
+        if self._ddict.keys():
+            return max(self._ddict.keys()) + 1
         else:
             return 0
 
@@ -251,7 +247,13 @@ class defaultlist(MutableSequence):
             yield self._ddict[i]
 
     def insert(self, i: int, value: Any):
-        self[i:i] = value
+        larger_indices = [li for li in self._ddict.keys() if li >= i]
+        reindexed_subdict = {li + 1: self._ddict[li] for li in larger_indices}
+        for i in larger_indices:
+            del self._ddict[i]
+        self._ddict.update(reindexed_subdict)
+
+        self._ddict[i] = value
 
     def __eq__(self, other):
         if isinstance(other, Sequence):
