@@ -133,6 +133,7 @@ class defaultlist(MutableSequence):
 
     def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
+            # TODO neg
             i = key if key >= 0 else len(self) + key
             return self._ddict[i]
 
@@ -152,6 +153,7 @@ class defaultlist(MutableSequence):
 
     def __setitem__(self, key: Union[int, slice], value: Any):
         if isinstance(key, int):
+            # TODO neg
             i = key if key >= 0 else len(self) + key
             self._ddict[i] = value
 
@@ -187,28 +189,28 @@ class defaultlist(MutableSequence):
 
             # 2. delete keys in del range
 
-            for i in [i for i in self._ddict.keys() if i in del_range]:
+            for i in [k for k in self._ddict.keys() if k in del_range]:
                 del self._ddict[i]
 
             # 3. update keys above del range
 
             diff = nvalues - len(del_range)
             if diff:
-                larger_indices = [
-                    i
-                    for i in self._ddict.keys()
-                    if i >= max(del_range.start, del_range.stop)
+                larger_keys = [
+                    k
+                    for k in self._ddict.keys()
+                    if k >= max(del_range.start, del_range.stop)
                 ]
-                reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
+                reindexed_subdict = {k + diff: self._ddict[k] for k in larger_keys}
 
-                for i in larger_indices:
-                    del self._ddict[i]
+                for k in larger_keys:
+                    del self._ddict[k]
                 self._ddict.update(reindexed_subdict)
 
             # 4. insert values safely
 
-            for i, v in zip(insert_range, values):
-                self[i] = v
+            for k, v in zip(insert_range, values):
+                self._ddict[k] = v
 
         else:
             name = type(key).__name__
@@ -227,14 +229,14 @@ class defaultlist(MutableSequence):
             return 0
 
     def __iter__(self):
-        for i in range(len(self)):
-            yield self._ddict[i]
+        for k in range(len(self)):
+            yield self._ddict[k]
 
     def insert(self, i: int, value: Any):
-        larger_indices = [li for li in self._ddict.keys() if li >= i]
-        reindexed_subdict = {li + 1: self._ddict[li] for li in larger_indices}
-        for i in larger_indices:
-            del self._ddict[i]
+        larger_keys = [k for k in self._ddict.keys() if k >= i]
+        reindexed_subdict = {k + 1: self._ddict[k] for k in larger_keys}
+        for k in larger_keys:
+            del self._ddict[k]
         self._ddict.update(reindexed_subdict)
 
         self._ddict[i] = value

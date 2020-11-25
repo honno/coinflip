@@ -83,6 +83,6 @@ def test_repr():
     assert repr(dlist) == "[42]"
 
 
-# def test_slice_defaulting():
-#     dlist = defaultlist(int)
-#     assert dlist[:2] == [0, 0]
+def test_slice_defaulting():
+    dlist = defaultlist(int)
+    assert dlist[:2] == [0, 0]
