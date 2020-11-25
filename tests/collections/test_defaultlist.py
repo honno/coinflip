@@ -1,4 +1,5 @@
 from hypothesis import assume
+from hypothesis import reject
 from hypothesis import strategies as st
 from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import initialize
@@ -59,15 +60,19 @@ class DefaultListStateMachine(RuleBasedStateMachine):
         slice_ = data.draw(
             st.slices(self.n).filter(lambda k: k.step is None or abs(k.step) == 1)
         )
+
         self.dlist[slice_] == self.list_[slice_]
 
     @rule(data=st.data(), chars_or_ints=st.one_of(chars, ints))
     def slice_set(self, data, chars_or_ints):
         slice_ = data.draw(
-            st.slices(self.n).filter(lambda k: k.step is None or k.step == 1)
+            st.slices(self.n).filter(lambda k: k.step is None or abs(k.step) == 1)
         )
 
-        self.list_[slice_] = chars_or_ints
+        try:
+            self.list_[slice_] = chars_or_ints
+        except ValueError:
+            reject()
         self.dlist[slice_] = chars_or_ints
 
         assert self.dlist == self.list_

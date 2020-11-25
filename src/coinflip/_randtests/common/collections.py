@@ -155,7 +155,7 @@ class defaultlist(MutableSequence):
                 stop = n
             elif key.stop < 0:
                 stop = n + key.stop
-            elif key.stop >= n:
+            elif key.stop > n:
                 stop = max(n - 1, 0)
             else:
                 stop = key.stop
@@ -184,10 +184,10 @@ class defaultlist(MutableSequence):
             self._ddict[i] = value
 
         elif isinstance(key, slice):
-            if not (key.step is None or key.step == 1):
+            if not (key.step is None or abs(key.step) == 1):
                 raise NotImplementedError("extended slices are not supported yet")
 
-            # 0.1 determine the current len and value(s) to be inserted
+            # 0.1
 
             n = len(self)
 
@@ -196,13 +196,20 @@ class defaultlist(MutableSequence):
 
             # 0.2 determine del range
 
-            dstart, dstop, _ = key.indices(n)
-            if dstart > dstop:
-                dstop = dstart
+            dstart, dstop, dstep = key.indices(n)
+            dist = dstop - dstart
+            if dist:
+                if dist / dstep < 0:  # i.e. diverging
+                    if dstep >= 1:
+                        dstop = dstart
+                    else:
+                        dstart = dstop
 
-            del_range = range(dstart, dstop)
+            del_range = range(dstart, dstop, dstep)
 
             # 0.3 determine the insert range
+
+            istep = key.step or 1
 
             if key.start is None:
                 istart = 0
@@ -211,20 +218,24 @@ class defaultlist(MutableSequence):
             else:
                 istart = key.start
 
-            insert_range = range(istart, istart + nvalues)
+            istop = istart + istep * nvalues
+
+            insert_range = range(istart, istop, istep)
 
             # 1. delete elements in del range
 
-            indices2del = [
-                i for i in self._ddict.keys() if del_range.start <= i < del_range.stop
-            ]
+            indices2del = [i for i in self._ddict.keys() if i in del_range]
             for i in indices2del:
                 del self._ddict[i]
 
             # 2. update elements above del range
 
             diff = nvalues - len(del_range)
-            larger_indices = [i for i in self._ddict.keys() if i >= del_range.stop]
+            larger_indices = [
+                i
+                for i in self._ddict.keys()
+                if i >= max(del_range.start, del_range.stop)
+            ]
             reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
             for i in larger_indices:
                 del self._ddict[i]
