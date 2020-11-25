@@ -59,13 +59,11 @@ class DefaultListStateMachine(RuleBasedStateMachine):
     def slice_get(self, data):
         slice_ = data.draw(st.slices(self.n))
 
-        self.dlist[slice_] == self.list_[slice_]
+        assert self.dlist[slice_] == self.list_[slice_]
 
     @rule(data=st.data(), chars_or_ints=st.one_of(chars, ints))
     def slice_set(self, data, chars_or_ints):
-        slice_ = data.draw(
-            st.slices(self.n).filter(lambda k: k.step is None or abs(k.step) == 1)
-        )
+        slice_ = data.draw(st.slices(self.n))
 
         try:
             self.list_[slice_] = chars_or_ints
@@ -83,3 +81,8 @@ def test_repr():
     dlist = defaultlist(int)
     dlist.append(42)
     assert repr(dlist) == "[42]"
+
+
+# def test_slice_defaulting():
+#     dlist = defaultlist(int)
+#     assert dlist[:2] == [0, 0]

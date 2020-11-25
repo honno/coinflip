@@ -137,32 +137,7 @@ class defaultlist(MutableSequence):
             return self._ddict[i]
 
         elif isinstance(key, slice):
-            n = len(self)
-
-            if key.start is None:
-                start = 0
-            elif key.start < 0:
-                start = n + key.start
-            elif key.start >= n:
-                start = max(n - 1, 0)
-            else:
-                start = key.start
-
-            if key.stop is None:
-                stop = n
-            elif key.stop < 0:
-                stop = n + key.stop
-            elif key.stop > n:
-                stop = max(n - 1, 0)
-            else:
-                stop = key.stop
-
-            if key.step is None:
-                step = 1
-            else:
-                step = key.step
-
-            copy_range = range(start, stop, step)
+            copy_range = range(len(self))[key]
 
             dlist = defaultlist()
             dlist += [self._ddict[i] for i in copy_range]
@@ -181,58 +156,56 @@ class defaultlist(MutableSequence):
             self._ddict[i] = value
 
         elif isinstance(key, slice):
-            if not (key.step is None or abs(key.step) == 1):
-                raise NotImplementedError("extended slices are not supported yet")
-
-            # 0.1
-
             n = len(self)
 
             values = list(value) if isinstance(value, Iterable) else [value]
             nvalues = len(values)
 
-            # 0.2 determine del range
+            # 0 determine slice range
 
-            dstart, dstop, dstep = key.indices(n)
+            start, stop, step = key.indices(n)
+
+            # 1.1 determine del range
+
+            dstart, dstop = start, stop
 
             try:
-                if (dstop - dstart) / dstep < 0:  # diverging
-                    if dstep >= 1:
+                if (dstop - dstart) / step < 0:  # diverging
+                    if step >= 1:
                         dstop = dstart
                     else:
                         dstart = dstop
             except ZeroDivisionError:
                 pass
 
-            del_range = range(dstart, dstop, dstep)
+            del_range = range(dstart, dstop, step)
 
-            # 0.3 determine the insert range
+            # 1.2 determine the insert range
 
-            istart, istop, istep = key.indices(n)
-            istop = istart + istep * nvalues
+            istop = start + step * nvalues
+            insert_range = range(start, istop, step)
 
-            insert_range = range(istart, istop, istep)
+            # 2. delete keys in del range
 
-            # 1. delete elements in del range
-
-            indices2del = [i for i in self._ddict.keys() if i in del_range]
-            for i in indices2del:
+            for i in [i for i in self._ddict.keys() if i in del_range]:
                 del self._ddict[i]
 
-            # 2. update elements above del range
+            # 3. update keys above del range
 
             diff = nvalues - len(del_range)
-            larger_indices = [
-                i
-                for i in self._ddict.keys()
-                if i >= max(del_range.start, del_range.stop)
-            ]
-            reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
-            for i in larger_indices:
-                del self._ddict[i]
-            self._ddict.update(reindexed_subdict)
+            if diff:
+                larger_indices = [
+                    i
+                    for i in self._ddict.keys()
+                    if i >= max(del_range.start, del_range.stop)
+                ]
+                reindexed_subdict = {i + diff: self._ddict[i] for i in larger_indices}
 
-            # 3. insert values safely
+                for i in larger_indices:
+                    del self._ddict[i]
+                self._ddict.update(reindexed_subdict)
+
+            # 4. insert values safely
 
             for i, v in zip(insert_range, values):
                 self[i] = v
