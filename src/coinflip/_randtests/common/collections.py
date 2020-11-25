@@ -2,12 +2,14 @@ from bisect import bisect_left
 from collections import Counter
 from collections import OrderedDict
 from collections import defaultdict
+from collections.abc import Mapping
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
 from functools import lru_cache
 from numbers import Real
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import Iterable
 from typing import KeysView
 from typing import Optional
@@ -268,22 +270,36 @@ class defaultlist(MutableSequence):
         return f"defaultlist({self.default_factory}, {repr(self)})"
 
 
-class FloorDict(dict):
-    """Subclassed ``dict`` where invalid keys floor to the smallest real key
+class FloorDict(Mapping):
+    """Mapping where invalid keys floor to the smallest real key
 
     If a key is accessed that does not exist, the nearest real key that is the
     less-than of the passed key is used.
 
-    .. warning:: ``FloorDict`` has not been tested for production use yet
+    Parameters
+    ----------
+    dict : ``Dict``
+        Dictionary containing the key-value pairs to be floored to
     """
 
-    def __missing__(self, key):
-        prevkey = None
-        for interval, value in self.items():
+    def __init__(self, dict: Dict):
+        self._odict = OrderedDict(dict)
+
+    def __getitem__(self, key):
+        keys = iter(self._odict.keys())
+        prevkey = next(keys)
+        if key < prevkey:
+            raise KeyError("Passed key smaller than all existing keys")
+
+        for interval in keys:
             if key < interval:
-                if prevkey is None:
-                    raise KeyError("Passed key smaller than all real keys")
-                return super().__getitem__(prevkey)
+                return self._odict[prevkey]
             prevkey = interval
         else:
-            return super().__getitem__(prevkey)
+            return self._odict[prevkey]
+
+    def __iter__(self):
+        return iter(self._odict)
+
+    def __len__(self):
+        return len(self._odict)
