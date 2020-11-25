@@ -57,9 +57,7 @@ class DefaultListStateMachine(RuleBasedStateMachine):
 
     @rule(data=st.data())
     def slice_get(self, data):
-        slice_ = data.draw(
-            st.slices(self.n).filter(lambda k: k.step is None or abs(k.step) == 1)
-        )
+        slice_ = data.draw(st.slices(self.n))
 
         self.dlist[slice_] == self.list_[slice_]
 

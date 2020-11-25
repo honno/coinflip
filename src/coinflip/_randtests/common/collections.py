@@ -137,9 +137,6 @@ class defaultlist(MutableSequence):
             return self._ddict[i]
 
         elif isinstance(key, slice):
-            if not (key.step is None or abs(key.step) == 1):
-                raise NotImplementedError("extended slices are not supported yet")
-
             n = len(self)
 
             if key.start is None:
@@ -197,27 +194,21 @@ class defaultlist(MutableSequence):
             # 0.2 determine del range
 
             dstart, dstop, dstep = key.indices(n)
-            dist = dstop - dstart
-            if dist:
-                if dist / dstep < 0:  # i.e. diverging
+
+            try:
+                if (dstop - dstart) / dstep < 0:  # diverging
                     if dstep >= 1:
                         dstop = dstart
                     else:
                         dstart = dstop
+            except ZeroDivisionError:
+                pass
 
             del_range = range(dstart, dstop, dstep)
 
             # 0.3 determine the insert range
 
-            istep = key.step or 1
-
-            if key.start is None:
-                istart = 0
-            elif key.start < 0:
-                istart = n + key.start
-            else:
-                istart = key.start
-
+            istart, istop, istep = key.indices(n)
             istop = istart + istep * nvalues
 
             insert_range = range(istart, istop, istep)
