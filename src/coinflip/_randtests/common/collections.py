@@ -1,6 +1,5 @@
 from bisect import bisect_left
 from collections import Counter
-from collections import OrderedDict
 from collections import defaultdict
 from collections.abc import Mapping
 from collections.abc import MutableMapping
@@ -15,6 +14,8 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 from typing import Union
+
+from sortedcontainers import SortedDict
 
 __all__ = ["Bins", "defaultlist", "FloorDict"]
 
@@ -58,33 +59,33 @@ class Bins(MutableMapping):
             raise ValueError("Duplicate intervals for binning were passed")
 
         empty_bins = {interval: 0 for interval in intervals}
-        self._odict = OrderedDict(empty_bins)
+        self._sdict = SortedDict(empty_bins)
 
     @property
     def intervals(self) -> Tuple[Real]:
-        return tuple(self._odict.keys())
+        return tuple(self._sdict.keys())
 
     def __getitem__(self, key: Real):
         interval = self._roundkey(key)
-        return self._odict[interval]
+        return self._sdict[interval]
 
     def __setitem__(self, key: Real, value: Real):
         interval = self._roundkey(key)
-        self._odict[interval] = value
+        self._sdict[interval] = value
 
     def __delitem__(self, key: Real):
-        value = self._odict[key]
-        del self._odict[key]
+        value = self._sdict[key]
+        del self._sdict[key]
         self[key] += value
 
     def _roundkey(self, key: Real):
         return find_closest_interval(self.intervals, key)
 
     def __iter__(self):
-        return iter(self._odict)
+        return iter(self._sdict)
 
     def __len__(self):
-        return len(self._odict)
+        return len(self._sdict)
 
     def __repr__(self):
         return str(dict(self))
@@ -182,7 +183,7 @@ class defaultlist(MutableSequence):
 
             del_range = range(dstart, dstop, step)
 
-            # 1.2 determine the insert range
+            # 1.2 determine insert range
 
             istop = start + step * nvalues
             insert_range = range(start, istop, step)
@@ -271,23 +272,23 @@ class FloorDict(Mapping):
     """
 
     def __init__(self, dict: Dict):
-        self._odict = OrderedDict(dict)
+        self._sdict = SortedDict(dict)
 
     def __getitem__(self, key):
-        keys = iter(self._odict.keys())
+        keys = iter(self._sdict.keys())
         prevkey = next(keys)
         if key < prevkey:
             raise KeyError("Passed key smaller than all existing keys")
 
         for interval in keys:
             if key < interval:
-                return self._odict[prevkey]
+                return self._sdict[prevkey]
             prevkey = interval
         else:
-            return self._odict[prevkey]
+            return self._sdict[prevkey]
 
     def __iter__(self):
-        return iter(self._odict)
+        return iter(self._sdict)
 
     def __len__(self):
-        return len(self._odict)
+        return len(self._sdict)

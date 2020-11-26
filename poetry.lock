@@ -524,7 +524,7 @@ name = "sortedcontainers"
 version = "2.3.0"
 description = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
 category = "main"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -754,7 +754,7 @@ test = ["tox", "pytest", "hypothesis", "pytest-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "b602e0ecab383f5181a10e9e7eb67e01f684f68c05ced9de0ccc9db6b7b3a812"
+content-hash = "9ff3e77406f3f64a72844e29e7b97ea78df2d33e2001bf651be95efb53d569fa"
 
 [metadata.files]
 alabaster = [
