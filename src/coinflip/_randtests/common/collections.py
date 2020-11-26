@@ -79,7 +79,7 @@ class Bins(MutableMapping):
         self[key] += value
 
     def _roundkey(self, key: Real):
-        return find_closest_interval(self.intervals, key)
+        return Bins.find_closest_interval(self.intervals, key)
 
     def __iter__(self):
         return iter(self._sdict)
@@ -93,28 +93,28 @@ class Bins(MutableMapping):
     def __str__(self):
         return f"Bins({repr(self)})"
 
+    @staticmethod
+    @lru_cache()
+    def find_closest_interval(intervals: Tuple[Real], key: Real):
+        minkey = intervals[0]
+        midkeys = intervals[1:-1]
+        maxkey = intervals[-1]
 
-@lru_cache()
-def find_closest_interval(intervals: Tuple[Real], key: Real):
-    minkey = intervals[0]
-    midkeys = intervals[1:-1]
-    maxkey = intervals[-1]
-
-    if key <= minkey:
-        return minkey
-    elif key >= maxkey:
-        return maxkey
-    elif key in midkeys:
-        return key
-    else:
-        i = bisect_left(intervals, key)
-        leftkey = intervals[i - 1]
-        rightkey = intervals[i]
-
-        if abs(leftkey - key) < abs(rightkey - key):
-            return leftkey
+        if key <= minkey:
+            return minkey
+        elif key >= maxkey:
+            return maxkey
+        elif key in midkeys:
+            return key
         else:
-            return rightkey
+            i = bisect_left(intervals, key)
+            leftkey = intervals[i - 1]
+            rightkey = intervals[i]
+
+            if abs(leftkey - key) < abs(rightkey - key):
+                return leftkey
+            else:
+                return rightkey
 
 
 class defaultlist(MutableSequence):
