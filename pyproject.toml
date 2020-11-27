@@ -44,6 +44,7 @@ Jinja2 = "^2.11.2"
 altair = "^4.1.0"
 typing-extensions = "^3.7.4"
 click = "^7.1.2"
+sortedcontainers = "^2.3.0"
 
 # optional deps for use in extras
 
@@ -55,16 +56,16 @@ tox = {version = "^3.20.1", optional = true}
 pytest = {version = "^6.1.2", optional = true}
 hypothesis = {version = "^5.41.2", optional = true}
 pytest-timeout = {version = "^1.4.2", optional = true}
+defaultlist = {version = "^1.0.0", optional = true}
 
 # docs
 sphinx = {version = "^3", optional = true}
 sphinx-rtd-theme = {version = "^0.5.0", optional = true}
 sphinx-click = {version = "^2.5.0", optional = true}
-sortedcontainers = "^2.3.0"
 
 [tool.poetry.extras]
 refimpl = ["more-itertools"]
-test = ["tox", "pytest", "hypothesis", "pytest-timeout"]
+test = ["tox", "pytest", "hypothesis", "pytest-timeout", "defaultlist"]
 docs = ["sphinx", "sphinx-rtd-theme", "sphinx-click"]
 
 [tool.poetry.dev-dependencies]
