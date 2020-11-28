@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.1.4 (2020-11-28)
+------------------
+
+* Slicing support for accessor methods in ``coinflip.collections.defaultlist``.
+* Fixed bug causing inaccurate results for the *Non-overlapping Template Matching* test.
+* ``Bins`` and ``FloorDict`` containers in ``coinflip.collections`` are now always ordered.
+
 0.1.3 (2020-11-19)
 ------------------
 
