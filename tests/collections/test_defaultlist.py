@@ -112,10 +112,10 @@ def test_slice_del(dlist):
 def test_iter(dlist):
     dlist[:] = range(10)
 
-    assert all(a == b for a, b in zip(dlist, range(10)[::-1]))
+    assert all(a == b for a, b in zip(dlist, range(10)))
 
     dlist[20] = 20
-    assert sum(1 for _ in dlist) == 20
+    assert sum(1 for _ in dlist) == 21
 
 
 def test_reversed(dlist):
@@ -131,3 +131,54 @@ def test_index(dlist):
 
     with raises(ValueError):
         dlist.index(42)
+
+
+def test_reverse(dlist):
+    dlist[:] = range(10)
+    dlist[15] = 15
+
+    dlist.reverse()
+    print(dlist)
+
+    assert dlist == [
+        15,
+        None,
+        None,
+        None,
+        None,
+        None,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0,
+    ]
+
+
+def test_extend(dlist):
+    dlist[:] = range(3)
+    dlist.extend(ascii_lowercase[:3])
+
+    assert dlist == [0, 1, 2, "a", "b", "c"]
+
+
+def test_pop(dlist):
+    dlist[:] = range(10)
+    dlist.pop()
+
+    assert dlist == range(9)
+
+
+def test_remove(dlist):
+    dlist[:] = ascii_lowercase[:3]
+    dlist.remove("b")
+
+    assert dlist == ["a", "c"]
+
+    with raises(ValueError):
+        dlist.remove(42)
