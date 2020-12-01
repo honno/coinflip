@@ -273,14 +273,31 @@ class defaultlist(MutableSequence):
         return range(start, stop, step)
 
     def __len__(self):
-        if self._ddict.keys():
+        try:
             return max(self._ddict.keys()) + 1
-        else:
+        except ValueError:
             return 0
 
     def __iter__(self):
         for k in range(len(self)):
             yield self._ddict[k]
+
+    def index(self, x: Any):
+        for i, v in enumerate(self):
+            if v == x:
+                return i
+        else:
+            raise ValueError(f"'{x}' is not in defaultlist")
+
+    # test:
+    # __reversed__()
+    # index()
+    # append
+    # reverse
+    # extend
+    # pop
+    # remove
+    # __iadd__()
 
     def insert(self, i: int, value: Any):
         larger_keys = [k for k in self._ddict.keys() if k >= i]
@@ -291,7 +308,7 @@ class defaultlist(MutableSequence):
 
         self._ddict[i] = value
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any):
         if isinstance(other, Sequence):
             if len(self) != len(other):
                 return False
@@ -301,7 +318,7 @@ class defaultlist(MutableSequence):
             return False
 
     def __repr__(self):
-        list_ = list(self[: len(self)])
+        list_ = list(self)
         return repr(list_)
 
     def __str__(self):

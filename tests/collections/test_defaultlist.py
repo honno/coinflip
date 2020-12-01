@@ -1,3 +1,5 @@
+from string import ascii_lowercase
+
 from defaultlist import defaultlist as ref_defaultlist
 from hypothesis import assume
 from hypothesis import strategies as st
@@ -5,6 +7,7 @@ from hypothesis.stateful import RuleBasedStateMachine
 from hypothesis.stateful import initialize
 from hypothesis.stateful import rule
 from pytest import fixture
+from pytest import raises
 
 from coinflip.collections import defaultlist
 
@@ -104,3 +107,27 @@ def test_slice_del(dlist):
         None,
         20,
     ]
+
+
+def test_iter(dlist):
+    dlist[:] = range(10)
+
+    assert all(a == b for a, b in zip(dlist, range(10)[::-1]))
+
+    dlist[20] = 20
+    assert sum(1 for _ in dlist) == 20
+
+
+def test_reversed(dlist):
+    dlist[:] = range(10)
+
+    assert all(a == b for a, b in zip(reversed(dlist), range(10)[::-1]))
+
+
+def test_index(dlist):
+    dlist[:] = ascii_lowercase[:10]
+
+    assert dlist.index("b") == 1
+
+    with raises(ValueError):
+        dlist.index(42)
