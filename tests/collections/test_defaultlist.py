@@ -182,3 +182,10 @@ def test_remove(dlist):
 
     with raises(ValueError):
         dlist.remove(42)
+
+
+def test_slice_get(dlist):
+    dlist.default_factory = int
+    dlist[:] = ascii_lowercase[:3]
+
+    assert dlist[:5] == ["a", "b", "c", 0, 0]

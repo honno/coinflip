@@ -139,6 +139,10 @@ class defaultlist(MutableSequence):
     def default_factory(self) -> Optional[Callable]:
         return self._ddict.default_factory
 
+    @default_factory.setter
+    def default_factory(self, default_factory: Optional[Callable]):
+        self._ddict.default_factory = default_factory or defaultlist._none_factory
+
     def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
             i = self._actualise_index(key)
