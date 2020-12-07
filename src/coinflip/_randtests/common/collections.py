@@ -6,7 +6,6 @@ from collections.abc import MutableMapping
 from collections.abc import MutableSequence
 from functools import lru_cache
 from itertools import chain
-from itertools import count
 from numbers import Real
 from typing import Any
 from typing import Callable
@@ -146,12 +145,14 @@ class defaultlist(MutableSequence):
     def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
             i = self._actualise_index(key)
+
             return self._ddict[i]
 
         elif isinstance(key, slice):
             srange = self._determine_srange(key)
             dlist = defaultlist(self.default_factory)
             dlist.extend(self._ddict[i] for i in srange)
+
             return dlist
 
         else:
@@ -187,7 +188,7 @@ class defaultlist(MutableSequence):
                 reindexed_subdict = {}
 
                 mid_keys = [k for k in keys if srange_min <= k < srange_max]
-                for i, k in zip(count(threshold), sorted(mid_keys)):
+                for i, k in enumerate(sorted(mid_keys), start=threshold):
                     reindexed_subdict[i] = self._ddict[k]
 
                 larger_keys = [k for k in self._ddict.keys() if k > srange_max]
@@ -197,7 +198,7 @@ class defaultlist(MutableSequence):
 
                 self._ddict.update(reindexed_subdict)
 
-            for i, v in zip(count(srange_min), values):
+            for i, v in enumerate(values, start=srange_min):
                 self[i] = v
 
         else:
@@ -234,7 +235,7 @@ class defaultlist(MutableSequence):
                 mid_keys = [
                     k for k in self._ddict.keys() if srange_min <= k < srange_max
                 ]
-                for i, k in zip(count(srange_min), sorted(mid_keys)):
+                for i, k in enumerate(sorted(mid_keys), start=srange_min):
                     reindexed_subdict[i] = self._ddict[k]
 
                 larger_keys = [k for k in self._ddict.keys() if k > srange_max]
