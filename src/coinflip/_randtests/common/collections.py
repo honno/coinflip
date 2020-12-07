@@ -146,8 +146,8 @@ class defaultlist(MutableSequence):
 
         elif isinstance(key, slice):
             srange = self._determine_srange(key)
-            dlist = defaultlist()
-            dlist += [self._ddict[i] for i in srange]
+            dlist = defaultlist(self.default_factory)
+            dlist.extend(self._ddict[i] for i in srange)
             return dlist
 
         else:
@@ -288,16 +288,6 @@ class defaultlist(MutableSequence):
                 return i
         else:
             raise ValueError(f"'{x}' is not in defaultlist")
-
-    # test:
-    # __reversed__()
-    # index()
-    # append
-    # reverse
-    # extend
-    # pop
-    # remove
-    # __iadd__()
 
     def insert(self, i: int, value: Any):
         larger_keys = [k for k in self._ddict.keys() if k >= i]
