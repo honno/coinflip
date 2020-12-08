@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.1.5 (2020-12-08)
+------------------
+
+* ``coinflip.collections.defaultlist`` improvements:
+    * `index()` and `remove()` uses the `__iter__()` method.
+    * Setter for the `default_factory` property.
+    * Returns a `defaultlist` on slice get operations.
+
+
 0.1.4 (2020-11-28)
 ------------------
 
