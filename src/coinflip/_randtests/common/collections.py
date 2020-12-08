@@ -288,6 +288,7 @@ class defaultlist(MutableSequence):
             yield self._ddict[k]
 
     def index(self, x: Any):
+        """"""
         for i, v in enumerate(self):
             if v == x:
                 return i
@@ -295,6 +296,7 @@ class defaultlist(MutableSequence):
             raise ValueError(f"'{x}' is not in defaultlist")
 
     def insert(self, i: int, value: Any):
+        """"""
         larger_keys = [k for k in self._ddict.keys() if k >= i]
         reindexed_subdict = {k + 1: self._ddict[k] for k in larger_keys}
         for k in larger_keys:

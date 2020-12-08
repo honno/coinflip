@@ -138,7 +138,6 @@ def test_reverse(dlist):
     dlist[15] = 15
 
     dlist.reverse()
-    print(dlist)
 
     assert dlist == [
         15,
