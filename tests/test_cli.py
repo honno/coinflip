@@ -37,8 +37,8 @@ class CliStateMachine(RuleBasedStateMachine):
 
     @rule(target=randtest_results, sequence=mixedbits())
     def run(self, sequence):
-        data = NamedTemporaryFile()
-        out = NamedTemporaryFile()
+        data = NamedTemporaryFile(delete=False)
+        out = NamedTemporaryFile(delete=False)
 
         with data as f:
             for x in sequence:
@@ -60,7 +60,7 @@ class CliStateMachine(RuleBasedStateMachine):
 
     @rule(target=reports, path=randtest_results)
     def report(self, path):
-        out = NamedTemporaryFile()
+        out = NamedTemporaryFile(delete=False)
 
         result = self.runner.invoke(commands.report, [path, out.name])
         assert_success(result)
