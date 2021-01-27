@@ -5,7 +5,7 @@ from typing import Dict
 
 import pandas as pd
 from jinja2 import Environment
-from jinja2 import FileSystemLoader
+from jinja2 import PackageLoader
 from jinja2.exceptions import TemplateNotFound
 
 from coinflip._randtests.common.result import BaseTestResult
@@ -32,8 +32,7 @@ def load_results(results_path: Path) -> Report:
     return report
 
 
-templates_dir = Path(__file__).parents[3] / "templates"
-templates_loader = FileSystemLoader(templates_dir)
+templates_loader = PackageLoader("coinflip")
 templates_env = Environment(loader=templates_loader)
 
 
