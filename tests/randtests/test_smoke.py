@@ -18,6 +18,6 @@ def test_thousand_bits(randtest):
 
 @mark.slow
 @mark.parametrize(["randtest"], randtests)
-@mark.timeout(120)  # 2 minutes
+@mark.timeout(300)  # 5 minutes
 def test_million_bits(randtest):
     randtest(bits)
