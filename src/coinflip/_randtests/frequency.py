@@ -243,6 +243,39 @@ class FrequencyWithinBlockTestResult(TestResult):
 
         yield table
 
+    def plot_block_counts(self):
+        df = pd.DataFrame(
+            {
+                "Block": range(1, self.nblocks + 1),
+                "Count": self.counts,
+            }
+        )
+
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                alt.X("Block"),
+                alt.Y(
+                    "Count",
+                    axis=alt.Axis(tickMinStep=1),
+                    scale=alt.Scale(domain=(0, self.blocksize)),
+                ),
+                tooltip="Count",
+            )
+            .properties(title=f"Counts of {self.heads} per block")
+        )
+
+        # TODO use Altair's new datum encoding when 4.2 comes out
+        #      maybe add text i.e. "expected count"
+        line = (
+            alt.Chart(pd.DataFrame({"Count": [self.blocksize / 2]}))
+            .mark_rule(strokeDash=[1, 1], opacity=0.5)
+            .encode(y="Count")
+        )
+
+        return chart + line
+
     # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):
     #     occurfig, occurax = plt.subplots()
