@@ -1,6 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
 from functools import lru_cache
+from math import ceil
 from math import erfc
 from math import sqrt
 from operator import attrgetter
@@ -12,6 +13,7 @@ import numpy as np
 import pandas as pd
 from rich.text import Text
 from scipy.special import gammaincc
+from scipy.stats import chi2
 from scipy.stats import halfnorm
 
 from coinflip._randtests.common.core import *
@@ -115,15 +117,11 @@ class MonobitTestResult(TestResult):
         return chart
 
     def plot_refdist(self):
-        mean = 0
-        variance = 1
-        deviation = sqrt(variance)
-
-        xlim = max(4 * deviation, self.statistic + deviation)
+        xlim = max(4, self.statistic + 1)
         x = np.linspace(0, xlim)
-        y = halfnorm.pdf(x, mean, deviation)
+        y = halfnorm.pdf(x)
         x_stat = np.linspace(self.statistic, xlim)
-        y_stat = halfnorm.pdf(x_stat, mean, deviation)
+        y_stat = halfnorm.pdf(x_stat)
 
         dist = pd.DataFrame({"x": x, "y": y})
         dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
@@ -261,7 +259,6 @@ class FrequencyWithinBlockTestResult(TestResult):
                     axis=alt.Axis(tickMinStep=1),
                     scale=alt.Scale(domain=(0, self.blocksize)),
                 ),
-                tooltip="Count",
             )
             .properties(title=f"Counts of {self.heads} per block")
         )
@@ -275,6 +272,42 @@ class FrequencyWithinBlockTestResult(TestResult):
         )
 
         return chart + line
+
+    def plot_refdist(self):
+        k = self.nblocks
+
+        xlim = max(8, ceil(self.statistic * 1.5))  # TODO prob threshold for 1st arg
+        x = np.linspace(0, xlim)
+        y = chi2.pdf(x, k)
+        x_stat = np.linspace(self.statistic, xlim)
+        y_stat = chi2.pdf(x_stat, k)
+
+        dist = pd.DataFrame({"x": x, "y": y})
+        dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
+
+        chart_dist = (
+            alt.Chart(dist)
+            .mark_area(opacity=0.3)
+            .encode(
+                alt.X("x", axis=alt.Axis(title="Sum of count deviations")),
+                alt.Y(
+                    "y",
+                    axis=alt.Axis(title="Probability density"),
+                ),
+            )
+            .properties(title="Proability density of accumulated count deviations")
+        )
+        chart_stat = (
+            alt.Chart(dist_stat)
+            .mark_area()
+            .encode(
+                x="x",
+                y="y",
+            )
+        )
+        chart = chart_dist + chart_stat
+
+        return chart
 
     # TODO delete this when jinja2 template and altair plotting methods are done
     # def _report(self):
