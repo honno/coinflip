@@ -3,6 +3,7 @@ from math import erfc
 from math import log
 from math import sqrt
 
+import altair as alt
 import pandas as pd
 from scipy.fft import fft
 
@@ -21,7 +22,8 @@ class NonBinaryTruncatedSequenceError(NonBinarySequenceError):
 
     def __str__(self):
         return (
-            "When truncated into an even-length, sequence contains only 1 distinct value\n"
+            "When truncated into an even-length,"
+            " sequence contains only 1 distinct value\n"
             "i.e. the sequence was originally binary, but now isn't"
         )
 
@@ -51,6 +53,7 @@ def spectral(series, heads, tails, ctx):
 
     half_fourier = fourier[: n // 2]
     peaks = half_fourier.abs()
+    peaks.index += 1  # count from 1, not 0
 
     nbelow = sum(peaks < threshold)
 
@@ -64,18 +67,26 @@ def spectral(series, heads, tails, ctx):
     advance_task(ctx)
 
     return SpectralTestResult(
-        heads, tails, failures, normdiff, p, nbelow_expect, nbelow, diff,
+        heads,
+        tails,
+        failures,
+        normdiff,
+        p,
+        threshold,
+        nbelow_expect,
+        nbelow,
+        diff,
+        peaks,
     )
 
 
 @dataclass
 class SpectralTestResult(TestResult):
+    threshold: Float
     nbelow_expect: Float
     nbelow: Integer
     diff: Float
-
-    def __post_init__(self):
-        pass
+    peaks: pd.Series
 
     def _render(self):
         yield self._pretty_result("normalised diff")
@@ -86,3 +97,24 @@ class SpectralTestResult(TestResult):
             ("expected", self.nbelow_expect),
             ("diff", self.diff),
         )
+
+    def plot_fourier(self):
+        df = pd.DataFrame({"x": self.peaks.index, "y": self.peaks.values})
+
+        chart = (
+            alt.Chart(df)
+            .mark_area()
+            .encode(
+                alt.X("x", title=None),
+                alt.Y("y", title=None),
+            )
+            .properties(title="TODO")
+        )
+        # TODO use Altair's new datum encoding when 4.2 comes out
+        line = (
+            alt.Chart(pd.DataFrame({"y": [self.threshold]}))
+            .mark_rule(strokeDash=[1, 1], opacity=0.5)
+            .encode(y="y")
+        )
+
+        return chart + line
