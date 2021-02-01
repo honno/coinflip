@@ -206,9 +206,8 @@ class LongestRunsTestResult(TestResult):
             alt.Chart(df)
             .mark_bar()
             .encode(
-                alt.X("Longest run", axis=alt.Axis(tickMinStep=1)),
-                alt.Y("Number of blocks"),
-                tooltip="Number of blocks",
+                alt.X("Longest run"),
+                alt.Y("Number of blocks", axis=alt.Axis(tickMinStep=1)),
             )
             .properties(title=f"Longest runs of {self.heads} per block")
         )
