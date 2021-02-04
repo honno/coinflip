@@ -220,9 +220,8 @@ _examples = [
         p_expect=0.532069,
     ),
     Example(
-        # FAILING scipys fft produces slightly diff transformations to SP800-22's sts
-        #         TODO  - check if examples succeed using SP800-22's fourier transforming
-        #               - performance metrics on both solutions
+        # nist's DFT has 1 peak above threshold for some reason, should be 0
+        # also we use FFT and not a naive approach
         randtest="spectral",
 
         bits=[1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
