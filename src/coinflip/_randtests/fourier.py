@@ -105,10 +105,12 @@ class SpectralTestResult(TestResult):
             alt.Chart(df)
             .mark_area()
             .encode(
-                alt.X("x", title=None),
-                alt.Y("y", title=None),
+                alt.X("x", title="Frequency"),
+                alt.Y("y", title="Magnitude"),
             )
-            .properties(title="TODO")
+            .properties(
+                title=f"Fourier transform of {self.heads} and {self.tails} oscillations"
+            )
         )
         # TODO use Altair's new datum encoding when 4.2 comes out
         line = (
