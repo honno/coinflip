@@ -290,7 +290,7 @@ def maurers_universal(
 def linear_complexity(sequence, blocksize: Optional[int] = None):
     """LSFRs of blocks is compared to expected length
 
-    The seqience is split into blocks, where the shortest linear feedback shift
+    The sequence is split into blocks, where the shortest linear feedback shift
     register is found for each block. The difference of each LSFR's length to the
     expected mean length is binned, and is referenced to a hypothetically truly
     random sequence.
