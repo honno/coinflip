@@ -220,6 +220,9 @@ class FrequencyWithinBlockTestResult(TestResult):
     nblocks: Integer
     counts: List[Integer]
 
+    def __post_init__(self):
+        self.count_nblocks = Counter(self.counts)
+
     def _render(self):
         yield self._pretty_result("chi-square")
 
@@ -233,19 +236,18 @@ class FrequencyWithinBlockTestResult(TestResult):
         f_count_expect = smartround(count_expect)
         caption = f"expected count {f_count_expect}"
 
-        count_nblocks = Counter(self.counts)
         table = make_testvars_table("count", "nblocks", title=title, caption=caption)
         for count in range(self.blocksize + 1):
-            nblocks = count_nblocks[count]
+            nblocks = self.count_nblocks[count]
             table.add_row(str(count), str(nblocks))
 
         yield table
 
-    def plot_block_counts(self):
+    def plot_count_nblocks(self):
         df = pd.DataFrame(
             {
-                "Block": range(1, self.nblocks + 1),
-                "Count": self.counts,
+                "count": self.count_nblocks.keys(),
+                "nblocks": self.count_nblocks.values(),
             }
         )
 
@@ -253,25 +255,21 @@ class FrequencyWithinBlockTestResult(TestResult):
             alt.Chart(df)
             .mark_bar()
             .encode(
-                alt.X("Block"),
-                alt.Y(
-                    "Count",
+                alt.X(
+                    "count",
+                    title=f"Count of {self.heads}",
+                    scale=alt.Scale(domain=(0, self.blocksize + 1)),
                     axis=alt.Axis(tickMinStep=1),
-                    scale=alt.Scale(domain=(0, self.blocksize)),
+                ),
+                alt.Y(
+                    "nblocks",
+                    title="Number of blocks",
                 ),
             )
-            .properties(title=f"Counts of {self.heads} per block")
+            .properties(title=f"Occurences of {self.heads} counts")
         )
 
-        # TODO use Altair's new datum encoding when 4.2 comes out
-        #      maybe add text i.e. "expected count"
-        line = (
-            alt.Chart(pd.DataFrame({"Count": [self.blocksize / 2]}))
-            .mark_rule(strokeDash=[1, 1], opacity=0.5)
-            .encode(y="Count")
-        )
-
-        return chart + line
+        return chart
 
     def plot_refdist(self):
         k = self.nblocks
