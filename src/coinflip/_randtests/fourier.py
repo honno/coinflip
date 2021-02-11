@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from math import erfc
 from math import log
 from math import sqrt
+from typing import List
 
 import altair as alt
 import pandas as pd
@@ -11,6 +12,7 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_list
+from coinflip._randtests.common.typing import Complex
 from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
 
@@ -53,7 +55,6 @@ def spectral(series, heads, tails, ctx):
 
     half_fourier = fourier[: n // 2]
     peaks = half_fourier.abs()
-    peaks.index += 1  # count from 1, not 0
 
     nbelow = sum(peaks < threshold)
 
@@ -72,21 +73,23 @@ def spectral(series, heads, tails, ctx):
         failures,
         normdiff,
         p,
+        n,
         threshold,
         nbelow_expect,
         nbelow,
         diff,
-        peaks,
+        list(peaks),
     )
 
 
 @dataclass
 class SpectralTestResult(TestResult):
+    n: Integer
     threshold: Float
     nbelow_expect: Float
     nbelow: Integer
     diff: Float
-    peaks: pd.Series
+    peaks: List[Complex]
 
     def _render(self):
         yield self._pretty_result("normalised diff")
@@ -99,7 +102,7 @@ class SpectralTestResult(TestResult):
         )
 
     def plot_fourier(self):
-        df = pd.DataFrame({"x": self.peaks.index, "y": self.peaks.values})
+        df = pd.DataFrame({"x": range(self.n // 2), "y": self.peaks})
 
         chart = (
             alt.Chart(df)
