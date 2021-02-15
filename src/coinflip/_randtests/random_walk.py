@@ -1,19 +1,116 @@
 from collections import Counter
 from dataclasses import dataclass
 from math import erfc
+from math import floor
 from math import sqrt
+from typing import List
 
+import altair as alt
+import numpy as np
 import pandas as pd
 from rich.text import Text
 from scipy.stats import chisquare
+from scipy.stats import norm
 
 from coinflip._randtests.common.collections import Bins
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import MultiTestResult
 from coinflip._randtests.common.result import SubTestResult
+from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.typing import Bool
 from coinflip._randtests.common.typing import Integer
 
-__all__ = ["random_excursions", "random_excursions_variant"]
+__all__ = ["cusum", "random_excursions", "random_excursions_variant"]
+
+
+# ------------------------------------------------------------------------------
+# Cumulative Sums Test
+
+
+@randtest()
+def cusum(series, heads, tails, ctx, reverse=False):
+    n = len(series)
+
+    set_task_total(ctx, 3)
+
+    failures = check_recommendations(ctx, {"n ≥ 100": n >= 100})
+
+    oscillations = series.map({heads: 1, tails: -1})
+    if reverse:
+        oscillations = oscillations[::-1]
+    cumulative_sums = oscillations.cumsum()
+
+    advance_task(ctx)
+
+    head = pd.Series({-1: 0})
+    walk = pd.concat([head, cumulative_sums])
+
+    abs_walk = walk.abs()
+    max_cusum = abs_walk.nlargest(1).iloc[0]
+
+    advance_task(ctx)
+
+    # TODO this all can be done more elegantly
+    start1 = floor((-n / max_cusum + 1) / 4)
+    start2 = floor((-n / max_cusum - 3) / 4)
+    stop = floor((n / max_cusum - 1) / 4) + 1
+    p = (
+        1
+        - sum(
+            norm.cdf((4 * k + 1) * max_cusum / sqrt(n))
+            - norm.cdf((4 * k - 1) * max_cusum / sqrt(n))
+            for k in np.arange(start1, stop, 1)
+        )
+        + sum(
+            norm.cdf((4 * k + 3) * max_cusum / sqrt(n))
+            - norm.cdf((4 * k + 1) * max_cusum / sqrt(n))
+            for k in np.arange(start2, stop, 1)
+        )
+    )
+
+    advance_task(ctx)
+
+    return CusumTestResult(
+        heads,
+        tails,
+        failures,
+        max_cusum,
+        p,
+        reverse,
+        n,
+        walk,
+    )
+
+
+@dataclass
+class CusumTestResult(TestResult):
+    reverse: Bool
+    n: Integer
+    walk: List[Integer]
+
+    def _render(self):
+        yield self._pretty_result("max cusum")
+
+    def plot_random_walk(self):
+        df = pd.DataFrame(
+            {
+                "x": range(self.n + 1),
+                "y": self.walk,
+            }
+        )
+
+        chart = (
+            alt.Chart(df)
+            .mark_line()
+            .encode(
+                alt.X("x", title="Step"),
+                alt.Y("y", title="Cumulative sum"),
+            )
+            .properties(title="Random walk")
+        )
+
+        return chart
+
 
 # ------------------------------------------------------------------------------
 # Random Excursions Test
@@ -48,12 +145,10 @@ def random_excursions(series, heads, tails, ctx):
     advance_task(ctx)
 
     head = pd.Series({-1: 0})
-    tail = pd.Series({n + 1: 0})
-    walk = pd.concat([head, cumulative_sums, tail])
+    walk = pd.concat([head, cumulative_sums])
 
     advance_task(ctx)
 
-    # TODO standardise or differentiate language of "bins"/"occurences"/"bincounts"
     ncycles = 0
     state_count_bins = {state: Bins(range(df + 1)) for state in states}
     for cycle in ascycles(walk):
@@ -78,7 +173,9 @@ def random_excursions(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return RandomExcursionsMultiTestResult(heads, tails, failures, results)
+    return RandomExcursionsMultiTestResult(
+        heads, tails, failures, results, n, list(walk)
+    )
 
 
 @dataclass
@@ -86,7 +183,11 @@ class RandomExcursionsSubTestResult(SubTestResult):
     state: Integer
 
 
+@dataclass
 class RandomExcursionsMultiTestResult(MultiTestResult):
+    n: Integer
+    walk: List[Integer]
+
     def _pretty_feature(self, result: RandomExcursionsSubTestResult):
         return Text(str(result.state), style="bold")
 
@@ -95,6 +196,26 @@ class RandomExcursionsMultiTestResult(MultiTestResult):
 
     def _render_sub(self, result: RandomExcursionsSubTestResult):
         yield result._pretty_result("chi-square")
+
+    def plot_random_walk(self):
+        df = pd.DataFrame(
+            {
+                "x": range(self.n + 1),
+                "y": self.walk,
+            }
+        )
+
+        chart = (
+            alt.Chart(df)
+            .mark_line()
+            .encode(
+                alt.X("x", title="Step"),
+                alt.Y("y", title="Cumulative sum"),
+            )
+            .properties(title="Random walk")
+        )
+
+        return chart
 
 
 def ascycles(walk):
@@ -108,6 +229,7 @@ def ascycles(walk):
             cycle = [cusum]
         else:
             cycle.append(cusum)
+    yield cycle
 
 
 # ------------------------------------------------------------------------------
@@ -130,13 +252,12 @@ def random_excursions_variant(series, heads, tails, ctx):
     advance_task(ctx)
 
     head = pd.Series({-1: 0})
-    tail = pd.Series({n + 1: 0})
-    walk = pd.concat([head, cumulative_sums, tail])
+    walk = pd.concat([head, cumulative_sums])
 
     advance_task(ctx)
 
     state_counts = walk.value_counts()
-    ncycles = state_counts.at[0] - 1
+    ncycles = state_counts.at[0]
 
     advance_task(ctx)
 
@@ -155,7 +276,9 @@ def random_excursions_variant(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return RandomExcursionsVariantMultiTestResult(heads, tails, failures, results)
+    return RandomExcursionsVariantMultiTestResult(
+        heads, tails, failures, results, n, list(walk)
+    )
 
 
 @dataclass
@@ -163,7 +286,11 @@ class RandomExcursionsVariantSubTestResult(SubTestResult):
     state: Integer
 
 
+@dataclass
 class RandomExcursionsVariantMultiTestResult(MultiTestResult):
+    n: Integer
+    walk: List[Integer]
+
     def _pretty_feature(self, result: RandomExcursionsVariantSubTestResult):
         return Text(str(result.state), style="bold")
 
@@ -172,3 +299,23 @@ class RandomExcursionsVariantMultiTestResult(MultiTestResult):
 
     def _render_sub(self, result: RandomExcursionsVariantSubTestResult):
         yield result._pretty_result("count")
+
+    def plot_random_walk(self):
+        df = pd.DataFrame(
+            {
+                "x": range(self.n + 1),
+                "y": self.walk,
+            }
+        )
+
+        chart = (
+            alt.Chart(df)
+            .mark_line()
+            .encode(
+                alt.X("x", title="Step"),
+                alt.Y("y", title="Cumulative sum"),
+            )
+            .properties(title="Random walk")
+        )
+
+        return chart

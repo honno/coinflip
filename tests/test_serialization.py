@@ -5,14 +5,14 @@ from hypothesis import strategies as st
 from pytest import mark
 
 from coinflip._randtests.common.typing import *
-from coinflip._randtests.cusum import CusumTestResult
 from coinflip._randtests.entropy import ApproximateEntropyTestResult
-from coinflip._randtests.excursions import RandomExcursionsMultiTestResult
-from coinflip._randtests.excursions import RandomExcursionsVariantMultiTestResult
 from coinflip._randtests.fourier import SpectralTestResult
 from coinflip._randtests.frequency import FrequencyWithinBlockTestResult
 from coinflip._randtests.frequency import MonobitTestResult
 from coinflip._randtests.matrix import BinaryMatrixRankTestResult
+from coinflip._randtests.random_walk import CusumTestResult
+from coinflip._randtests.random_walk import RandomExcursionsMultiTestResult
+from coinflip._randtests.random_walk import RandomExcursionsVariantMultiTestResult
 from coinflip._randtests.runs import LongestRunsTestResult
 from coinflip._randtests.runs import RunsTestResult
 from coinflip._randtests.serial import SerialMultiTestResult
