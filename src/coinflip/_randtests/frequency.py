@@ -258,7 +258,7 @@ class FrequencyWithinBlockTestResult(TestResult):
                 alt.X(
                     "count",
                     title=f"Count of {self.heads}",
-                    scale=alt.Scale(domain=(0, self.blocksize + 1)),
+                    scale=alt.Scale(domain=(0, self.blocksize)),
                     axis=alt.Axis(tickMinStep=1),
                 ),
                 alt.Y(
