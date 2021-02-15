@@ -11,6 +11,8 @@ from math import sqrt
 from typing import List
 from typing import Tuple
 
+import altair as alt
+import pandas as pd
 from rich.text import Text
 from scipy.special import gammaincc
 from scipy.special import hyp1f1
@@ -273,6 +275,12 @@ class OverlappingTemplateMatchingTestResult(TestResult):
     expected_tallies: List[Integer]
     tallies: List[Integer]
 
+    def _fmt_matches(self):
+        f_matches = [str(x) for x in range(matches_ceil + 1)]
+        f_matches[-1] = f"{f_matches[-1]}+"
+
+        return f_matches
+
     def _render(self):
         yield self._pretty_result("chi-square")
 
@@ -286,15 +294,39 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         title.append(pretty_subseq(self.template, self.heads, self.tails))
         title.append(" per block")
 
-        f_nmatches = [f"{x}" for x in range(matches_ceil + 1)]
-        f_nmatches[-1] = f"{f_nmatches[-1]}+"
+        f_matches = self._fmt_matches()
 
         table = make_chisquare_table(
             title,
             "matches",
-            f_nmatches,
+            f_matches,
             self.expected_tallies,
             self.tallies,
         )
 
         yield table
+
+    def plot_template_matches(self):
+        df = pd.DataFrame(
+            {
+                "matches": self._fmt_matches(),
+                "nmatches": self.tallies,
+            }
+        )
+
+        f_template = pretty_subseq(self.template, self.heads, self.tails)
+
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                x=alt.X("matches", title="Template matches in block"),
+                y=alt.Y(
+                    "nmatches",
+                    title="Number of blocks",
+                ),
+            )
+            .properties(title=f"Overlapping matches of {f_template} per block")
+        )
+
+        return chart
