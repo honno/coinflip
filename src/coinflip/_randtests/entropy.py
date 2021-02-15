@@ -111,7 +111,11 @@ class ApproximateEntropyTestResult(TestResult):
             .mark_bar()
             .encode(
                 x=alt.X("count", title="Permutation counts"),
-                y=alt.Y("ncounts", title="Number of counts"),
+                y=alt.Y(
+                    "ncounts",
+                    axis=alt.Axis(tickMinStep=1),
+                    title="Number of counts",
+                ),
                 color="blocksize:O",
             )
             .properties(title="Permutation counts")
