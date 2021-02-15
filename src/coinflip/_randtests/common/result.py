@@ -83,8 +83,9 @@ class BaseTestResult(ConsoleRenderable):
 
         return buf.getvalue()
 
+    @staticmethod
     def _pretty_inputs(
-        self, *name_value_pairs: Iterable[Union[Integer, Float]]
+        *name_value_pairs: Iterable[Union[Integer, Float]]
     ) -> RenderGroup:
         title = "test input"
         if len(name_value_pairs) > 1:
