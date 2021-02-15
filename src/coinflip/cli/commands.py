@@ -101,11 +101,17 @@ def run(data, out, binary):
     "-e",
     "--example",
     type=Choice(generators.__all__),
-    default="python",
+    default="Python",
     help="Example binary output to use.",
     metavar="<example>",
 )
-@option("-n", "--length", type=int, default=512, help="Length of binary output.")
+@option(
+    "-n",
+    "--length",
+    type=int,
+    default=512,
+    help="Length of binary output.",
+)
 @option(
     "-t",
     "--test",
@@ -115,8 +121,8 @@ def run(data, out, binary):
 )
 def example_run(example, length, test):
     """Run randomness tests on automatically generated data."""
-    generator_func = getattr(generators, example)
-    generator = generator_func()
+    generator_class = getattr(generators, example)
+    generator = generator_class()
 
     series = pd.Series(next(generator) for _ in range(length))
     series = series.infer_objects()
