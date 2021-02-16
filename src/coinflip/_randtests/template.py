@@ -310,9 +310,11 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         df = pd.DataFrame(
             {
                 "matches": self._fmt_matches(),
-                "nmatches": self.tallies,
+                "expected": self.expected_tallies,
+                "observed": self.tallies,
             }
         )
+        df = df.melt("matches", var_name="type", value_name="nblocks")
 
         f_template = pretty_subseq(self.template, self.heads, self.tails)
 
@@ -320,10 +322,14 @@ class OverlappingTemplateMatchingTestResult(TestResult):
             alt.Chart(df)
             .mark_bar()
             .encode(
-                x=alt.X("matches", title="Template matches in block"),
-                y=alt.Y(
-                    "nmatches",
+                alt.X("matches", title="Matches"),
+                alt.Y(
+                    "nblocks:Q",
                     title="Number of blocks",
+                ),
+                column=alt.Column(
+                    "type:N",
+                    title=None,
                 ),
             )
             .properties(title=f"Overlapping matches of {f_template} per block")

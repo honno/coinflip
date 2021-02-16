@@ -199,10 +199,10 @@ class LongestRunsTestResult(TestResult):
             {
                 "maxlen_range": self._fmt_maxlen_ranges(),
                 "expected": self.expected_bincounts,
-                "actual": self.maxlen_bins.values(),
+                "observed": self.maxlen_bins.values(),
             }
         )
-        df = df.melt("maxlen_range", var_name="observation", value_name="nblocks")
+        df = df.melt("maxlen_range", var_name="type", value_name="nblocks")
 
         chart = (
             alt.Chart(df)
@@ -212,7 +212,10 @@ class LongestRunsTestResult(TestResult):
                 alt.Y(
                     "nblocks:Q", title="Number of blocks", axis=alt.Axis(tickMinStep=1)
                 ),
-                column="observation:N",
+                column=alt.Column(
+                    "type:N",
+                    title=None,
+                ),
             )
             .properties(title=f"Longest runs of {self.heads} per block")
         )

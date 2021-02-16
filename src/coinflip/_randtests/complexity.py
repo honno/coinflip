@@ -127,10 +127,10 @@ class LinearComplexityTestResult(TestResult):
             {
                 "variance": self.variance_bins.keys(),
                 "expected": self.expected_bincounts,
-                "actual": self.variance_bins.values(),
+                "observed": self.variance_bins.values(),
             }
         )
-        df = df.melt("variance", var_name="observation", value_name="nblocks")
+        df = df.melt("variance", var_name="type", value_name="nblocks")
 
         f_mean_expect = smartround(self.mean_expect)
 
@@ -140,7 +140,10 @@ class LinearComplexityTestResult(TestResult):
             .encode(
                 alt.X("variance:O", title="Variance"),
                 alt.Y("nblocks:Q", title="Number of blocks"),
-                column="observation:N",
+                column=alt.Column(
+                    "type:N",
+                    title=None,
+                ),
             )
             .properties(
                 title=f"Variance from shortest LSFR length of {f_mean_expect} per block"
