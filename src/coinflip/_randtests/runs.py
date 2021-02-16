@@ -197,17 +197,22 @@ class LongestRunsTestResult(TestResult):
     def plot_maxlen_bins(self):
         df = pd.DataFrame(
             {
-                "Longest run": self._fmt_maxlen_ranges(),
-                "Number of blocks": self.maxlen_bins.values(),
+                "maxlen_range": self._fmt_maxlen_ranges(),
+                "expected": self.expected_bincounts,
+                "actual": self.maxlen_bins.values(),
             }
         )
+        df = df.melt("maxlen_range", var_name="observation", value_name="nblocks")
 
         chart = (
             alt.Chart(df)
             .mark_bar()
             .encode(
-                alt.X("Longest run"),
-                alt.Y("Number of blocks", axis=alt.Axis(tickMinStep=1)),
+                alt.X("maxlen_range", title="Longest run"),
+                alt.Y(
+                    "nblocks:Q", title="Number of blocks", axis=alt.Axis(tickMinStep=1)
+                ),
+                column="observation:N",
             )
             .properties(title=f"Longest runs of {self.heads} per block")
         )
