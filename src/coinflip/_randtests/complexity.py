@@ -6,6 +6,8 @@ from typing import Dict
 from typing import List
 from typing import Sequence
 
+import altair as alt
+import pandas as pd
 from scipy.stats import chisquare
 from typing_extensions import Literal
 
@@ -111,7 +113,7 @@ class LinearComplexityTestResult(TestResult):
         f_mean_expect = smartround(self.mean_expect)
 
         table = make_chisquare_table(
-            "linear complexity deviations per block",
+            "deviations of shortest LSFR per block",
             "variance",
             self.variance_bins.keys(),
             self.expected_bincounts,
@@ -119,6 +121,33 @@ class LinearComplexityTestResult(TestResult):
             caption=f"from expected mean {f_mean_expect}",
         )
         yield table
+
+    def plot_variance(self):
+        df = pd.DataFrame(
+            {
+                "variance": self.variance_bins.keys(),
+                "expected": self.expected_bincounts,
+                "actual": self.variance_bins.values(),
+            }
+        )
+        df = df.melt("variance", var_name="observation", value_name="nblocks")
+
+        f_mean_expect = smartround(self.mean_expect)
+
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                alt.X("variance:O", title="Variance"),
+                alt.Y("nblocks:Q", title="Number of blocks"),
+                column="observation:N",
+            )
+            .properties(
+                title=f"Variance from shortest LSFR length of {f_mean_expect} per block"
+            )
+        )
+
+        return chart
 
 
 def berlekamp_massey(sequence: Sequence[Literal[0, 1]]) -> int:
