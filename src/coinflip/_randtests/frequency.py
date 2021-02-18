@@ -1,7 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass
 from functools import lru_cache
-from math import ceil
 from math import erfc
 from math import sqrt
 from operator import attrgetter
@@ -13,12 +12,12 @@ import numpy as np
 import pandas as pd
 from rich.text import Text
 from scipy.special import gammaincc
-from scipy.stats import chi2
 from scipy.stats import halfnorm
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.typing import Face
@@ -271,57 +270,4 @@ class FrequencyWithinBlockTestResult(TestResult):
         return chart
 
     def plot_refdist(self):
-        k = self.nblocks
-
-        xlim = ceil(max(chi2.ppf(0.999, k), self.statistic))
-        x = np.linspace(0, xlim)
-        y = chi2.pdf(x, k)
-        x_stat = np.linspace(self.statistic, xlim)
-        y_stat = chi2.pdf(x_stat, k)
-
-        dist = pd.DataFrame({"x": x, "y": y})
-        dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
-
-        chart_dist = (
-            alt.Chart(dist)
-            .mark_area(opacity=0.3)
-            .encode(
-                alt.X(
-                    "x:Q",
-                    axis=alt.Axis(title="Sum of count deviations"),
-                ),
-                alt.Y(
-                    "y:Q",
-                    axis=alt.Axis(title="Probability density"),
-                ),
-            )
-            .properties(title=f"Chi-square distribution with {k} degrees of freedom")
-        )
-        chart_stat = (
-            alt.Chart(dist_stat)
-            .mark_area()
-            .encode(
-                x="x",
-                y="y",
-            )
-        )
-        chart = chart_dist + chart_stat
-
-        return chart
-
-    # TODO delete this when jinja2 template and altair plotting methods are done
-    # def _report(self):
-    #     occurfig, occurax = plt.subplots()
-
-    #     x_axis = [i * self.blocksize for i in range(len(self.counts))]
-
-    #     occurax.set_ylim([0, self.blocksize])
-    #     occurax.bar(x_axis, self.counts, width=self.blocksize * 0.9, align="edge")
-    #     occurax.axhline(self.blocksize / 2, color="black")
-
-    #     return [
-    #         f"p={self.p3f()}",
-    #         occurfig,
-    #         plot_chi2(self.statistic, df=self.nblocks),
-    #         plot_gammaincc(self.statistic / 2, self.nblocks / 2),
-    #     ]
+        return plot_chi2_dist(self.statistic, self.nblocks)

@@ -1,6 +1,5 @@
 from dataclasses import astuple
 from dataclasses import dataclass
-from math import ceil
 from math import erfc
 from math import sqrt
 from typing import Any
@@ -11,10 +10,8 @@ from typing import NamedTuple
 from typing import Tuple
 
 import altair as alt
-import numpy as np
 import pandas as pd
 from rich.text import Text
-from scipy.stats import chi2  # TODO see if theres a difference
 from scipy.stats import chisquare
 
 from coinflip._randtests.common.collections import Bins
@@ -23,6 +20,7 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
+from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
@@ -226,42 +224,7 @@ class LongestRunsTestResult(TestResult):
         return chart
 
     def plot_refdist(self):
-        k = len(self.maxlen_bins)
-
-        xlim = ceil(max(self.statistic, chi2.ppf(0.999, k)))
-        x = np.linspace(0, self.statistic)
-        y = chi2.pdf(x, k)
-        x_stat = np.linspace(self.statistic, xlim)
-        y_stat = chi2.pdf(x_stat, k)
-
-        dist = pd.DataFrame({"x": x, "y": y})
-        dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
-
-        chart_dist = (
-            alt.Chart(dist)
-            .mark_area(opacity=0.3)
-            .encode(
-                alt.X(
-                    "x", axis=alt.Axis(title="χ²"), scale=alt.Scale(domain=(0, xlim))
-                ),
-                alt.Y(
-                    "y",
-                    axis=alt.Axis(title="Probability density"),
-                ),
-            )
-            .properties(title=f"Chi-square distribution with {k} degrees of freedom")
-        )
-        chart_stat = (
-            alt.Chart(dist_stat)
-            .mark_area()
-            .encode(
-                x="x",
-                y="y",
-            )
-        )
-        chart = chart_dist + chart_stat
-
-        return chart
+        return plot_chi2_dist(self.statistic, len(self.maxlen_bins))
 
 
 # ------------------------------------------------------------------------------

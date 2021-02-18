@@ -1,5 +1,6 @@
 from dataclasses import astuple
 from dataclasses import dataclass
+from dataclasses import fields
 from math import floor
 from math import sqrt
 from typing import Iterable
@@ -11,6 +12,7 @@ from typing_extensions import Literal
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
+from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.typing import Integer
@@ -59,7 +61,9 @@ def binary_matrix_rank(
 
     # TODO find expressive and performative calculation for constants
     expected_rankcounts = RankCounts(
-        full=0.2888 * nblocks, runnerup=0.5776 * nblocks, remaining=0.1336 * nblocks,
+        full=0.2888 * nblocks,
+        runnerup=0.5776 * nblocks,
+        remaining=0.1336 * nblocks,
     )
 
     rankable_series = series.map({heads: 1, tails: 0})
@@ -117,7 +121,8 @@ class BinaryMatrixRankTestResult(TestResult):
         yield self._pretty_result("chi-square")
 
         yield TestResult._pretty_inputs(
-            ("nrows", self.nrows), ("ncols", self.ncols),
+            ("nrows", self.nrows),
+            ("ncols", self.ncols),
         )
 
         runnerup = self.fullrank - 1
@@ -137,6 +142,9 @@ class BinaryMatrixRankTestResult(TestResult):
         )
 
         yield table
+
+    def plot_refdist(self):
+        return plot_chi2_dist(self.statistic, len(fields(self.rankcounts)))
 
 
 def matrix_rank(matrix: Iterable[Iterable[Literal[0, 1]]]) -> Integer:
