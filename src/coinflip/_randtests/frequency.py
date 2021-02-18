@@ -244,10 +244,11 @@ class FrequencyWithinBlockTestResult(TestResult):
         yield table
 
     def plot_count_nblocks(self):
+        counts = range(self.blocksize + 1)
         df = pd.DataFrame(
             {
-                "count": self.count_nblocks.keys(),
-                "nblocks": self.count_nblocks.values(),
+                "count": counts,
+                "nblocks": [self.count_nblocks[count] for count in counts],
             }
         )
 
@@ -256,13 +257,11 @@ class FrequencyWithinBlockTestResult(TestResult):
             .mark_bar()
             .encode(
                 alt.X(
-                    "count",
+                    "count:O",
                     title=f"Count of {self.heads}",
-                    scale=alt.Scale(domain=(0, self.blocksize)),
-                    axis=alt.Axis(tickMinStep=1),
                 ),
                 alt.Y(
-                    "nblocks",
+                    "nblocks:Q",
                     title="Number of blocks",
                 ),
             )
@@ -274,7 +273,7 @@ class FrequencyWithinBlockTestResult(TestResult):
     def plot_refdist(self):
         k = self.nblocks
 
-        xlim = max(8, ceil(self.statistic * 1.5))  # TODO prob threshold for 1st arg
+        xlim = ceil(max(chi2.ppf(0.999, k), self.statistic))
         x = np.linspace(0, xlim)
         y = chi2.pdf(x, k)
         x_stat = np.linspace(self.statistic, xlim)
@@ -287,10 +286,13 @@ class FrequencyWithinBlockTestResult(TestResult):
             alt.Chart(dist)
             .mark_area(opacity=0.3)
             .encode(
-                alt.X("x", axis=alt.Axis(title="Sum of count deviations")),
+                alt.X(
+                    "x:Q",
+                    axis=alt.Axis(title="Sum of count deviations"),
+                ),
                 alt.Y(
-                    "y",
-                    axis=alt.Axis(title="Probability density"),
+                    "y:Q",
+                    axis=alt.Axis(title=None),
                 ),
             )
             .properties(title="Proability density of accumulated count deviations")
