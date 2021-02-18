@@ -139,7 +139,7 @@ class MonobitTestResult(TestResult):
                     scale=alt.Scale(domain=(0, 1)),
                 ),
             )
-            .properties(title="Proability density of count differences")
+            .properties(title="Half normal distribution")
         )
         chart_stat = (
             alt.Chart(dist_stat)
@@ -292,10 +292,10 @@ class FrequencyWithinBlockTestResult(TestResult):
                 ),
                 alt.Y(
                     "y:Q",
-                    axis=alt.Axis(title=None),
+                    axis=alt.Axis(title="Probability density"),
                 ),
             )
-            .properties(title="Proability density of accumulated count deviations")
+            .properties(title=f"Chi-square distribution with {k} degrees of freedom")
         )
         chart_stat = (
             alt.Chart(dist_stat)
