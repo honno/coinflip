@@ -14,6 +14,7 @@ from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.testutils import slider
 from coinflip._randtests.common.typing import Face
 from coinflip._randtests.common.typing import Float
@@ -122,3 +123,6 @@ class ApproximateEntropyTestResult(TestResult):
         )
 
         return chart
+
+    def plot_refdist(self):
+        return plot_chi2_dist(self.statistic, 2 ** (self.blocksize - 1))

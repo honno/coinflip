@@ -26,6 +26,7 @@ from coinflip._randtests.common.result import SubTestResult
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import make_testvars_table
+from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.testutils import slider
@@ -336,3 +337,6 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         )
 
         return chart
+
+    def plot_refdist(self):
+        return plot_chi2_dist(self.statistic, len(self.tallies))
