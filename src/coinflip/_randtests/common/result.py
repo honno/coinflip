@@ -25,6 +25,7 @@ from rich.segment import Segment
 from rich.table import Table
 from rich.text import Text
 from scipy.stats import chi2
+from scipy.stats import halfnorm
 from typing_extensions import get_args
 
 from coinflip._randtests.common.core import make_failures_msg
@@ -40,6 +41,8 @@ __all__ = [
     "make_testvars_table",
     "make_chisquare_table",
     "smartround",
+    "plot_chi2_dist",
+    "plot_halfnorm_dist",
 ]
 
 
@@ -247,6 +250,44 @@ def smartround(num: Union[Integer, Float], ndigits=1) -> Union[int, float]:
             return int(num)
         else:
             return round(num, ndigits)
+
+
+def plot_halfnorm_dist(statistic: float, xtitle="Statistic"):
+    xlim = max(halfnorm.ppf(0.999), statistic)
+    x = np.linspace(0, xlim)
+    y = halfnorm.pdf(x)
+    x_stat = np.linspace(statistic, xlim)
+    y_stat = halfnorm.pdf(x_stat)
+
+    dist = pd.DataFrame({"x": x, "y": y})
+    dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
+
+    chart_dist = (
+        alt.Chart(dist)
+        .mark_area(opacity=0.3)
+        .encode(
+            alt.X(
+                "x",
+                axis=alt.Axis(title=xtitle),
+            ),
+            alt.Y(
+                "y",
+                axis=alt.Axis(title="Probability density"),
+            ),
+        )
+        .properties(title="Half normal distribution")
+    )
+    chart_stat = (
+        alt.Chart(dist_stat)
+        .mark_area()
+        .encode(
+            x="x",
+            y="y",
+        )
+    )
+    chart = chart_dist + chart_stat
+
+    return chart
 
 
 def plot_chi2_dist(statistic: float, k: int, xtitle="χ²"):

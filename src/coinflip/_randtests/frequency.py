@@ -8,16 +8,15 @@ from typing import List
 from typing import NamedTuple
 
 import altair as alt
-import numpy as np
 import pandas as pd
 from rich.text import Text
 from scipy.special import gammaincc
-from scipy.stats import halfnorm
 
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import plot_chi2_dist
+from coinflip._randtests.common.result import plot_halfnorm_dist
 from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.typing import Face
@@ -116,41 +115,9 @@ class MonobitTestResult(TestResult):
         return chart
 
     def plot_refdist(self):
-        xlim = max(4, self.statistic + 1)
-        x = np.linspace(0, xlim)
-        y = halfnorm.pdf(x)
-        x_stat = np.linspace(self.statistic, xlim)
-        y_stat = halfnorm.pdf(x_stat)
-
-        dist = pd.DataFrame({"x": x, "y": y})
-        dist_stat = pd.DataFrame({"x": x_stat, "y": y_stat})
-
-        chart_dist = (
-            alt.Chart(dist)
-            .mark_area(opacity=0.3)
-            .encode(
-                alt.X(
-                    "x", axis=alt.Axis(title="Difference between counts (normalised)")
-                ),
-                alt.Y(
-                    "y",
-                    axis=alt.Axis(title="Probability density"),
-                    scale=alt.Scale(domain=(0, 1)),
-                ),
-            )
-            .properties(title="Half normal distribution")
+        return plot_halfnorm_dist(
+            self.statistic, xtitle="Difference between counts (normalised)"
         )
-        chart_stat = (
-            alt.Chart(dist_stat)
-            .mark_area()
-            .encode(
-                x="x",
-                y="y",
-            )
-        )
-        chart = chart_dist + chart_stat
-
-        return chart
 
 
 # ------------------------------------------------------------------------------

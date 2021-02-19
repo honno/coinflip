@@ -12,6 +12,7 @@ from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import NonBinarySequenceError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_list
+from coinflip._randtests.common.result import plot_halfnorm_dist
 from coinflip._randtests.common.typing import Complex
 from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
@@ -123,3 +124,9 @@ class SpectralTestResult(TestResult):
         )
 
         return chart + line
+
+    def plot_refdist(self):
+        return plot_halfnorm_dist(
+            abs(self.statistic),
+            xtitle="Deviation from expected number of peaks (normalised)",
+        )
