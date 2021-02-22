@@ -16,8 +16,10 @@ from coinflip._randtests.common.collections import FloorDict
 from coinflip._randtests.common.core import *
 from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
+from coinflip._randtests.common.result import plot_halfnorm_dist
 from coinflip._randtests.common.testutils import rawblocks
 from coinflip._randtests.common.typing import Face
+from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
 
 __all__ = ["maurers_universal"]
@@ -145,8 +147,8 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
 
     statistic = distances_total / segment_nblocks
 
-    normdiff = abs((statistic - mean_expect) / (sqrt(2 * variance)))
-    p = erfc(normdiff)
+    normdiff = abs(statistic - mean_expect) / sqrt(variance)
+    p = erfc(normdiff / sqrt(2))
 
     advance_task(ctx)
 
@@ -159,6 +161,8 @@ def maurers_universal(series, heads, tails, ctx, blocksize=None, init_nblocks=No
         blocksize,
         init_nblocks,
         segment_nblocks,
+        mean_expect,
+        variance,
         permutation_last_init_pos,
         permutation_positions,
     )
@@ -169,6 +173,8 @@ class UniversalTestResult(TestResult):
     blocksize: Integer
     init_nblocks: Integer
     segment_nblocks: Integer
+    mean_expect: Float
+    variance: Float
     permutation_last_init_pos: DefaultDict[Tuple[Face, ...], Integer]
     permutation_positions: DefaultDict[Tuple[Face, ...], List[Integer]]
 
@@ -180,17 +186,11 @@ class UniversalTestResult(TestResult):
             ("segment nblocks", self.segment_nblocks),
         )
 
-        # TODO maybe use this table for a verbose option or something (it's huge)
-        # table = make_testvars_table("permutation", "init pos", "test positions", justify=False)
-        # for permutation, positions in self.permutation_positions.items():
-        #     f_permutation = pretty_subseq(permutation, self.heads, self.tails)
-
-        #     init_pos = self.permutation_last_init_pos[permutation]
-        #     f_init_pos = str(init_pos)
-
-        #     f_positions = ", ".join(str(pos) for pos in positions)
-
-        #     table.add_row(f_permutation, f_init_pos, f_positions)
+    def plot_refdist(self):
+        normdiff = abs(self.statistic - self.mean_expect) / sqrt(self.variance)
+        return plot_halfnorm_dist(
+            normdiff, xtitle="Deviation from expected mean log₂ distances (normalised)"
+        )
 
 
 def intclose(int1, int2, abs_tol=5):
