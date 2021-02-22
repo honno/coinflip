@@ -21,6 +21,7 @@ from coinflip._randtests.common.exceptions import TestNotImplementedError
 from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_chisquare_table
 from coinflip._randtests.common.result import plot_chi2_dist
+from coinflip._randtests.common.result import plot_halfnorm_dist
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.typing import Float
 from coinflip._randtests.common.typing import Integer
@@ -45,6 +46,7 @@ def runs(series, heads, tails, ctx):
     advance_task(ctx)
 
     nheads = counts[heads]
+    ntails = n - nheads
     prop_heads = nheads / n
     prop_tails = 1 - prop_heads
 
@@ -61,13 +63,37 @@ def runs(series, heads, tails, ctx):
 
     advance_task(ctx)
 
-    return RunsTestResult(heads, tails, failures, nruns, p)
+    return RunsTestResult(
+        heads,
+        tails,
+        failures,
+        nruns,
+        p,
+        n,
+        nheads,
+        ntails,
+        prop_heads,
+        prop_tails,
+    )
 
 
 @dataclass
 class RunsTestResult(TestResult):
+    n: Integer
+    nheads: Integer
+    ntails: Integer
+    prop_heads: Float
+    prop_tails: Float
+
     def _render(self):
         yield self._pretty_result("no. of runs")
+
+    def plot_refdist(self):
+        # TODO xtitle
+        return plot_halfnorm_dist(
+            abs(self.statistic - (2 * self.nheads * self.prop_tails))
+            / (2 * sqrt(self.n) * self.prop_heads * self.prop_tails)
+        )
 
 
 # ------------------------------------------------------------------------------
