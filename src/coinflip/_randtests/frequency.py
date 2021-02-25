@@ -1,6 +1,7 @@
 from collections import Counter
 from dataclasses import dataclass
 from functools import lru_cache
+from math import ceil
 from math import erfc
 from math import sqrt
 from operator import attrgetter
@@ -9,7 +10,6 @@ from typing import NamedTuple
 
 import altair as alt
 import pandas as pd
-from rich.text import Text
 from scipy.special import gammaincc
 
 from coinflip._randtests.common.core import *
@@ -17,7 +17,6 @@ from coinflip._randtests.common.result import TestResult
 from coinflip._randtests.common.result import make_testvars_table
 from coinflip._randtests.common.result import plot_chi2_dist
 from coinflip._randtests.common.result import plot_halfnorm_dist
-from coinflip._randtests.common.result import smartround
 from coinflip._randtests.common.testutils import blocks
 from coinflip._randtests.common.typing import Face
 from coinflip._randtests.common.typing import Integer
@@ -128,10 +127,15 @@ class MonobitTestResult(TestResult):
 def frequency_within_block(series, heads, tails, ctx, blocksize=None):
     n = len(series)
 
-    # TODO - smarter defaults
-    #      - meet 0.01 * n recommendation
+    # TODO SAT solver
     if not blocksize:
-        blocksize = 8
+        if n < 100:
+            blocksize = 8
+        else:
+            blocksize = max(ceil(0.01 * n), 20)
+            nblocks = n // blocksize
+            if nblocks >= 100 and n > 5000:
+                blocksize = n // 50
 
     nblocks = n // blocksize
 
@@ -196,25 +200,11 @@ class FrequencyWithinBlockTestResult(TestResult):
             ("blocksize", self.blocksize), ("nblocks", self.nblocks)
         )
 
-        title = Text.assemble("count of ", (str(self.heads), "bold"), " per block")
-
-        count_expect = self.blocksize / 2
-        f_count_expect = smartround(count_expect)
-        caption = f"expected count {f_count_expect}"
-
-        table = make_testvars_table("count", "nblocks", title=title, caption=caption)
-        for count in range(self.blocksize + 1):
-            nblocks = self.count_nblocks[count]
-            table.add_row(str(count), str(nblocks))
-
-        yield table
-
     def plot_count_nblocks(self):
-        counts = range(self.blocksize + 1)
         df = pd.DataFrame(
             {
-                "count": counts,
-                "nblocks": [self.count_nblocks[count] for count in counts],
+                "count": self.count_nblocks.keys(),
+                "nblocks": self.count_nblocks.values(),
             }
         )
 
@@ -223,12 +213,12 @@ class FrequencyWithinBlockTestResult(TestResult):
             .mark_bar()
             .encode(
                 alt.X(
-                    "count:O",
+                    "count:Q",
                     title=f"Count of {self.heads}",
+                    scale=alt.Scale(domain=(0, self.blocksize)),
                 ),
                 alt.Y(
-                    "nblocks:Q",
-                    title="Number of blocks",
+                    "nblocks:Q", title="Number of blocks", axis=alt.Axis(tickMinStep=1)
                 ),
             )
             .properties(title=f"Occurences of {self.heads} counts")
