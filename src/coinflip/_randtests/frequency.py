@@ -208,21 +208,44 @@ class FrequencyWithinBlockTestResult(TestResult):
             }
         )
 
-        chart = (
+        brush = alt.selection(type="interval", encodings=["x"])
+
+        base = (
             alt.Chart(df)
             .mark_bar()
             .encode(
+                x="count:Q",
+                y="nblocks:Q",
+            )
+        )
+        upper = base.encode(
+            alt.X(
+                "count:Q", title=f"Count of {self.heads}", scale=alt.Scale(domain=brush)
+            ),
+            alt.Y(
+                "nblocks:Q",
+                title="Number of blocks",
+                axis=alt.Axis(tickMinStep=1),
+            ),
+        ).properties(
+            title=f"Occurences of {self.heads} counts",
+        )
+        lower = (
+            base.encode(
                 alt.X(
                     "count:Q",
-                    title=f"Count of {self.heads}",
-                    scale=alt.Scale(domain=(0, self.blocksize)),
+                    scale=alt.Scale(
+                        domain=(0, self.blocksize),
+                        padding=0,
+                    ),
+                    title=None,
                 ),
-                alt.Y(
-                    "nblocks:Q", title="Number of blocks", axis=alt.Axis(tickMinStep=1)
-                ),
+                alt.Y("nblocks:Q", title=None),
             )
-            .properties(title=f"Occurences of {self.heads} counts")
+            .properties(height=50)
+            .add_selection(brush)
         )
+        chart = upper & lower
 
         return chart
 
