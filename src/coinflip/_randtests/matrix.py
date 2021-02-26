@@ -4,8 +4,11 @@ from dataclasses import fields
 from math import floor
 from math import sqrt
 from typing import Iterable
+from typing import List
 from typing import Tuple
 
+import altair as alt
+import pandas as pd
 from scipy.stats import chisquare
 from typing_extensions import Literal
 
@@ -22,9 +25,9 @@ __all__ = ["binary_matrix_rank", "matrix_rank"]
 
 @dataclass
 class RankCounts:
-    full: Integer = 0
-    runnerup: Integer = 0
     remaining: Integer = 0
+    runnerup: Integer = 0
+    full: Integer = 0
 
 
 @randtest(min_n=4)
@@ -61,9 +64,9 @@ def binary_matrix_rank(
 
     # TODO find expressive and performative calculation for constants
     expected_rankcounts = RankCounts(
-        full=0.2888 * nblocks,
-        runnerup=0.5776 * nblocks,
         remaining=0.1336 * nblocks,
+        runnerup=0.5776 * nblocks,
+        full=0.2888 * nblocks,
     )
 
     rankable_series = series.map({heads: 1, tails: 0})
@@ -117,6 +120,17 @@ class BinaryMatrixRankTestResult(TestResult):
     expected_rankcounts: RankCounts
     rankcounts: RankCounts
 
+    def _fmt_rank_ranges(self) -> List[str]:
+        runnerup = self.fullrank - 1
+        remaining = runnerup - 1
+        f_ranks = [
+            "0" if remaining == 0 else f"0-{remaining}",
+            str(runnerup),
+            str(self.fullrank),
+        ]
+
+        return f_ranks
+
     def _render(self):
         yield self._pretty_result("chi-square")
 
@@ -125,13 +139,7 @@ class BinaryMatrixRankTestResult(TestResult):
             ("ncols", self.ncols),
         )
 
-        runnerup = self.fullrank - 1
-        remaining = runnerup - 1
-        f_ranks = [
-            str(self.fullrank),
-            str(runnerup),
-            "0" if remaining == 0 else f"0-{remaining}",
-        ]
+        f_ranks = self._fmt_rank_ranges()
 
         table = make_chisquare_table(
             "rank of matrix",
@@ -142,6 +150,39 @@ class BinaryMatrixRankTestResult(TestResult):
         )
 
         yield table
+
+    def plot_rank_counts(self):
+        df = pd.DataFrame(
+            {
+                "rank_range": self._fmt_rank_ranges(),
+                "expected": astuple(self.expected_rankcounts),
+                "observed": astuple(self.rankcounts),
+            }
+        )
+        df = df.melt("rank_range", var_name="type", value_name="nblocks")
+
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                alt.X(
+                    "rank_range:O",
+                    title="Matrix rank",
+                ),
+                alt.Y(
+                    "nblocks:Q",
+                    title="Number of blocks",
+                    axis=alt.Axis(tickMinStep=1),
+                ),
+                column=alt.Column(
+                    "type:N",
+                    title=None,
+                ),
+            )
+            .properties(title="Matrix rank per block")
+        )
+
+        return chart
 
     def plot_refdist(self):
         return plot_chi2_dist(self.statistic, len(fields(self.rankcounts)))

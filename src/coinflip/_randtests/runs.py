@@ -235,9 +235,14 @@ class LongestRunsTestResult(TestResult):
             alt.Chart(df)
             .mark_bar()
             .encode(
-                alt.X("maxlen_range", title="Longest run"),
+                alt.X(
+                    "maxlen_range",
+                    title="Longest run",
+                ),
                 alt.Y(
-                    "nblocks:Q", title="Number of blocks", axis=alt.Axis(tickMinStep=1)
+                    "nblocks:Q",
+                    title="Number of blocks",
+                    axis=alt.Axis(tickMinStep=1),
                 ),
                 column=alt.Column(
                     "type:N",
