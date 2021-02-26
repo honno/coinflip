@@ -181,16 +181,22 @@ class NonOverlappingTemplateMatchingMultiTestResult(MultiTestResult):
 # Overlapping Template Matching Test
 
 
-matches_ceil = 5
-
-
-# TODO Review paper "Correction of Overlapping Template Matching Test Included in
-#                    NIST Randomness Test Suite"
+# TODO Review paper "Correction of OTM Test Included in the NIST Randomness Test Suite"
 @randtest()  # TODO appropiate min input
 def overlapping_template_matching(
-    series, heads, tails, ctx, template_size=None, blocksize=None, df=5
+    series,
+    heads,
+    tails,
+    ctx,
+    template_size=None,
+    blocksize=None,
+    matches_ceil=None,
 ):
     n = len(series)
+
+    if matches_ceil is None:
+        matches_ceil = 5
+    df = matches_ceil  # there are matches_ceil + 1 independent scores
 
     if not blocksize:
         blocksize = floor(sqrt(n))
@@ -213,19 +219,19 @@ def overlapping_template_matching(
 
     set_task_total(ctx, 1 + nblocks + 2)
 
+    expected_tallies = [prob * nblocks for prob in probabilities]
+
     failures = check_recommendations(
         ctx,
         {
             "n ≥ 288": n >= 288,
             "n ≥ nblocks * blocksize": n >= nblocks * blocksize,
-            "nblocks * min(probabilities) > df": nblocks * min(probabilities) > df,
+            "min(expected_tallies) > df": min(expected_tallies) > df,
             "λ ≈ 2": isclose(lambda_, 2),
             "len(template) ≈ log2(nblocks)": isclose(template_size, log2(nblocks)),
             "df ≈ 2 * λ": isclose(template_size, 2 * lambda_),
         },
     )
-
-    expected_tallies = [prob * nblocks for prob in probabilities]
 
     advance_task(ctx)
 
@@ -260,7 +266,9 @@ def overlapping_template_matching(
         p,
         template_size,
         blocksize,
+        matches_ceil,
         nblocks,
+        lambda_,
         template,
         expected_tallies,
         tallies,
@@ -271,13 +279,15 @@ def overlapping_template_matching(
 class OverlappingTemplateMatchingTestResult(TestResult):
     template_size: Integer
     blocksize: Integer
+    matches_ceil: Integer
     nblocks: Integer
+    lambda_: Float
     template: Tuple[Face, ...]
     expected_tallies: List[Integer]
     tallies: List[Integer]
 
     def _fmt_matches(self):
-        f_matches = [str(x) for x in range(matches_ceil + 1)]
+        f_matches = [str(x) for x in range(self.matches_ceil + 1)]
         f_matches[-1] = f"{f_matches[-1]}+"
 
         return f_matches
@@ -339,4 +349,4 @@ class OverlappingTemplateMatchingTestResult(TestResult):
         return chart
 
     def plot_refdist(self):
-        return plot_chi2_dist(self.statistic, len(self.tallies))
+        return plot_chi2_dist(self.statistic, self.matches_ceil)

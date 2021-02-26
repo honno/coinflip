@@ -225,7 +225,10 @@ def non_overlapping_template_matching(
 
 
 def overlapping_template_matching(
-    sequence, template_size: Optional[int] = None, blocksize: Optional[int] = None
+    sequence,
+    template_size: Optional[int] = None,
+    blocksize: Optional[int] = None,
+    matches_ceil: Optional[int] = None,
 ):
     """Overlapping matches to template per block is compared to expected result
 
@@ -241,6 +244,8 @@ def overlapping_template_matching(
         Size of the template to be generated
     blocksize : ``int``
         Size of the blocks that partition the given sequence
+    matches_ceil : ``int``
+        Group matches of this value and higher as one single tally
 
     Returns
     -------
@@ -252,6 +257,7 @@ def overlapping_template_matching(
         sequence,
         template_size=template_size,
         blocksize=blocksize,
+        matches_ceil=matches_ceil,
     )
 
 
